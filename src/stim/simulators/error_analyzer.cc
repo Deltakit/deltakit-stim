@@ -965,6 +965,9 @@ void ErrorAnalyzer::undo_LEAKAGE(const CircuitInstruction &dat) {
 
     for (auto q : dat.targets) {
         tracker.l_data[q.data].rev_pL_decrementer -= dat.args[0];
+        if (tracker.l_data[q.data].rev_pL_decrementer < 0) {
+            tracker.l_data[q.data].rev_pL_decrementer = 0;
+        }
     }
 }
 
@@ -1779,7 +1782,7 @@ void ErrorAnalyzer::add_error_combinations(
         if (exclude_errors_solely_made_up_of_final_basis_error) { 
             const auto& targets = basis_errors[s - 1];
             auto is_in_targets = [targets](const stim::DemTarget& t) {
-                return std::ranges::any_of(targets, [targets, &t](const auto& t_base) {
+                return std::ranges::any_of(targets, [&t](const auto& t_base) {
                     return t_base == t;
                 });
             };
