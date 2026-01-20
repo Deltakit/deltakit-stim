@@ -19,6 +19,8 @@ Whenever using [`hatch`](https://hatch.pypa.io/latest/), [`uv`](https://docs.ast
 
 to the list of `dependencies`.
 
+[!WARNING]
+There is a known issue when both `stim` and `lestim` are installed in the same Python runtime. This is currently under investigation but the recommendation is not to install both.
 
 ## Citation
 
@@ -39,7 +41,7 @@ For any reference to Stim, please consider using the citation:
 }
 ```
 
-# Build Wheels for Internal PyPI Release
+## Build Wheels for Internal PyPI Release
 
 * Branch out of default branch for your feature branch.
 * Bump version in `setup.py`.
