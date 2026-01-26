@@ -49,13 +49,11 @@ constexpr uint8_t ARG_COUNT_SYGIL_ANY = uint8_t{0xFF};
 constexpr uint8_t ARG_COUNT_SYGIL_ZERO_OR_ONE = uint8_t{0xFE};
 
 /// Used for gates' argument count to indicate that a gate takes 0 parens arguments or 2
-/// parens argument. This is relevant to gates where leakage transport is possible. In
-/// this case 0 parens arguments means no leakage transport while 4 arguments offer
-/// the possibility to specify both leakage spreading asymmetrically and asymmetric leakage
-/// mobility as separate probabilities
+/// parens argument. This is relevant to gates where leakage transport is possible.
 constexpr uint8_t ARG_COUNT_SYGIL_ZERO_OR_FOUR = uint8_t{0xFD};
 
-
+/// Used for gates' argument count to indicate that a gate takes 0, 4, or 5 parens arguments.
+constexpr uint8_t ARG_COUNT_SYGIL_ZERO_OR_FOUR_OR_FIVE = uint8_t{0xFC};
 
 constexpr inline uint16_t gate_name_to_hash(std::string_view text) {
     // HACK: A collision is considered to be an error.
@@ -218,6 +216,8 @@ enum GateFlags : uint32_t {
     // Whether or not the gate can transport leakage from one qubit to another, be it through leakage
     // spreading or leakage mobility
     GATE_TRANSPORTS_LEAKAGE = 1 << 16,
+    // Whether or not the last argument is an opcode (e.g. to apply the bit-and-phase flip leakage model)
+    GATE_LAST_ARG_IS_OPCODE = 1 << 17,
 };
 
 struct Gate {

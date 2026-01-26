@@ -25,7 +25,7 @@ void GateDataMap::add_gate_data_pp(bool &failed) {
             .name = "SQRT_XX",
             .id = GateType::SQRT_XX,
             .best_candidate_inverse_id = GateType::SQRT_XX_DAG,
-            .arg_count = ARG_COUNT_SYGIL_ZERO_OR_FOUR,
+            .arg_count = ARG_COUNT_SYGIL_ZERO_OR_FOUR_OR_FIVE,
             .flags = (GateFlags)(GATE_IS_UNITARY | GATE_TARGETS_PAIRS | GATE_IS_NOISY | GATE_TRANSPORTS_LEAKAGE),
             .category = "C_Two Qubit Clifford Gates",
             .help = R"MARKDOWN(
@@ -84,7 +84,7 @@ H 1
             .name = "SQRT_XX_DAG",
             .id = GateType::SQRT_XX_DAG,
             .best_candidate_inverse_id = GateType::SQRT_XX,
-            .arg_count = ARG_COUNT_SYGIL_ZERO_OR_FOUR,
+            .arg_count = ARG_COUNT_SYGIL_ZERO_OR_FOUR_OR_FIVE,
             .flags = (GateFlags)(GATE_IS_UNITARY | GATE_TARGETS_PAIRS | GATE_IS_NOISY | GATE_TRANSPORTS_LEAKAGE),
             .category = "C_Two Qubit Clifford Gates",
             .help = R"MARKDOWN(

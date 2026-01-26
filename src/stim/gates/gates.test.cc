@@ -305,3 +305,18 @@ TEST(gate_data, to_euler_angles_axis_reference) {
         }
     }
 }
+
+TEST(gates, opcode_supporting_gates) {
+    for (const auto &g : GATE_DATA.items) {
+        if (!(g.flags & GATE_LAST_ARG_IS_OPCODE)) {
+            continue;
+        }
+        // Test that gate has correct properties for new leakage model
+        ASSERT_EQ(g.arg_count, ARG_COUNT_SYGIL_ZERO_OR_FOUR_OR_FIVE);
+        // Test basic parsing works for all argument patterns
+        ASSERT_NO_THROW({ Circuit(std::string(g.name) + " 0 1"); });
+        ASSERT_NO_THROW({ Circuit(std::string(g.name) + "(0.1, 0.2, 0.3, 0.4) 0 1"); });
+        ASSERT_NO_THROW({ Circuit(std::string(g.name) + "(0.1, 0.2, 0.3, 0.4, 0) 0 1"); });
+        ASSERT_NO_THROW({ Circuit(std::string(g.name) + "(0.1, 0.2, 0.3, 0.4, 1) 0 1"); });
+    }
+}

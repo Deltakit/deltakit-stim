@@ -1775,3 +1775,32 @@ TEST(circuit, generate_test_circuit_with_all_operations) {
     }
     ASSERT_EQ(seen.size(), NUM_DEFINED_GATES);
 }
+
+TEST(circuit, leakage_opcode_parsing_and_validation) {
+    for (const auto &g : GATE_DATA.items) {
+        if (!(g.flags & GATE_LAST_ARG_IS_OPCODE)) {
+            continue;
+        }
+
+        // Test argument count validation
+        ASSERT_THROW({ Circuit(std::string(g.name) + "(0.1) 0 1"); }, std::invalid_argument);
+        ASSERT_THROW({ Circuit(std::string(g.name) + "(0.1, 0.2, 0.3) 0 1"); }, std::invalid_argument);
+        // Test opcode validation
+        ASSERT_THROW({ Circuit(std::string(g.name) + "(0.1, 0.2, 0.3, 0.4, -1) 0 1"); }, std::invalid_argument);
+        ASSERT_THROW({ Circuit(std::string(g.name) + "(0.1, 0.2, 0.3, 0.4, 3.14) 0 1"); }, std::invalid_argument);
+
+        // Test round-trip parsing preserves different opcode values
+        std::vector<int> test_opcodes = {0, 1, 42, 999};
+        for (int opcode : test_opcodes) {
+            Circuit original(std::string(g.name) + "(0.1, 0.2, 0.3, 0.4, " + std::to_string(opcode) + ") 0 1");
+            Circuit reparsed(original.str());
+            ASSERT_EQ(reparsed.operations[0].args.size(), 5)
+                << "Failed for gate: " << std::string(g.name) << ", opcode: " << opcode;
+            ASSERT_EQ(reparsed.operations[0].args[4], opcode)
+                << "Failed for gate: " << std::string(g.name) << ", opcode: " << opcode;
+        }
+        // Test basic parsing works (no probability validation in main)
+        ASSERT_NO_THROW({ Circuit(std::string(g.name) + "(0.9, 0.9, 0.9, 0.9) 0 1"); });
+        ASSERT_NO_THROW({ Circuit(std::string(g.name) + "(1.5, 0.2, 0.3, 0.4) 0 1"); });
+    }
+}
