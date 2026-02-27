@@ -24,6 +24,7 @@
 #include <array>
 #include <string>
 #include <vector>
+#include <iostream>
 #include "stim/gates/gates.h"
 
 using namespace stim;
@@ -212,6 +213,30 @@ Circuit generate_leakage_circuit_with_two_qubit_gate(const std::string &two_qubi
     return Circuit(circuit.c_str());
 }
 
+Circuit generate_leakage_circuit_with_depolarizing_model(const std::string &two_qubit_gate) {
+    // SQRT_XX gates take 0 or 4 parameters, CX/CY/CZ take 0 or 5 parameters
+    std::string params;
+    if (two_qubit_gate.find("SQRT_XX") == 0) {
+        params = "(0.05, 0.0, 0.0, 0.0)";
+    } else {
+        params = "(0.05, 0.0, 0.0, 0.0, 0)";
+    }
+    const std::string circuit = "LEAKAGE(0.1) 0 1 2 3 4 5 6 7 8 9 10 11\n" + two_qubit_gate + params + " 0 1 2 3 4 5 6 7 8 9 10 11";
+    return Circuit(circuit.c_str());
+}
+
+Circuit generate_leakage_circuit_with_bit_and_phase_flip_model(const std::string &two_qubit_gate) {
+    // SQRT_XX gates take 0 or 4 parameters, CX/CY/CZ take 0 or 5 parameters
+    std::string params;
+    if (two_qubit_gate.find("SQRT_XX") == 0) {
+        params = "(0.05, 0.0, 0.0, 0.0)";
+    } else {
+        params = "(0.05, 0.0, 0.0, 0.0, 1)"; 
+    }
+    const std::string circuit = "LEAKAGE(0.1) 0 1 2 3 4 5 6 7 8 9 10 11\n" + two_qubit_gate + params + " 0 1 2 3 4 5 6 7 8 9 10 11";
+    return Circuit(circuit.c_str());
+}
+
 TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, leaked_qubits_depolarise_qubits_when_they_interact, {
     for (const auto &gate : leakage_transporting_gate_names()) {
         SCOPED_TRACE(std::string("gate=") + gate);
@@ -239,6 +264,89 @@ TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, leaked_qubits_depolarise_qubits_whe
             }
             EXPECT_NEAR(n * 0.5 * 0.1, x_flips_given_gate, n * 0.5 * 0.05);
             EXPECT_NEAR(n * 0.5 * 0.1, z_flips_given_gate, n * 0.5 * 0.05);
+        }
+    }
+})
+
+TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, bit_and_phase_flip_vs_depolarizing_models, {
+    for (const auto &gate : leakage_transporting_gate_names()) {
+        SCOPED_TRACE(std::string("gate=") + gate);
+        
+        const size_t n = 10'000;
+        
+        // Test depolarizing model for all leakage gates
+        {
+            const auto circuit = generate_leakage_circuit_with_depolarizing_model(gate);
+            const auto circuit_stats = circuit.compute_stats();
+            FrameSimulator<W> frame_sim(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, 0, INDEPENDENT_TEST_RNG());
+            frame_sim.configure_for(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, n);
+            frame_sim.do_LEAKAGE(circuit.operations[0]);
+            
+            frame_sim.x_table.clear();
+            frame_sim.z_table.clear();
+            
+            auto x_table = frame_sim.x_table;
+            auto z_table = frame_sim.z_table;
+            frame_sim.do_gate(circuit.operations[1]);
+
+            for (size_t q = 0; q < circuit_stats.num_qubits; ++q) {
+                size_t x_flips_given_gate = 0, z_flips_given_gate = 0;
+                for (size_t shot = 0; shot < n; ++shot) {
+                    x_flips_given_gate += x_table[q][shot] != frame_sim.x_table[q][shot];
+                    z_flips_given_gate += z_table[q][shot] != frame_sim.z_table[q][shot];
+                }
+                
+                // All gates should have depolarizing behavior
+                EXPECT_NEAR(n * 0.5 * 0.1, x_flips_given_gate, n * 0.5 * 0.05);
+                EXPECT_NEAR(n * 0.5 * 0.1, z_flips_given_gate, n * 0.5 * 0.05);
+            }
+        }
+        
+        // Test bit-and-phase flip model for CX, CY, CZ
+        if (GATE_DATA.at(gate).flags & GATE_LAST_ARG_IS_OPCODE) {
+            const auto circuit = generate_leakage_circuit_with_bit_and_phase_flip_model(gate);
+            const auto circuit_stats = circuit.compute_stats();
+            FrameSimulator<W> frame_sim(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, 0, INDEPENDENT_TEST_RNG());
+            frame_sim.configure_for(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, n);
+            frame_sim.do_LEAKAGE(circuit.operations[0]);
+            
+            frame_sim.x_table.clear();
+            frame_sim.z_table.clear();
+            
+            auto x_table = frame_sim.x_table;
+            auto z_table = frame_sim.z_table;
+            frame_sim.do_gate(circuit.operations[1]);
+
+            const auto &gate_targets = circuit.operations[1].targets;
+            for (size_t k = 0; k < gate_targets.size(); k += 2) {
+                uint32_t control_qubit = gate_targets[k].value();
+                uint32_t target_qubit = gate_targets[k + 1].value();
+                
+                size_t control_x_flips = 0, control_z_flips = 0;
+                size_t target_x_flips = 0, target_z_flips = 0;
+                for (size_t shot = 0; shot < n; ++shot) {
+                    control_x_flips += x_table[control_qubit][shot] != frame_sim.x_table[control_qubit][shot];
+                    control_z_flips += z_table[control_qubit][shot] != frame_sim.z_table[control_qubit][shot];
+                    target_x_flips += x_table[target_qubit][shot] != frame_sim.x_table[target_qubit][shot];
+                    target_z_flips += z_table[target_qubit][shot] != frame_sim.z_table[target_qubit][shot];
+                }
+                
+                // Control qubit always has Z errors
+                EXPECT_LT(control_x_flips, n * 0.01);
+                EXPECT_NEAR(n * 0.05, control_z_flips, n * 0.01);
+                
+                // Target qubits have errors that are gate-dependent
+                if (gate == "CY") {
+                    EXPECT_NEAR(n * 0.05, target_x_flips, n * 0.01);
+                    EXPECT_NEAR(n * 0.05, target_z_flips, n * 0.01);
+                } else if (gate == "CX") {
+                    EXPECT_NEAR(n * 0.05, target_x_flips, n * 0.01);
+                    EXPECT_LT(target_z_flips, n * 0.01);
+                } else if (gate == "CZ") {
+                    EXPECT_LT(target_x_flips, n * 0.01);
+                    EXPECT_NEAR(n * 0.05, target_z_flips, n * 0.01);
+                }
+            }
         }
     }
 })
