@@ -46,3 +46,9 @@ node_modules
 # Project specific
 # Ignore Emacs backup files.
 *~
+
+# Sphinx documentation
+docs/_build/
+
+# mac
+.DS_Store
