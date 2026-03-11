@@ -14,6 +14,7 @@
 
 import numpy as np
 import pytest
+<<<<<<< HEAD
 import lestim
 
 
@@ -63,18 +64,76 @@ def test_multiplication():
 def test_random():
     c1 = lestim.CliffordString.random(128)
     c2 = lestim.CliffordString.random(128)
+=======
+import stim
+
+
+def test_trivial():
+    p = stim.CliffordString(3)
+    assert repr(p) == 'stim.CliffordString("I,I,I")'
+    assert len(p) == 3
+    assert p[1:] == stim.CliffordString(2)
+    assert p[0] == stim.gate_data('I')
+
+
+def test_simple():
+    assert stim.CliffordString("X,Y,Z,H,SQRT_X,C_XYZ,H_NXZ") == stim.CliffordString("  X  ,   Y  ,  Z  , H_XZ , SQRT_X,C_XYZ,H_NXZ,   ")
+    p = stim.CliffordString("X,Y,Z,H,SQRT_X,C_XYZ,H_NXZ")
+    assert repr(p) == 'stim.CliffordString("X,Y,Z,H,SQRT_X,C_XYZ,H_NXZ")'
+    assert str(p) == 'X,Y,Z,H,SQRT_X,C_XYZ,H_NXZ'
+    assert len(p) == 7
+    assert p != stim.CliffordString("Y,Y,Z,H,SQRT_X,C_XYZ,H_NXZ")
+    assert not (p != stim.CliffordString("X,Y,Z,H,SQRT_X,C_XYZ,H_NXZ"))
+    assert not (p == stim.CliffordString("Y,Y,Z,H,SQRT_X,C_XYZ,H_NXZ"))
+    assert p[1::2] == stim.CliffordString("Y,H,C_XYZ")
+
+    assert stim.CliffordString(6) == stim.CliffordString("I,I,I,I,I,I")
+
+    assert stim.CliffordString(stim.PauliString("XYZ_XYZ")) == stim.CliffordString("X,Y,Z,I,X,Y,Z")
+
+    v = stim.CliffordString("X,Y,H")
+    v2 = stim.CliffordString(v)
+    assert v == v2
+    assert v is not v2
+
+    assert stim.CliffordString(['X', 'Y', 'Z', stim.gate_data('H'), 'S']) == stim.CliffordString('X,Y,Z,H,S')
+
+
+def test_multiplication():
+    a = stim.CliffordString("Z,H,S,C_XYZ")
+    b = stim.CliffordString("S,Z,S,C_XYZ,I")
+    assert a * b == stim.CliffordString("S_DAG,SQRT_Y,Z,C_ZYX,I")
+    a *= b
+    assert a == stim.CliffordString("S_DAG,SQRT_Y,Z,C_ZYX,I")
+
+    assert stim.CliffordString("X") * stim.CliffordString("H") == stim.CliffordString("H") * stim.CliffordString("Z")
+    assert stim.CliffordString("X") * stim.CliffordString("H") != stim.CliffordString("Z") * stim.CliffordString("H")
+    assert stim.CliffordString("X") * stim.CliffordString("H") == stim.CliffordString("SQRT_Y")
+
+
+def test_random():
+    c1 = stim.CliffordString.random(128)
+    c2 = stim.CliffordString.random(128)
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
     assert len(c1) == len(c2) == 128
     assert c1 != c2
 
 
 def test_set_item():
+<<<<<<< HEAD
     c = lestim.CliffordString(5)
     c[1] = "H"
     assert c == lestim.CliffordString("I,H,I,I,I")
+=======
+    c = stim.CliffordString(5)
+    c[1] = "H"
+    assert c == stim.CliffordString("I,H,I,I,I")
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
     with pytest.raises(ValueError, match="index"):
         c[2:3] = None
     with pytest.raises(ValueError, match="index"):
         c[2] = None
+<<<<<<< HEAD
     c[2:4] = lestim.CliffordString("X,Y")
     assert c == lestim.CliffordString("I,H,X,Y,I")
     c[::2] = lestim.CliffordString("S,Z,S_DAG")
@@ -99,6 +158,32 @@ def all_cliffords_string_from_gate_data():
     c = lestim.CliffordString(24)
     r = 0
     for g in lestim.gate_data().values():
+=======
+    c[2:4] = stim.CliffordString("X,Y")
+    assert c == stim.CliffordString("I,H,X,Y,I")
+    c[::2] = stim.CliffordString("S,Z,S_DAG")
+    assert c == stim.CliffordString("S,H,Z,Y,S_DAG")
+    c[:] = 'H'
+    assert c == stim.CliffordString("H,H,H,H,H")
+    c[:-2] = stim.gate_data('S')
+    assert c == stim.CliffordString("S,S,S,H,H")
+    c[0] = stim.gate_data('X')
+    assert c == stim.CliffordString("X,S,S,H,H")
+
+    with pytest.raises(ValueError, match="object of type"):
+        c[0] = stim.CliffordString("Y")
+    with pytest.raises(ValueError, match="Length mismatch"):
+        c[:2] = stim.CliffordString("Y")
+    assert c == stim.CliffordString("X,S,S,H,H")
+    c[:2] = stim.CliffordString("Y,Y")
+    assert c == stim.CliffordString("Y,Y,S,H,H")
+
+
+def all_cliffords_string_from_gate_data():
+    c = stim.CliffordString(24)
+    r = 0
+    for g in stim.gate_data().values():
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
         if g.is_unitary and g.is_single_qubit_gate:
             c[r] = g
             r += 1
@@ -106,8 +191,13 @@ def all_cliffords_string_from_gate_data():
 
 
 def test_x_outputs():
+<<<<<<< HEAD
     paulis, signs = lestim.CliffordString("I,X,Y,Z,H,S,S_DAG,C_XYZ,C_ZYX,SQRT_X,SQRT_X_DAG").x_outputs()
     assert paulis == lestim.PauliString("XXXXZYYYZXX")
+=======
+    paulis, signs = stim.CliffordString("I,X,Y,Z,H,S,S_DAG,C_XYZ,C_ZYX,SQRT_X,SQRT_X_DAG").x_outputs()
+    assert paulis == stim.PauliString("XXXXZYYYZXX")
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
     np.testing.assert_array_equal(signs, [0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0])
 
     c = all_cliffords_string_from_gate_data()
@@ -119,8 +209,13 @@ def test_x_outputs():
 
 
 def test_y_outputs():
+<<<<<<< HEAD
     paulis, signs = lestim.CliffordString("I,X,Y,Z,H,S,S_DAG,C_XYZ,C_ZYX,SQRT_X,SQRT_X_DAG").y_outputs()
     assert paulis == lestim.PauliString("YYYYYXXZXZZ")
+=======
+    paulis, signs = stim.CliffordString("I,X,Y,Z,H,S,S_DAG,C_XYZ,C_ZYX,SQRT_X,SQRT_X_DAG").y_outputs()
+    assert paulis == stim.PauliString("YYYYYXXZXZZ")
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
     np.testing.assert_array_equal(signs, [0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1])
 
     c = all_cliffords_string_from_gate_data()
@@ -132,8 +227,13 @@ def test_y_outputs():
 
 
 def test_z_outputs():
+<<<<<<< HEAD
     paulis, signs = lestim.CliffordString("I,X,Y,Z,H,S,S_DAG,C_XYZ,C_ZYX,SQRT_X,SQRT_X_DAG").z_outputs()
     assert paulis == lestim.PauliString("ZZZZXZZXYYY")
+=======
+    paulis, signs = stim.CliffordString("I,X,Y,Z,H,S,S_DAG,C_XYZ,C_ZYX,SQRT_X,SQRT_X_DAG").z_outputs()
+    assert paulis == stim.PauliString("ZZZZXZZXYYY")
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
     np.testing.assert_array_equal(signs, [0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0])
 
     c = all_cliffords_string_from_gate_data()
@@ -145,6 +245,10 @@ def test_z_outputs():
 
 
 def test_all_cliffords_string():
+<<<<<<< HEAD
     c = lestim.CliffordString.all_cliffords_string()
+=======
+    c = stim.CliffordString.all_cliffords_string()
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
     assert len(c) == 24
     assert set(e.name for e in all_cliffords_string_from_gate_data()) == set(e.name for e in c)

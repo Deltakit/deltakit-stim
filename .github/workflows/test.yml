@@ -15,8 +15,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+<<<<<<< HEAD
   cpp_unit_tests:
     name: Run LeStim C++ unit tests
+=======
+  unit_tests:
+    name: Run unit tests
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
@@ -24,6 +29,7 @@ jobs:
     steps:
       - name: Check out main code
         uses: actions/checkout@v5
+<<<<<<< HEAD
       - name: Set up Bazel
         uses: bazel-contrib/setup-bazel@0.18.0
         with:
@@ -64,3 +70,9 @@ jobs:
       #     uv run --python 3.13 --no-sync pytest src/stim/simulators/frame_simulator_pybind_test.py
       #     uv run --python 3.13 --no-sync pytest src/stim/stabilizers/tableau_pybind_test.py
       #     uv run --python 3.13 --no-sync pytest src/stim/util_top/export_qasm_pybind_test.py
+=======
+      - name: Set up Bazelisk
+        uses: bazelbuild/setup-bazelisk@v3
+      - name: Build and run unit tests
+        run: bazel run //:stim_test
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))

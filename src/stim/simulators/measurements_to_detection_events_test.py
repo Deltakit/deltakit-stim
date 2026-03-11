@@ -16,7 +16,11 @@ import tempfile
 import numpy as np
 import pytest
 import pickle
+<<<<<<< HEAD
 import lestim
+=======
+import stim
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
 
 
 def test_convert_file_without_sweep_bits():
@@ -301,7 +305,11 @@ def test_anticommuting_pieces_combining_into_deterministic_observable():
 
 
 def test_converter_pickle():
+<<<<<<< HEAD
     converter = lestim.Circuit('''
+=======
+    converter = stim.Circuit('''
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
        X_ERROR(0.1) 0
        X 0
        CNOT sweep[0] 0

@@ -1,5 +1,9 @@
 import pytest
+<<<<<<< HEAD
 import lestim
+=======
+import stim
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
 
 
 def test_inv_circuit():
@@ -155,25 +159,41 @@ def test_measurement_ordering_3():
 
 
 def test_feedback():
+<<<<<<< HEAD
     c = lestim.Circuit("""
+=======
+    c = stim.Circuit("""
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
         R 1
         M 1
         CX rec[-1] 0
     """)
     with pytest.raises(ValueError):
+<<<<<<< HEAD
         c.time_reversed_for_flows([lestim.Flow("Z0 -> Z0")])
+=======
+        c.time_reversed_for_flows([stim.Flow("Z0 -> Z0")])
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
         # TODO: once feedback is supported verify the inv flow is correct
 
 
 def test_obs_include_paulis():
+<<<<<<< HEAD
     c = lestim.Circuit("""
+=======
+    c = stim.Circuit("""
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
         RX 0
         OBSERVABLE_INCLUDE[test1](2) X0
         OBSERVABLE_INCLUDE[test2](3) Y1
         MY 1
         OBSERVABLE_INCLUDE(3) rec[-1]
     """)
+<<<<<<< HEAD
     assert c.time_reversed_for_flows([]) == (lestim.Circuit("""
+=======
+    assert c.time_reversed_for_flows([]) == (stim.Circuit("""
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
         RY 1
         OBSERVABLE_INCLUDE[test2](3) Y1
         OBSERVABLE_INCLUDE[test1](2) X0

@@ -38,6 +38,17 @@ def _forward_single_str_tag(op: cirq.CircuitOperation) -> str:
         return tags[0]
     return ""
 
+from ._i_error_gate import IErrorGate
+from ._ii_error_gate import IIErrorGate
+from ._ii_gate import IIGate
+
+
+def _forward_single_str_tag(op: cirq.CircuitOperation) -> str:
+    tags = [tag for tag in op.tags if isinstance(tag, str)]
+    if len(tags) == 1:
+        return tags[0]
+    return ""
+
 
 def cirq_circuit_to_stim_circuit(
     circuit: cirq.AbstractCircuit,
@@ -163,6 +174,7 @@ def cirq_circuit_to_stim_data(
 
 
 StimTypeHandler = Callable[[stim.Circuit, cirq.Gate, List[int], str], None]
+<<<<<<< HEAD
 StimOpTypeHandler = Callable[[stim.Circuit, cirq.Operation, List[int], str, List[Tuple[str, int]]], None]
 
 
@@ -215,6 +227,8 @@ def _stim_append_classically_controlled_gate(
                 f" in an earlier moment (or earlier in the same moment's operation order)."
             )
         circuit.append(f"C{stim_gate}", [rec_target, targets[0]], tag=tag)
+=======
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
 
 
 @functools.lru_cache(maxsize=1)
@@ -585,11 +599,14 @@ class CirqToStimHelper:
             type_append_func = tg2f.get(type(gate))
             if type_append_func is not None:
                 type_append_func(self.out, gate, targets, tag=tag)
+<<<<<<< HEAD
                 continue
 
             op_type_append_func = to2f.get(type(op))
             if op_type_append_func is not None:
                 op_type_append_func(self.out, op, targets, tag, self.key_out)
+=======
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
                 continue
 
             # Ask unrecognized operations to decompose themselves into simpler operations.

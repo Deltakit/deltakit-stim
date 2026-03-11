@@ -1,4 +1,5 @@
 from sinter._decoding._decoding_decoder_class import Decoder, CompiledDecoder
+<<<<<<< HEAD
 
 
 def check_pymatching_version_for_correlated_decoding(pymatching):
@@ -17,6 +18,8 @@ def check_pymatching_version_for_correlated_decoding(pymatching):
             "To fix this, install a newer version of pymatching into your environment.\n"
             "For example, if you are using pip, run `pip install pymatching --upgrade`.\n"
         )
+=======
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
 
 
 class PyMatchingCompiledDecoder(CompiledDecoder):

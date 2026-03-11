@@ -52,6 +52,7 @@ stim.GateData {
 
 
 def test_num_parens_arguments_range():
+<<<<<<< HEAD
     assert lestim.gate_data('H').num_parens_arguments_range == range(0, 1)
     assert lestim.gate_data('M').num_parens_arguments_range == range(0, 2)
 
@@ -98,6 +99,54 @@ def test_tableau():
 
 def test_name():
     assert lestim.gate_data('H').name == 'H'
+=======
+    assert stim.gate_data('H').num_parens_arguments_range == range(0, 1)
+    assert stim.gate_data('M').num_parens_arguments_range == range(0, 2)
+
+
+def test_is_reset():
+    assert not stim.gate_data('H').is_reset
+    assert stim.gate_data('R').is_reset
+    assert stim.gate_data('MR').is_reset
+
+
+def test_is_two_qubit_gate():
+    assert not stim.gate_data('H').is_two_qubit_gate
+    assert stim.gate_data('CX').is_two_qubit_gate
+
+
+def test_is_single_qubit_gate():
+    assert stim.gate_data('H').is_single_qubit_gate
+    assert not stim.gate_data('CX').is_single_qubit_gate
+
+
+def test_is_noisy_gate():
+    assert stim.gate_data('X_ERROR').is_noisy_gate
+    assert not stim.gate_data('X').is_noisy_gate
+
+
+def test_produces_measurements():
+    assert stim.gate_data('MR').produces_measurements
+    assert not stim.gate_data('R').produces_measurements
+
+
+def test_takes_pauli_targets():
+    assert stim.gate_data('MPP').takes_pauli_targets
+    assert not stim.gate_data('MXX').takes_pauli_targets
+
+
+def test_aliases():
+    assert stim.gate_data('H').aliases == ['H', 'H_XZ']
+    assert stim.gate_data('CX').aliases == ['CNOT', 'CX', 'ZCX']
+
+
+def test_tableau():
+    assert stim.gate_data('H').tableau == stim.Tableau.from_named_gate('H')
+
+
+def test_name():
+    assert stim.gate_data('H').name == 'H'
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
 
 
 def test_gate_data_repr():
@@ -110,6 +159,11 @@ def test_takes_measurement_record_targets():
     assert lestim.gate_data('DETECTOR').takes_measurement_record_targets
 
 
+def test_takes_measurement_record_targets():
+    assert not stim.gate_data('H').takes_measurement_record_targets
+    assert stim.gate_data('DETECTOR').takes_measurement_record_targets
+
+
 def test_gate_data_inverse():
     for v in lestim.gate_data().values():
         assert v.is_unitary == (v.inverse is not None)
@@ -119,11 +173,19 @@ def test_gate_data_inverse():
             assert np.allclose(matrix.conj().T, v.inverse.unitary_matrix, atol=1e-6), (v.name, v.inverse.name)
             assert v.inverse == v.generalized_inverse
 
+<<<<<<< HEAD
     assert lestim.gate_data('H').inverse == lestim.gate_data('H')
     assert lestim.gate_data('S').inverse == lestim.gate_data('S_DAG')
     assert lestim.gate_data('M').inverse is None
     assert lestim.gate_data('CXSWAP').inverse == lestim.gate_data('SWAPCX')
     assert lestim.gate_data('SPP').inverse == lestim.gate_data('SPP_DAG')
+=======
+    assert stim.gate_data('H').inverse == stim.gate_data('H')
+    assert stim.gate_data('S').inverse == stim.gate_data('S_DAG')
+    assert stim.gate_data('M').inverse is None
+    assert stim.gate_data('CXSWAP').inverse == stim.gate_data('SWAPCX')
+    assert stim.gate_data('SPP').inverse == stim.gate_data('SPP_DAG')
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
 
     assert lestim.gate_data('S').generalized_inverse == lestim.gate_data('S_DAG')
     assert lestim.gate_data('M').generalized_inverse == lestim.gate_data('M')
@@ -141,6 +203,7 @@ def test_gate_data_flows():
 
 
 def test_gate_is_symmetric():
+<<<<<<< HEAD
     assert lestim.GateData('SWAP').is_symmetric_gate
     assert lestim.GateData('H').is_symmetric_gate
     assert lestim.GateData('MYY').is_symmetric_gate
@@ -160,3 +223,24 @@ def test_gate_hadamard_conjugated():
     assert lestim.GateData('Z_ERROR').hadamard_conjugated() == lestim.GateData('X_ERROR')
     assert lestim.GateData('I_ERROR').hadamard_conjugated() == lestim.GateData('I_ERROR')
     assert lestim.GateData('II_ERROR').hadamard_conjugated() == lestim.GateData('II_ERROR')
+=======
+    assert stim.GateData('SWAP').is_symmetric_gate
+    assert stim.GateData('H').is_symmetric_gate
+    assert stim.GateData('MYY').is_symmetric_gate
+    assert stim.GateData('DEPOLARIZE2').is_symmetric_gate
+    assert not stim.GateData('PAULI_CHANNEL_2').is_symmetric_gate
+    assert not stim.GateData('DETECTOR').is_symmetric_gate
+    assert not stim.GateData('TICK').is_symmetric_gate
+
+
+def test_gate_hadamard_conjugated():
+    assert stim.GateData('CZSWAP').hadamard_conjugated(unsigned=True) is None
+    assert stim.GateData('TICK').hadamard_conjugated() == stim.GateData('TICK')
+    assert stim.GateData('MYY').hadamard_conjugated() == stim.GateData('MYY')
+    assert stim.GateData('XCZ').hadamard_conjugated() == stim.GateData('CX')
+    assert stim.GateData('X_ERROR').hadamard_conjugated() == stim.GateData('Z_ERROR')
+    assert stim.GateData('Y_ERROR').hadamard_conjugated() == stim.GateData('Y_ERROR')
+    assert stim.GateData('Z_ERROR').hadamard_conjugated() == stim.GateData('X_ERROR')
+    assert stim.GateData('I_ERROR').hadamard_conjugated() == stim.GateData('I_ERROR')
+    assert stim.GateData('II_ERROR').hadamard_conjugated() == stim.GateData('II_ERROR')
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))

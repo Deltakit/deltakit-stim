@@ -80,10 +80,17 @@ class AnonTaskStats:
         """
         if isinstance(other, AnonTaskStats):
             return AnonTaskStats(
+<<<<<<< HEAD
                 shots=int(self.shots + other.shots),
                 errors=int(self.errors + other.errors),
                 discards=int(self.discards + other.discards),
                 seconds=float(self.seconds + other.seconds),
+=======
+                shots=self.shots + other.shots,
+                errors=self.errors + other.errors,
+                discards=self.discards + other.discards,
+                seconds=self.seconds + other.seconds,
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
                 custom_counts=self.custom_counts + other.custom_counts,
             )
 

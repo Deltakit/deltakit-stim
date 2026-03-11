@@ -19,7 +19,11 @@ import lestim
 
 
 def test_compiled_measurement_sampler_sample():
+<<<<<<< HEAD
     c = lestim.Circuit("""
+=======
+    c = stim.Circuit("""
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
         X 1
         M 0 1 2 3
     """)

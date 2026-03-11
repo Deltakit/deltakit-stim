@@ -17,7 +17,11 @@ import tempfile
 
 import numpy as np
 import pytest
+<<<<<<< HEAD
 import lestim
+=======
+import stim
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
 
 
 def test_compiled_detector_sampler_trivial():
@@ -213,7 +217,11 @@ def test_detector_sampler_actually_fills_array():
 
 
 def test_manual_output_buffer():
+<<<<<<< HEAD
     circuit = lestim.Circuit('''
+=======
+    circuit = stim.Circuit('''
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
         X_ERROR(1) 0
         M 0
         DETECTOR

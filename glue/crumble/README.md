@@ -131,10 +131,13 @@ button (now labelled "Hide Import/Export") again.
 - `end`: Jump to the last layer of the circuit.
 - `t`: Rotate circuit 45 degrees clockwise.
 - `shift+t`: Rotate circuit 45 degrees counter-clockwise.
+<<<<<<< HEAD
 - `b`: Move selected qubits.
     If the mouse is hovering over a qubit, the topmost leftmost selected qubit will move to the hover location (and other selected qubits are offset by the same delta).
     When the moved qubits would collide with existing qubits, the existing qubits are moved into the spaces vacated by the moved qubits.
     If the mouse is not hovering over a qubit, and exactly two qubits are selected, then the two selected qubits swap locations.
+=======
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
 - `v`: Translate circuit down one step.
 - `^`: Translate circuit up one step.
 - `>`: Translate circuit right one step.

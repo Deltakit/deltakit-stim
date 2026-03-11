@@ -61,7 +61,11 @@ def test_targets():
 
 
 def test_gate_data():
+<<<<<<< HEAD
     data = lestim.gate_data()
+=======
+    data = stim.gate_data()
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
     assert len(data) == 85
     assert data["CX"].name == "CX"
     assert data["CX"].aliases == ["CNOT", "CX", "ZCX"]
@@ -139,7 +143,11 @@ def test_main_write_to_file():
 
 
 def test_main_help(capsys):
+<<<<<<< HEAD
     assert lestim.main(command_line_args=["help"]) == 0
+=======
+    assert stim.main(command_line_args=["help"]) == 0
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
     captured = capsys.readouterr()
     assert captured.err == ""
     assert 'Available stim commands' in captured.out

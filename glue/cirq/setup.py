@@ -17,7 +17,11 @@ from setuptools import setup
 with open('README.md', encoding='UTF-8') as f:
     long_description = f.read()
 
+<<<<<<< HEAD
 __version__ = '1.16.0'
+=======
+__version__ = '1.16.dev0'
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
 
 setup(
     name='stimcirq',

@@ -2010,6 +2010,7 @@ TEST(circuit, without_tags) {
         }
     )CIRCUIT"));
 }
+<<<<<<< HEAD
 
 TEST(circuit, leakage_opcode_parsing_and_validation) {
     for (const auto &g : GATE_DATA.items) {
@@ -2049,3 +2050,5 @@ TEST(circuit, herald_leakage_event_parsing) {
     // Test invalid argument count for 3 parameters
     ASSERT_THROW(Circuit("HERALD_LEAKAGE_EVENT(0.1, 0.2, 0.3) 0"), std::invalid_argument);
 }
+=======
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))

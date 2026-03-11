@@ -78,6 +78,7 @@ def test_hashable():
 
 
 def test_init():
+<<<<<<< HEAD
     assert lestim.DemTarget("D0") == lestim.target_relative_detector_id(0)
     assert lestim.DemTarget("D5") == lestim.target_relative_detector_id(5)
     assert lestim.DemTarget("L0") == lestim.target_logical_observable_id(0)
@@ -95,3 +96,22 @@ def test_init():
         _ = lestim.DemTarget(f"X5")
     with pytest.raises(ValueError, match="Failed to parse"):
         _ = lestim.DemTarget(f"5")
+=======
+    assert stim.DemTarget("D0") == stim.target_relative_detector_id(0)
+    assert stim.DemTarget("D5") == stim.target_relative_detector_id(5)
+    assert stim.DemTarget("L0") == stim.target_logical_observable_id(0)
+    assert stim.DemTarget("L5") == stim.target_logical_observable_id(5)
+    assert stim.DemTarget("^") == stim.target_separator()
+    assert stim.DemTarget(f"D{2**62 - 1}") == stim.target_relative_detector_id(2**62 - 1)
+    assert stim.DemTarget(f"L{0xFFFFFFFF}") == stim.target_logical_observable_id(0xFFFFFFFF)
+    with pytest.raises(ValueError, match="Failed to parse"):
+        _ = stim.DemTarget(f"D{2**62}")
+    with pytest.raises(ValueError, match="Failed to parse"):
+        _ = stim.DemTarget(f"L{0x100000000}")
+    with pytest.raises(ValueError, match="Failed to parse"):
+        _ = stim.DemTarget(f"L-1")
+    with pytest.raises(ValueError, match="Failed to parse"):
+        _ = stim.DemTarget(f"X5")
+    with pytest.raises(ValueError, match="Failed to parse"):
+        _ = stim.DemTarget(f"5")
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))

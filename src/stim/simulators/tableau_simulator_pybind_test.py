@@ -285,7 +285,11 @@ def test_classical_control_cnot():
 
 
 def test_collision():
+<<<<<<< HEAD
     s = lestim.TableauSimulator()
+=======
+    s = stim.TableauSimulator()
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
     with pytest.raises(ValueError, match="same target"):
         s.cnot(0, 0)
     with pytest.raises(ValueError, match="same target"):

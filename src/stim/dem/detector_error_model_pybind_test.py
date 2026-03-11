@@ -156,7 +156,11 @@ def test_append_bad():
     m += m * 3
 
     with pytest.raises(ValueError, match=r"Bad target 'stim.DemTarget\('D0'\)' for instruction 'shift_detectors'"):
+<<<<<<< HEAD
         m.append("shift_detectors", [0.125, 0.25], [lestim.target_relative_detector_id(0)])
+=======
+        m.append("shift_detectors", [0.125, 0.25], [stim.target_relative_detector_id(0)])
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
     with pytest.raises(ValueError, match="takes 1 argument"):
         m.append("error", [0.125, 0.25], [lestim.target_relative_detector_id(0)])
 
@@ -539,6 +543,7 @@ def test_shortest_graphlike_error_remnant():
 
 
 def test_init_parse():
+<<<<<<< HEAD
     assert lestim.DemInstruction("error(0.125) D0 D1") == lestim.DemInstruction("error", [0.125], [lestim.DemTarget("D0"), lestim.DemTarget("D1")])
 
 
@@ -547,11 +552,22 @@ def test_without_tags():
         error[tag](0.25) D5
     """)
     assert dem.without_tags() == lestim.DetectorErrorModel("""
+=======
+    assert stim.DemInstruction("error(0.125) D0 D1") == stim.DemInstruction("error", [0.125], [stim.DemTarget("D0"), stim.DemTarget("D1")])
+
+
+def test_without_tags():
+    dem = stim.DetectorErrorModel("""
+        error[tag](0.25) D5
+    """)
+    assert dem.without_tags() == stim.DetectorErrorModel("""
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
         error(0.25) D5
     """)
 
 
 def test_append_dem_to_dem():
+<<<<<<< HEAD
     dem = lestim.DetectorErrorModel("""
         error(0.25) D0
     """)
@@ -560,6 +576,16 @@ def test_append_dem_to_dem():
         error(0.25) D2
     """))
     assert dem == lestim.DetectorErrorModel("""
+=======
+    dem = stim.DetectorErrorModel("""
+        error(0.25) D0
+    """)
+    dem.append(stim.DetectorErrorModel("""
+        error(0.125) D1
+        error(0.25) D2
+    """))
+    assert dem == stim.DetectorErrorModel("""
+>>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
         error(0.25) D0
         error(0.125) D1
         error(0.25) D2
