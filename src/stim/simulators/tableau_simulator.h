@@ -110,8 +110,17 @@ struct TableauSimulator {
     void do_H_XZ(const CircuitInstruction &inst);
     void do_H_YZ(const CircuitInstruction &inst);
     void do_H_XY(const CircuitInstruction &inst);
+    void do_H_NXY(const CircuitInstruction &inst);
+    void do_H_NXZ(const CircuitInstruction &inst);
+    void do_H_NYZ(const CircuitInstruction &inst);
     void do_C_XYZ(const CircuitInstruction &inst);
+    void do_C_NXYZ(const CircuitInstruction &inst);
+    void do_C_XNYZ(const CircuitInstruction &inst);
+    void do_C_XYNZ(const CircuitInstruction &inst);
     void do_C_ZYX(const CircuitInstruction &inst);
+    void do_C_NZYX(const CircuitInstruction &inst);
+    void do_C_ZNYX(const CircuitInstruction &inst);
+    void do_C_ZYNX(const CircuitInstruction &inst);
     void do_SQRT_X(const CircuitInstruction &inst);
     void do_SQRT_Y(const CircuitInstruction &inst);
     void do_SQRT_Z(const CircuitInstruction &inst);
@@ -288,7 +297,7 @@ void perform_pauli_errors_via_correlated_errors(
     const CircuitInstruction &target_data, RESET_FLAG reset_flag, ELSE_CORR else_corr) {
     double target_p{};
     GateTarget target_t[Q];
-    CircuitInstruction data{GateType::E, {&target_p}, {&target_t[0], &target_t[Q]}};
+    CircuitInstruction data{GateType::E, {&target_p}, {&target_t[0], &target_t[Q]}, ""};
     for (size_t k = 0; k < target_data.targets.size(); k += Q) {
         reset_flag();
         double used_probability = 0;

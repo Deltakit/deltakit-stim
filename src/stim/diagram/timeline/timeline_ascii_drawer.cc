@@ -28,15 +28,16 @@ void DiagramTimelineAsciiDrawer::do_feedback(
     } else if (feedback_target.is_measurement_record_target()) {
         ss << "rec[" << (feedback_target.value() + resolver.measure_offset) << "]";
     }
-    diagram.add_entry(AsciiDiagramEntry{
-        {
-            m2x(cur_moment),
-            q2y(qubit_target.qubit_value()),
-            GATE_ALIGNMENT_X,
-            GATE_ALIGNMENT_Y,
-        },
-        ss.str(),
-    });
+    diagram.add_entry(
+        AsciiDiagramEntry{
+            {
+                m2x(cur_moment),
+                q2y(qubit_target.qubit_value()),
+                GATE_ALIGNMENT_X,
+                GATE_ALIGNMENT_Y,
+            },
+            ss.str(),
+        });
 }
 
 void DiagramTimelineAsciiDrawer::do_two_qubit_gate_instance(const ResolvedTimelineOperation &op) {
@@ -72,24 +73,26 @@ void DiagramTimelineAsciiDrawer::do_two_qubit_gate_instance(const ResolvedTimeli
         write_rec_index(first);
     }
 
-    diagram.add_entry(AsciiDiagramEntry{
-        {
-            m2x(cur_moment),
-            q2y(target1.qubit_value()),
-            GATE_ALIGNMENT_X,
-            GATE_ALIGNMENT_Y,
-        },
-        first.str(),
-    });
-    diagram.add_entry(AsciiDiagramEntry{
-        {
-            m2x(cur_moment),
-            q2y(target2.qubit_value()),
-            GATE_ALIGNMENT_X,
-            GATE_ALIGNMENT_Y,
-        },
-        second.str(),
-    });
+    diagram.add_entry(
+        AsciiDiagramEntry{
+            {
+                m2x(cur_moment),
+                q2y(target1.qubit_value()),
+                GATE_ALIGNMENT_X,
+                GATE_ALIGNMENT_Y,
+            },
+            first.str(),
+        });
+    diagram.add_entry(
+        AsciiDiagramEntry{
+            {
+                m2x(cur_moment),
+                q2y(target2.qubit_value()),
+                GATE_ALIGNMENT_X,
+                GATE_ALIGNMENT_Y,
+            },
+            second.str(),
+        });
 }
 
 void DiagramTimelineAsciiDrawer::start_next_moment() {
@@ -106,22 +109,26 @@ void DiagramTimelineAsciiDrawer::do_tick() {
         size_t y1 = 0;
         size_t y2 = q2y(num_qubits - 1) + 1;
 
-        diagram.add_entry(AsciiDiagramEntry{
-            {x1, y1, 0, 0},
-            "/",
-        });
-        diagram.add_entry(AsciiDiagramEntry{
-            {x2, y1, 1, 0},
-            "\\",
-        });
-        diagram.add_entry(AsciiDiagramEntry{
-            {x1, y2, 0, 1},
-            "\\",
-        });
-        diagram.add_entry(AsciiDiagramEntry{
-            {x2, y2, 1, 0},
-            "/",
-        });
+        diagram.add_entry(
+            AsciiDiagramEntry{
+                {x1, y1, 0, 0},
+                "/",
+            });
+        diagram.add_entry(
+            AsciiDiagramEntry{
+                {x2, y1, 1, 0},
+                "\\",
+            });
+        diagram.add_entry(
+            AsciiDiagramEntry{
+                {x1, y2, 0, 1},
+                "\\",
+            });
+        diagram.add_entry(
+            AsciiDiagramEntry{
+                {x2, y2, 1, 0},
+                "/",
+            });
 
         diagram.lines.push_back({{x1, y1, 0.0, 0.0}, {x2, y1, 1.0, 0.0}});
         diagram.lines.push_back({{x1, y2, 0.0, 0.0}, {x2, y2, 1.0, 0.0}});
@@ -145,15 +152,16 @@ void DiagramTimelineAsciiDrawer::do_single_qubit_gate_instance(const ResolvedTim
         ss << ':';
         write_rec_index(ss);
     }
-    diagram.add_entry(AsciiDiagramEntry{
-        {
-            m2x(cur_moment),
-            q2y(target.qubit_value()),
-            GATE_ALIGNMENT_X,
-            GATE_ALIGNMENT_Y,
-        },
-        ss.str(),
-    });
+    diagram.add_entry(
+        AsciiDiagramEntry{
+            {
+                m2x(cur_moment),
+                q2y(target.qubit_value()),
+                GATE_ALIGNMENT_X,
+                GATE_ALIGNMENT_Y,
+            },
+            ss.str(),
+        });
 }
 
 void DiagramTimelineAsciiDrawer::write_det_index(std::ostream &out) {
@@ -286,15 +294,16 @@ void DiagramTimelineAsciiDrawer::do_multi_qubit_gate_with_pauli_targets(const Re
             ss << ':';
             write_rec_index(ss);
         }
-        diagram.add_entry(AsciiDiagramEntry{
-            {
-                m2x(cur_moment),
-                q2y(t.qubit_value()),
-                GATE_ALIGNMENT_X,
-                GATE_ALIGNMENT_Y,
-            },
-            ss.str(),
-        });
+        diagram.add_entry(
+            AsciiDiagramEntry{
+                {
+                    m2x(cur_moment),
+                    q2y(t.qubit_value()),
+                    GATE_ALIGNMENT_X,
+                    GATE_ALIGNMENT_Y,
+                },
+                ss.str(),
+            });
     }
 }
 
@@ -305,14 +314,16 @@ void DiagramTimelineAsciiDrawer::do_start_repeat(const CircuitTimelineLoopData &
 
     AsciiDiagramPos top{m2x(cur_moment), 0, 0.0, 0.0};
     AsciiDiagramPos bot{m2x(cur_moment), q2y(num_qubits - 1) + 1, 0.0, 1.0};
-    diagram.add_entry(AsciiDiagramEntry{
-        top,
-        "/REP " + std::to_string(loop_data.num_repetitions),
-    });
-    diagram.add_entry(AsciiDiagramEntry{
-        bot,
-        "\\",
-    });
+    diagram.add_entry(
+        AsciiDiagramEntry{
+            top,
+            "/REP " + std::to_string(loop_data.num_repetitions),
+        });
+    diagram.add_entry(
+        AsciiDiagramEntry{
+            bot,
+            "\\",
+        });
     diagram.lines.push_back({bot, top});
 
     start_next_moment();
@@ -328,14 +339,16 @@ void DiagramTimelineAsciiDrawer::do_end_repeat(const CircuitTimelineLoopData &lo
     AsciiDiagramPos bot{m2x(cur_moment), q2y(num_qubits - 1) + 1, 0.5, 1.0};
 
     diagram.lines.push_back({top, bot});
-    diagram.add_entry(AsciiDiagramEntry{
-        top,
-        "\\",
-    });
-    diagram.add_entry(AsciiDiagramEntry{
-        bot,
-        "/",
-    });
+    diagram.add_entry(
+        AsciiDiagramEntry{
+            top,
+            "\\",
+        });
+    diagram.add_entry(
+        AsciiDiagramEntry{
+            bot,
+            "/",
+        });
 
     start_next_moment();
     tick_start_moment = cur_moment;
@@ -361,15 +374,16 @@ void DiagramTimelineAsciiDrawer::do_qubit_coords(const ResolvedTimelineOperation
     const auto &gate_data = GATE_DATA[op.gate_type];
     ss << gate_data.name;
     write_coords(ss, op.args);
-    diagram.add_entry(AsciiDiagramEntry{
-        {
-            m2x(cur_moment),
-            q2y(target.qubit_value()),
-            GATE_ALIGNMENT_X,
-            GATE_ALIGNMENT_Y,
-        },
-        ss.str(),
-    });
+    diagram.add_entry(
+        AsciiDiagramEntry{
+            {
+                m2x(cur_moment),
+                q2y(target.qubit_value()),
+                GATE_ALIGNMENT_X,
+                GATE_ALIGNMENT_Y,
+            },
+            ss.str(),
+        });
 }
 
 void DiagramTimelineAsciiDrawer::do_detector(const ResolvedTimelineOperation &op) {
@@ -395,15 +409,16 @@ void DiagramTimelineAsciiDrawer::do_detector(const ResolvedTimelineOperation &op
     if (rec_targets.empty()) {
         ss.put('1');
     }
-    diagram.add_entry(AsciiDiagramEntry{
-        {
-            m2x(cur_moment),
-            q2y(pseudo_target.qubit_value()),
-            GATE_ALIGNMENT_X,
-            GATE_ALIGNMENT_Y,
-        },
-        ss.str(),
-    });
+    diagram.add_entry(
+        AsciiDiagramEntry{
+            {
+                m2x(cur_moment),
+                q2y(pseudo_target.qubit_value()),
+                GATE_ALIGNMENT_X,
+                GATE_ALIGNMENT_Y,
+            },
+            ss.str(),
+        });
 }
 
 void DiagramTimelineAsciiDrawer::do_observable_include(const ResolvedTimelineOperation &op) {
@@ -412,26 +427,54 @@ void DiagramTimelineAsciiDrawer::do_observable_include(const ResolvedTimelineOpe
     SpanRef<const GateTarget> rec_targets = op.targets;
     rec_targets.ptr_start++;
 
-    std::stringstream ss;
-    ss << "OBSERVABLE_INCLUDE:L" << (op.args.empty() ? 0 : op.args[0]) << "*=";
-    for (size_t k = 0; k < rec_targets.size(); k++) {
-        if (k) {
-            ss << "*";
+    bool had_paulis = false;
+    for (const auto &t : rec_targets) {
+        if (t.is_pauli_target()) {
+            had_paulis = true;
+            std::stringstream ss;
+            ss << "L" << (op.args.empty() ? 0 : op.args[0]) << "*=";
+            ss << t.pauli_type();
+            diagram.add_entry(
+                AsciiDiagramEntry{
+                    {
+                        m2x(cur_moment),
+                        q2y(t.qubit_value()),
+                        GATE_ALIGNMENT_X,
+                        GATE_ALIGNMENT_Y,
+                    },
+                    ss.str(),
+                });
         }
-        write_rec_index(ss, rec_targets[k].value());
     }
-    if (rec_targets.empty()) {
-        ss.put('1');
+
+    bool had_rec = false;
+    std::stringstream ss;
+    ss << "OBSERVABLE_INCLUDE:L" << (op.args.empty() ? 0 : op.args[0]);
+    ss << "*=";
+    for (const auto &t : rec_targets) {
+        if (t.is_measurement_record_target()) {
+            if (had_rec) {
+                ss << "*";
+            }
+            had_rec = true;
+            write_rec_index(ss, t.value());
+        }
     }
-    diagram.add_entry(AsciiDiagramEntry{
-        {
-            m2x(cur_moment),
-            q2y(pseudo_target.qubit_value()),
-            GATE_ALIGNMENT_X,
-            GATE_ALIGNMENT_Y,
-        },
-        ss.str(),
-    });
+    if (had_rec || !had_paulis) {
+        if (rec_targets.empty()) {
+            ss.put('1');
+        }
+        diagram.add_entry(
+            AsciiDiagramEntry{
+                {
+                    m2x(cur_moment),
+                    q2y(pseudo_target.qubit_value()),
+                    GATE_ALIGNMENT_X,
+                    GATE_ALIGNMENT_Y,
+                },
+                ss.str(),
+            });
+    }
 }
 
 void DiagramTimelineAsciiDrawer::do_resolved_operation(const ResolvedTimelineOperation &op) {
@@ -489,10 +532,11 @@ AsciiDiagram DiagramTimelineAsciiDrawer::make_diagram(const Circuit &circuit) {
         };
         std::stringstream qubit;
         qubit << 'q' << q << ": ";
-        obj.diagram.add_entry(AsciiDiagramEntry{
-            {0, obj.q2y(q), 1.0, 0.5},
-            qubit.str(),
-        });
+        obj.diagram.add_entry(
+            AsciiDiagramEntry{
+                {0, obj.q2y(q), 1.0, 0.5},
+                qubit.str(),
+            });
     }
 
     return obj.diagram;

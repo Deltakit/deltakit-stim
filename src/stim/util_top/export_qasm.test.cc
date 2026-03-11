@@ -196,7 +196,7 @@ TEST(export_qasm, export_open_qasm_mpad) {
     ASSERT_EQ(out.str(), R"QASM(OPENQASM 3.0;
 include "stdgates.inc";
 
-qreg q[2];
+qreg q[1];
 creg rec[4];
 
 h q[0];
@@ -311,8 +311,17 @@ TEST(export_qasm, export_qasm_all_operations_v3) {
 include "stdgates.inc";
 gate cxyz q0 { U(pi/2, 0, pi/2) q0; }
 gate czyx q0 { U(pi/2, pi/2, pi/2) q0; }
+gate cnxyz q0 { U(pi/2, pi/2, pi/2) q0; }
+gate cxnyz q0 { U(pi/2, 0, -pi/2) q0; }
+gate cxynz q0 { U(pi/2, pi/2, -pi/2) q0; }
+gate cnzyx q0 { U(pi/2, -pi/2, 0) q0; }
+gate cznyx q0 { U(pi/2, -pi/2, pi/2) q0; }
+gate czynx q0 { U(pi/2, pi/2, 0) q0; }
 gate hxy q0 { U(pi/2, 0, pi/2) q0; }
 gate hyz q0 { U(pi/2, pi/2, pi/2) q0; }
+gate hnxy q0 { U(pi/2, 0, -pi/2) q0; }
+gate hnxz q0 { U(pi/2, pi/2, 0) q0; }
+gate hnyz q0 { U(pi/2, -pi/2, -pi/2) q0; }
 gate sy q0 { U(pi/2, 0, 0) q0; }
 gate sydg q0 { U(pi/2, pi/2, pi/2) q0; }
 gate cxswap q0, q1 { cx q1, q0; cx q0, q1; }
@@ -346,7 +355,7 @@ def ry(qubit q0) { reset q0; h q0; s q0; }
 qreg q[18];
 creg rec[25];
 creg dets[1];
-creg obs[1];
+creg obs[2];
 creg sweep[1];
 
 id q[0];
@@ -356,10 +365,19 @@ z q[3];
 barrier q;
 
 cxyz q[0];
-czyx q[1];
-hxy q[2];
-h q[3];
-hyz q[4];
+cnxyz q[1];
+cxnyz q[2];
+cxynz q[3];
+czyx q[4];
+cnzyx q[5];
+cznyx q[6];
+czynx q[7];
+hxy q[0];
+h q[1];
+hyz q[2];
+hnxy q[3];
+hnxz q[4];
+hnyz q[5];
 sx q[0];
 sxdg q[1];
 sy q[2];
@@ -481,11 +499,14 @@ obs[0] = obs[0] ^ rec[16] ^ 0;
 rec[17] = 0;
 rec[18] = 1;
 rec[19] = 0;
+obs[1] = obs[1] ^ 0;
+// Warning: ignored pauli terms in OBSERVABLE_INCLUDE(1) Z2 Z3
 barrier q;
 
 rec[20] = mrx(q[0]) ^ 1;
 rec[21] = my(q[1]) ^ 1;
 rec[22] = mzz(q[2], q[3]) ^ 1;
+obs[1] = obs[1] ^ rec[22] ^ 1;
 rec[23] = myy(q[4], q[5]);
 // --- begin decomposed MPP X6*!Y7*Z8
 h q[6];
@@ -540,8 +561,17 @@ TEST(export_qasm, export_qasm_all_operations_v2) {
 include "qelib1.inc";
 gate cxyz q0 { U(pi/2, 0, pi/2) q0; }
 gate czyx q0 { U(pi/2, pi/2, pi/2) q0; }
+gate cnxyz q0 { U(pi/2, pi/2, pi/2) q0; }
+gate cxnyz q0 { U(pi/2, 0, -pi/2) q0; }
+gate cxynz q0 { U(pi/2, pi/2, -pi/2) q0; }
+gate cnzyx q0 { U(pi/2, -pi/2, 0) q0; }
+gate cznyx q0 { U(pi/2, -pi/2, pi/2) q0; }
+gate czynx q0 { U(pi/2, pi/2, 0) q0; }
 gate hxy q0 { U(pi/2, 0, pi/2) q0; }
 gate hyz q0 { U(pi/2, pi/2, pi/2) q0; }
+gate hnxy q0 { U(pi/2, 0, -pi/2) q0; }
+gate hnxz q0 { U(pi/2, pi/2, 0) q0; }
+gate hnyz q0 { U(pi/2, -pi/2, -pi/2) q0; }
 gate sy q0 { U(pi/2, 0, 0) q0; }
 gate sydg q0 { U(pi/2, pi/2, pi/2) q0; }
 gate cxswap q0, q1 { cx q1, q0; cx q0, q1; }
@@ -572,10 +602,19 @@ z q[3];
 barrier q;
 
 cxyz q[0];
-czyx q[1];
-hxy q[2];
-h q[3];
-hyz q[4];
+cnxyz q[1];
+cxnyz q[2];
+cxynz q[3];
+czyx q[4];
+cnzyx q[5];
+cznyx q[6];
+czynx q[7];
+hxy q[0];
+h q[1];
+hyz q[2];
+hnxy q[3];
+hnxz q[4];
+hnyz q[5];
 sx q[0];
 sxdg q[1];
 sy q[2];

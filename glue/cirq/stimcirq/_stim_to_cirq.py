@@ -18,6 +18,9 @@ import stim
 from ._cx_swap_gate import CXSwapGate
 from ._cz_swap_gate import CZSwapGate
 from ._det_annotation import DetAnnotation
+from ._ii_error_gate import IIErrorGate
+from ._i_error_gate import IErrorGate
+from ._ii_gate import IIGate
 from ._measure_and_or_reset_gate import MeasureAndOrResetGate
 from ._obs_annotation import CumulativeObservableAnnotation
 from ._shift_coords_annotation import ShiftCoordsAnnotation
@@ -84,8 +87,12 @@ class CircuitTranslationTracker:
         m = cirq.num_qubits(gate)
         if not all(t.is_qubit_target for t in targets) or len(targets) % m != 0:
             raise NotImplementedError(f"instruction={instruction!r}")
+        if instruction.tag:
+            tags = [instruction.tag]
+        else:
+            tags = ()
         for k in range(0, len(targets), m):
-            self.append_operation(gate(*[cirq.LineQubit(t.value) for t in targets[k : k + m]]))
+            self.append_operation(gate(*[cirq.LineQubit(t.value) for t in targets[k : k + m]]).with_tags(*tags))
 
     def process_tick(self, instruction: stim.CircuitInstruction) -> None:
         self.full_circuit += self.tick_circuit or cirq.Moment()
@@ -128,7 +135,7 @@ class CircuitTranslationTracker:
         self.process_gate_instruction(gate, instruction)
 
     def process_repeat_block(self, block: stim.CircuitRepeatBlock):
-        if self.flatten or block.repeat_count == 1:
+        if self.flatten or (block.repeat_count == 1 and block.tag == ""):
             self.process_circuit(block.repeat_count, block.body_copy())
             return
 
@@ -141,6 +148,10 @@ class CircuitTranslationTracker:
         child.process_circuit(1, block.body_copy())
 
         # Circuit operation will always be in their own cirq.Moment
+        if block.tag == "":
+            tags = ()
+        else:
+            tags = (block.tag,)
         if len(self.tick_circuit):
             self.full_circuit += self.tick_circuit
         self.full_circuit += cirq.Moment(
@@ -148,7 +159,7 @@ class CircuitTranslationTracker:
                 cirq.FrozenCircuit(child.full_circuit + child.tick_circuit),
                 repetitions=block.repeat_count,
                 use_repetition_ids=False,
-            )
+            ).with_tags(*tags)
         )
         self.tick_circuit = cirq.Circuit()
 
@@ -168,6 +179,10 @@ class CircuitTranslationTracker:
             flip_probability = args[0]
 
         targets: List[stim.GateTarget] = instruction.targets_copy()
+        if instruction.tag:
+            tags = [instruction.tag]
+        else:
+            tags = ()
         for t in targets:
             if not t.is_qubit_target:
                 raise NotImplementedError(f"instruction={instruction!r}")
@@ -180,7 +195,7 @@ class CircuitTranslationTracker:
                     invert_measure=t.is_inverted_result_target,
                     key=key,
                     measure_flip_probability=flip_probability,
-                ).resolve(cirq.LineQubit(t.value))
+                ).resolve(cirq.LineQubit(t.value)).with_tags(*tags)
             )
 
     def process_circuit(self, repetitions: int, circuit: stim.Circuit) -> None:
@@ -219,6 +234,10 @@ class CircuitTranslationTracker:
             raise NotImplementedError("Noisy MPP")
 
         targets: List[stim.GateTarget] = instruction.targets_copy()
+        if instruction.tag:
+            tags = [instruction.tag]
+        else:
+            tags = ()
         start = 0
         while start < len(targets):
             next_start = start + 1
@@ -230,13 +249,17 @@ class CircuitTranslationTracker:
             obs = _stim_targets_to_dense_pauli_string(group)
             qubits = [cirq.LineQubit(t.value) for t in group]
             key = str(self.get_next_measure_id())
-            self.append_operation(cirq.PauliMeasurementGate(obs, key=key).on(*qubits))
+            self.append_operation(cirq.PauliMeasurementGate(obs, key=key).on(*qubits).with_tags(*tags))
 
     def process_spp_dag(self, instruction: stim.CircuitInstruction) -> None:
         self.process_spp(instruction, dag=True)
 
     def process_spp(self, instruction: stim.CircuitInstruction, dag: bool = False) -> None:
         targets: List[stim.GateTarget] = instruction.targets_copy()
+        if instruction.tag:
+            tags = [instruction.tag]
+        else:
+            tags = ()
         start = 0
         while start < len(targets):
             next_start = start + 1
@@ -250,13 +273,17 @@ class CircuitTranslationTracker:
             self.append_operation(cirq.PauliStringPhasorGate(
                 obs,
                 exponent_neg=-0.5 if dag else 0.5,
-            ).on(*qubits))
+            ).on(*qubits).with_tags(*tags))
 
     def process_m_pair(self, instruction: stim.CircuitInstruction, basis: str) -> None:
         args = instruction.gate_args_copy()
         if args and args[0]:
             raise NotImplementedError("Noisy M" + basis*2)
 
+        if instruction.tag:
+            tags = [instruction.tag]
+        else:
+            tags = ()
         targets: List[stim.GateTarget] = instruction.targets_copy()
         for k in range(0, len(targets), 2):
             obs = cirq.DensePauliString(basis * 2)
@@ -264,7 +291,7 @@ class CircuitTranslationTracker:
                 obs *= -1
             qubits = [cirq.LineQubit(targets[0].value), cirq.LineQubit(targets[1].value)]
             key = str(self.get_next_measure_id())
-            self.append_operation(cirq.PauliMeasurementGate(obs, key=key).on(*qubits))
+            self.append_operation(cirq.PauliMeasurementGate(obs, key=key).on(*qubits).with_tags(*tags))
 
     def process_mxx(self, instruction: stim.CircuitInstruction) -> None:
         self.process_m_pair(instruction, "X")
@@ -286,12 +313,16 @@ class CircuitTranslationTracker:
             self.append_operation(cirq.PauliMeasurementGate(obs, key=key).on(*qubits))
 
     def process_correlated_error(self, instruction: stim.CircuitInstruction) -> None:
+        if instruction.tag:
+            tags = [instruction.tag]
+        else:
+            tags = ()
         args = instruction.gate_args_copy()
         probability = args[0] if args else 0
         targets = instruction.targets_copy()
         qubits = [cirq.LineQubit(t.value) for t in targets]
         self.append_operation(
-            _stim_targets_to_dense_pauli_string(targets).on(*qubits).with_probability(probability)
+            _stim_targets_to_dense_pauli_string(targets).on(*qubits).with_probability(probability).with_tags(*tags)
         )
 
     def coords_after_offset(
@@ -309,27 +340,42 @@ class CircuitTranslationTracker:
 
     def resolve_measurement_record_keys(
         self, targets: Iterable[stim.GateTarget]
-    ) -> Tuple[List[str], List[int]]:
+    ) -> Tuple[List[str], List[int], List[str]]:
+        pauli_targets, meas_targets = [], []
+        for t in targets:
+            if t.is_measurement_record_target:
+                meas_targets.append(t)
+            else:
+                pauli_targets.append(f'{t.pauli_type}{t.value}')
+
         if self.have_seen_loop:
-            return [], [t.value for t in targets]
+            return [], [t.value for t in meas_targets], pauli_targets
         else:
-            return [str(self.num_measurements_seen + t.value) for t in targets], []
+            return [str(self.num_measurements_seen + t.value) for t in meas_targets], [], pauli_targets
 
     def process_detector(self, instruction: stim.CircuitInstruction) -> None:
+        if instruction.tag:
+            tags = [instruction.tag]
+        else:
+            tags = ()
         coords = self.coords_after_offset(instruction.gate_args_copy())
-        keys, rels = self.resolve_measurement_record_keys(instruction.targets_copy())
+        keys, rels, _ = self.resolve_measurement_record_keys(instruction.targets_copy())
         self.append_operation(
-            DetAnnotation(parity_keys=keys, relative_keys=rels, coordinate_metadata=coords)
+            DetAnnotation(parity_keys=keys, relative_keys=rels, coordinate_metadata=coords).with_tags(*tags)
         )
 
     def process_observable_include(self, instruction: stim.CircuitInstruction) -> None:
+        if instruction.tag:
+            tags = [instruction.tag]
+        else:
+            tags = ()
         args = instruction.gate_args_copy()
         index = 0 if not args else int(args[0])
-        keys, rels = self.resolve_measurement_record_keys(instruction.targets_copy())
+        keys, rels, paulis = self.resolve_measurement_record_keys(instruction.targets_copy())
         self.append_operation(
             CumulativeObservableAnnotation(
-                parity_keys=keys, relative_keys=rels, observable_index=index
-            )
+                parity_keys=keys, relative_keys=rels, pauli_keys=paulis, observable_index=index
+            ).with_tags(*tags)
         )
 
     def process_qubit_coords(self, instruction: stim.CircuitInstruction) -> None:
@@ -341,9 +387,13 @@ class CircuitTranslationTracker:
                 self.qubit_coords[t.value] = cirq.GridQubit(*coords)
 
     def process_shift_coords(self, instruction: stim.CircuitInstruction) -> None:
+        if instruction.tag:
+            tags = [instruction.tag]
+        else:
+            tags = ()
         args = instruction.gate_args_copy()
         if not self.flatten:
-            self.append_operation(ShiftCoordsAnnotation(args))
+            self.append_operation(ShiftCoordsAnnotation(args).with_tags(*tags))
         for k, a in enumerate(args):
             self.origin[k] += a
 
@@ -364,6 +414,10 @@ class CircuitTranslationTracker:
         def __call__(
             self, tracker: 'CircuitTranslationTracker', instruction: stim.CircuitInstruction
         ) -> None:
+            if instruction.tag:
+                tags = [instruction.tag]
+            else:
+                tags = ()
             targets: List[stim.GateTarget] = instruction.targets_copy()
             for k in range(0, len(targets), 2):
                 a = targets[k]
@@ -379,13 +433,13 @@ class CircuitTranslationTracker:
                             stim_sweep_bit_index=a.value,
                             cirq_sweep_symbol=f'sweep[{a.value}]',
                             pauli=self.pauli_gate,
-                        ).on(cirq.LineQubit(b.value))
+                        ).on(cirq.LineQubit(b.value)).with_tags(*tags)
                     )
                 else:
                     if not a.is_qubit_target or not b.is_qubit_target:
                         raise NotImplementedError(f"instruction={instruction!r}")
                     tracker.append_operation(
-                        self.gate(cirq.LineQubit(a.value), cirq.LineQubit(b.value))
+                        self.gate(cirq.LineQubit(a.value), cirq.LineQubit(b.value)).with_tags(*tags)
                     )
 
     class OneToOneMeasurementHandler:
@@ -412,6 +466,17 @@ class CircuitTranslationTracker:
                 self.prob_to_gate(instruction.gate_args_copy()[0]), instruction
             )
 
+    class MultiArgumentGateHandler:
+        def __init__(self, args_to_gate: Callable[[List[float]], cirq.Gate]):
+            self.args_to_gate = args_to_gate
+
+        def __call__(
+            self, tracker: 'CircuitTranslationTracker', instruction: stim.CircuitInstruction
+        ) -> None:
+            tracker.process_gate_instruction(
+                self.args_to_gate(instruction.gate_args_copy()), instruction
+            )
+
     @staticmethod
     @functools.lru_cache(maxsize=1)
     def get_handler_table() -> Dict[
@@ -420,9 +485,10 @@ class CircuitTranslationTracker:
         gate = CircuitTranslationTracker.OneToOneGateHandler
         measure_gate = CircuitTranslationTracker.OneToOneMeasurementHandler
         noise = CircuitTranslationTracker.OneToOneNoisyGateHandler
+        multi_arg = CircuitTranslationTracker.MultiArgumentGateHandler
         sweep_gate = CircuitTranslationTracker.SweepableGateHandler
 
-        def not_impl(message) -> Callable[[Any], None]:
+        def not_impl(message) -> Callable[[Any, Any], None]:
             def handler(
                 tracker: CircuitTranslationTracker, instruction: stim.CircuitInstruction
             ) -> None:
@@ -455,6 +521,7 @@ class CircuitTranslationTracker:
             ),
             "RZ": gate(cirq.ResetChannel()),
             "I": gate(cirq.I),
+            "II": gate(IIGate()),
             "X": gate(cirq.X),
             "Y": gate(cirq.Y),
             "Z": gate(cirq.Z),
@@ -463,8 +530,17 @@ class CircuitTranslationTracker:
             ),
             "H": gate(cirq.H),
             "H_XZ": gate(cirq.H),
+            "H_NXZ": gate(
+                cirq.SingleQubitCliffordGate.from_xz_map(x_to=(cirq.Z, True), z_to=(cirq.X, True))
+            ),
             "H_YZ": gate(
                 cirq.SingleQubitCliffordGate.from_xz_map(x_to=(cirq.X, True), z_to=(cirq.Y, False))
+            ),
+            "H_NXY": gate(
+                cirq.SingleQubitCliffordGate.from_xz_map(x_to=(cirq.Y, True), z_to=(cirq.Z, True))
+            ),
+            "H_NYZ": gate(
+                cirq.SingleQubitCliffordGate.from_xz_map(x_to=(cirq.X, True), z_to=(cirq.Y, True))
             ),
             "SQRT_X": gate(cirq.X ** 0.5),
             "SQRT_X_DAG": gate(cirq.X ** -0.5),
@@ -473,8 +549,26 @@ class CircuitTranslationTracker:
             "C_XYZ": gate(
                 cirq.SingleQubitCliffordGate.from_xz_map(x_to=(cirq.Y, False), z_to=(cirq.X, False))
             ),
+            "C_NXYZ": gate(
+                cirq.SingleQubitCliffordGate.from_xz_map(x_to=(cirq.Y, True), z_to=(cirq.X, True))
+            ),
+            "C_XNYZ": gate(
+                cirq.SingleQubitCliffordGate.from_xz_map(x_to=(cirq.Y, True), z_to=(cirq.X, False))
+            ),
+            "C_XYNZ": gate(
+                cirq.SingleQubitCliffordGate.from_xz_map(x_to=(cirq.Y, False), z_to=(cirq.X, True))
+            ),
             "C_ZYX": gate(
                 cirq.SingleQubitCliffordGate.from_xz_map(x_to=(cirq.Z, False), z_to=(cirq.Y, False))
+            ),
+            "C_NZYX": gate(
+                cirq.SingleQubitCliffordGate.from_xz_map(x_to=(cirq.Z, True), z_to=(cirq.Y, True))
+            ),
+            "C_ZNYX": gate(
+                cirq.SingleQubitCliffordGate.from_xz_map(x_to=(cirq.Z, False), z_to=(cirq.Y, True))
+            ),
+            "C_ZYNX": gate(
+                cirq.SingleQubitCliffordGate.from_xz_map(x_to=(cirq.Z, True), z_to=(cirq.Y, False))
             ),
             "SQRT_XX": gate(cirq.XX ** 0.5),
             "SQRT_YY": gate(cirq.YY ** 0.5),
@@ -507,6 +601,8 @@ class CircuitTranslationTracker:
             "X_ERROR": noise(cirq.X.with_probability),
             "Y_ERROR": noise(cirq.Y.with_probability),
             "Z_ERROR": noise(cirq.Z.with_probability),
+            "I_ERROR": multi_arg(IErrorGate),
+            "II_ERROR": multi_arg(IIErrorGate),
             "PAULI_CHANNEL_1": CircuitTranslationTracker.process_pauli_channel_1,
             "PAULI_CHANNEL_2": CircuitTranslationTracker.process_pauli_channel_2,
             "ELSE_CORRELATED_ERROR": not_impl(

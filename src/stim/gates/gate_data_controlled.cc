@@ -400,7 +400,7 @@ Example:
     # Apply Y to qubit 5 controlled by qubit 2.
     CY 2 5
 
-    # Perform CY 2 5 then CX 4 2.
+    # Perform CY 2 5 then CY 4 2.
     CY 2 5 4 2
 
     # Perform CY 2 5 with:

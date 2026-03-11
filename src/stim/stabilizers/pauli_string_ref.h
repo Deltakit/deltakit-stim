@@ -60,6 +60,7 @@ struct PauliStringRef {
     bool operator==(const PauliStringRef<W> &other) const;
     /// Inequality.
     bool operator!=(const PauliStringRef<W> &other) const;
+    bool operator<(const PauliStringRef<W> &other) const;
 
     /// Overwrite assignment.
     PauliStringRef<W> &operator=(const PauliStringRef<W> &other);
@@ -159,6 +160,7 @@ struct PauliStringRef {
     void check_avoids_MPP(const CircuitInstruction &inst);
     void check_avoids_reset(const CircuitInstruction &inst);
     void check_avoids_measurement(const CircuitInstruction &inst);
+    void undo_reset_xyz(const CircuitInstruction &inst);
 
     void do_single_cx(const CircuitInstruction &inst, uint32_t c, uint32_t t);
     void do_single_cy(const CircuitInstruction &inst, uint32_t c, uint32_t t);
@@ -167,8 +169,17 @@ struct PauliStringRef {
     void do_H_XZ(const CircuitInstruction &inst);
     void do_H_YZ(const CircuitInstruction &inst);
     void do_H_XY(const CircuitInstruction &inst);
+    void do_H_NXY(const CircuitInstruction &inst);
+    void do_H_NXZ(const CircuitInstruction &inst);
+    void do_H_NYZ(const CircuitInstruction &inst);
     void do_C_XYZ(const CircuitInstruction &inst);
+    void do_C_NXYZ(const CircuitInstruction &inst);
+    void do_C_XNYZ(const CircuitInstruction &inst);
+    void do_C_XYNZ(const CircuitInstruction &inst);
     void do_C_ZYX(const CircuitInstruction &inst);
+    void do_C_NZYX(const CircuitInstruction &inst);
+    void do_C_ZNYX(const CircuitInstruction &inst);
+    void do_C_ZYNX(const CircuitInstruction &inst);
     void do_SQRT_X(const CircuitInstruction &inst);
     void do_SQRT_Y(const CircuitInstruction &inst);
     void do_SQRT_Z(const CircuitInstruction &inst);

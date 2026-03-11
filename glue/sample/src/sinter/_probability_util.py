@@ -2,12 +2,22 @@ import dataclasses
 import math
 import pathlib
 from typing import Any, Dict, Union, Callable, Sequence, TYPE_CHECKING, overload
+from typing import Optional
 
 import numpy as np
 
 if TYPE_CHECKING:
     import sinter
-    from scipy.stats._stats_mstats_common import LinregressResult
+
+    # Go on a magical journey looking for scipy's linear regression type.
+    try:
+        from scipy.stats._stats_py import LinregressResult
+    except ImportError:
+        try:
+            from scipy.stats._stats_mstats_common import LinregressResult
+        except ImportError:
+            from scipy.stats import linregress
+            LinregressResult = type(linregress([0, 1], [0, 1]))
 
 
 def log_binomial(*, p: Union[float, np.ndarray], n: int, hits: int) -> np.ndarray:
@@ -41,7 +51,7 @@ def log_binomial(*, p: Union[float, np.ndarray], n: int, hits: int) -> np.ndarra
     Examples:
         >>> import sinter
         >>> sinter.log_binomial(p=0.5, n=100, hits=50)
-        array(-2.5308785, dtype=float32)
+        array(-2.5308762, dtype=float32)
         >>> sinter.log_binomial(p=0.2, n=1_000_000, hits=1_000)
         array(-216626.97, dtype=float32)
         >>> sinter.log_binomial(p=0.1, n=1_000_000, hits=1_000)
@@ -64,8 +74,8 @@ def log_binomial(*, p: Union[float, np.ndarray], n: int, hits: int) -> np.ndarra
         result[p_clipped == 1] = -np.inf
 
     # Multiply p**hits and (1-p)**misses onto the total, in log space.
-    result[p_clipped != 0] += np.log(p_clipped[p_clipped != 0]) * hits
-    result[p_clipped != 1] += np.log1p(-p_clipped[p_clipped != 1]) * misses
+    result[p_clipped != 0] += np.log(p_clipped[p_clipped != 0]) * float(hits)
+    result[p_clipped != 1] += np.log1p(-p_clipped[p_clipped != 1]) * float(misses)
 
     # Multiply (n choose hits) onto the total, in log space.
     log_n_choose_hits = log_factorial(n) - log_factorial(misses) - log_factorial(hits)
@@ -150,7 +160,10 @@ def least_squares_cost(*, xs: np.ndarray, ys: np.ndarray, intercept: float, slop
 def least_squares_through_point(*, xs: np.ndarray, ys: np.ndarray, required_x: float, required_y: float) -> 'LinregressResult':
     # Local import to reduce initial cost of importing sinter.
     from scipy.optimize import leastsq
-    from scipy.stats._stats_mstats_common import LinregressResult
+    from scipy.stats import linregress
+
+    # HACK: get scipy's linear regression result type
+    LinregressResult = type(linregress([0, 1], [0, 1]))
 
     xs2 = xs - required_x
     ys2 = ys - required_y
@@ -169,7 +182,11 @@ def least_squares_with_slope(*, xs: np.ndarray, ys: np.ndarray, required_slope: 
 
     # Local import to reduce initial cost of importing sinter.
     from scipy.optimize import leastsq
-    from scipy.stats._stats_mstats_common import LinregressResult
+
+    # HACK: get scipy's linear regression result type
+    from scipy.stats import linregress
+    LinregressResult = type(linregress([0, 1], [0, 1]))
+
     (best_intercept,), _ = leastsq(func=err, x0=0.0)
     return LinregressResult(required_slope, best_intercept, None, None, None, intercept_stderr=False)
 
@@ -192,9 +209,9 @@ class Fit:
             of the best fit's square error, or whose likelihood was within some
             maximum Bayes factor of the max likelihood hypothesis.
     """
-    low: float
-    best: float
-    high: float
+    low: Optional[float]
+    best: Optional[float]
+    high: Optional[float]
 
     def __repr__(self) -> str:
         return f'sinter.Fit(low={self.low!r}, best={self.best!r}, high={self.high!r})'
@@ -304,7 +321,7 @@ def fit_line_slope(*,
 
     low_slope = binary_intercept(start_x=fit.slope, step=-1, target_y=base_cost + max_extra_squared_error, func=cost_for_slope, atol=1e-5)
     high_slope = binary_intercept(start_x=fit.slope, step=1, target_y=base_cost + max_extra_squared_error, func=cost_for_slope, atol=1e-5)
-    return Fit(low=low_slope, best=fit.slope, high=high_slope)
+    return Fit(low=float(low_slope), best=float(fit.slope), high=float(high_slope))
 
 
 def fit_binomial(

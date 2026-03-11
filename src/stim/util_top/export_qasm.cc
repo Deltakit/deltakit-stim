@@ -276,9 +276,9 @@ struct QasmExporter {
         out << "gate " << name << " q0 { U(";
         auto xyz = gate.to_euler_angles();
         std::array<const char *, 4> angles{"0", "pi/2", "pi", "-pi/2"};
-        out << angles[round(xyz[0] / 3.14159265359f)];
-        out << ", " << angles[round(xyz[1] / 3.14159265359f)];
-        out << ", " << angles[round(xyz[2] / 3.14159265359f)];
+        out << angles[(int)round(xyz[0] / 3.14159265359f) & 3];
+        out << ", " << angles[(int)round(xyz[1] / 3.14159265359f) & 3];
+        out << ", " << angles[(int)round(xyz[2] / 3.14159265359f) & 3];
         out << ") q0; }\n";
     }
 
@@ -387,8 +387,17 @@ struct QasmExporter {
         qasm_names[(int)GateType::H] = "h";
         define_custom_single_qubit_gate(GateType::C_XYZ, "cxyz");
         define_custom_single_qubit_gate(GateType::C_ZYX, "czyx");
+        define_custom_single_qubit_gate(GateType::C_NXYZ, "cnxyz");
+        define_custom_single_qubit_gate(GateType::C_XNYZ, "cxnyz");
+        define_custom_single_qubit_gate(GateType::C_XYNZ, "cxynz");
+        define_custom_single_qubit_gate(GateType::C_NZYX, "cnzyx");
+        define_custom_single_qubit_gate(GateType::C_ZNYX, "cznyx");
+        define_custom_single_qubit_gate(GateType::C_ZYNX, "czynx");
         define_custom_single_qubit_gate(GateType::H_XY, "hxy");
         define_custom_single_qubit_gate(GateType::H_YZ, "hyz");
+        define_custom_single_qubit_gate(GateType::H_NXY, "hnxy");
+        define_custom_single_qubit_gate(GateType::H_NXZ, "hnxz");
+        define_custom_single_qubit_gate(GateType::H_NYZ, "hnyz");
         define_custom_single_qubit_gate(GateType::SQRT_Y, "sy");
         define_custom_single_qubit_gate(GateType::SQRT_Y_DAG, "sydg");
 
@@ -430,6 +439,9 @@ struct QasmExporter {
         switch (instruction.gate_type) {
             case GateType::QUBIT_COORDS:
             case GateType::SHIFT_COORDS:
+            case GateType::II:
+            case GateType::I_ERROR:
+            case GateType::II_ERROR:
                 // Skipped.
                 return;
 
@@ -496,13 +508,23 @@ struct QasmExporter {
                 }
 
                 int ref_value = 0;
+                bool had_paulis = false;
                 for (auto t : instruction.targets) {
-                    assert(t.is_measurement_record_target());
-                    auto i = measurement_offset + t.rec_offset();
-                    ref_value ^= reference_sample[i];
-                    out << "rec[" << (measurement_offset + t.rec_offset()) << "] ^ ";
+                    if (t.is_measurement_record_target()) {
+                        auto i = measurement_offset + t.rec_offset();
+                        ref_value ^= reference_sample[i];
+                        out << "rec[" << (measurement_offset + t.rec_offset()) << "] ^ ";
+                    } else if (t.is_pauli_target()) {
+                        had_paulis = true;
+                    } else {
+                        throw std::invalid_argument("Unexpected target for OBSERVABLE_INCLUDE: " + t.str());
+                    }
                 }
                 out << ref_value << ";\n";
+
+                if (had_paulis) {
+                    out << "// Warning: ignored pauli terms in " << instruction << "\n";
+                }
                 return;
             }
 

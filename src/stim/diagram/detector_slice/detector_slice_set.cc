@@ -29,6 +29,7 @@ struct DetectorSliceSetComputer {
     bool process_block_rev(const Circuit &block);
     bool process_op_rev(const Circuit &parent, const CircuitInstruction &op);
     bool process_tick();
+    void process_undo_start_of_circuit();
 };
 
 bool DetectorSliceSetComputer::process_block_rev(const Circuit &block) {
@@ -45,7 +46,13 @@ bool DetectorSliceSetComputer::process_tick() {
         on_tick_callback();
     }
     tick_cur--;
-    return tick_cur < first_yield_tick;
+
+    // Offset by 1 to go one tick further, and catch any anticommutation issues.
+    return tick_cur + 1 < first_yield_tick;
+}
+
+void DetectorSliceSetComputer::process_undo_start_of_circuit() {
+    tracker.undo_implicit_RZs_at_start_of_circuit();
 }
 
 bool DetectorSliceSetComputer::process_op_rev(const Circuit &parent, const CircuitInstruction &op) {
@@ -120,15 +127,16 @@ void DetectorSliceSet::write_text_diagram_to(std::ostream &out) const {
             ss << "ANTICOMMUTED";
             ss << ":";
             ss << s.first.second;
-            drawer.diagram.add_entry(AsciiDiagramEntry{
-                AsciiDiagramPos{
-                    drawer.m2x(drawer.cur_moment + 1),
-                    drawer.q2y(t.qubit_value()),
-                    0,
-                    0.5,
-                },
-                ss.str(),
-            });
+            drawer.diagram.add_entry(
+                AsciiDiagramEntry{
+                    AsciiDiagramPos{
+                        drawer.m2x(drawer.cur_moment + 1),
+                        drawer.q2y(t.qubit_value()),
+                        0,
+                        0.5,
+                    },
+                    ss.str(),
+                });
         }
     }
 
@@ -147,15 +155,16 @@ void DetectorSliceSet::write_text_diagram_to(std::ostream &out) const {
             }
             ss << ":";
             ss << s.first.second;
-            drawer.diagram.add_entry(AsciiDiagramEntry{
-                AsciiDiagramPos{
-                    drawer.m2x(drawer.cur_moment),
-                    drawer.q2y(t.qubit_value()),
-                    0,
-                    0.5,
-                },
-                ss.str(),
-            });
+            drawer.diagram.add_entry(
+                AsciiDiagramEntry{
+                    AsciiDiagramPos{
+                        drawer.m2x(drawer.cur_moment),
+                        drawer.q2y(t.qubit_value()),
+                        0,
+                        0.5,
+                    },
+                    ss.str(),
+                });
         }
     }
 
@@ -175,10 +184,11 @@ void DetectorSliceSet::write_text_diagram_to(std::ostream &out) const {
             ss << "(" << comma_sep(p->second) << ")";
         }
         ss << " ";
-        drawer.diagram.add_entry(AsciiDiagramEntry{
-            {0, drawer.q2y(q), 1.0, 0.5},
-            ss.str(),
-        });
+        drawer.diagram.add_entry(
+            AsciiDiagramEntry{
+                {0, drawer.q2y(q), 1.0, 0.5},
+                ss.str(),
+            });
     }
 
     drawer.diagram.render(out);
@@ -250,10 +260,9 @@ DetectorSliceSet DetectorSliceSet::from_circuit_ticks(
     result.min_tick = start_tick;
     result.num_ticks = num_ticks;
 
-    helper.on_tick_callback = [&]() {
-        // Process anticommutations.
+    auto process_anticommutations = [&](size_t out_tick) {
         for (const auto &[d, g] : helper.tracker.anticommutations) {
-            result.anticommutations[{helper.tick_cur, d}].push_back(g);
+            result.anticommutations[{out_tick, d}].push_back(g);
 
             // Stop propagating it backwards if it broke.
             for (size_t q = 0; q < num_qubits; q++) {
@@ -266,6 +275,10 @@ DetectorSliceSet DetectorSliceSet::from_circuit_ticks(
             }
         }
         helper.tracker.anticommutations.clear();
+    };
+
+    helper.on_tick_callback = [&]() {
+        process_anticommutations(helper.tick_cur + 1);
 
         // Record locations of detectors and observables.
         for (size_t q = 0; q < num_qubits; q++) {
@@ -297,7 +310,11 @@ DetectorSliceSet DetectorSliceSet::from_circuit_ticks(
     };
 
     if (!helper.process_tick()) {
-        helper.process_block_rev(circuit);
+        bool early_exit = helper.process_block_rev(circuit);
+        if (!early_exit) {
+            helper.process_undo_start_of_circuit();
+            process_anticommutations(1);
+        }
     }
 
     std::set<uint64_t> included_detectors;
@@ -741,8 +758,7 @@ void _start_two_body_svg_path(
     std::ostream &out,
     const std::function<Coord<2>(uint64_t tick, uint32_t qubit)> &coords,
     uint64_t tick,
-    SpanRef<const GateTarget> terms,
-    std::vector<Coord<2>> &pts_workspace) {
+    SpanRef<const GateTarget> terms) {
     auto a = coords(tick, terms[0].qubit_value());
     auto b = coords(tick, terms[1].qubit_value());
     auto dif = b - a;
@@ -774,7 +790,6 @@ void _start_one_body_svg_path(
     const std::function<Coord<2>(uint64_t tick, uint32_t qubit)> &coords,
     uint64_t tick,
     SpanRef<const GateTarget> terms,
-    std::vector<Coord<2>> &pts_workspace,
     size_t scale) {
     auto c = coords(tick, terms[0].qubit_value());
     out << "<circle";
@@ -793,20 +808,25 @@ void _start_slice_shape_command(
     if (terms.size() > 2) {
         _start_many_body_svg_path(out, coords, tick, terms, pts_workspace);
     } else if (terms.size() == 2) {
-        _start_two_body_svg_path(out, coords, tick, terms, pts_workspace);
+        _start_two_body_svg_path(out, coords, tick, terms);
     } else if (terms.size() == 1) {
-        _start_one_body_svg_path(out, coords, tick, terms, pts_workspace, scale);
+        _start_one_body_svg_path(out, coords, tick, terms, scale);
     }
 }
 
-void DetectorSliceSet::write_svg_diagram_to(std::ostream &out) const {
-    size_t num_cols = (uint64_t)ceil(sqrt((double)num_ticks));
-    size_t num_rows = num_ticks / num_cols;
-    while (num_cols * num_rows < num_ticks) {
-        num_rows++;
-    }
-    while (num_cols * num_rows >= num_ticks + num_rows) {
-        num_cols--;
+void DetectorSliceSet::write_svg_diagram_to(std::ostream &out, size_t num_rows) const {
+    size_t num_cols;
+    if (num_rows == 0) {
+        num_cols = (uint64_t)ceil(sqrt((double)num_ticks));
+        num_rows = num_ticks / num_cols;
+        while (num_cols * num_rows < num_ticks) {
+            num_rows++;
+        }
+        while (num_cols * num_rows >= num_ticks + num_rows) {
+            num_cols--;
+        }
+    } else {
+        num_cols = (num_ticks + num_rows - 1) / num_rows;
     }
 
     auto coordsys = FlattenedCoords::from(*this, 32);
@@ -922,7 +942,7 @@ void DetectorSliceSet::write_svg_contents_to(
         bool is_anticommutation = std::get<3>(e);
         if (is_anticommutation) {
             for (const auto &anti_target : terms) {
-                auto c = coords(tick + 1, anti_target.qubit_value());
+                auto c = coords(tick, anti_target.qubit_value());
                 out << R"SVG(<circle)SVG";
                 write_key_val(out, "cx", c.xyz[0]);
                 write_key_val(out, "cy", c.xyz[1]);
