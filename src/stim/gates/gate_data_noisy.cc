@@ -55,7 +55,7 @@ Pauli Mixture:
 Examples:
 
     # Apply 1-qubit depolarization to qubit 0 using p=1%
-    DEPOLARIZE2(0.01) 0
+    DEPOLARIZE1(0.01) 0
 
     # Apply 1-qubit depolarization to qubit 2
     # Separately apply 1-qubit depolarization to qubits 3 and 5
@@ -134,6 +134,55 @@ Examples:
     add_gate(
         failed,
         Gate{
+            .name = "I_ERROR",
+            .id = GateType::I_ERROR,
+            .best_candidate_inverse_id = GateType::I_ERROR,
+            .arg_count = ARG_COUNT_SYGIL_ANY,
+            .flags = (GateFlags)(GATE_IS_SINGLE_QUBIT_GATE | GATE_IS_NOISY | GATE_ARGS_ARE_DISJOINT_PROBABILITIES),
+            .category = "F_Noise Channels",
+            .help = R"MARKDOWN(
+Applies an identity with a given probability.
+
+This gate has no effect. It only exists because it can be useful as a
+communication mechanism for systems built on top of stim.
+
+Parens Arguments:
+
+    A list of disjoint probabilities summing to at most 1.
+
+    The probabilities have no effect on stim simulations or error analysis, but may be
+    interpreted in arbitrary ways by external tools.
+
+Targets:
+
+    Qubits to apply identity noise to.
+
+Pauli Mixture:
+
+     *: I
+
+Examples:
+
+    # does nothing
+    I_ERROR 0
+
+    # does nothing with probability 0.1, else does nothing
+    I_ERROR(0.1) 0
+
+    # doesn't require a probability argument
+    I_ERROR[LEAKAGE_NOISE_FOR_AN_ADVANCED_SIMULATOR:0.1] 0 2 4
+
+    # checks for you that the disjoint probabilities in the arguments are legal
+    I_ERROR[MULTIPLE_NOISE_MECHANISMS](0.1, 0.2) 0 2 4
+)MARKDOWN",
+            .unitary_data = {},
+            .flow_data = {},
+            .h_s_cx_m_r_decomposition = nullptr,
+        });
+
+    add_gate(
+        failed,
+        Gate{
             .name = "LEAKAGE",
             .id = GateType::LEAKAGE,
             .best_candidate_inverse_id = GateType::LEAKAGE,
@@ -187,6 +236,55 @@ Examples:
     # Apply leakage to qubit 2, 3 and 5 with p=0.5%
     LEAKAGE(0.005) 2 3 5
 
+)MARKDOWN",
+            .unitary_data = {},
+            .flow_data = {},
+            .h_s_cx_m_r_decomposition = nullptr,
+        });
+
+    add_gate(
+        failed,
+        Gate{
+            .name = "II_ERROR",
+            .id = GateType::II_ERROR,
+            .best_candidate_inverse_id = GateType::II_ERROR,
+            .arg_count = ARG_COUNT_SYGIL_ANY,
+            .flags = (GateFlags)(GATE_TARGETS_PAIRS | GATE_IS_NOISY | GATE_ARGS_ARE_DISJOINT_PROBABILITIES),
+            .category = "F_Noise Channels",
+            .help = R"MARKDOWN(
+Applies a two-qubit identity with a given probability.
+
+This gate has no effect. It only exists because it can be useful as a
+communication mechanism for systems built on top of stim.
+
+Parens Arguments:
+
+    A list of disjoint probabilities summing to at most 1.
+
+    The probabilities have no effect on stim simulations or error analysis, but may be
+    interpreted in arbitrary ways by external tools.
+
+Targets:
+
+    Qubits to apply identity noise to.
+
+Pauli Mixture:
+
+    *: II
+
+Examples:
+
+    # does nothing
+    II_ERROR 0 1
+
+    # does nothing with probability 0.1, else does nothing
+    II_ERROR(0.1) 0 1
+
+    # checks for you that the targets are two-qubit pairs
+    II_ERROR[TWO_QUBIT_LEAKAGE_NOISE_FOR_AN_ADVANCED_SIMULATOR:0.1] 0 2 4 6
+
+    # checks for you that the disjoint probabilities in the arguments are legal
+    II_ERROR[MULTIPLE_TWO_QUBIT_NOISE_MECHANISMS](0.1, 0.2) 0 2 4 6
 )MARKDOWN",
             .unitary_data = {},
             .flow_data = {},
@@ -413,7 +511,7 @@ Example:
 
     # Sample errors from the distribution 10% XX, 20% YZ, 70% II.
     # Apply independently to qubit pairs (1,2), (5,6), and (8,3)
-    PAULI_CHANNEL_2(0,0,0, 0.1,0,0,0, 0,0,0,0.2, 0,0,0,0) 1 2 5 6 8 3
+    PAULI_CHANNEL_2(0,0,0, 0,0.1,0,0, 0,0,0,0.2, 0,0,0,0) 1 2 5 6 8 3
 
 Pauli Mixture:
 

@@ -75,7 +75,7 @@ bool is_bulk_frame_operation_consistent_with_tableau(const Gate &gate) {
         auto test_value = PauliString<W>::random(circuit_stats.num_qubits, rng);
         PauliStringRef<W> test_value_ref(test_value);
         sim.set_frame(k, test_value);
-        sim.do_gate({gate.id, {}, targets});
+        sim.do_gate({gate.id, {}, targets, ""});
         for (size_t k2 = 0; k2 < targets.size(); k2 += num_targets) {
             size_t target_buf[2];
             if (num_targets == 1) {
@@ -97,7 +97,7 @@ bool is_bulk_frame_operation_consistent_with_tableau(const Gate &gate) {
 
 TEST_EACH_WORD_SIZE_W(FrameSimulator, bulk_operations_consistent_with_tableau_data, {
     for (const auto &gate : GATE_DATA.items) {
-        if (gate.flags & GATE_IS_UNITARY) {
+        if (gate.has_known_unitary_matrix()) {
             EXPECT_TRUE(is_bulk_frame_operation_consistent_with_tableau<W>(gate)) << gate.name;
         }
     }
@@ -112,7 +112,7 @@ bool is_output_possible_promising_no_bare_resets(const Circuit &circuit, const s
         if (op.gate_type == GateType::M) {
             for (auto qf : op.targets) {
                 tableau_sim.sign_bias = output[out_p] ? -1 : +1;
-                tableau_sim.do_MZ({GateType::M, {}, &qf});
+                tableau_sim.do_MZ(CircuitInstruction{GateType::M, {}, &qf, ""});
                 if (output[out_p] != tableau_sim.measurement_record.storage.back()) {
                     pass = false;
                 }
@@ -1680,4 +1680,64 @@ TEST_EACH_WORD_SIZE_W(FrameSimulator, heralded_pauli_channel_1_statistics_offset
     EXPECT_NEAR(bins[5] / (double)n, 0.10, 0.04);
     EXPECT_NEAR(bins[6] / (double)n, 0.25, 0.04);
     EXPECT_NEAR(bins[7] / (double)n, 0.15, 0.04);
+})
+
+TEST_EACH_WORD_SIZE_W(FrameSimulator, observable_include_paulis_rz, {
+    auto circuit = Circuit(R"CIRCUIT(
+        RZ 0
+        OBSERVABLE_INCLUDE(0) X0
+        OBSERVABLE_INCLUDE(1) Y0
+        OBSERVABLE_INCLUDE(2) Z0
+    )CIRCUIT");
+    FrameSimulator<W> sim(
+        circuit.compute_stats(), FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, 1024, INDEPENDENT_TEST_RNG());
+    sim.reset_all();
+    sim.do_circuit(circuit);
+    auto x0 = sim.obs_record[0].popcnt();
+    auto y0 = sim.obs_record[1].popcnt();
+    auto z0 = sim.obs_record[2].popcnt();
+    ASSERT_EQ(x0, y0);
+    ASSERT_GT(x0, 300);
+    ASSERT_LT(x0, 700);
+    ASSERT_EQ(z0, 0);
+})
+
+TEST_EACH_WORD_SIZE_W(FrameSimulator, observable_include_paulis_ry, {
+    auto circuit = Circuit(R"CIRCUIT(
+        RY 0
+        OBSERVABLE_INCLUDE(0) X0
+        OBSERVABLE_INCLUDE(1) Y0
+        OBSERVABLE_INCLUDE(2) Z0
+    )CIRCUIT");
+    FrameSimulator<W> sim(
+        circuit.compute_stats(), FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, 1024, INDEPENDENT_TEST_RNG());
+    sim.reset_all();
+    sim.do_circuit(circuit);
+    auto x0 = sim.obs_record[0].popcnt();
+    auto y0 = sim.obs_record[1].popcnt();
+    auto z0 = sim.obs_record[2].popcnt();
+    ASSERT_EQ(x0, z0);
+    ASSERT_GT(x0, 300);
+    ASSERT_LT(x0, 700);
+    ASSERT_EQ(y0, 0);
+})
+
+TEST_EACH_WORD_SIZE_W(FrameSimulator, observable_include_paulis_rx, {
+    auto circuit = Circuit(R"CIRCUIT(
+        RX 0
+        OBSERVABLE_INCLUDE(0) X0
+        OBSERVABLE_INCLUDE(1) Y0
+        OBSERVABLE_INCLUDE(2) Z0
+    )CIRCUIT");
+    FrameSimulator<W> sim(
+        circuit.compute_stats(), FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, 1024, INDEPENDENT_TEST_RNG());
+    sim.reset_all();
+    sim.do_circuit(circuit);
+    auto x0 = sim.obs_record[0].popcnt();
+    auto y0 = sim.obs_record[1].popcnt();
+    auto z0 = sim.obs_record[2].popcnt();
+    ASSERT_EQ(y0, z0);
+    ASSERT_GT(y0, 300);
+    ASSERT_LT(y0, 700);
+    ASSERT_EQ(x0, 0);
 })

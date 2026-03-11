@@ -47,13 +47,15 @@ struct bitword<64> {
         free(ptr);
     }
 
-    inline constexpr bitword<64>() : val{} {
+    inline constexpr bitword() : val{} {
     }
-    inline constexpr bitword<64>(uint64_t v) : val{v} {
+    inline bitword(std::array<uint64_t, 1> val) : val{val[0]} {
     }
-    inline constexpr bitword<64>(int64_t v) : val{(uint64_t)v} {
+    inline constexpr bitword(uint64_t v) : val{v} {
     }
-    inline constexpr bitword<64>(int v) : val{(uint64_t)v} {
+    inline constexpr bitword(int64_t v) : val{(uint64_t)v} {
+    }
+    inline constexpr bitword(int v) : val{(uint64_t)v} {
     }
 
     constexpr inline static bitword<64> tile64(uint64_t pattern) {
@@ -109,6 +111,10 @@ struct bitword<64> {
 
     inline bitword<64> andnot(const bitword<64> &other) const {
         return bitword<64>(~val & other.val);
+    }
+
+    inline bitword<64> operator~() const {
+        return {~val};
     }
 
     inline uint16_t popcount() const {

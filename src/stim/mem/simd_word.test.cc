@@ -114,11 +114,11 @@ TEST_EACH_WORD_SIZE_W(simd_word, shifting, {
     for (size_t k = 0; k < W; k++) {
         std::array<uint64_t, W / 64> expected{};
         expected[k / 64] = uint64_t{1} << (k % 64);
-        EXPECT_EQ((w << uint64_t{k}).to_u64_array(), expected) << k;
+        EXPECT_EQ((w << static_cast<uint64_t>(k)).to_u64_array(), expected) << k;
         if (k > 0) {
-	  EXPECT_EQ(((w << uint64_t{k - 1}) << uint64_t{1}).to_u64_array(), expected) << k;
+            EXPECT_EQ(((w << (static_cast<uint64_t>(k) - 1)) << 1).to_u64_array(), expected) << k;
         }
-        EXPECT_EQ(w, (w << uint64_t{k}) >> uint64_t{k}) << k;
+        EXPECT_EQ(w, (w << static_cast<uint64_t>(k)) >> static_cast<uint64_t>(k)) << k;
     }
 
     ASSERT_EQ(w << 0, 1);
@@ -129,8 +129,8 @@ TEST_EACH_WORD_SIZE_W(simd_word, shifting, {
     ASSERT_EQ(w >> 2, 0);
     ASSERT_EQ((w << 5) >> 5, 1);
     ASSERT_EQ((w >> 5) << 5, 0);
-    ASSERT_EQ((w << uint64_t{W - 1}) << 1, 0);
-    ASSERT_EQ((w << uint64_t{W - 1}) >> uint64_t{W - 1}, 1);
+    ASSERT_EQ((w << static_cast<uint64_t>(W - 1)) << 1, 0);
+    ASSERT_EQ((w << static_cast<uint64_t>(W - 1)) >> static_cast<uint64_t>(W - 1), 1);
 })
 
 TEST_EACH_WORD_SIZE_W(simd_word, masking, {
@@ -150,4 +150,14 @@ TEST_EACH_WORD_SIZE_W(simd_word, ordering, {
     ASSERT_TRUE(simd_word<W>(1) < simd_word<W>(2));
     ASSERT_TRUE(!(simd_word<W>(2) < simd_word<W>(2)));
     ASSERT_TRUE(!(simd_word<W>(3) < simd_word<W>(2)));
+})
+
+TEST_EACH_WORD_SIZE_W(simd_word, from_u64_array, {
+    std::array<uint64_t, W / 64> expected;
+    for (size_t k = 0; k < expected.size(); k++) {
+        expected[k] = k * 3 + 1;
+    }
+    simd_word<W> w(expected);
+    std::array<uint64_t, W / 64> actual = w.to_u64_array();
+    ASSERT_EQ(actual, expected);
 })

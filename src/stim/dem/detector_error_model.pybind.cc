@@ -18,7 +18,7 @@
 
 #include "stim/circuit/circuit.pybind.h"
 #include "stim/cmd/command_diagram.pybind.h"
-#include "stim/dem/detector_error_model_instruction.pybind.h"
+#include "stim/dem/dem_instruction.pybind.h"
 #include "stim/dem/detector_error_model_repeat_block.pybind.h"
 #include "stim/dem/detector_error_model_target.pybind.h"
 #include "stim/io/raii_file.h"
@@ -357,6 +357,7 @@ void stim_pybind::pybind_detector_error_model_methods(
             result.targets.insert(result.targets.begin(), op.target_data.begin(), op.target_data.end());
             result.arguments.insert(result.arguments.begin(), op.arg_data.begin(), op.arg_data.end());
             result.type = op.type;
+            result.tag = op.tag;
             return pybind11::cast(result);
         },
         pybind11::arg("index_or_slice"),
@@ -465,7 +466,8 @@ void stim_pybind::pybind_detector_error_model_methods(
         [](DetectorErrorModel &self,
            const pybind11::object &instruction,
            const pybind11::object &parens_arguments,
-           const std::vector<pybind11::object> &targets) {
+           const std::vector<pybind11::object> &targets,
+           std::string_view tag) {
             bool is_name = pybind11::isinstance<pybind11::str>(instruction);
             if (!is_name && (!targets.empty() || !parens_arguments.is_none())) {
                 throw std::invalid_argument(
@@ -500,17 +502,21 @@ void stim_pybind::pybind_detector_error_model_methods(
                     }
                 }
 
-                self.append_dem_instruction(DemInstruction{
-                    conv_args,
-                    conv_targets,
-                    type,
-                });
+                self.append_dem_instruction(
+                    DemInstruction{
+                        conv_args,
+                        conv_targets,
+                        tag,
+                        type,
+                    });
             } else if (pybind11::isinstance<ExposedDemInstruction>(instruction)) {
                 const ExposedDemInstruction &exp = pybind11::cast<ExposedDemInstruction>(instruction);
-                self.append_dem_instruction(DemInstruction{exp.arguments, exp.targets, exp.type});
+                self.append_dem_instruction(DemInstruction{exp.arguments, exp.targets, exp.tag, exp.type});
             } else if (pybind11::isinstance<ExposedDemRepeatBlock>(instruction)) {
                 const ExposedDemRepeatBlock &block = pybind11::cast<ExposedDemRepeatBlock>(instruction);
-                self.append_repeat_block(block.repeat_count, block.body);
+                self.append_repeat_block(block.repeat_count, block.body, block.tag);
+            } else if (pybind11::isinstance<DetectorErrorModel>(instruction)) {
+                self += pybind11::cast<DetectorErrorModel>(instruction);
             } else {
                 throw std::invalid_argument(
                     "First argument to stim.DetectorErrorModel.append must be a str (an instruction name), "
@@ -521,18 +527,22 @@ void stim_pybind::pybind_detector_error_model_methods(
         pybind11::arg("instruction"),
         pybind11::arg("parens_arguments") = pybind11::none(),
         pybind11::arg("targets") = pybind11::make_tuple(),
+        pybind11::kw_only(),
+        pybind11::arg("tag") = "",
         clean_doc_string(R"DOC(
             Appends an instruction to the detector error model.
 
             Args:
-                instruction: Either the name of an instruction, a stim.DemInstruction, or a
-                    stim.DemRepeatBlock. The `parens_arguments` and `targets` arguments are
-                    given if and only if the instruction is a name.
+                instruction: Either the name of an instruction, a stim.DemInstruction, a
+                    stim.DemRepeatBlock. or a stim.DetectorErrorModel. The
+                    `parens_arguments`, `targets`, and 'tag' arguments should be given iff
+                    the instruction is a name.
                 parens_arguments: Numeric values parameterizing the instruction. The numbers
                     inside parentheses in a detector error model file (eg. the `0.25` in
                     `error(0.25) D0`). This argument can be given either a list of doubles,
                     or a single double (which will be implicitly wrapped into a list).
                 targets: The instruction targets, such as the `D0` in `error(0.25) D0`.
+                tag: An arbitrary piece of text attached to the repeat instruction.
 
             Examples:
                 >>> import stim
@@ -545,18 +555,18 @@ void stim_pybind::pybind_detector_error_model_methods(
                 ...     stim.DemTarget.separator(),
                 ...     stim.DemTarget.relative_detector_id(2),
                 ...     stim.DemTarget.logical_observable_id(3),
-                ... ])
+                ... ], tag='test-tag')
                 >>> print(repr(m))
                 stim.DetectorErrorModel('''
                     error(0.125) D1
-                    error(0.25) D1 ^ D2 L3
+                    error[test-tag](0.25) D1 ^ D2 L3
                 ''')
 
                 >>> m.append("shift_detectors", (1, 2, 3), [5])
                 >>> print(repr(m))
                 stim.DetectorErrorModel('''
                     error(0.125) D1
-                    error(0.25) D1 ^ D2 L3
+                    error[test-tag](0.25) D1 ^ D2 L3
                     shift_detectors(1, 2, 3) 5
                 ''')
 
@@ -566,17 +576,17 @@ void stim_pybind::pybind_detector_error_model_methods(
                 >>> print(repr(m))
                 stim.DetectorErrorModel('''
                     error(0.125) D1
-                    error(0.25) D1 ^ D2 L3
+                    error[test-tag](0.25) D1 ^ D2 L3
                     shift_detectors(1, 2, 3) 5
                     repeat 3 {
                         error(0.125) D1
-                        error(0.25) D1 ^ D2 L3
+                        error[test-tag](0.25) D1 ^ D2 L3
                         shift_detectors(1, 2, 3) 5
                     }
                     error(0.125) D1
                     repeat 3 {
                         error(0.125) D1
-                        error(0.25) D1 ^ D2 L3
+                        error[test-tag](0.25) D1 ^ D2 L3
                         shift_detectors(1, 2, 3) 5
                     }
                 ''')
@@ -762,13 +772,14 @@ void stim_pybind::pybind_detector_error_model_methods(
         )DOC")
             .data());
 
-    c.def(pybind11::pickle(
-        [](const DetectorErrorModel &self) -> pybind11::str {
-            return self.str();
-        },
-        [](const pybind11::str &text) -> DetectorErrorModel {
-            return DetectorErrorModel(pybind11::cast<std::string_view>(text));
-        }));
+    c.def(
+        pybind11::pickle(
+            [](const DetectorErrorModel &self) -> pybind11::str {
+                return self.str();
+            },
+            [](const pybind11::str &text) -> DetectorErrorModel {
+                return DetectorErrorModel(pybind11::cast<std::string_view>(text));
+            }));
 
     c.def(
         "shortest_graphlike_error",
@@ -797,7 +808,7 @@ void stim_pybind::pybind_detector_error_model_methods(
             the race to find a solution.
 
             Args:
-                ignore_ungraphlike_errors: Defaults to False. When False, an exception is
+                ignore_ungraphlike_errors: Defaults to True. When False, an exception is
                     raised if there are any errors in the model that are not graphlike. When
                     True, those errors are skipped as if they weren't present.
 
@@ -923,7 +934,7 @@ void stim_pybind::pybind_detector_error_model_methods(
                 ...     with open(path, 'w') as f:
                 ...         print('error(0.25) D2 D3', file=f)
                 ...     with open(path) as f:
-                ...         circuit = stim.DetectorErrorModel.from_file(path)
+                ...         circuit = stim.DetectorErrorModel.from_file(f)
                 >>> circuit
                 stim.DetectorErrorModel('''
                     error(0.25) D2 D3
@@ -1145,7 +1156,7 @@ void stim_pybind::pybind_detector_error_model_methods(
         &dem_diagram,
         pybind11::arg("type"),
         clean_doc_string(R"DOC(
-            @signature def diagram(self, type: str) -> Any:
+            @signature def diagram(self, type: Literal["matchgraph-svg", "matchgraph-svg-html", "matchgraph-3d", "matchgraph-3d-html"] = 'matchgraph-svg') -> Any:
             Returns a diagram of the circuit, from a variety of options.
 
             Args:
@@ -1195,6 +1206,27 @@ void stim_pybind::pybind_detector_error_model_methods(
                 ...     diagram = circuit.diagram("match-graph-3d")
                 ...     with open(f"{d}/dem_3d_model.gltf", "w") as f:
                 ...         print(diagram, file=f)
+        )DOC")
+            .data());
+
+    c.def(
+        "without_tags",
+        &DetectorErrorModel::without_tags,
+        clean_doc_string(R"DOC(
+            Returns a copy of the detector error model with all tags removed.
+
+            Returns:
+                A `stim.DetectorErrorModel` with the same instructions except all tags have
+                been removed.
+
+            Examples:
+                >>> import stim
+                >>> stim.DetectorErrorModel('''
+                ...     error[test-tag](0.25) D0
+                ... ''').without_tags()
+                stim.DetectorErrorModel('''
+                    error(0.25) D0
+                ''')
         )DOC")
             .data());
 }

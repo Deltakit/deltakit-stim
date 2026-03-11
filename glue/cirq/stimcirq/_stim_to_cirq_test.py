@@ -1,12 +1,11 @@
-import inspect
 import itertools
-from typing import Any, Callable, cast, Tuple, Union
+from typing import cast
 
 import cirq
 import pytest
 import stim
-import stimcirq
 
+import stimcirq
 from ._stim_to_cirq import CircuitTranslationTracker
 
 
@@ -619,7 +618,7 @@ def test_stim_circuit_to_cirq_circuit_mpad():
     cirq_circuit = stimcirq.stim_circuit_to_cirq_circuit(stim_circuit)
     assert cirq_circuit == cirq.Circuit(
         cirq.PauliMeasurementGate(cirq.DensePauliString(""), key="0").on(),
-        cirq.PauliMeasurementGate(-cirq.DensePauliString(""), key="1").on(),
+        cirq.PauliMeasurementGate(cirq.DensePauliString("", coefficient=-1), key="1").on(),
     )
 
 
@@ -633,8 +632,8 @@ def test_stim_circuit_to_cirq_circuit_mxx_myy_mzz():
     a, b = cirq.LineQubit.range(2)
     assert cirq_circuit == cirq.Circuit(
         cirq.PauliMeasurementGate(cirq.DensePauliString("XX"), key='0').on(a, b),
-        cirq.PauliMeasurementGate(-cirq.DensePauliString("YY"), key='1').on(a, b),
-        cirq.PauliMeasurementGate(-cirq.DensePauliString("ZZ"), key='2').on(a, b),
+        cirq.PauliMeasurementGate(cirq.DensePauliString("YY", coefficient=-1), key='1').on(a, b),
+        cirq.PauliMeasurementGate(cirq.DensePauliString("ZZ", coefficient=-1), key='2').on(a, b),
     )
     assert stimcirq.cirq_circuit_to_stim_circuit(cirq_circuit) == stim.Circuit("""
         MPP X0*X1
@@ -682,3 +681,101 @@ def test_stim_circuit_to_cirq_circuit_spp():
         SPP Z0
         TICK
     """)
+
+
+def test_tags_convert():
+    assert stimcirq.stim_circuit_to_cirq_circuit(stim.Circuit("""
+        H[my_tag] 0
+    """)) == cirq.Circuit(
+        cirq.H(cirq.LineQubit(0)).with_tags('my_tag'),
+    )
+
+
+@pytest.mark.parametrize('gate', sorted(stim.gate_data().keys()))
+def test_every_operation_converts_tags(gate: str):
+    if gate in [
+        "ELSE_CORRELATED_ERROR",
+        "HERALDED_ERASE",
+        "HERALDED_PAULI_CHANNEL_1",
+        "TICK",
+        "REPEAT",
+        "MPAD",
+        "QUBIT_COORDS",
+    ]:
+        pytest.skip()
+
+    data = stim.gate_data(gate)
+    stim_circuit = stim.Circuit()
+    arg = None
+    targets = [0, 1]
+    if data.num_parens_arguments_range.start:
+        arg = [2**-6] * data.num_parens_arguments_range.start
+    if data.takes_pauli_targets:
+        targets = [stim.target_x(0), stim.target_y(1)]
+    if data.takes_measurement_record_targets and not data.is_unitary:
+        stim_circuit.append("M", [0], tag='custom_tag')
+        targets = [stim.target_rec(-1)]
+    if gate == 'SHIFT_COORDS':
+        targets = []
+    if gate == 'OBSERVABLE_INCLUDE':
+        arg = [1]
+    stim_circuit.append(gate, targets, arg, tag='custom_tag')
+    cirq_circuit = stimcirq.stim_circuit_to_cirq_circuit(stim_circuit)
+    assert any(cirq_circuit.all_operations())
+    for op in cirq_circuit.all_operations():
+        assert op.tags == ('custom_tag',)
+    restored_circuit = stimcirq.cirq_circuit_to_stim_circuit(cirq_circuit)
+    assert restored_circuit.pop() == stim.CircuitInstruction("TICK")
+    assert all(instruction.tag == 'custom_tag' for instruction in restored_circuit)
+    if gate not in ['MXX', 'MYY', 'MZZ']:
+        assert restored_circuit == stim_circuit
+
+
+def test_loop_tagging():
+    stim_circuit = stim.Circuit("""
+        REPEAT[custom-tag] 5 {
+            H[tag2] 0
+            TICK
+        }
+    """)
+    cirq_circuit = stimcirq.stim_circuit_to_cirq_circuit(stim_circuit)
+    assert cirq_circuit == cirq.Circuit(
+        cirq.CircuitOperation(
+            cirq.FrozenCircuit(
+                cirq.H(cirq.LineQubit(0)).with_tags('tag2'),
+            ),
+            repetitions=5,
+            use_repetition_ids=False,
+        ).with_tags('custom-tag')
+    )
+    restored_circuit = stimcirq.cirq_circuit_to_stim_circuit(cirq_circuit)
+    assert restored_circuit == stim_circuit
+
+
+def test_id_error_round_trip():
+    stim_circuit = stim.Circuit("""
+        I_ERROR 0
+        I_ERROR(0.125, 0.25) 1
+        II_ERROR(0.25, 0.125) 2 3
+        II_ERROR 4 5
+        TICK
+    """)
+    cirq_circuit = stimcirq.stim_circuit_to_cirq_circuit(stim_circuit)
+    restored_circuit = stimcirq.cirq_circuit_to_stim_circuit(cirq_circuit)
+    assert restored_circuit == stim_circuit
+
+def test_round_trip_with_pauli_obs():
+    stim_circuit = stim.Circuit("""
+        QUBIT_COORDS(5, 5) 0
+        R 0
+        OBSERVABLE_INCLUDE(0) X0
+        TICK
+        H 0
+        TICK
+        M 0
+        OBSERVABLE_INCLUDE(0) rec[-1]
+        TICK
+    """)
+    cirq_circuit = stimcirq.stim_circuit_to_cirq_circuit(stim_circuit)
+    restored_circuit = stimcirq.cirq_circuit_to_stim_circuit(cirq_circuit)
+    assert restored_circuit == stim_circuit
