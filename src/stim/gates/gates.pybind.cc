@@ -22,7 +22,8 @@
 using namespace stim;
 using namespace stim_pybind;
 
-pybind11::object gate_num_parens_argument_range(const Gate &self) {
+pybind11::object gate_num_parens_argument_range(const GateTypeWrapper &self_id) {
+    const auto &self = GATE_DATA.at(self_id.type);
     auto r = pybind11::module::import("builtins").attr("range");
     if (self.arg_count == ARG_COUNT_SYGIL_ZERO_OR_ONE) {
         return r(2);
@@ -35,10 +36,10 @@ pybind11::object gate_num_parens_argument_range(const Gate &self) {
     }
     return r(self.arg_count, self.arg_count + 1);
 }
-std::vector<std::string_view> gate_aliases(const Gate &self) {
+std::vector<std::string_view> gate_aliases(const GateTypeWrapper &self_id) {
     std::vector<std::string_view> aliases;
     for (const auto &h : GATE_DATA.hashed_name_to_gate_type_table) {
-        if (h.id == self.id) {
+        if (h.id == self_id.type) {
             aliases.push_back(h.expected_name);
         }
     }
@@ -46,14 +47,16 @@ std::vector<std::string_view> gate_aliases(const Gate &self) {
     return aliases;
 }
 
-pybind11::object gate_tableau(const Gate &self) {
+pybind11::object gate_tableau(const GateTypeWrapper &self_id) {
+    const auto &self = GATE_DATA.at(self_id.type);
     if (self.flags & GATE_IS_UNITARY) {
         return pybind11::cast(self.tableau<MAX_BITWORD_WIDTH>());
     }
     return pybind11::none();
 }
-pybind11::object gate_unitary_matrix(const Gate &self) {
-    if (self.flags & GATE_IS_UNITARY) {
+pybind11::object gate_unitary_matrix(const GateTypeWrapper &self_id) {
+    const Gate &self = GATE_DATA.at(self_id.type);
+    if (self.has_known_unitary_matrix()) {
         auto r = self.unitary();
         auto n = r.size();
         std::complex<float> *buffer = new std::complex<float>[n * n];
@@ -76,8 +79,8 @@ pybind11::object gate_unitary_matrix(const Gate &self) {
     return pybind11::none();
 }
 
-pybind11::class_<Gate> stim_pybind::pybind_gate_data(pybind11::module &m) {
-    return pybind11::class_<Gate>(
+pybind11::class_<GateTypeWrapper> stim_pybind::pybind_gate_data(pybind11::module &m) {
+    return pybind11::class_<GateTypeWrapper>(
         m,
         "GateData",
         pybind11::module_local(),
@@ -103,10 +106,10 @@ pybind11::class_<Gate> stim_pybind::pybind_gate_data(pybind11::module &m) {
             .data());
 }
 
-void stim_pybind::pybind_gate_data_methods(pybind11::module &m, pybind11::class_<Gate> &c) {
+void stim_pybind::pybind_gate_data_methods(pybind11::module &m, pybind11::class_<GateTypeWrapper> &c) {
     c.def(
-        pybind11::init([](const char *name) -> Gate {
-            return GATE_DATA.at(name);
+        pybind11::init([](const char *name) -> GateTypeWrapper {
+            return {GATE_DATA.at(name).id};
         }),
         pybind11::arg("name"),
         clean_doc_string(R"DOC(
@@ -123,13 +126,13 @@ void stim_pybind::pybind_gate_data_methods(pybind11::module &m, pybind11::class_
         "gate_data",
         [](const pybind11::object &name) -> pybind11::object {
             if (!name.is_none()) {
-                return pybind11::cast(GATE_DATA.at(pybind11::cast<std::string_view>(name)));
+                return pybind11::cast(GateTypeWrapper{GATE_DATA.at(pybind11::cast<std::string_view>(name)).id});
             }
 
-            std::map<std::string_view, Gate> result;
+            std::map<std::string_view, GateTypeWrapper> result;
             for (const auto &g : GATE_DATA.items) {
                 if (g.id != GateType::NOT_A_GATE) {
-                    result.insert({g.name, g});
+                    result.insert({g.name, GateTypeWrapper{g.id}});
                 }
             }
             return pybind11::cast(result);
@@ -157,7 +160,8 @@ void stim_pybind::pybind_gate_data_methods(pybind11::module &m, pybind11::class_
 
     c.def_property_readonly(
         "name",
-        [](const Gate &self) -> std::string_view {
+        [](const GateTypeWrapper &self_id) -> std::string_view {
+            const Gate &self = GATE_DATA.at(self_id.type);
             return self.name;
         },
         clean_doc_string(R"DOC(
@@ -192,7 +196,8 @@ void stim_pybind::pybind_gate_data_methods(pybind11::module &m, pybind11::class_
 
     c.def(
         "__repr__",
-        [](const Gate &self) -> std::string {
+        [](const GateTypeWrapper &self_id) -> std::string {
+            const Gate &self = GATE_DATA.at(self_id.type);
             std::stringstream ss;
             ss << "stim.gate_data('" << self.name << "')";
             return ss.str();
@@ -204,7 +209,8 @@ void stim_pybind::pybind_gate_data_methods(pybind11::module &m, pybind11::class_
 
     c.def(
         "__str__",
-        [](const Gate &self) -> std::string {
+        [](const GateTypeWrapper &self_id) -> std::string {
+            const Gate &self = GATE_DATA.at(self_id.type);
             std::stringstream ss;
             auto b = [](bool x) -> const char * {
                 return x ? "True" : "False";
@@ -222,19 +228,19 @@ void stim_pybind::pybind_gate_data_methods(pybind11::module &m, pybind11::class_
             };
             ss << "stim.GateData {\n";
             ss << "    .name = '" << self.name << "'\n";
-            ss << "    .aliases = " << v(pybind11::cast(gate_aliases(self))) << "\n";
+            ss << "    .aliases = " << v(pybind11::cast(gate_aliases(self_id))) << "\n";
             ss << "    .is_noisy_gate = " << b(self.flags & GATE_IS_NOISY) << "\n";
             ss << "    .is_reset = " << b(self.flags & GATE_IS_RESET) << "\n";
             ss << "    .is_single_qubit_gate = " << b(self.flags & GATE_IS_SINGLE_QUBIT_GATE) << "\n";
             ss << "    .is_two_qubit_gate = " << b(self.flags & GATE_TARGETS_PAIRS) << "\n";
             ss << "    .is_unitary = " << b(self.flags & GATE_IS_UNITARY) << "\n";
-            ss << "    .num_parens_arguments_range = " << v(gate_num_parens_argument_range(self)) << "\n";
+            ss << "    .num_parens_arguments_range = " << v(gate_num_parens_argument_range(self_id)) << "\n";
             ss << "    .produces_measurements = " << b(self.flags & GATE_PRODUCES_RESULTS) << "\n";
             ss << "    .takes_measurement_record_targets = "
                << b(self.flags & (GATE_CAN_TARGET_BITS | GATE_ONLY_TARGETS_MEASUREMENT_RECORD)) << "\n";
             ss << "    .takes_pauli_targets = " << b(self.flags & GATE_TARGETS_PAULI_STRING) << "\n";
             if (self.flags & GATE_IS_UNITARY) {
-                ss << "    .tableau = " << v(gate_tableau(self)) << "\n";
+                ss << "    .tableau = " << v(gate_tableau(self_id)) << "\n";
                 ss << "    .unitary_matrix = np.array(" << v(pybind11::cast(self.unitary()))
                    << ", dtype=np.complex64)\n";
             }
@@ -304,7 +310,8 @@ void stim_pybind::pybind_gate_data_methods(pybind11::module &m, pybind11::class_
 
     c.def_property_readonly(
         "is_unitary",
-        [](const Gate &self) -> bool {
+        [](const GateTypeWrapper &self_id) -> bool {
+            const Gate &self = GATE_DATA.at(self_id.type);
             return self.flags & GATE_IS_UNITARY;
         },
         clean_doc_string(R"DOC(
@@ -368,7 +375,8 @@ void stim_pybind::pybind_gate_data_methods(pybind11::module &m, pybind11::class_
 
     c.def_property_readonly(
         "is_reset",
-        [](const Gate &self) -> bool {
+        [](const GateTypeWrapper &self_id) -> bool {
+            const Gate &self = GATE_DATA.at(self_id.type);
             return self.flags & GATE_IS_RESET;
         },
         clean_doc_string(R"DOC(
@@ -409,7 +417,8 @@ void stim_pybind::pybind_gate_data_methods(pybind11::module &m, pybind11::class_
 
     c.def_property_readonly(
         "is_single_qubit_gate",
-        [](const Gate &self) -> bool {
+        [](const GateTypeWrapper &self_id) -> bool {
+            const Gate &self = GATE_DATA.at(self_id.type);
             return self.flags & GATE_IS_SINGLE_QUBIT_GATE;
         },
         clean_doc_string(R"DOC(
@@ -451,7 +460,8 @@ void stim_pybind::pybind_gate_data_methods(pybind11::module &m, pybind11::class_
 
     c.def_property_readonly(
         "flows",
-        [](const Gate &self) -> pybind11::object {
+        [](const GateTypeWrapper &self_id) -> pybind11::object {
+            const Gate &self = GATE_DATA.at(self_id.type);
             auto f = self.flows<MAX_BITWORD_WIDTH>();
             if (f.empty()) {
                 return pybind11::none();
@@ -500,8 +510,128 @@ void stim_pybind::pybind_gate_data_methods(pybind11::module &m, pybind11::class_
             .data());
 
     c.def_property_readonly(
+        "is_symmetric_gate",
+        [](const GateTypeWrapper &self_id) -> bool {
+            const Gate &self = GATE_DATA.at(self_id.type);
+            return self.is_symmetric();
+        },
+        clean_doc_string(R"DOC(
+            Returns whether or not the gate is the same when its targets are swapped.
+
+            A two qubit gate is symmetric if it doesn't matter if you swap its targets. It
+            is unaffected when conjugated by the SWAP gate.
+
+            Single qubit gates are vacuously symmetric. A multi-qubit gate is symmetric if
+            swapping any two of its targets has no effect.
+
+            Note that this method is for symmetry *without broadcasting*. For example, SWAP
+            is symmetric even though SWAP 1 2 3 4 isn't equal to SWAP 1 3 2 4.
+
+            Returns:
+                True if the gate is symmetric.
+                False if the gate isn't symmetric.
+
+            Examples:
+                >>> import stim
+
+                >>> stim.gate_data('CX').is_symmetric_gate
+                False
+                >>> stim.gate_data('CZ').is_symmetric_gate
+                True
+                >>> stim.gate_data('ISWAP').is_symmetric_gate
+                True
+                >>> stim.gate_data('CXSWAP').is_symmetric_gate
+                False
+                >>> stim.gate_data('MXX').is_symmetric_gate
+                True
+                >>> stim.gate_data('DEPOLARIZE2').is_symmetric_gate
+                True
+                >>> stim.gate_data('PAULI_CHANNEL_2').is_symmetric_gate
+                False
+                >>> stim.gate_data('H').is_symmetric_gate
+                True
+                >>> stim.gate_data('R').is_symmetric_gate
+                True
+                >>> stim.gate_data('X_ERROR').is_symmetric_gate
+                True
+                >>> stim.gate_data('CORRELATED_ERROR').is_symmetric_gate
+                False
+                >>> stim.gate_data('MPP').is_symmetric_gate
+                False
+                >>> stim.gate_data('DETECTOR').is_symmetric_gate
+                False
+        )DOC")
+            .data());
+
+    c.def(
+        "hadamard_conjugated",
+        [](const GateTypeWrapper &self_id, bool ignoring_sign) -> pybind11::object {
+            const Gate &self = GATE_DATA.at(self_id.type);
+            GateType g = self.hadamard_conjugated(ignoring_sign);
+            if (g == GateType::NOT_A_GATE) {
+                return pybind11::none();
+            }
+            return pybind11::cast(GateTypeWrapper{g});
+        },
+        pybind11::kw_only(),
+        pybind11::arg("unsigned") = false,
+        clean_doc_string(R"DOC(
+            @signature def hadamard_conjugated(self, *, unsigned: bool = False) -> Optional[stim.GateData]:
+            Returns a stim gate equivalent to this gate conjugated by Hadamard gates.
+
+            The Hadamard conjugate can be thought of as the XZ dual of the gate; the gate
+            you get by exchanging the X and Z bases. For example, a SQRT_X will become a
+            SQRT_Z and a CX gate will switch directions into an XCZ.
+
+            If stim doesn't define a gate equivalent to conjugating this gate by Hadamards,
+            the value `None` is returned.
+
+            Args:
+                unsigned: Defaults to False. When False, the returned gate must be *exactly*
+                    the Hadamard conjugation of this gate. When True, the returned gate must
+                    have the same flows but the sign of the flows can be different (i.e.
+                    the returned gate must be the Hadamard conjugate up to Pauli gate
+                    differences).
+
+            Returns:
+                A stim.GateData instance of the Hadamard conjugate, if it exists in stim.
+
+                None, if stim doesn't define a gate equal to the Hadamard conjugate.
+
+            Examples:
+                >>> import stim
+
+                >>> stim.gate_data('X').hadamard_conjugated()
+                stim.gate_data('Z')
+                >>> stim.gate_data('CX').hadamard_conjugated()
+                stim.gate_data('XCZ')
+                >>> stim.gate_data('RY').hadamard_conjugated() is None
+                True
+                >>> stim.gate_data('RY').hadamard_conjugated(unsigned=True)
+                stim.gate_data('RY')
+                >>> stim.gate_data('ISWAP').hadamard_conjugated(unsigned=True) is None
+                True
+                >>> stim.gate_data('SWAP').hadamard_conjugated()
+                stim.gate_data('SWAP')
+                >>> stim.gate_data('CXSWAP').hadamard_conjugated()
+                stim.gate_data('SWAPCX')
+                >>> stim.gate_data('MXX').hadamard_conjugated()
+                stim.gate_data('MZZ')
+                >>> stim.gate_data('DEPOLARIZE1').hadamard_conjugated()
+                stim.gate_data('DEPOLARIZE1')
+                >>> stim.gate_data('X_ERROR').hadamard_conjugated()
+                stim.gate_data('Z_ERROR')
+                >>> stim.gate_data('H_XY').hadamard_conjugated()
+                stim.gate_data('H_NYZ')
+                >>> stim.gate_data('DETECTOR').hadamard_conjugated(unsigned=True)
+                stim.gate_data('DETECTOR')
+        )DOC")
+            .data());
+
+    c.def_property_readonly(
         "is_two_qubit_gate",
-        [](const Gate &self) -> bool {
+        [](const GateTypeWrapper &self_id) -> bool {
+            const Gate &self = GATE_DATA.at(self_id.type);
             return self.flags & GATE_TARGETS_PAIRS;
         },
         clean_doc_string(R"DOC(
@@ -511,6 +641,10 @@ void stim_pybind::pybind_gate_data_methods(pybind11::module &m, pybind11::class_
 
             Variable-qubit gates like CORRELATED_ERROR and MPP are not
             considered two qubit gates.
+
+            Returns:
+                True if the gate is a two qubit gate.
+                False if the gate isn't a two qubit gate.
 
             Examples:
                 >>> import stim
@@ -539,7 +673,8 @@ void stim_pybind::pybind_gate_data_methods(pybind11::module &m, pybind11::class_
 
     c.def_property_readonly(
         "is_noisy_gate",
-        [](const Gate &self) -> bool {
+        [](const GateTypeWrapper &self_id) -> bool {
+            const Gate &self = GATE_DATA.at(self_id.type);
             return self.flags & GATE_IS_NOISY;
         },
         clean_doc_string(R"DOC(
@@ -576,7 +711,8 @@ void stim_pybind::pybind_gate_data_methods(pybind11::module &m, pybind11::class_
 
     c.def_property_readonly(
         "produces_measurements",
-        [](const Gate &self) -> bool {
+        [](const GateTypeWrapper &self_id) -> bool {
+            const Gate &self = GATE_DATA.at(self_id.type);
             return self.flags & GATE_PRODUCES_RESULTS;
         },
         clean_doc_string(R"DOC(
@@ -613,7 +749,8 @@ void stim_pybind::pybind_gate_data_methods(pybind11::module &m, pybind11::class_
 
     c.def_property_readonly(
         "takes_pauli_targets",
-        [](const Gate &self) -> bool {
+        [](const GateTypeWrapper &self_id) -> bool {
+            const Gate &self = GATE_DATA.at(self_id.type);
             return self.flags & GATE_TARGETS_PAULI_STRING;
         },
         clean_doc_string(R"DOC(
@@ -651,10 +788,10 @@ void stim_pybind::pybind_gate_data_methods(pybind11::module &m, pybind11::class_
 
     c.def_property_readonly(
         "inverse",
-        [](const Gate &self) -> pybind11::object {
+        [](const GateTypeWrapper &self_id) -> pybind11::object {
+            const Gate &self = GATE_DATA.at(self_id.type);
             if (self.flags & GATE_IS_UNITARY) {
-                const auto &inv = GATE_DATA[self.best_candidate_inverse_id];
-                return pybind11::cast(inv);
+                return pybind11::cast(GateTypeWrapper{self.best_candidate_inverse_id});
             }
             return pybind11::none();
         },
@@ -700,8 +837,9 @@ void stim_pybind::pybind_gate_data_methods(pybind11::module &m, pybind11::class_
 
     c.def_property_readonly(
         "generalized_inverse",
-        [](const Gate &self) -> Gate {
-            return GATE_DATA[self.best_candidate_inverse_id];
+        [](const GateTypeWrapper &self_id) -> GateTypeWrapper {
+            const Gate &self = GATE_DATA.at(self_id.type);
+            return GateTypeWrapper{self.best_candidate_inverse_id};
         },
         clean_doc_string(R"DOC(
             The closest-thing-to-an-inverse for the gate, if forced to pick something.
@@ -749,7 +887,8 @@ void stim_pybind::pybind_gate_data_methods(pybind11::module &m, pybind11::class_
 
     c.def_property_readonly(
         "takes_measurement_record_targets",
-        [](const Gate &self) -> bool {
+        [](const GateTypeWrapper &self_id) -> bool {
+            const Gate &self = GATE_DATA.at(self_id.type);
             return self.flags & (GATE_CAN_TARGET_BITS | GATE_ONLY_TARGETS_MEASUREMENT_RECORD);
         },
         clean_doc_string(R"DOC(

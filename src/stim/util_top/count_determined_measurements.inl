@@ -4,12 +4,20 @@
 namespace stim {
 
 template <size_t W>
-uint64_t count_determined_measurements(const Circuit &circuit) {
-    uint64_t result = 0;
+uint64_t count_determined_measurements(const Circuit &circuit, bool unknown_input) {
     auto n = circuit.count_qubits();
     TableauSimulator<W> sim(std::mt19937_64{0}, n);
+    if (unknown_input) {
+        sim.ensure_large_enough_for_qubits(2*n);
+        for (uint32_t k = 0; k < n; k++) {
+            std::array<GateTarget, 2> targets{GateTarget::qubit(k), GateTarget::qubit(k + (uint32_t)n)};
+            sim.do_XCX(CircuitInstruction{GateType::XCX, {}, targets, ""});
+        }
+        n *= 2;
+    }
     PauliString<W> obs_buffer(n);
 
+    uint64_t result = 0;
     circuit.for_each_operation([&](const CircuitInstruction &inst) {
         if (!(GATE_DATA[inst.gate_type].flags & GATE_PRODUCES_RESULTS)) {
             sim.do_gate(inst);
@@ -22,7 +30,7 @@ uint64_t count_determined_measurements(const Circuit &circuit) {
                 for (const auto &t : inst.targets) {
                     assert(t.is_qubit_target());
                     result += sim.peek_z(t.qubit_value()) != 0;
-                    sim.do_gate(CircuitInstruction{inst.gate_type, {}, {&t}});
+                    sim.do_gate(CircuitInstruction{inst.gate_type, {}, {&t}, ""});
                 }
                 break;
             }
@@ -33,7 +41,7 @@ uint64_t count_determined_measurements(const Circuit &circuit) {
                 for (const auto &t : inst.targets) {
                     assert(t.is_qubit_target());
                     result += sim.peek_x(t.qubit_value()) != 0;
-                    sim.do_gate(CircuitInstruction{inst.gate_type, {}, {&t}});
+                    sim.do_gate(CircuitInstruction{inst.gate_type, {}, {&t}, ""});
                 }
                 break;
             }
@@ -44,7 +52,7 @@ uint64_t count_determined_measurements(const Circuit &circuit) {
                 for (const auto &t : inst.targets) {
                     assert(t.is_qubit_target());
                     result += sim.peek_y(t.qubit_value()) != 0;
-                    sim.do_gate(CircuitInstruction{inst.gate_type, {}, {&t}});
+                    sim.do_gate(CircuitInstruction{inst.gate_type, {}, {&t}, ""});
                 }
                 break;
             }
@@ -68,7 +76,7 @@ uint64_t count_determined_measurements(const Circuit &circuit) {
                     obs_buffer.xs[q1] = 0;
                     obs_buffer.zs[q0] = 0;
                     obs_buffer.zs[q1] = 0;
-                    sim.do_gate(CircuitInstruction{inst.gate_type, {}, inst.targets.sub(k, k + 2)});
+                    sim.do_gate(CircuitInstruction{inst.gate_type, {}, inst.targets.sub(k, k + 2), ""});
                 }
                 break;
             }
@@ -90,7 +98,7 @@ uint64_t count_determined_measurements(const Circuit &circuit) {
                     obs_buffer.xs.clear();
                     obs_buffer.zs.clear();
 
-                    sim.do_gate({inst.gate_type, {}, inst.targets.sub(start, end)});
+                    sim.do_gate({inst.gate_type, {}, inst.targets.sub(start, end), ""});
                     start = end;
                 }
                 break;

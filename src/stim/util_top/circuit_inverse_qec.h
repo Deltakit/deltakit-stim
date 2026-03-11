@@ -2,6 +2,7 @@
 #define _STIM_UTIL_TOP_CIRCUIT_INVERSE_QEC_H
 
 #include "stim/circuit/circuit.h"
+#include "stim/simulators/sparse_rev_frame_tracker.h"
 #include "stim/stabilizers/flow.h"
 
 namespace stim {
@@ -21,6 +22,7 @@ struct CircuitFlowReverser {
     size_t num_new_measurements;
 
     Circuit inverted_circuit;
+    std::map<DemTarget, std::string_view> d2tag;
     std::map<DemTarget, std::vector<double>> d2coords;
     std::vector<double> coord_buf;
     std::vector<double> coord_shifts;
@@ -37,6 +39,7 @@ struct CircuitFlowReverser {
     void do_m2r_instruction(const CircuitInstruction &inst);
     void do_measuring_instruction(const CircuitInstruction &inst);
     void do_simple_instruction(const CircuitInstruction &inst);
+    void do_feedback_capable_instruction(const CircuitInstruction &inst);
     void flush_detectors_and_observables();
 
     void do_instruction(const CircuitInstruction &inst);

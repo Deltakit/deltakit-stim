@@ -4,6 +4,37 @@ import {rad} from "../draw/config.js";
 
 function *iter_gates_sqrt_pauli_pairs() {
     yield new Gate(
+        'II',
+        2,
+        true,
+        false,
+        new Map([
+            ['IX', 'IX'],
+            ['IZ', 'IZ'],
+            ['XI', 'XI'],
+            ['ZI', 'ZI'],
+        ]),
+        (frame, targets) => undefined,
+        (frame, targets) => undefined,
+        (op, coordFunc, ctx) => {
+            let [x1, y1] = coordFunc(op.id_targets[0]);
+            let [x2, y2] = coordFunc(op.id_targets[1]);
+
+            draw_connector(ctx, x1, y1, x2, y2);
+
+            for (let [x, y] of [[x1, y1], [x2, y2]]) {
+                ctx.fillStyle = 'white';
+                ctx.fillRect(x - rad, y - rad, rad * 2, rad * 2);
+                ctx.strokeStyle = 'black';
+                ctx.strokeRect(x - rad, y - rad, rad * 2, rad * 2);
+                ctx.fillStyle = 'black';
+                ctx.textAlign = "center";
+                ctx.textBaseline = 'middle';
+                ctx.fillText('II', x, y);
+            }
+        },
+    )
+    yield new Gate(
         'SQRT_XX',
         2,
         true,
@@ -14,6 +45,7 @@ function *iter_gates_sqrt_pauli_pairs() {
             ['XI', 'XI'],
             ['ZI', 'YX'],
         ]),
+        (frame, targets) => frame.do_sqrt_xx(targets),
         (frame, targets) => frame.do_sqrt_xx(targets),
         (op, coordFunc, ctx) => {
             let [x1, y1] = coordFunc(op.id_targets[0]);
@@ -44,6 +76,7 @@ function *iter_gates_sqrt_pauli_pairs() {
             ['XI', 'XI'],
             ['ZI', 'YX'],
         ]),
+        (frame, targets) => frame.do_sqrt_xx(targets),
         (frame, targets) => frame.do_sqrt_xx(targets),
         (op, coordFunc, ctx) => {
             let [x1, y1] = coordFunc(op.id_targets[0]);
@@ -76,6 +109,7 @@ function *iter_gates_sqrt_pauli_pairs() {
             ['ZI', 'XY'],
         ]),
         (frame, targets) => frame.do_sqrt_yy(targets),
+        (frame, targets) => frame.do_sqrt_yy(targets),
         (op, coordFunc, ctx) => {
             let [x1, y1] = coordFunc(op.id_targets[0]);
             let [x2, y2] = coordFunc(op.id_targets[1]);
@@ -105,6 +139,7 @@ function *iter_gates_sqrt_pauli_pairs() {
             ['XI', 'ZY'],
             ['ZI', 'XY'],
         ]),
+        (frame, targets) => frame.do_sqrt_yy(targets),
         (frame, targets) => frame.do_sqrt_yy(targets),
         (op, coordFunc, ctx) => {
             let [x1, y1] = coordFunc(op.id_targets[0]);
@@ -137,6 +172,7 @@ function *iter_gates_sqrt_pauli_pairs() {
             ['ZI', 'ZI'],
         ]),
         (frame, targets) => frame.do_sqrt_zz(targets),
+        (frame, targets) => frame.do_sqrt_zz(targets),
         (op, coordFunc, ctx) => {
             let [x1, y1] = coordFunc(op.id_targets[0]);
             let [x2, y2] = coordFunc(op.id_targets[1]);
@@ -166,6 +202,7 @@ function *iter_gates_sqrt_pauli_pairs() {
             ['XI', 'YZ'],
             ['ZI', 'ZI'],
         ]),
+        (frame, targets) => frame.do_sqrt_zz(targets),
         (frame, targets) => frame.do_sqrt_zz(targets),
         (op, coordFunc, ctx) => {
             let [x1, y1] = coordFunc(op.id_targets[0]);

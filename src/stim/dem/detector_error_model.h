@@ -1,19 +1,3 @@
-/*
- * Copyright 2021 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 #ifndef _STIM_DEM_DETECTOR_ERROR_MODEL_H
 #define _STIM_DEM_DETECTOR_ERROR_MODEL_H
 
@@ -31,6 +15,7 @@ namespace stim {
 struct DetectorErrorModel {
     MonotonicBuffer<double> arg_buf;
     MonotonicBuffer<DemTarget> target_buf;
+    MonotonicBuffer<char> tag_buf;
     std::vector<DemInstruction> instructions;
     std::vector<DetectorErrorModel> blocks;
 
@@ -54,12 +39,13 @@ struct DetectorErrorModel {
     DetectorErrorModel &operator+=(const DetectorErrorModel &other);
 
     void append_dem_instruction(const DemInstruction &instruction);
-    void append_error_instruction(double probability, SpanRef<const DemTarget> targets);
-    void append_shift_detectors_instruction(SpanRef<const double> coord_shift, uint64_t detector_shift);
-    void append_detector_instruction(SpanRef<const double> coords, DemTarget target);
-    void append_logical_observable_instruction(DemTarget target);
-    void append_repeat_block(uint64_t repeat_count, DetectorErrorModel &&body);
-    void append_repeat_block(uint64_t repeat_count, const DetectorErrorModel &body);
+    void append_error_instruction(double probability, SpanRef<const DemTarget> targets, std::string_view tag);
+    void append_shift_detectors_instruction(
+        SpanRef<const double> coord_shift, uint64_t detector_shift, std::string_view tag);
+    void append_detector_instruction(SpanRef<const double> coords, DemTarget target, std::string_view tag);
+    void append_logical_observable_instruction(DemTarget target, std::string_view tag);
+    void append_repeat_block(uint64_t repeat_count, DetectorErrorModel &&body, std::string_view tag);
+    void append_repeat_block(uint64_t repeat_count, const DetectorErrorModel &body, std::string_view tag);
 
     /// Grows the detector error model using operations from a string.
     void append_from_text(std::string_view text);
@@ -77,6 +63,8 @@ struct DetectorErrorModel {
     bool operator!=(const DetectorErrorModel &other) const;
     bool approx_equals(const DetectorErrorModel &other, double atol) const;
     std::string str() const;
+
+    DetectorErrorModel without_tags() const;
 
     uint64_t total_detector_shift() const;
     uint64_t count_detectors() const;
@@ -101,7 +89,7 @@ struct DetectorErrorModel {
                     for (auto &t : translate_buf) {
                         t.shift_if_detector_id((int64_t)detector_shift);
                     }
-                    callback(DemInstruction{op.arg_data, translate_buf, op.type});
+                    callback(DemInstruction{op.arg_data, translate_buf, op.tag, op.type});
                     break;
                 case DemInstructionType::DEM_REPEAT_BLOCK: {
                     const auto &block = op.repeat_block_body(*this);

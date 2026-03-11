@@ -35,6 +35,9 @@ function make_gate_map() {
     for (let gate of iter_gates()) {
         result.set(gate.name, gate);
     }
+    result.set('MZ', result.get('M'))
+    result.set('RZ', result.get('R'))
+    result.set('MRZ', result.get('MR'))
     return result;
 }
 
@@ -71,6 +74,8 @@ function make_gate_alias_map() {
     result.set("PAULI_CHANNEL_1", {ignore: true});
     result.set("PAULI_CHANNEL_2", {ignore: true});
     result.set("X_ERROR", {ignore: true});
+    result.set("I_ERROR", {ignore: true});
+    result.set("II_ERROR", {ignore: true});
     result.set("Y_ERROR", {ignore: true});
     result.set("Z_ERROR", {ignore: true});
     result.set("HERALDED_ERASE", {ignore: true});
@@ -78,8 +83,6 @@ function make_gate_alias_map() {
 
     // Annotations.
     result.set("MPAD", {ignore: true});
-    result.set("DETECTOR", {ignore: true});
-    result.set("OBSERVABLE_INCLUDE", {ignore: true});
     result.set("SHIFT_COORDS", {ignore: true});
 
     return result;

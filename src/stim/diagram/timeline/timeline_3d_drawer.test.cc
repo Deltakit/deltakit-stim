@@ -15,6 +15,7 @@
 #include "stim/diagram/timeline/timeline_3d_drawer.h"
 
 #include <fstream>
+#include <ostream>
 
 #include "gtest/gtest.h"
 
@@ -26,6 +27,14 @@
 
 using namespace stim;
 using namespace stim_draw_internal;
+
+std::string getPlatform() {
+#ifdef __APPLE__
+    return "macos";
+#elif __linux__
+    return "linux";
+#endif
+}
 
 void expect_diagram_is_identical_to_saved_file(const Circuit &circuit, std::string_view key) {
     auto diagram = DiagramTimeline3DDrawer::circuit_to_basic_3d_diagram(circuit);
@@ -107,7 +116,17 @@ TEST(circuit_diagram_timeline_3d, two_qubits_gates) {
         CXSWAP 0 1
         SWAPCX 2 3
     )CIRCUIT");
-    expect_diagram_is_identical_to_saved_file(circuit, "two_qubits_gates.gltf");
+
+    std::string platform = getPlatform();
+    std::string file_name;
+
+    if (platform == "linux") {
+      file_name = "two_qubits_gates.gltf";
+    }
+    else if (platform == "macos") {
+      file_name = "two_qubits_gates.macos.gltf";
+    }
+    expect_diagram_is_identical_to_saved_file(circuit, file_name);
 }
 
 TEST(circuit_diagram_timeline_3d, noise_gates) {
@@ -245,15 +264,44 @@ TEST(circuit_diagram_timeline_3d, detector_pseudo_targets) {
 TEST(circuit_diagram_timeline_3d, repetition_code) {
     CircuitGenParameters params(10, 3, "memory");
     auto circuit = generate_rep_code_circuit(params).circuit;
-    expect_diagram_is_identical_to_saved_file(circuit, "repetition_code.gltf");
+
+    std::string platform = getPlatform();
+    std::string file_name;
+
+    if (platform == "linux") {
+      file_name = "repetition_code.gltf";
+    }
+    else if (platform == "macos") {
+      file_name = "repetition_code.macos.gltf";
+    }
+    expect_diagram_is_identical_to_saved_file(circuit, file_name);
 }
 
 TEST(circuit_diagram_timeline_3d, surface_code) {
     CircuitGenParameters params(10, 3, "unrotated_memory_z");
     auto circuit = generate_surface_code_circuit(params).circuit;
-    expect_diagram_is_identical_to_saved_file(circuit, "surface_code.gltf");
+
+    std::string platform = getPlatform();
+    std::string file_name;
+
+    if (platform == "linux") {
+      file_name = "surface_code.gltf";
+    }
+    else if (platform == "macos") {
+      file_name = "surface_code.macos.gltf";
+    }
+    expect_diagram_is_identical_to_saved_file(circuit, file_name);
 }
 
 TEST(circuit_diagram_timeline_3d, test_circuit_all_ops) {
-    expect_diagram_is_identical_to_saved_file(generate_test_circuit_with_all_operations(), "circuit_all_ops_3d.gltf");
+    std::string platform = getPlatform();
+    std::string file_name;
+
+    if (platform == "linux") {
+      file_name = "circuit_all_ops_3d.gltf";
+    }
+    else if (platform == "macos") {
+      file_name = "circuit_all_ops_3d.macos.gltf";
+    }
+    expect_diagram_is_identical_to_saved_file(generate_test_circuit_with_all_operations(), file_name);
 }

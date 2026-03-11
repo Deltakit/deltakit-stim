@@ -28,7 +28,6 @@ Coord<3> flattened_3d(SpanRef<const double> c) {
 }
 
 std::vector<Coord<3>> pick_coordinates(const DetectorErrorModel &dem) {
-    Basic3dDiagram out;
     std::set<uint64_t> det_set;
     uint64_t n = dem.count_detectors();
     std::set<Coord<3>> used_coords;
@@ -79,6 +78,7 @@ Basic3dDiagram stim_draw_internal::dem_match_graph_to_basic_3d_diagram(const sti
     auto minmax = Coord<3>::min_max(coords);
     auto center = (minmax.first + minmax.second) * 0.5;
 
+    std::set<uint64_t> boundary_observable_detectors;
     std::vector<Coord<3>> det_coords;
     auto handle_contiguous_targets = [&](SpanRef<const DemTarget> targets) {
         bool has_observables = false;
@@ -102,6 +102,13 @@ Basic3dDiagram stim_draw_internal::dem_match_graph_to_basic_3d_diagram(const sti
             }
             auto a = det_coords[0];
             det_coords.push_back(a + d * 10);
+            if (has_observables) {
+                for (auto t : targets) {
+                    if (t.is_relative_detector_id()) {
+                        boundary_observable_detectors.insert(t.val());
+                    }
+                }
+            }
         }
         if (det_coords.size() == 2) {
             if (has_observables) {
@@ -118,15 +125,16 @@ Basic3dDiagram stim_draw_internal::dem_match_graph_to_basic_3d_diagram(const sti
             }
             c /= det_coords.size();
             for (const auto &e : det_coords) {
-                out.blue_line_data.push_back(c);
-                out.blue_line_data.push_back(e);
+                if (has_observables) {
+                    out.purple_line_data.push_back(c);
+                    out.purple_line_data.push_back(e);
+                } else {
+                    out.blue_line_data.push_back(c);
+                    out.blue_line_data.push_back(e);
+                }
             }
         }
     };
-
-    for (const auto &c : coords) {
-        out.elements.push_back({"Z_CONTROL", c});
-    }
 
     dem.iter_flatten_error_instructions([&](const DemInstruction &op) {
         if (op.type != DemInstructionType::DEM_ERROR) {
@@ -142,6 +150,11 @@ Basic3dDiagram stim_draw_internal::dem_match_graph_to_basic_3d_diagram(const sti
         }
         handle_contiguous_targets({p + start, op.target_data.ptr_end});
     });
+
+    for (size_t k = 0; k < coords.size(); k++) {
+        bool excited = boundary_observable_detectors.find(k) != boundary_observable_detectors.end();
+        out.elements.push_back({excited ? "EXCITED_DETECTOR" : "DETECTOR", coords[k]});
+    }
 
     return out;
 }
