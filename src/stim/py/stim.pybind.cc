@@ -20,8 +20,8 @@
 #include "stim/circuit/circuit_repeat_block.pybind.h"
 #include "stim/circuit/gate_target.pybind.h"
 #include "stim/cmd/command_diagram.pybind.h"
+#include "stim/dem/dem_instruction.pybind.h"
 #include "stim/dem/detector_error_model.pybind.h"
-#include "stim/dem/detector_error_model_instruction.pybind.h"
 #include "stim/dem/detector_error_model_repeat_block.pybind.h"
 #include "stim/dem/detector_error_model_target.pybind.h"
 #include "stim/gates/gates.pybind.h"
@@ -36,6 +36,7 @@
 #include "stim/simulators/matched_error.pybind.h"
 #include "stim/simulators/measurements_to_detection_events.pybind.h"
 #include "stim/simulators/tableau_simulator.pybind.h"
+#include "stim/stabilizers/clifford_string.pybind.h"
 #include "stim/stabilizers/flow.pybind.h"
 #include "stim/stabilizers/pauli_string.pybind.h"
 #include "stim/stabilizers/pauli_string_iter.pybind.h"
@@ -588,6 +589,7 @@ PYBIND11_MODULE(STIM_PYBIND11_MODULE_NAME, m) {
     auto c_compiled_detector_sampler = pybind_compiled_detector_sampler(m);
     auto c_compiled_measurement_sampler = pybind_compiled_measurement_sampler(m);
     auto c_compiled_m2d_converter = pybind_compiled_measurements_to_detection_events_converter(m);
+    auto c_clifford_string = pybind_clifford_string(m);
     auto c_pauli_string = pybind_pauli_string(m);
     auto c_pauli_string_iter = pybind_pauli_string_iter(m);
     auto c_tableau = pybind_tableau(m);
@@ -628,6 +630,7 @@ PYBIND11_MODULE(STIM_PYBIND11_MODULE_NAME, m) {
     pybind_gate_data_methods(m, c_gate_data);
     pybind_circuit_repeat_block_methods(m, c_circuit_repeat_block);
     pybind_circuit_methods(m, c_circuit);
+    pybind_circuit_methods_extra(m, c_circuit);
 
     pybind_tableau_iter_methods(m, c_tableau_iter);
     pybind_dem_sampler_methods(m, c_dem_sampler);
@@ -639,6 +642,7 @@ PYBIND11_MODULE(STIM_PYBIND11_MODULE_NAME, m) {
 
     pybind_tableau_methods(m, c_tableau);
     pybind_pauli_string_methods(m, c_pauli_string);
+    pybind_clifford_string_methods(m, c_clifford_string);
     pybind_pauli_string_iter_methods(m, c_pauli_string_iter);
 
     pybind_compiled_detector_sampler_methods(m, c_compiled_detector_sampler);

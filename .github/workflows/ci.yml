@@ -134,8 +134,8 @@ jobs:
           #    Need python for 64-bit, but found 32-bit
           #    ..\..\meson.build:82:0: ERROR: Python dependency not found
           #
-          #{os: windows-2019, dist: cp38-win32},
-          #{os: windows-2019, dist: cp39-win32},
+          #{os: windows-2025, dist: cp38-win32},
+          #{os: windows-2025, dist: cp39-win32},
 
           # cp310-win32 disabled because numpy isn't prebuilt and fails to build.
           #
@@ -143,7 +143,7 @@ jobs:
           #
           #     CCompiler_spawn() got an unexpected keyword argument 'env'
           #
-          # {os: windows-2019, dist: cp310-win32},
+          # {os: windows-2025, dist: cp310-win32},
         ]
     env:
       CIBW_BUILD: "${{ matrix.os_dist.dist }}"
@@ -179,6 +179,7 @@ jobs:
       - run: mkdir -p output/sinter
       - run: python setup.py sdist
       - run: cd glue/cirq && python setup.py sdist
+      - run: cd glue/cirq && python setup.py bdist_wheel
       - run: cd glue/sample && python setup.py sdist
       - run: mv glue/cirq/dist/* output/stimcirq
       - run: mv glue/sample/dist/* output/sinter

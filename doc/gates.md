@@ -6,9 +6,18 @@
     - [Y](#Y)
     - [Z](#Z)
 - Single Qubit Clifford Gates
+    - [C_NXYZ](#C_NXYZ)
+    - [C_NZYX](#C_NZYX)
+    - [C_XNYZ](#C_XNYZ)
+    - [C_XYNZ](#C_XYNZ)
     - [C_XYZ](#C_XYZ)
+    - [C_ZNYX](#C_ZNYX)
+    - [C_ZYNX](#C_ZYNX)
     - [C_ZYX](#C_ZYX)
     - [H](#H)
+    - [H_NXY](#H_NXY)
+    - [H_NXZ](#H_NXZ)
+    - [H_NYZ](#H_NYZ)
     - [H_XY](#H_XY)
     - [H_XZ](#H_XZ)
     - [H_YZ](#H_YZ)
@@ -27,6 +36,7 @@
     - [CY](#CY)
     - [CZ](#CZ)
     - [CZSWAP](#CZSWAP)
+    - [II](#II)
     - [ISWAP](#ISWAP)
     - [ISWAP_DAG](#ISWAP_DAG)
     - [SQRT_XX](#SQRT_XX)
@@ -55,6 +65,8 @@
     - [ELSE_CORRELATED_ERROR](#ELSE_CORRELATED_ERROR)
     - [HERALDED_ERASE](#HERALDED_ERASE)
     - [HERALDED_PAULI_CHANNEL_1](#HERALDED_PAULI_CHANNEL_1)
+    - [II_ERROR](#II_ERROR)
+    - [I_ERROR](#I_ERROR)
     - [PAULI_CHANNEL_1](#PAULI_CHANNEL_1)
     - [PAULI_CHANNEL_2](#PAULI_CHANNEL_2)
     - [X_ERROR](#X_ERROR)
@@ -142,6 +154,14 @@ Decomposition (into H, S, CX, M, R):
     # The following circuit is equivalent (up to global phase) to `I 0`
     # (no operations)
     
+    # (The decomposition is empty because this gate has no effect.)
+    
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `I 0` (but affects the measurement record and an ancilla qubit)
+                
+    # (The decomposition is empty because this gate has no effect.)
+    
 
 <a name="X"></a>
 ### The 'X' Gate
@@ -194,6 +214,13 @@ Decomposition (into H, S, CX, M, R):
     S 0
     S 0
     H 0
+    
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `X 0` (but affects the measurement record and an ancilla qubit)
+    X 0
+                
+    # (The decomposition is trivial because this gate is in the target gate set.)
     
 
 <a name="Y"></a>
@@ -249,6 +276,13 @@ Decomposition (into H, S, CX, M, R):
     S 0
     H 0
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `Y 0` (but affects the measurement record and an ancilla qubit)
+    Y 0
+                
+    # (The decomposition is trivial because this gate is in the target gate set.)
+    
 
 <a name="Z"></a>
 ### The 'Z' Gate
@@ -300,8 +334,277 @@ Decomposition (into H, S, CX, M, R):
     S 0
     S 0
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `Z 0` (but affects the measurement record and an ancilla qubit)
+    Z 0
+                
+    # (The decomposition is trivial because this gate is in the target gate set.)
+    
 
 ## Single Qubit Clifford Gates
+
+<a name="C_NXYZ"></a>
+### The 'C_NXYZ' Gate
+
+Performs the period-3 cycle -X -> Y -> Z -> -X.
+
+Parens Arguments:
+
+    This instruction takes no parens arguments.
+
+Targets:
+
+    Qubits to operate on.
+
+Example:
+
+    C_NXYZ 5
+    C_NXYZ 42
+    C_NXYZ 5 42
+    
+Stabilizer Generators:
+
+    X -> -Y
+    Z -> -X
+    
+Bloch Rotation (axis angle):
+
+    Axis: -X+Y+Z
+    Angle: -120°
+    
+Bloch Rotation (Euler angles):
+
+      theta = 90°
+        phi = 180°
+     lambda = 90°
+    unitary = RotZ(phi) * RotY(theta) * RotZ(lambda)
+    unitary = RotZ(180°) * RotY(90°) * RotZ(90°)
+    unitary = Z * SQRT_Y * S
+
+Unitary Matrix:
+
+    [+1+i, +1-i]
+    [-1-i, +1-i] / 2
+    
+Decomposition (into H, S, CX, M, R):
+
+    # The following circuit is equivalent (up to global phase) to `C_NXYZ 0`
+    S 0
+    S 0
+    S 0
+    H 0
+    S 0
+    S 0
+    
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `C_NXYZ 0` (but affects the measurement record and an ancilla qubit)
+    MZ 1
+    MXX 0 1
+    MY 1
+    MZZ 0 1
+    MX 1
+    Z 0
+    CX rec[-3] 0
+    CY rec[-5] 0 rec[-4] 0
+    CZ rec[-2] 0 rec[-1] 0
+                
+
+<a name="C_NZYX"></a>
+### The 'C_NZYX' Gate
+
+Performs the period-3 cycle X -> -Z -> Y -> X.
+
+Parens Arguments:
+
+    This instruction takes no parens arguments.
+
+Targets:
+
+    Qubits to operate on.
+
+Example:
+
+    C_NZYX 5
+    C_NZYX 42
+    C_NZYX 5 42
+    
+Stabilizer Generators:
+
+    X -> -Z
+    Z -> -Y
+    
+Bloch Rotation (axis angle):
+
+    Axis: +X+Y-Z
+    Angle: 120°
+    
+Bloch Rotation (Euler angles):
+
+      theta = 90°
+        phi = -90°
+     lambda = 0°
+    unitary = RotZ(phi) * RotY(theta) * RotZ(lambda)
+    unitary = RotZ(-90°) * RotY(90°) * RotZ(0°)
+    unitary = S_DAG * SQRT_Y * I
+
+Unitary Matrix:
+
+    [+1+i, -1-i]
+    [+1-i, +1-i] / 2
+    
+Decomposition (into H, S, CX, M, R):
+
+    # The following circuit is equivalent (up to global phase) to `C_NZYX 0`
+    S 0
+    S 0
+    H 0
+    S 0
+    S 0
+    S 0
+    
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `C_NZYX 0` (but affects the measurement record and an ancilla qubit)
+    MX 1
+    MZZ 0 1
+    MY 1
+    MXX 0 1
+    MZ 1
+    X 0
+    CX rec[-2] 0 rec[-1] 0
+    CY rec[-5] 0 rec[-4] 0
+    CZ rec[-3] 0
+                
+
+<a name="C_XNYZ"></a>
+### The 'C_XNYZ' Gate
+
+Performs the period-3 cycle X -> -Y -> Z -> X.
+
+Parens Arguments:
+
+    This instruction takes no parens arguments.
+
+Targets:
+
+    Qubits to operate on.
+
+Example:
+
+    C_XNYZ 5
+    C_XNYZ 42
+    C_XNYZ 5 42
+    
+Stabilizer Generators:
+
+    X -> -Y
+    Z -> X
+    
+Bloch Rotation (axis angle):
+
+    Axis: +X-Y+Z
+    Angle: -120°
+    
+Bloch Rotation (Euler angles):
+
+      theta = 90°
+        phi = 0°
+     lambda = -90°
+    unitary = RotZ(phi) * RotY(theta) * RotZ(lambda)
+    unitary = RotZ(0°) * RotY(90°) * RotZ(-90°)
+    unitary = I * SQRT_Y * S_DAG
+
+Unitary Matrix:
+
+    [+1+i, -1+i]
+    [+1+i, +1-i] / 2
+    
+Decomposition (into H, S, CX, M, R):
+
+    # The following circuit is equivalent (up to global phase) to `C_XNYZ 0`
+    S 0
+    H 0
+    
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `C_XNYZ 0` (but affects the measurement record and an ancilla qubit)
+    MZ 1
+    MXX 0 1
+    MY 1
+    MZZ 0 1
+    MX 1
+    X 0
+    CX rec[-3] 0
+    CY rec[-5] 0 rec[-4] 0
+    CZ rec[-2] 0 rec[-1] 0
+                
+
+<a name="C_XYNZ"></a>
+### The 'C_XYNZ' Gate
+
+Performs the period-3 cycle X -> Y -> -Z -> X.
+
+Parens Arguments:
+
+    This instruction takes no parens arguments.
+
+Targets:
+
+    Qubits to operate on.
+
+Example:
+
+    C_XYNZ 5
+    C_XYNZ 42
+    C_XYNZ 5 42
+    
+Stabilizer Generators:
+
+    X -> Y
+    Z -> -X
+    
+Bloch Rotation (axis angle):
+
+    Axis: +X+Y-Z
+    Angle: -120°
+    
+Bloch Rotation (Euler angles):
+
+      theta = 90°
+        phi = 180°
+     lambda = -90°
+    unitary = RotZ(phi) * RotY(theta) * RotZ(lambda)
+    unitary = RotZ(180°) * RotY(90°) * RotZ(-90°)
+    unitary = Z * SQRT_Y * S_DAG
+
+Unitary Matrix:
+
+    [+1-i, +1+i]
+    [-1+i, +1+i] / 2
+    
+Decomposition (into H, S, CX, M, R):
+
+    # The following circuit is equivalent (up to global phase) to `C_XYNZ 0`
+    S 0
+    H 0
+    S 0
+    S 0
+    
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `C_XYNZ 0` (but affects the measurement record and an ancilla qubit)
+    MZ 1
+    MXX 0 1
+    MY 1
+    MZZ 0 1
+    MX 1
+    Y 0
+    CX rec[-3] 0
+    CY rec[-5] 0 rec[-4] 0
+    CZ rec[-2] 0 rec[-1] 0
+                
 
 <a name="C_XYZ"></a>
 ### The 'C_XYZ' Gate
@@ -354,6 +657,148 @@ Decomposition (into H, S, CX, M, R):
     S 0
     H 0
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `C_XYZ 0` (but affects the measurement record and an ancilla qubit)
+    MZ 1
+    MXX 0 1
+    MY 1
+    MZZ 0 1
+    MX 1
+    CX rec[-3] 0
+    CY rec[-5] 0 rec[-4] 0
+    CZ rec[-2] 0 rec[-1] 0
+                
+
+<a name="C_ZNYX"></a>
+### The 'C_ZNYX' Gate
+
+Performs the period-3 cycle X -> Z -> -Y -> X.
+
+Parens Arguments:
+
+    This instruction takes no parens arguments.
+
+Targets:
+
+    Qubits to operate on.
+
+Example:
+
+    C_ZNYX 5
+    C_ZNYX 42
+    C_ZNYX 5 42
+    
+Stabilizer Generators:
+
+    X -> Z
+    Z -> -Y
+    
+Bloch Rotation (axis angle):
+
+    Axis: +X-Y+Z
+    Angle: 120°
+    
+Bloch Rotation (Euler angles):
+
+      theta = 90°
+        phi = -90°
+     lambda = 180°
+    unitary = RotZ(phi) * RotY(theta) * RotZ(lambda)
+    unitary = RotZ(-90°) * RotY(90°) * RotZ(180°)
+    unitary = S_DAG * SQRT_Y * Z
+
+Unitary Matrix:
+
+    [+1-i, +1-i]
+    [-1-i, +1+i] / 2
+    
+Decomposition (into H, S, CX, M, R):
+
+    # The following circuit is equivalent (up to global phase) to `C_ZNYX 0`
+    H 0
+    S 0
+    S 0
+    S 0
+    
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `C_ZNYX 0` (but affects the measurement record and an ancilla qubit)
+    MX 1
+    MZZ 0 1
+    MY 1
+    MXX 0 1
+    MZ 1
+    Z 0
+    CX rec[-2] 0 rec[-1] 0
+    CY rec[-5] 0 rec[-4] 0
+    CZ rec[-3] 0
+                
+
+<a name="C_ZYNX"></a>
+### The 'C_ZYNX' Gate
+
+Performs the period-3 cycle -X -> Z -> Y -> -X.
+
+Parens Arguments:
+
+    This instruction takes no parens arguments.
+
+Targets:
+
+    Qubits to operate on.
+
+Example:
+
+    C_ZYNX 5
+    C_ZYNX 42
+    C_ZYNX 5 42
+    
+Stabilizer Generators:
+
+    X -> -Z
+    Z -> Y
+    
+Bloch Rotation (axis angle):
+
+    Axis: -X+Y+Z
+    Angle: 120°
+    
+Bloch Rotation (Euler angles):
+
+      theta = 90°
+        phi = 90°
+     lambda = 0°
+    unitary = RotZ(phi) * RotY(theta) * RotZ(lambda)
+    unitary = RotZ(90°) * RotY(90°) * RotZ(0°)
+    unitary = S * SQRT_Y * I
+
+Unitary Matrix:
+
+    [+1-i, -1+i]
+    [+1+i, +1+i] / 2
+    
+Decomposition (into H, S, CX, M, R):
+
+    # The following circuit is equivalent (up to global phase) to `C_ZYNX 0`
+    S 0
+    S 0
+    H 0
+    S 0
+    
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `C_ZYNX 0` (but affects the measurement record and an ancilla qubit)
+    MX 1
+    MZZ 0 1
+    MY 1
+    MXX 0 1
+    MZ 1
+    Y 0
+    CX rec[-2] 0 rec[-1] 0
+    CY rec[-5] 0 rec[-4] 0
+    CZ rec[-3] 0
+                
 
 <a name="C_ZYX"></a>
 ### The 'C_ZYX' Gate
@@ -404,6 +849,18 @@ Decomposition (into H, S, CX, M, R):
     H 0
     S 0
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `C_ZYX 0` (but affects the measurement record and an ancilla qubit)
+    MX 1
+    MZZ 0 1
+    MY 1
+    MXX 0 1
+    MZ 1
+    CX rec[-2] 0 rec[-1] 0
+    CY rec[-5] 0 rec[-4] 0
+    CZ rec[-3] 0
+                
 
 <a name="H"></a>
 ### The 'H' Gate
@@ -458,6 +915,214 @@ Decomposition (into H, S, CX, M, R):
     
     # (The decomposition is trivial because this gate is in the target gate set.)
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `H 0` (but affects the measurement record and an ancilla qubit)
+    MX 1
+    MZZ 0 1
+    MY 1
+    MXX 0 1
+    MZ 1
+    MX 1
+    MZZ 0 1
+    MY 1
+    CX rec[-8] 0 rec[-7] 0
+    CY rec[-5] 0 rec[-4] 0
+    CZ rec[-6] 0 rec[-3] 0 rec[-2] 0 rec[-1] 0
+                
+
+<a name="H_NXY"></a>
+### The 'H_NXY' Gate
+
+A variant of the Hadamard gate that swaps the -X and +Y axes.
+
+Parens Arguments:
+
+    This instruction takes no parens arguments.
+
+Targets:
+
+    Qubits to operate on.
+
+Example:
+
+    H_NXY 5
+    H_NXY 42
+    H_NXY 5 42
+    
+Stabilizer Generators:
+
+    X -> -Y
+    Z -> -Z
+    
+Bloch Rotation (axis angle):
+
+    Axis: +X-Y
+    Angle: 180°
+    
+Bloch Rotation (Euler angles):
+
+      theta = 180°
+        phi = 0°
+     lambda = -90°
+    unitary = RotZ(phi) * RotY(theta) * RotZ(lambda)
+    unitary = RotZ(0°) * RotY(180°) * RotZ(-90°)
+    unitary = I * Y * S_DAG
+
+Unitary Matrix:
+
+    [    , +1+i]
+    [+1-i,     ] / sqrt(2)
+    
+Decomposition (into H, S, CX, M, R):
+
+    # The following circuit is equivalent (up to global phase) to `H_NXY 0`
+    S 0
+    H 0
+    S 0
+    S 0
+    H 0
+    
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `H_NXY 0` (but affects the measurement record and an ancilla qubit)
+    MX 1
+    MZZ 0 1
+    MY 1
+    Y 0
+    CZ rec[-3] 0 rec[-2] 0 rec[-1] 0
+                
+
+<a name="H_NXZ"></a>
+### The 'H_NXZ' Gate
+
+A variant of the Hadamard gate that swaps the -X and +Z axes.
+
+Parens Arguments:
+
+    This instruction takes no parens arguments.
+
+Targets:
+
+    Qubits to operate on.
+
+Example:
+
+    H_NXZ 5
+    H_NXZ 42
+    H_NXZ 5 42
+    
+Stabilizer Generators:
+
+    X -> -Z
+    Z -> -X
+    
+Bloch Rotation (axis angle):
+
+    Axis: +X-Z
+    Angle: 180°
+    
+Bloch Rotation (Euler angles):
+
+      theta = 90°
+        phi = 180°
+     lambda = 0°
+    unitary = RotZ(phi) * RotY(theta) * RotZ(lambda)
+    unitary = RotZ(180°) * RotY(90°) * RotZ(0°)
+    unitary = Z * SQRT_Y * I
+
+Unitary Matrix:
+
+    [-1  , +1  ]
+    [+1  , +1  ] / sqrt(2)
+    
+Decomposition (into H, S, CX, M, R):
+
+    # The following circuit is equivalent (up to global phase) to `H_NXZ 0`
+    S 0
+    S 0
+    H 0
+    S 0
+    S 0
+    
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `H_NXZ 0` (but affects the measurement record and an ancilla qubit)
+    MX 1
+    MZZ 0 1
+    MY 1
+    MXX 0 1
+    MZ 1
+    MX 1
+    MZZ 0 1
+    MY 1
+    Y 0
+    CX rec[-8] 0 rec[-7] 0
+    CY rec[-5] 0 rec[-4] 0
+    CZ rec[-6] 0 rec[-3] 0 rec[-2] 0 rec[-1] 0
+                
+
+<a name="H_NYZ"></a>
+### The 'H_NYZ' Gate
+
+A variant of the Hadamard gate that swaps the -Y and +Z axes.
+
+Parens Arguments:
+
+    This instruction takes no parens arguments.
+
+Targets:
+
+    Qubits to operate on.
+
+Example:
+
+    H_NYZ 5
+    H_NYZ 42
+    H_NYZ 5 42
+    
+Stabilizer Generators:
+
+    X -> -X
+    Z -> -Y
+    
+Bloch Rotation (axis angle):
+
+    Axis: +Y-Z
+    Angle: 180°
+    
+Bloch Rotation (Euler angles):
+
+      theta = 90°
+        phi = -90°
+     lambda = -90°
+    unitary = RotZ(phi) * RotY(theta) * RotZ(lambda)
+    unitary = RotZ(-90°) * RotY(90°) * RotZ(-90°)
+    unitary = S_DAG * SQRT_Y * S_DAG
+
+Unitary Matrix:
+
+    [-1  ,   -i]
+    [  +i, +1  ] / sqrt(2)
+    
+Decomposition (into H, S, CX, M, R):
+
+    # The following circuit is equivalent (up to global phase) to `H_NYZ 0`
+    S 0
+    S 0
+    H 0
+    S 0
+    H 0
+    
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `H_NYZ 0` (but affects the measurement record and an ancilla qubit)
+    MZ 1
+    MXX 0 1
+    MY 1
+    Y 0
+    CX rec[-3] 0 rec[-2] 0 rec[-1] 0
+                
 
 <a name="H_XY"></a>
 ### The 'H_XY' Gate
@@ -511,6 +1176,15 @@ Decomposition (into H, S, CX, M, R):
     H 0
     S 0
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `H_XY 0` (but affects the measurement record and an ancilla qubit)
+    MX 1
+    MZZ 0 1
+    MY 1
+    X 0
+    CZ rec[-3] 0 rec[-2] 0 rec[-1] 0
+                
 
 <a name="H_YZ"></a>
 ### The 'H_YZ' Gate
@@ -564,6 +1238,15 @@ Decomposition (into H, S, CX, M, R):
     S 0
     S 0
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `H_YZ 0` (but affects the measurement record and an ancilla qubit)
+    MZ 1
+    MXX 0 1
+    MY 1
+    Z 0
+    CX rec[-3] 0 rec[-2] 0 rec[-1] 0
+                
 
 <a name="S"></a>
 ### The 'S' Gate
@@ -618,6 +1301,14 @@ Decomposition (into H, S, CX, M, R):
     
     # (The decomposition is trivial because this gate is in the target gate set.)
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `S 0` (but affects the measurement record and an ancilla qubit)
+    MY 1
+    MZZ 0 1
+    MX 1
+    CZ rec[-3] 0 rec[-2] 0 rec[-1] 0
+                
 
 <a name="SQRT_X"></a>
 ### The 'SQRT_X' Gate
@@ -670,6 +1361,14 @@ Decomposition (into H, S, CX, M, R):
     S 0
     H 0
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `SQRT_X 0` (but affects the measurement record and an ancilla qubit)
+    MZ 1
+    MXX 0 1
+    MY 1
+    CX rec[-3] 0 rec[-2] 0 rec[-1] 0
+                
 
 <a name="SQRT_X_DAG"></a>
 ### The 'SQRT_X_DAG' Gate
@@ -722,6 +1421,14 @@ Decomposition (into H, S, CX, M, R):
     H 0
     S 0
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `SQRT_X_DAG 0` (but affects the measurement record and an ancilla qubit)
+    MY 1
+    MXX 0 1
+    MZ 1
+    CX rec[-3] 0 rec[-2] 0 rec[-1] 0
+                
 
 <a name="SQRT_Y"></a>
 ### The 'SQRT_Y' Gate
@@ -774,6 +1481,22 @@ Decomposition (into H, S, CX, M, R):
     S 0
     H 0
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `SQRT_Y 0` (but affects the measurement record and an ancilla qubit)
+    MX 1
+    MZZ 0 1
+    MY 1
+    MXX 0 1
+    MZ 1
+    MX 1
+    MZZ 0 1
+    MY 1
+    X 0
+    CX rec[-8] 0 rec[-7] 0
+    CY rec[-5] 0 rec[-4] 0
+    CZ rec[-6] 0 rec[-3] 0 rec[-2] 0 rec[-1] 0
+                
 
 <a name="SQRT_Y_DAG"></a>
 ### The 'SQRT_Y_DAG' Gate
@@ -826,6 +1549,22 @@ Decomposition (into H, S, CX, M, R):
     S 0
     S 0
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `SQRT_Y_DAG 0` (but affects the measurement record and an ancilla qubit)
+    MX 1
+    MZZ 0 1
+    MY 1
+    MXX 0 1
+    MZ 1
+    MX 1
+    MZZ 0 1
+    MY 1
+    Z 0
+    CX rec[-8] 0 rec[-7] 0
+    CY rec[-5] 0 rec[-4] 0
+    CZ rec[-6] 0 rec[-3] 0 rec[-2] 0 rec[-1] 0
+                
 
 <a name="S_DAG"></a>
 ### The 'S_DAG' Gate
@@ -880,15 +1619,23 @@ Decomposition (into H, S, CX, M, R):
     S 0
     S 0
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `S_DAG 0` (but affects the measurement record and an ancilla qubit)
+    MX 1
+    MZZ 0 1
+    MY 1
+    CZ rec[-3] 0 rec[-2] 0 rec[-1] 0
+                
 
 ## Two Qubit Clifford Gates
 
 <a name="CX"></a>
 ### The 'CX' Gate
 
-Alternate name: <a name="ZCX"></a>`ZCX`
-
 Alternate name: <a name="CNOT"></a>`CNOT`
+
+Alternate name: <a name="ZCX"></a>`ZCX`
 
 The Z-controlled X gate.
 Applies an X gate to the target if the control is in the |1> state.
@@ -943,6 +1690,16 @@ Decomposition (into H, S, CX, M, R):
     
     # (The decomposition is trivial because this gate is in the target gate set.)
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `CX 0 1` (but affects the measurement record and an ancilla qubit)
+    MX 2
+    MZZ 0 2
+    MXX 1 2
+    MZ 2
+    CX rec[-3] 1 rec[-1] 1
+    CZ rec[-4] 0 rec[-2] 0
+                
 
 <a name="CXSWAP"></a>
 ### The 'CXSWAP' Gate
@@ -984,6 +1741,19 @@ Decomposition (into H, S, CX, M, R):
     CNOT 1 0
     CNOT 0 1
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `CXSWAP 0 1` (but affects the measurement record and an ancilla qubit)
+    MZ 2
+    MXX 0 2
+    MZZ 1 2
+    MX 2
+    MZZ 0 2
+    MXX 1 2
+    MZ 2
+    CX rec[-7] 0 rec[-7] 1 rec[-5] 0 rec[-5] 1 rec[-3] 1 rec[-1] 1
+    CZ rec[-6] 0 rec[-6] 1 rec[-2] 0 rec[-4] 1
+                
 
 <a name="CY"></a>
 ### The 'CY' Gate
@@ -1014,7 +1784,7 @@ Example:
     # Apply Y to qubit 5 controlled by qubit 2.
     CY 2 5
 
-    # Perform CY 2 5 then CX 4 2.
+    # Perform CY 2 5 then CY 4 2.
     CY 2 5 4 2
 
     # Apply Y to qubit 6 if the most recent measurement result was TRUE.
@@ -1045,6 +1815,22 @@ Decomposition (into H, S, CX, M, R):
     CNOT 0 1
     S 1
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `CY 0 1` (but affects the measurement record and an ancilla qubit)
+    MY 2
+    MZZ 1 2
+    MX 2
+    MZZ 0 2
+    MXX 1 2
+    MZ 2
+    MX 2
+    MZZ 1 2
+    MY 2
+    Z 0
+    CY rec[-6] 1 rec[-4] 1
+    CZ rec[-9] 0 rec[-9] 1 rec[-8] 0 rec[-8] 1 rec[-5] 0 rec[-7] 1 rec[-3] 1 rec[-2] 1 rec[-1] 1
+                
 
 <a name="CZ"></a>
 ### The 'CZ' Gate
@@ -1107,6 +1893,26 @@ Decomposition (into H, S, CX, M, R):
     CNOT 0 1
     H 1
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `CZ 0 1` (but affects the measurement record and an ancilla qubit)
+    MZ 2
+    MXX 0 2
+    MY 2
+    MZZ 0 2
+    MX 2
+    MZZ 1 2
+    MXX 0 2
+    MZ 2
+    MX 2
+    MZZ 0 2
+    MY 2
+    MXX 0 2
+    MZ 2
+    CX rec[-13] 0 rec[-12] 0 rec[-2] 0 rec[-1] 0
+    CY rec[-10] 0 rec[-9] 0 rec[-5] 0 rec[-4] 0
+    CZ rec[-11] 0 rec[-10] 1 rec[-8] 0 rec[-6] 0 rec[-3] 0 rec[-13] 1 rec[-12] 1 rec[-7] 1
+                
 
 <a name="CZSWAP"></a>
 ### The 'CZSWAP' Gate
@@ -1151,6 +1957,78 @@ Decomposition (into H, S, CX, M, R):
     CX 0 1
     CX 1 0
     H 1
+    
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `CZSWAP 0 1` (but affects the measurement record and an ancilla qubit)
+    MZ 2
+    MXX 0 2
+    MY 2
+    MZZ 0 2
+    MX 2
+    MZZ 0 2
+    MXX 1 2
+    MZ 2
+    MXX 0 2
+    MZZ 1 2
+    MX 2
+    MZZ 1 2
+    MY 2
+    MXX 1 2
+    MZ 2
+    CX rec[-10] 0 rec[-6] 0 rec[-15] 1 rec[-14] 1 rec[-2] 1 rec[-1] 1
+    CY rec[-12] 1 rec[-9] 1 rec[-7] 1 rec[-4] 1
+    CZ rec[-15] 0 rec[-14] 0 rec[-12] 0 rec[-9] 0 rec[-13] 1 rec[-10] 1 rec[-8] 1 rec[-3] 1
+                
+
+<a name="II"></a>
+### The 'II' Gate
+
+A two-qubit identity gate.
+
+Twice as much doing-nothing as the I gate! This gate only exists because it
+can be useful as a communication mechanism for systems built on top of stim.
+
+Parens Arguments:
+
+    This instruction takes no parens arguments.
+
+Targets:
+
+    Qubit pairs to operate on.
+
+Examples:
+
+    II 0 1
+
+    R 0
+    II[ACTUALLY_A_LEAKAGE_ISWAP] 0 1
+    R 0
+    CX 1 0
+Stabilizer Generators:
+
+    X_ -> X_
+    Z_ -> Z_
+    _X -> _X
+    _Z -> _Z
+    
+Unitary Matrix (little endian):
+
+    [+1  ,     ,     ,     ]
+    [    , +1  ,     ,     ]
+    [    ,     , +1  ,     ]
+    [    ,     ,     , +1  ]
+    
+Decomposition (into H, S, CX, M, R):
+
+    # The following circuit is equivalent (up to global phase) to `II 0 1`
+    
+    # (The decomposition is empty because this gate has no effect.)
+    
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `II 0 1` (but affects the measurement record and an ancilla qubit)
+    # (The decomposition is empty because this gate has no effect.)
     
 
 <a name="ISWAP"></a>
@@ -1197,6 +2075,34 @@ Decomposition (into H, S, CX, M, R):
     S 1
     S 0
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `ISWAP 0 1` (but affects the measurement record and an ancilla qubit)
+    MX 2
+    MZZ 0 2
+    MY 2
+    MZZ 1 2
+    MX 2
+    MZ 2
+    MXX 0 2
+    MY 2
+    MZZ 0 2
+    MX 2
+    MZZ 0 2
+    MXX 1 2
+    MZ 2
+    MXX 0 2
+    MZZ 1 2
+    MX 2
+    MZZ 1 2
+    MY 2
+    MXX 1 2
+    MZ 2
+    Z 1
+    CX rec[-10] 0 rec[-6] 0 rec[-15] 1 rec[-14] 1 rec[-2] 1 rec[-1] 1
+    CY rec[-12] 1 rec[-9] 1 rec[-7] 1 rec[-4] 1
+    CZ rec[-18] 0 rec[-18] 1 rec[-17] 0 rec[-16] 0 rec[-15] 0 rec[-14] 0 rec[-12] 0 rec[-9] 0 rec[-20] 1 rec[-19] 1 rec[-13] 1 rec[-10] 1 rec[-8] 1 rec[-3] 1
+                
 
 <a name="ISWAP_DAG"></a>
 ### The 'ISWAP_DAG' Gate
@@ -1246,6 +2152,34 @@ Decomposition (into H, S, CX, M, R):
     CNOT 0 1
     H 0
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `ISWAP_DAG 0 1` (but affects the measurement record and an ancilla qubit)
+    MX 2
+    MZZ 0 2
+    MY 2
+    MZZ 1 2
+    MX 2
+    MZ 2
+    MXX 0 2
+    MY 2
+    MZZ 0 2
+    MX 2
+    MZZ 0 2
+    MXX 1 2
+    MZ 2
+    MXX 0 2
+    MZZ 1 2
+    MX 2
+    MZZ 1 2
+    MY 2
+    MXX 1 2
+    MZ 2
+    Z 0
+    CX rec[-10] 0 rec[-6] 0 rec[-15] 1 rec[-14] 1 rec[-2] 1 rec[-1] 1
+    CY rec[-12] 1 rec[-9] 1 rec[-7] 1 rec[-4] 1
+    CZ rec[-18] 0 rec[-18] 1 rec[-17] 0 rec[-16] 0 rec[-15] 0 rec[-14] 0 rec[-12] 0 rec[-9] 0 rec[-20] 1 rec[-19] 1 rec[-13] 1 rec[-10] 1 rec[-8] 1 rec[-3] 1
+                
 
 <a name="SQRT_XX"></a>
 ### The 'SQRT_XX' Gate
@@ -1291,6 +2225,32 @@ Decomposition (into H, S, CX, M, R):
     H 0
     H 1
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `SQRT_XX 0 1` (but affects the measurement record and an ancilla qubit)
+    MX 2
+    MZZ 0 2
+    MY 2
+    MXX 0 2
+    MZ 2
+    MXX 1 2
+    MZZ 0 2
+    MX 2
+    MY 2
+    MXX 1 2
+    MZ 2
+    MXX 0 2
+    MY 2
+    MZZ 0 2
+    MX 2
+    MZ 2
+    MXX 0 2
+    MY 2
+    X 1
+    CX rec[-18] 1 rec[-17] 1 rec[-16] 0 rec[-13] 0 rec[-11] 0 rec[-6] 0 rec[-3] 0 rec[-2] 0 rec[-1] 0 rec[-15] 1 rec[-12] 1 rec[-10] 1 rec[-9] 1 rec[-8] 1
+    CY rec[-18] 0 rec[-17] 0 rec[-5] 0 rec[-4] 0
+    CZ rec[-15] 0 rec[-14] 0 rec[-8] 0 rec[-7] 0
+                
 
 <a name="SQRT_XX_DAG"></a>
 ### The 'SQRT_XX_DAG' Gate
@@ -1340,6 +2300,32 @@ Decomposition (into H, S, CX, M, R):
     H 0
     H 1
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `SQRT_XX_DAG 0 1` (but affects the measurement record and an ancilla qubit)
+    MX 2
+    MZZ 0 2
+    MY 2
+    MXX 0 2
+    MZ 2
+    MXX 1 2
+    MZZ 0 2
+    MX 2
+    MY 2
+    MXX 1 2
+    MZ 2
+    MXX 0 2
+    MY 2
+    MZZ 0 2
+    MX 2
+    MZ 2
+    MXX 0 2
+    MY 2
+    X 0
+    CX rec[-18] 1 rec[-17] 1 rec[-16] 0 rec[-13] 0 rec[-11] 0 rec[-6] 0 rec[-3] 0 rec[-2] 0 rec[-1] 0 rec[-15] 1 rec[-12] 1 rec[-10] 1 rec[-9] 1 rec[-8] 1
+    CY rec[-18] 0 rec[-17] 0 rec[-5] 0 rec[-4] 0
+    CZ rec[-15] 0 rec[-14] 0 rec[-8] 0 rec[-7] 0
+                
 
 <a name="SQRT_YY"></a>
 ### The 'SQRT_YY' Gate
@@ -1393,6 +2379,31 @@ Decomposition (into H, S, CX, M, R):
     S 0
     S 1
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `SQRT_YY 0 1` (but affects the measurement record and an ancilla qubit)
+    MX 2
+    MZZ 1 2
+    MY 2
+    MXX 0 2
+    MZ 2
+    MXX 1 2
+    MZZ 0 2
+    MX 2
+    MZZ 0 2
+    MY 2
+    MXX 0 2
+    MZ 2
+    MXX 1 2
+    MY 2
+    MZZ 1 2
+    MX 2
+    X 0
+    Y 1
+    CX rec[-16] 1 rec[-15] 1 rec[-14] 0 rec[-6] 0 rec[-5] 0 rec[-3] 1
+    CY rec[-16] 0 rec[-15] 0 rec[-11] 0 rec[-8] 0 rec[-5] 1 rec[-13] 1 rec[-10] 1 rec[-4] 1
+    CZ rec[-13] 0 rec[-12] 0 rec[-7] 0 rec[-14] 1 rec[-2] 1 rec[-1] 1
+                
 
 <a name="SQRT_YY_DAG"></a>
 ### The 'SQRT_YY_DAG' Gate
@@ -1446,6 +2457,30 @@ Decomposition (into H, S, CX, M, R):
     S 1
     S 1
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `SQRT_YY_DAG 0 1` (but affects the measurement record and an ancilla qubit)
+    MX 2
+    MZZ 1 2
+    MY 2
+    MXX 0 2
+    MZ 2
+    MXX 1 2
+    MZZ 0 2
+    MX 2
+    MZZ 0 2
+    MY 2
+    MXX 0 2
+    MZ 2
+    MXX 1 2
+    MY 2
+    MZZ 1 2
+    MX 2
+    Z 0
+    CX rec[-16] 1 rec[-15] 1 rec[-14] 0 rec[-6] 0 rec[-5] 0 rec[-3] 1
+    CY rec[-16] 0 rec[-15] 0 rec[-11] 0 rec[-8] 0 rec[-5] 1 rec[-13] 1 rec[-10] 1 rec[-4] 1
+    CZ rec[-13] 0 rec[-12] 0 rec[-7] 0 rec[-14] 1 rec[-2] 1 rec[-1] 1
+                
 
 <a name="SQRT_ZZ"></a>
 ### The 'SQRT_ZZ' Gate
@@ -1489,6 +2524,32 @@ Decomposition (into H, S, CX, M, R):
     S 0
     S 1
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `SQRT_ZZ 0 1` (but affects the measurement record and an ancilla qubit)
+    MZ 2
+    MXX 0 2
+    MY 2
+    MZZ 0 2
+    MX 2
+    MZZ 1 2
+    MXX 0 2
+    MZ 2
+    MY 2
+    MZZ 1 2
+    MX 2
+    MZZ 0 2
+    MY 2
+    MXX 0 2
+    MZ 2
+    MX 2
+    MZZ 0 2
+    MY 2
+    Z 0
+    CX rec[-15] 0 rec[-14] 0 rec[-8] 0 rec[-7] 0
+    CY rec[-18] 0 rec[-17] 0 rec[-5] 0 rec[-4] 0
+    CZ rec[-18] 1 rec[-17] 1 rec[-16] 0 rec[-13] 0 rec[-11] 0 rec[-6] 0 rec[-3] 0 rec[-2] 0 rec[-1] 0 rec[-15] 1 rec[-12] 1 rec[-10] 1 rec[-9] 1 rec[-8] 1
+                
 
 <a name="SQRT_ZZ_DAG"></a>
 ### The 'SQRT_ZZ_DAG' Gate
@@ -1536,6 +2597,32 @@ Decomposition (into H, S, CX, M, R):
     S 1
     S 1
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `SQRT_ZZ_DAG 0 1` (but affects the measurement record and an ancilla qubit)
+    MZ 2
+    MXX 0 2
+    MY 2
+    MZZ 0 2
+    MX 2
+    MZZ 1 2
+    MXX 0 2
+    MZ 2
+    MY 2
+    MZZ 1 2
+    MX 2
+    MZZ 0 2
+    MY 2
+    MXX 0 2
+    MZ 2
+    MX 2
+    MZZ 0 2
+    MY 2
+    Z 1
+    CX rec[-15] 0 rec[-14] 0 rec[-8] 0 rec[-7] 0
+    CY rec[-18] 0 rec[-17] 0 rec[-5] 0 rec[-4] 0
+    CZ rec[-18] 1 rec[-17] 1 rec[-16] 0 rec[-13] 0 rec[-11] 0 rec[-6] 0 rec[-3] 0 rec[-2] 0 rec[-1] 0 rec[-15] 1 rec[-12] 1 rec[-10] 1 rec[-9] 1 rec[-8] 1
+                
 
 <a name="SWAP"></a>
 ### The 'SWAP' Gate
@@ -1577,6 +2664,22 @@ Decomposition (into H, S, CX, M, R):
     CNOT 1 0
     CNOT 0 1
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `SWAP 0 1` (but affects the measurement record and an ancilla qubit)
+    MZ 2
+    MXX 0 2
+    MZZ 1 2
+    MX 2
+    MZZ 0 2
+    MXX 1 2
+    MZ 2
+    MXX 0 2
+    MZZ 1 2
+    MX 2
+    CX rec[-6] 0 rec[-6] 1 rec[-2] 0 rec[-10] 1 rec[-8] 1 rec[-4] 1
+    CZ rec[-9] 0 rec[-5] 0 rec[-5] 1 rec[-7] 1 rec[-3] 1 rec[-1] 1
+                
 
 <a name="SWAPCX"></a>
 ### The 'SWAPCX' Gate
@@ -1618,6 +2721,19 @@ Decomposition (into H, S, CX, M, R):
     CNOT 0 1
     CNOT 1 0
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `SWAPCX 0 1` (but affects the measurement record and an ancilla qubit)
+    MX 2
+    MZZ 0 2
+    MXX 1 2
+    MZ 2
+    MXX 0 2
+    MZZ 1 2
+    MX 2
+    CX rec[-6] 0 rec[-6] 1 rec[-2] 0 rec[-4] 1
+    CZ rec[-7] 0 rec[-7] 1 rec[-5] 0 rec[-5] 1 rec[-3] 1 rec[-1] 1
+                
 
 <a name="XCX"></a>
 ### The 'XCX' Gate
@@ -1664,6 +2780,26 @@ Decomposition (into H, S, CX, M, R):
     CNOT 0 1
     H 0
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `XCX 0 1` (but affects the measurement record and an ancilla qubit)
+    MX 2
+    MZZ 0 2
+    MY 2
+    MXX 0 2
+    MZ 2
+    MXX 1 2
+    MZZ 0 2
+    MX 2
+    MZ 2
+    MXX 0 2
+    MY 2
+    MZZ 0 2
+    MX 2
+    CX rec[-11] 0 rec[-10] 1 rec[-8] 0 rec[-6] 0 rec[-3] 0 rec[-13] 1 rec[-12] 1 rec[-7] 1
+    CY rec[-10] 0 rec[-9] 0 rec[-5] 0 rec[-4] 0
+    CZ rec[-13] 0 rec[-12] 0 rec[-2] 0 rec[-1] 0
+                
 
 <a name="XCY"></a>
 ### The 'XCY' Gate
@@ -1714,6 +2850,22 @@ Decomposition (into H, S, CX, M, R):
     H 0
     S 1
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `XCY 0 1` (but affects the measurement record and an ancilla qubit)
+    MY 2
+    MXX 1 2
+    MZ 2
+    MXX 0 2
+    MZZ 1 2
+    MX 2
+    MZ 2
+    MXX 1 2
+    MY 2
+    X 0
+    CX rec[-9] 0 rec[-9] 1 rec[-8] 0 rec[-8] 1 rec[-5] 0 rec[-7] 1 rec[-3] 1 rec[-2] 1 rec[-1] 1
+    CY rec[-6] 1 rec[-4] 1
+                
 
 <a name="XCZ"></a>
 ### The 'XCZ' Gate
@@ -1770,6 +2922,16 @@ Decomposition (into H, S, CX, M, R):
     # The following circuit is equivalent (up to global phase) to `XCZ 0 1`
     CNOT 1 0
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `XCZ 0 1` (but affects the measurement record and an ancilla qubit)
+    MZ 2
+    MXX 0 2
+    MZZ 1 2
+    MX 2
+    CX rec[-4] 0 rec[-2] 0
+    CZ rec[-3] 1 rec[-1] 1
+                
 
 <a name="YCX"></a>
 ### The 'YCX' Gate
@@ -1820,6 +2982,22 @@ Decomposition (into H, S, CX, M, R):
     S 0
     H 1
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `YCX 0 1` (but affects the measurement record and an ancilla qubit)
+    MY 2
+    MXX 0 2
+    MZ 2
+    MXX 1 2
+    MZZ 0 2
+    MX 2
+    MZ 2
+    MXX 0 2
+    MY 2
+    X 1
+    CX rec[-9] 0 rec[-9] 1 rec[-8] 0 rec[-8] 1 rec[-7] 0 rec[-3] 0 rec[-2] 0 rec[-1] 0 rec[-5] 1
+    CY rec[-6] 0 rec[-4] 0
+                
 
 <a name="YCY"></a>
 ### The 'YCY' Gate
@@ -1874,6 +3052,27 @@ Decomposition (into H, S, CX, M, R):
     S 0
     S 1
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `YCY 0 1` (but affects the measurement record and an ancilla qubit)
+    MX 2
+    MZZ 1 2
+    MY 2
+    MXX 0 2
+    MZ 2
+    MXX 1 2
+    MZZ 0 2
+    MX 2
+    MZ 2
+    MXX 0 2
+    MY 2
+    MZZ 1 2
+    MX 2
+    Y 1
+    CX rec[-10] 0 rec[-9] 0 rec[-5] 0 rec[-4] 0 rec[-3] 0 rec[-11] 1
+    CY rec[-13] 0 rec[-12] 0 rec[-10] 1 rec[-8] 0 rec[-6] 0 rec[-7] 1
+    CZ rec[-13] 1 rec[-12] 1 rec[-11] 0 rec[-3] 1 rec[-2] 1 rec[-1] 1
+                
 
 <a name="YCZ"></a>
 ### The 'YCZ' Gate
@@ -1934,6 +3133,22 @@ Decomposition (into H, S, CX, M, R):
     CNOT 1 0
     S 0
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `YCZ 0 1` (but affects the measurement record and an ancilla qubit)
+    MX 2
+    MZZ 0 2
+    MY 2
+    MZ 2
+    MXX 0 2
+    MZZ 1 2
+    MX 2
+    MZZ 0 2
+    MY 2
+    Z 0
+    CY rec[-6] 0 rec[-4] 0
+    CZ rec[-9] 0 rec[-9] 1 rec[-8] 0 rec[-8] 1 rec[-7] 0 rec[-7] 1 rec[-3] 0 rec[-3] 1 rec[-2] 0 rec[-1] 0 rec[-5] 1
+                
 
 ## Noise Channels
 
@@ -1968,7 +3183,7 @@ Pauli Mixture:
 Examples:
 
     # Apply 1-qubit depolarization to qubit 0 using p=1%
-    DEPOLARIZE2(0.01) 0
+    DEPOLARIZE1(0.01) 0
 
     # Apply 1-qubit depolarization to qubit 2
     # Separately apply 1-qubit depolarization to qubits 3 and 5
@@ -2224,6 +3439,81 @@ Examples:
     DETECTOR rec[-3]    # Did the herald on qubit 1 fire?
     DETECTOR rec[-4]    # Did the herald on qubit 0 fire?
 
+<a name="II_ERROR"></a>
+### The 'II_ERROR' Instruction
+
+Applies a two-qubit identity with a given probability.
+
+This gate has no effect. It only exists because it can be useful as a
+communication mechanism for systems built on top of stim.
+
+Parens Arguments:
+
+    A list of disjoint probabilities summing to at most 1.
+
+    The probabilities have no effect on stim simulations or error analysis, but may be
+    interpreted in arbitrary ways by external tools.
+
+Targets:
+
+    Qubits to apply identity noise to.
+
+Pauli Mixture:
+
+    *: II
+
+Examples:
+
+    # does nothing
+    II_ERROR 0 1
+
+    # does nothing with probability 0.1, else does nothing
+    II_ERROR(0.1) 0 1
+
+    # checks for you that the targets are two-qubit pairs
+    II_ERROR[TWO_QUBIT_LEAKAGE_NOISE_FOR_AN_ADVANCED_SIMULATOR:0.1] 0 2 4 6
+
+    # checks for you that the disjoint probabilities in the arguments are legal
+    II_ERROR[MULTIPLE_TWO_QUBIT_NOISE_MECHANISMS](0.1, 0.2) 0 2 4 6
+
+
+<a name="I_ERROR"></a>
+### The 'I_ERROR' Instruction
+
+Applies an identity with a given probability.
+
+This gate has no effect. It only exists because it can be useful as a
+communication mechanism for systems built on top of stim.
+
+Parens Arguments:
+
+    A list of disjoint probabilities summing to at most 1.
+
+    The probabilities have no effect on stim simulations or error analysis, but may be
+    interpreted in arbitrary ways by external tools.
+
+Targets:
+
+    Qubits to apply identity noise to.
+
+Pauli Mixture:
+
+     *: I
+
+Examples:
+
+    # does nothing
+    I_ERROR 0
+
+    # does nothing with probability 0.1, else does nothing
+    I_ERROR(0.1) 0
+
+    # doesn't require a probability argument
+    I_ERROR[LEAKAGE_NOISE_FOR_AN_ADVANCED_SIMULATOR:0.1] 0 2 4
+
+    # checks for you that the disjoint probabilities in the arguments are legal
+    I_ERROR[MULTIPLE_NOISE_MECHANISMS](0.1, 0.2) 0 2 4
+
 <a name="PAULI_CHANNEL_1"></a>
 ### The 'PAULI_CHANNEL_1' Instruction
 
@@ -2289,7 +3579,7 @@ Example:
 
     # Sample errors from the distribution 10% XX, 20% YZ, 70% II.
     # Apply independently to qubit pairs (1,2), (5,6), and (8,3)
-    PAULI_CHANNEL_2(0,0,0, 0.1,0,0,0, 0,0,0,0.2, 0,0,0,0) 1 2 5 6 8 3
+    PAULI_CHANNEL_2(0,0,0, 0,0.1,0,0, 0,0,0,0.2, 0,0,0,0) 1 2 5 6 8 3
 
 Pauli Mixture:
 
@@ -2437,6 +3727,13 @@ Decomposition (into H, S, CX, M, R):
     
     # (The decomposition is trivial because this gate is in the target gate set.)
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `M 0` (but affects the measurement record and an ancilla qubit)
+    MZ 0
+                
+    # (The decomposition is trivial because this gate is in the target gate set.)
+    
 
 <a name="MR"></a>
 ### The 'MR' Instruction
@@ -2488,6 +3785,12 @@ Decomposition (into H, S, CX, M, R):
     M 0
     R 0
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `MR 0` (but affects the measurement record and an ancilla qubit)
+    MZ 0
+    CX rec[-1] 0
+                
 
 <a name="MRX"></a>
 ### The 'MRX' Instruction
@@ -2536,6 +3839,12 @@ Decomposition (into H, S, CX, M, R):
     R 0
     H 0
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `MRX 0` (but affects the measurement record and an ancilla qubit)
+    MX 0
+    CZ rec[-1] 0
+                
 
 <a name="MRY"></a>
 ### The 'MRY' Instruction
@@ -2588,6 +3897,12 @@ Decomposition (into H, S, CX, M, R):
     H 0
     S 0
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `MRY 0` (but affects the measurement record and an ancilla qubit)
+    MY 0
+    CX rec[-1] 0
+                
 
 <a name="MX"></a>
 ### The 'MX' Instruction
@@ -2633,6 +3948,13 @@ Decomposition (into H, S, CX, M, R):
     H 0
     M 0
     H 0
+    
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `MX 0` (but affects the measurement record and an ancilla qubit)
+    MX 0
+                
+    # (The decomposition is trivial because this gate is in the target gate set.)
     
 
 <a name="MY"></a>
@@ -2684,6 +4006,13 @@ Decomposition (into H, S, CX, M, R):
     H 0
     S 0
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `MY 0` (but affects the measurement record and an ancilla qubit)
+    MY 0
+                
+    # (The decomposition is trivial because this gate is in the target gate set.)
+    
 
 <a name="R"></a>
 ### The 'R' Instruction
@@ -2722,6 +4051,12 @@ Decomposition (into H, S, CX, M, R):
     
     # (The decomposition is trivial because this gate is in the target gate set.)
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `R 0` (but affects the measurement record and an ancilla qubit)
+    MZ 0
+    CX rec[-1] 0
+                
 
 <a name="RX"></a>
 ### The 'RX' Instruction
@@ -2754,6 +4089,12 @@ Decomposition (into H, S, CX, M, R):
     R 0
     H 0
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `RX 0` (but affects the measurement record and an ancilla qubit)
+    MX 0
+    CZ rec[-1] 0
+                
 
 <a name="RY"></a>
 ### The 'RY' Instruction
@@ -2787,6 +4128,12 @@ Decomposition (into H, S, CX, M, R):
     H 0
     S 0
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `RY 0` (but affects the measurement record and an ancilla qubit)
+    MY 0
+    CX rec[-1] 0
+                
 
 ## Pair Measurement Gates
 
@@ -2849,6 +4196,13 @@ Decomposition (into H, S, CX, M, R):
     M 0
     H 0
     CX 0 1
+    
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `MXX 0 1` (but affects the measurement record and an ancilla qubit)
+    MXX 0 1
+                
+    # (The decomposition is trivial because this gate is in the target gate set.)
     
 
 <a name="MYY"></a>
@@ -2914,6 +4268,25 @@ Decomposition (into H, S, CX, M, R):
     CX 0 1
     S 0 1
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `MYY 0 1` (but affects the measurement record and an ancilla qubit)
+    MX 2
+    MZZ 0 2
+    MY 2
+    MX 2
+    MZZ 1 2
+    MY 2
+    MXX 0 1
+    MX 2
+    MZZ 0 2
+    MY 2
+    MX 2
+    MZZ 1 2
+    MY 2
+    Z 0 1
+    CZ rec[-13] 0 rec[-12] 0 rec[-11] 0 rec[-6] 0 rec[-5] 0 rec[-4] 0 rec[-10] 1 rec[-9] 1 rec[-8] 1 rec[-3] 1 rec[-2] 1 rec[-1] 1
+                
 
 <a name="MZZ"></a>
 ### The 'MZZ' Instruction
@@ -2972,6 +4345,13 @@ Decomposition (into H, S, CX, M, R):
     CX 0 1
     M 1
     CX 0 1
+    
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `MZZ 0 1` (but affects the measurement record and an ancilla qubit)
+    MZZ 0 1
+                
+    # (The decomposition is trivial because this gate is in the target gate set.)
     
 
 ## Generalized Pauli Product Gates
@@ -3041,9 +4421,46 @@ Decomposition (into H, S, CX, M, R):
     H 0 1 3 4
     S 1
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `MPP X0*Y1*Z2 X3*X4` (but affects the measurement record and an ancilla qubit)
+    MY 5
+    MZZ 1 5
+    MX 5
+    MZZ 0 5
+    MXX 1 5
+    MZ 5
+    MX 5
+    MZZ 1 5
+    MY 5
+    MZ 5
+    MXX 2 5
+    MY 5
+    MZZ 2 5
+    MX 5
+    MXX 0 2
+    MXX 3 4
+    MX 5
+    MZZ 2 5
+    MY 5
+    MXX 2 5
+    MZ 5
+    MY 5
+    MZZ 1 5
+    MX 5
+    MZZ 0 5
+    MXX 1 5
+    MZ 5
+    MX 5
+    MZZ 1 5
+    MY 5
+    CX rec[-21] 2 rec[-20] 2 rec[-11] 2 rec[-10] 2
+    CY rec[-27] 1 rec[-25] 1 rec[-6] 1 rec[-4] 1 rec[-18] 2 rec[-13] 2
+    CZ rec[-28] 0 rec[-28] 1 rec[-26] 0 rec[-24] 0 rec[-24] 1 rec[-23] 0 rec[-23] 1 rec[-22] 0 rec[-22] 1 rec[-9] 0 rec[-9] 1 rec[-8] 0 rec[-8] 1 rec[-5] 0 rec[-30] 1 rec[-29] 1 rec[-7] 1 rec[-3] 1 rec[-2] 1 rec[-1] 1 rec[-19] 2 rec[-12] 2
+                
 
 <a name="SPP"></a>
-### The 'SPP' Instruction
+### The 'SPP' Gate
 
 The generalized S gate. Phases the -1 eigenspace of Pauli product observables by i.
 
@@ -3107,11 +4524,67 @@ Decomposition (into H, S, CX, M, R):
     CX 1 0
     CX 2 1
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `SPP X0*Y1*Z2` (but affects the measurement record and an ancilla qubit)
+    MY 3
+    MZZ 1 3
+    MX 3
+    MZZ 0 3
+    MXX 1 3
+    MZ 3
+    MX 3
+    MZZ 1 3
+    MY 3
+    MZ 3
+    MXX 0 3
+    MY 3
+    MZZ 0 3
+    MX 3
+    MZZ 2 3
+    MXX 0 3
+    MZ 3
+    MX 3
+    MZZ 0 3
+    MY 3
+    MXX 0 3
+    MZ 3
+    MXX 0 3
+    MY 3
+    MZ 3
+    MXX 0 3
+    MY 3
+    MZZ 0 3
+    MX 3
+    MZZ 2 3
+    MXX 0 3
+    MZ 3
+    MX 3
+    MZZ 0 3
+    MY 3
+    MXX 0 3
+    MZ 3
+    MY 3
+    MZZ 1 3
+    MX 3
+    MZZ 0 3
+    MXX 1 3
+    MZ 3
+    MX 3
+    MZZ 1 3
+    MY 3
+    X 0
+    Y 1
+    Z 2
+    CX rec[-46] 0 rec[-46] 1 rec[-45] 0 rec[-45] 1 rec[-37] 0 rec[-36] 0 rec[-26] 0 rec[-24] 0 rec[-23] 0 rec[-22] 0 rec[-21] 0 rec[-11] 0 rec[-10] 0
+    CY rec[-42] 0 rec[-42] 1 rec[-37] 1 rec[-36] 1 rec[-35] 0 rec[-35] 1 rec[-32] 0 rec[-32] 1 rec[-30] 0 rec[-30] 1 rec[-27] 0 rec[-27] 1 rec[-26] 1 rec[-24] 1 rec[-23] 1 rec[-22] 1 rec[-21] 1 rec[-19] 0 rec[-19] 1 rec[-18] 0 rec[-18] 1 rec[-14] 0 rec[-14] 1 rec[-13] 0 rec[-13] 1 rec[-11] 1 rec[-10] 1 rec[-43] 1 rec[-41] 1 rec[-6] 1 rec[-4] 1
+    CZ rec[-44] 0 rec[-44] 1 rec[-42] 2 rec[-40] 0 rec[-40] 1 rec[-39] 0 rec[-39] 1 rec[-38] 0 rec[-38] 1 rec[-35] 2 rec[-34] 0 rec[-34] 2 rec[-33] 0 rec[-32] 2 rec[-30] 2 rec[-29] 0 rec[-28] 0 rec[-27] 2 rec[-20] 0 rec[-19] 2 rec[-17] 0 rec[-15] 0 rec[-12] 0 rec[-9] 0 rec[-9] 1 rec[-8] 0 rec[-8] 1 rec[-5] 0 rec[-26] 2 rec[-24] 2 rec[-23] 2 rec[-22] 2 rec[-21] 2 rec[-7] 1 rec[-3] 1 rec[-2] 1 rec[-1] 1 rec[-46] 2 rec[-45] 2 rec[-31] 2 rec[-16] 2
+                
 
 <a name="SPP_DAG"></a>
-### The 'SPP_DAG' Instruction
+### The 'SPP_DAG' Gate
 
-The generalized S gate. Phases the -1 eigenspace of Pauli product observables by i.
+The generalized S_DAG gate. Phases the -1 eigenspace of Pauli product observables by -i.
 
 Parens Arguments:
 
@@ -3173,6 +4646,59 @@ Decomposition (into H, S, CX, M, R):
     CX 1 0
     CX 2 1
     
+MBQC Decomposition (into MX, MY, MZ, MXX, MZZ, and Pauli feedback):
+
+    # The following circuit performs `SPP_DAG X0*Y1*Z2` (but affects the measurement record and an ancilla qubit)
+    MY 3
+    MZZ 1 3
+    MX 3
+    MZZ 0 3
+    MXX 1 3
+    MZ 3
+    MX 3
+    MZZ 1 3
+    MY 3
+    MZ 3
+    MXX 0 3
+    MY 3
+    MZZ 0 3
+    MX 3
+    MZZ 2 3
+    MXX 0 3
+    MZ 3
+    MX 3
+    MZZ 0 3
+    MY 3
+    MXX 0 3
+    MZ 3
+    MXX 0 3
+    MY 3
+    MZ 3
+    MXX 0 3
+    MY 3
+    MZZ 0 3
+    MX 3
+    MZZ 2 3
+    MXX 0 3
+    MZ 3
+    MX 3
+    MZZ 0 3
+    MY 3
+    MXX 0 3
+    MZ 3
+    MY 3
+    MZZ 1 3
+    MX 3
+    MZZ 0 3
+    MXX 1 3
+    MZ 3
+    MX 3
+    MZZ 1 3
+    MY 3
+    CX rec[-46] 0 rec[-46] 1 rec[-45] 0 rec[-45] 1 rec[-37] 0 rec[-36] 0 rec[-26] 0 rec[-24] 0 rec[-23] 0 rec[-22] 0 rec[-21] 0 rec[-11] 0 rec[-10] 0
+    CY rec[-42] 0 rec[-42] 1 rec[-37] 1 rec[-36] 1 rec[-35] 0 rec[-35] 1 rec[-32] 0 rec[-32] 1 rec[-30] 0 rec[-30] 1 rec[-27] 0 rec[-27] 1 rec[-26] 1 rec[-24] 1 rec[-23] 1 rec[-22] 1 rec[-21] 1 rec[-19] 0 rec[-19] 1 rec[-18] 0 rec[-18] 1 rec[-14] 0 rec[-14] 1 rec[-13] 0 rec[-13] 1 rec[-11] 1 rec[-10] 1 rec[-43] 1 rec[-41] 1 rec[-6] 1 rec[-4] 1
+    CZ rec[-44] 0 rec[-44] 1 rec[-42] 2 rec[-40] 0 rec[-40] 1 rec[-39] 0 rec[-39] 1 rec[-38] 0 rec[-38] 1 rec[-35] 2 rec[-34] 0 rec[-34] 2 rec[-33] 0 rec[-32] 2 rec[-30] 2 rec[-29] 0 rec[-28] 0 rec[-27] 2 rec[-20] 0 rec[-19] 2 rec[-17] 0 rec[-15] 0 rec[-12] 0 rec[-9] 0 rec[-9] 1 rec[-8] 0 rec[-8] 1 rec[-5] 0 rec[-26] 2 rec[-24] 2 rec[-23] 2 rec[-22] 2 rec[-21] 2 rec[-7] 1 rec[-3] 1 rec[-2] 1 rec[-1] 1 rec[-46] 2 rec[-45] 2 rec[-31] 2 rec[-16] 2
+                
 
 ## Control Flow
 
@@ -3344,13 +4870,28 @@ determining the expected value, and `X_ERROR` is noise, causing deviations from 
 It is not recommended for the measurement set of an observable to have inconsistent parity. For example, the
 circuit-to-detector-error-model conversion will refuse to operate on circuits containing such observables.
 
+In addition to targeting measurements, observables can target Pauli operators. This has no effect when running the
+quantum computation, but is used when configuring the decoder. For example, when performing a logical Z initialization,
+it allows a logical X operator to be introduced (by marking its Pauli terms) despite the fact that it anticommutes
+with the initialization. In practice, when physically sampling a circuit or simulating sampling its measurements and
+then computing the observables from the measurements, these Pauli terms are effectively ignored. However, they affect
+detection event simulations and affect whether the observable is included in errors in the detector error model. This
+makes it easier to benchmark all observables of a code, without having to introduce noiseless qubits entangled with the
+logical qubit to avoid the testing of the X observable anticommuting with the testing of the Z observable.
+
+Unlike a `DETECTOR` instruction which provides a complete description of a detector by listing all its constituent
+measurement records, an individual `OBSERVABLE_INCLUDE` instruction is not required to (and generally does not) fully
+describe a logical observable. Instead, measurement records or Pauli targets are added to it incrementally. A logical
+observable can be given both types of description: as a collection of Pauli targets and as a collection of measurement
+record targets.
+
 Parens Arguments:
 
     A non-negative integer specifying the index of the logical observable to add the measurement records to.
 
 Targets:
 
-    The measurement records to add to the specified observable.
+    The measurement records or Pauli terms to add to the specified observable.
 
 Example:
 
@@ -3369,6 +4910,28 @@ Example:
     OBSERVABLE_INCLUDE(1) rec[-1]
     # ...and the one before that.
     OBSERVABLE_INCLUDE(1) rec[-2]
+
+    # Unphysically tracking two anticommuting observables of a 2x2 surface code.
+    QUBIT_COORDS(0, 0) 0
+    QUBIT_COORDS(1, 0) 1
+    QUBIT_COORDS(0, 1) 2
+    QUBIT_COORDS(1, 1) 3
+    OBSERVABLE_INCLUDE(0) X0 X1
+    OBSERVABLE_INCLUDE(1) Z0 Z2
+    MPP X0*X1*X2*X3 Z0*Z1 Z2*Z3
+    DEPOLARIZE1(0.001) 0 1 2 3
+    MPP X0*X1*X2*X3 Z0*Z1 Z2*Z3
+    DETECTOR rec[-1] rec[-4]
+    DETECTOR rec[-2] rec[-5]
+    DETECTOR rec[-3] rec[-6]
+    OBSERVABLE_INCLUDE(0) X0 X1
+    OBSERVABLE_INCLUDE(1) Z0 Z2
+
+    # Stim circuit may include a description of an observable in terms of Pauli targets
+    # alongside a description in terms of measurement records.
+    OBSERVABLE_INCLUDE(0) Z0 Z1
+    M 0 1
+    OBSERVABLE_INCLUDE(0) rec[-2] rec[-1]
 
 <a name="QUBIT_COORDS"></a>
 ### The 'QUBIT_COORDS' Instruction

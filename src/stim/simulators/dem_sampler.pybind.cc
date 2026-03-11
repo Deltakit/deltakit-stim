@@ -70,12 +70,12 @@ pybind11::object dem_sampler_py_sample(
 
     pybind11::object err_out = pybind11::none();
     if (return_errors) {
-        err_out = transposed_simd_bit_table_to_numpy(self.err_buffer, self.num_errors, shots, bit_packed);
+        err_out = simd_bit_table_to_numpy(self.err_buffer, self.num_errors, shots, bit_packed, true, pybind11::none());
     }
     pybind11::object det_out =
-        transposed_simd_bit_table_to_numpy(self.det_buffer, self.num_detectors, shots, bit_packed);
+        simd_bit_table_to_numpy(self.det_buffer, self.num_detectors, shots, bit_packed, true, pybind11::none());
     pybind11::object obs_out =
-        transposed_simd_bit_table_to_numpy(self.obs_buffer, self.num_observables, shots, bit_packed);
+        simd_bit_table_to_numpy(self.obs_buffer, self.num_observables, shots, bit_packed, true, pybind11::none());
     return pybind11::make_tuple(det_out, obs_out, err_out);
 }
 
@@ -309,7 +309,7 @@ void stim_pybind::pybind_dem_sampler_methods(pybind11::module &m, pybind11::clas
         pybind11::arg("replay_err_in_file") = pybind11::none(),
         pybind11::arg("replay_err_in_format") = "01",
         clean_doc_string(R"DOC(
-            @signature def sample_write(self, shots: int, *, det_out_file: Union[None, str, pathlib.Path], det_out_format: str = "01", obs_out_file: Union[None, str, pathlib.Path], obs_out_format: str = "01", err_out_file: Union[None, str, pathlib.Path] = None, err_out_format: str = "01", replay_err_in_file: Union[None, str, pathlib.Path] = None, replay_err_in_format: str = "01") -> None:
+            @signature def sample_write(self, shots: int, *, det_out_file: Union[None, str, pathlib.Path], det_out_format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"] = '01', obs_out_file: Union[None, str, pathlib.Path], obs_out_format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"] = '01', err_out_file: Union[None, str, pathlib.Path] = None, err_out_format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"] = '01', replay_err_in_file: Union[None, str, pathlib.Path] = None, replay_err_in_format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"] = '01') -> None:
             Samples the detector error model and writes the results to disk.
 
             Args:

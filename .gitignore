@@ -35,7 +35,6 @@ venv
 .cmake/*
 coverage/*
 cmake-build-debug-coverage/*
-# clangd generated files
 compile_commands.json
 .cache
 build.ninja
@@ -46,6 +45,8 @@ node_modules
 # Project specific
 # Ignore Emacs backup files.
 *~
+MODULE.bazel.lock
+.ninja_lock
 
 # Sphinx documentation
 docs/_build/

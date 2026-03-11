@@ -21,8 +21,15 @@
 
 namespace stim_pybind {
 
-pybind11::class_<stim::Gate> pybind_gate_data(pybind11::module &m);
-void pybind_gate_data_methods(pybind11::module &m, pybind11::class_<stim::Gate> &c);
+struct GateTypeWrapper {
+    stim::GateType type;
+    inline bool operator==(const GateTypeWrapper &other) const {
+        return type == other.type;
+    }
+};
+
+pybind11::class_<GateTypeWrapper> pybind_gate_data(pybind11::module &m);
+void pybind_gate_data_methods(pybind11::module &m, pybind11::class_<GateTypeWrapper> &c);
 
 }  // namespace stim_pybind
 
