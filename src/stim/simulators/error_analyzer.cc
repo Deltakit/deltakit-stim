@@ -1241,6 +1241,7 @@ void ErrorAnalyzer::run_loop(const Circuit &loop, uint64_t iterations, std::stri
         false,
         false);
     hare.tracker = tracker;
+    hare.num_meas_before_her_to_pl = num_meas_before_her_to_pl;
     hare.accumulate_errors = false;
 
     // Perform tortoise-and-hare cycle finding.
