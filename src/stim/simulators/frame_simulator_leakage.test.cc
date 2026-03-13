@@ -390,3 +390,116 @@ TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, leakage_heralding, {
         ASSERT_NEAR(frame_sim.det_record.storage[i].popcnt(), noisy_num_leaked, noisy_num_leaked * 0.05);
     }
 })
+
+// Helper function for bit-and-phase flip model to test the frame simulator logic by taking a circuit with leakage on 
+// either control or target and a number of shots and returning the expected counts.
+template<size_t W>
+std::tuple<size_t, size_t, size_t, size_t> get_counts(const Circuit& circuit, size_t n) {
+    auto circuit_stats = circuit.compute_stats();
+    FrameSimulator<W> frame_sim(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, 0, INDEPENDENT_TEST_RNG());
+    frame_sim.configure_for(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, n);
+    frame_sim.do_LEAKAGE(circuit.operations[0]);
+    frame_sim.x_table.clear();
+    frame_sim.z_table.clear();
+    frame_sim.do_gate(circuit.operations[1]);
+    
+    size_t control_x = 0, control_z = 0, target_x = 0, target_z = 0;
+    for (size_t shot = 0; shot < n; ++shot) {
+        control_x += frame_sim.x_table[0][shot];
+        control_z += frame_sim.z_table[0][shot];
+        target_x += frame_sim.x_table[1][shot];
+        target_z += frame_sim.z_table[1][shot];
+    }
+    
+    return {control_x, control_z, target_x, target_z};
+}
+
+TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, bit_and_phase_flip_model_CX_control, {
+    const size_t n = 10000;
+    auto circuit = Circuit(R"CIRCUIT(
+        LEAKAGE(1.0) 0
+        CX(0.0, 0.0, 0.0, 0.0, 1) 0 1
+    )CIRCUIT");
+    
+    auto [control_x, control_z, target_x, target_z] = get_counts<W>(circuit, n);
+    
+    EXPECT_NEAR(target_x, n * 0.5, n * 0.05);
+    EXPECT_EQ(target_z, 0);
+    EXPECT_EQ(control_x, 0);
+    EXPECT_EQ(control_z, 0);
+})
+
+TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, bit_and_phase_flip_model_CX_target, {
+    const size_t n = 10000;
+    auto circuit = Circuit(R"CIRCUIT(
+        LEAKAGE(1.0) 1
+        CX(0.0, 0.0, 0.0, 0.0, 1) 0 1
+    )CIRCUIT");
+    
+    auto [control_x, control_z, target_x, target_z] = get_counts<W>(circuit, n);
+    
+    EXPECT_NEAR(control_z, n * 0.5, n * 0.05);
+    EXPECT_EQ(control_x, 0);
+    EXPECT_EQ(target_x, 0);
+    EXPECT_EQ(target_z, 0);
+})
+
+TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, bit_and_phase_flip_model_CY_control, {
+    const size_t n = 10000;
+    auto circuit = Circuit(R"CIRCUIT(
+        LEAKAGE(1.0) 0
+        CY(0.0, 0.0, 0.0, 0.0, 1) 0 1
+    )CIRCUIT");
+    
+    auto [control_x, control_z, target_x, target_z] = get_counts<W>(circuit, n);
+    
+    EXPECT_NEAR(target_x, n * 0.5, n * 0.05);
+    EXPECT_NEAR(target_z, n * 0.5, n * 0.05);
+    EXPECT_EQ(control_x, 0);
+    EXPECT_EQ(control_z, 0);
+})
+
+TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, bit_and_phase_flip_model_CY_target, {
+    const size_t n = 10000;
+    auto circuit = Circuit(R"CIRCUIT(
+        LEAKAGE(1.0) 1
+        CY(0.0, 0.0, 0.0, 0.0, 1) 0 1
+    )CIRCUIT");
+    
+    auto [control_x, control_z, target_x, target_z] = get_counts<W>(circuit, n);
+    
+    EXPECT_NEAR(control_z, n * 0.5, n * 0.05);
+    EXPECT_EQ(control_x, 0);
+    EXPECT_EQ(target_x, 0);
+    EXPECT_EQ(target_z, 0);
+})
+
+TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, bit_and_phase_flip_model_CZ_control, {
+    const size_t n = 10000;
+    auto circuit = Circuit(R"CIRCUIT(
+        LEAKAGE(1.0) 0
+        CZ(0.0, 0.0, 0.0, 0.0, 1) 0 1
+    )CIRCUIT");
+    
+    auto [control_x, control_z, target_x, target_z] = get_counts<W>(circuit, n);
+    
+    EXPECT_NEAR(target_z, n * 0.5, n * 0.05);
+    EXPECT_EQ(target_x, 0);
+    EXPECT_EQ(control_x, 0);
+    EXPECT_EQ(control_z, 0);
+})
+
+TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, bit_and_phase_flip_model_CZ_target, {
+    const size_t n = 10000;
+    auto circuit = Circuit(R"CIRCUIT(
+        LEAKAGE(1.0) 1
+        CZ(0.0, 0.0, 0.0, 0.0, 1) 0 1
+    )CIRCUIT");
+    
+    auto [control_x, control_z, target_x, target_z] = get_counts<W>(circuit, n);
+    
+    EXPECT_NEAR(control_z, n * 0.5, n * 0.05);
+    EXPECT_EQ(control_x, 0);
+    EXPECT_EQ(target_x, 0);
+    EXPECT_EQ(target_z, 0);
+})
