@@ -3925,3 +3925,28 @@ TEST(ErrorAnalyzer, heralded_leakage_errors_to_dem_transformation) {
             detector D5
         )DEM"), 1e-6));
 }
+
+TEST(ErrorAnalyzer, check_heralded_dem_transform_with_periodic_loop_finding_activated) {
+    const bool fold_loops = true;
+    ASSERT_TRUE(ErrorAnalyzer::circuit_to_detector_error_model(
+        Circuit(R"CIRCUIT(
+            repeat 2 {
+                RZ 0 1
+                leakage(0.001) 0
+                HERALD_LEAKAGE_EVENT 0 1
+                MZ 0 1
+                DETECTOR rec[-1]
+                DETECTOR rec[-2]
+                DETECTOR rec[-3]
+                DETECTOR rec[-4]
+            }
+        )CIRCUIT"), true, fold_loops, false, 1, false, false).approx_equals(
+            DetectorErrorModel(R"DEM(
+            repeat 2 {
+                error(0.5) D1 ^ D3
+                detector D0
+                detector D2
+                shift_detectors 4
+            }
+        )DEM"), 1e-6));
+}
