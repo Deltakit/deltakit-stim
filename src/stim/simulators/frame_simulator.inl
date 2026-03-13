@@ -575,11 +575,11 @@ void FrameSimulator<W>::do_ZCX(const CircuitInstruction &target_data) {
                     p_mobility_tar_cont,
                     [&x_table = x_table, &z_table = z_table, c = targets[k].value(), t = targets[k + 1].value()](uint32_t leaked_qubit, int leakage_event, uint64_t rng_buf) {
                         if (leaked_qubit == c) {
-                            // Control leaks: Z error
-                            z_table[c][leakage_event] ^= (bool)(rng_buf & 1);
-                        } else {
-                            // Target leaks: X error
+                            // Control leaks: X error on target
                             x_table[t][leakage_event] ^= (bool)(rng_buf & 1);
+                        } else {
+                            // Target leaks: Z error on control
+                            z_table[c][leakage_event] ^= (bool)(rng_buf & 1);
                         }
                     });
             } else {
@@ -625,12 +625,12 @@ void FrameSimulator<W>::do_ZCY(const CircuitInstruction &target_data) {
                     p_mobility_tar_cont,
                     [&x_table = x_table, &z_table = z_table, c = targets[k].value(), t = targets[k + 1].value()](uint32_t leaked_qubit, int leakage_event, uint64_t rng_buf) {
                         if (leaked_qubit == c) {
-                            // Control leaks: Z error
-                            z_table[c][leakage_event] ^= (bool)(rng_buf & 1);
-                        } else {
-                            // Target leaks: Y error
+                            // Control leaks: Y error on target
                             x_table[t][leakage_event] ^= (bool)(rng_buf & 1);
                             z_table[t][leakage_event] ^= (bool)(rng_buf & 1);
+                        } else {
+                            // Target leaks: Z error on control
+                            z_table[c][leakage_event] ^= (bool)(rng_buf & 1);
                         }
                     });
             } else {
@@ -694,11 +694,11 @@ void FrameSimulator<W>::do_ZCZ(const CircuitInstruction &target_data) {
                     p_mobility_cont_tar,
                     p_mobility_tar_cont,
                     [&x_table = x_table, &z_table = z_table, c = targets[k].value(), t = targets[k + 1].value()](uint32_t leaked_qubit, int leakage_event, uint64_t rng_buf) {
-                        // Both target and control: Z error
+                        // Both target and control: apply a Z error to the other qubit.
                         if (leaked_qubit == c) {
-                            z_table[c][leakage_event] ^= (bool)(rng_buf & 1);
-                        } else {
                             z_table[t][leakage_event] ^= (bool)(rng_buf & 1);
+                        } else {
+                            z_table[c][leakage_event] ^= (bool)(rng_buf & 1);
                         }
                     });
             } else {
