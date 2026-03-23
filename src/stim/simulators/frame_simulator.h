@@ -27,11 +27,6 @@
 
 namespace stim {
 
-enum class ModelCode {
-    DEPOLARIZING_LEAKAGE = 0,
-    BIT_AND_PHASE_FLIP_LEAKAGE = 1
-};
-
 enum class FrameSimulatorMode {
     STORE_MEASUREMENTS_TO_MEMORY,  // all measurements stored, detections not stored
     STREAM_MEASUREMENTS_TO_DISK,   // measurements stored up to lookback, detections not stored

@@ -1,4 +1,5 @@
 #include "stim/simulators/error_analyzer.h"
+#include "stim/simulators/error_analyzer_pl_data.h"
 
 #include <regex>
 
@@ -3948,5 +3949,197 @@ TEST(ErrorAnalyzer, check_heralded_dem_transform_with_periodic_loop_finding_acti
                 detector D2
                 shift_detectors 4
             }
+        )DEM"), 1e-6));
+}
+
+TEST(ErrorAnalyzer, bit_and_phase_flip_model_CX_control) {
+    // A leaked control qubit places an X error on the target qubit
+    ASSERT_TRUE(ErrorAnalyzer::circuit_to_detector_error_model(
+        Circuit(R"CIRCUIT(
+            R 0 2
+            RX 1
+            LEAKAGE(0.1) 0
+            CX(0,0,0,0,1) 0 1
+            CX(0,0,0,0,1) 0 2
+            HERALD_LEAKAGE_EVENT 0
+            M 0
+            MX 1
+            M 2
+            DETECTOR rec[-4]
+            DETECTOR rec[-3]
+            DETECTOR rec[-2]
+            DETECTOR rec[-1]
+        )CIRCUIT"), true, false, false, 1, false, false).approx_equals(DetectorErrorModel(R"DEM(
+            error(0.5) D1 ^ D0
+            error(0.5) D3 ^ D0
+            detector D2
+        )DEM"), 1e-6));
+}
+
+TEST(ErrorAnalyzer, bit_and_phase_flip_model_CX_target) {
+    // A leaked target qubit places an Z error on the control qubit
+    ASSERT_TRUE(ErrorAnalyzer::circuit_to_detector_error_model(
+        Circuit(R"CIRCUIT(
+            R 0 1
+            RX 2
+
+            # Make dets deterministic
+            CX 1 0
+            CX 2 0
+
+            LEAKAGE(0.1) 0
+
+            CX(0,0,0,0,1) 1 0
+            CX(0,0,0,0,1) 2 0
+
+            HERALD_LEAKAGE_EVENT 0
+            M 0 1
+            MX 2
+
+            DETECTOR rec[-4]
+            DETECTOR rec[-3]
+            DETECTOR rec[-2]
+            DETECTOR rec[-1]
+        )CIRCUIT"), true, false, false, 1, false, false).approx_equals(DetectorErrorModel(R"DEM(
+            error(0) D1 D2 ^ D0
+            error(0.5) D1 ^ D0
+            error(0.5) D3 ^ D0
+            error(0) D3 ^ D1 ^ D0
+        )DEM"), 1e-6));
+}
+
+TEST(ErrorAnalyzer, bit_and_phase_flip_model_CY_control) {
+    // A leaked control qubit places an Y error on the target qubit
+    ASSERT_TRUE(ErrorAnalyzer::circuit_to_detector_error_model(
+        Circuit(R"CIRCUIT(
+            R 0 2
+            RX 1
+            LEAKAGE(0.1) 0
+            CY(0,0,0,0,1) 0 1
+            CY(0,0,0,0,1) 0 2
+            HERALD_LEAKAGE_EVENT 0
+            M 0
+            MX 1
+            M 2
+            DETECTOR rec[-4]
+            DETECTOR rec[-3]
+            DETECTOR rec[-2]
+            DETECTOR rec[-1]
+        )CIRCUIT"), true, false, false, 1, false, false).approx_equals(DetectorErrorModel(R"DEM(
+            error(0.5) D1 ^ D0
+            error(0.5) D2 ^ D0
+            error(0.5) D3 ^ D0
+        )DEM"), 1e-6));
+}
+
+TEST(ErrorAnalyzer, bit_and_phase_flip_model_CY_target) {
+    // A leaked target qubit places an Z error on the control qubit
+    ASSERT_TRUE(ErrorAnalyzer::circuit_to_detector_error_model(
+        Circuit(R"CIRCUIT(
+            R 0
+            RX 1
+            R 2
+
+            # Make dets deterministic
+            CY 0 2
+            CY 1 2
+
+            LEAKAGE(0.1) 2
+            CY(0,0,0,0,1) 0 2
+            CY(0,0,0,0,1) 1 2
+
+            HERALD_LEAKAGE_EVENT 2
+            M 0
+            MX 1
+            DETECTOR rec[-3]
+            DETECTOR rec[-2]
+            DETECTOR rec[-1]
+        )CIRCUIT"), true, false, false, 1, false, false).approx_equals(DetectorErrorModel(R"DEM(
+            error(0) D1 ^ D0
+            error(0.5) D2 ^ D0
+        )DEM"), 1e-6));
+
+}
+
+TEST(ErrorAnalyzer, bit_and_phase_flip_model_CZ_control) {
+    // A leaked control qubit places a Z error on the target qubit
+    ASSERT_TRUE(ErrorAnalyzer::circuit_to_detector_error_model(
+        Circuit(R"CIRCUIT(
+            R 0 2
+            RX 1
+            LEAKAGE(0.1) 0
+            CZ(0,0,0,0,1) 0 1
+            CZ(0,0,0,0,1) 0 2
+            HERALD_LEAKAGE_EVENT 0
+            M 0
+            MX 1
+            M 2
+            DETECTOR rec[-4]
+            DETECTOR rec[-3]
+            DETECTOR rec[-2]
+            DETECTOR rec[-1]
+        )CIRCUIT"), true, false, false, 1, false, false).approx_equals(DetectorErrorModel(R"DEM(
+            error(0.5) D1 ^ D0
+            error(0.5) D2 ^ D0
+            detector D3
+        )DEM"), 1e-6));
+}
+
+TEST(ErrorAnalyzer, bit_and_phase_flip_model_CZ_target) {
+    // A leaked target qubit places a Z error on the control qubit
+    ASSERT_TRUE(ErrorAnalyzer::circuit_to_detector_error_model(
+        Circuit(R"CIRCUIT(
+            R 0 1
+            RX 2
+
+            LEAKAGE(0.1) 0
+
+            CZ(0,0,0,0,1) 1 0
+            CZ(0,0,0,0,1) 2 0
+
+            HERALD_LEAKAGE_EVENT 0
+            M 0 1
+            MX 2
+
+            DETECTOR rec[-4]
+            DETECTOR rec[-3]
+            DETECTOR rec[-2]
+            DETECTOR rec[-1]
+
+        )CIRCUIT"), true, false, false, 1, false, false).approx_equals(DetectorErrorModel(R"DEM(
+            error(0.5) D1 ^ D0
+            error(0.5) D3 ^ D0
+            detector D2
+        )DEM"), 1e-6));
+}
+
+TEST(ErrorAnalyzer, bit_and_phase_flip_model_deep_circuit) {
+    // A leaked control qubit places an X error on the target qubit
+    ASSERT_TRUE(ErrorAnalyzer::circuit_to_detector_error_model(
+        Circuit(R"CIRCUIT(
+            R 0 2 4
+            RX 1 3
+            LEAKAGE(0.1) 0
+            CX(0,0,0,0,1) 0 1
+            CX(0,0,0,0,1) 0 2
+            LEAKAGE(0.1) 0
+            CX(0,0,0,0,1) 0 3
+            CX(0,0,0,0,1) 0 4
+            HERALD_LEAKAGE_EVENT 0
+            M 0
+            MX 1 3
+            M 2 4
+            DETECTOR rec[-6]
+            DETECTOR rec[-5]
+            DETECTOR rec[-4]
+            DETECTOR rec[-3]
+            DETECTOR rec[-2]
+            DETECTOR rec[-1]
+        )CIRCUIT"), true, false, false, 1, false, false).approx_equals(DetectorErrorModel(R"DEM(
+            error(0.5) D1 ^ D0
+            error(0.25) D4 ^ D0
+            error(0.5) D5 ^ D0
+            detector D2
+            detector D3
         )DEM"), 1e-6));
 }

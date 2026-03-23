@@ -425,6 +425,13 @@ struct GateDataMap {
 
 extern const GateDataMap GATE_DATA;
 
+/// Leakage error model codes for two-qubit gates.
+/// Used as the last argument in gates with GATE_LAST_ARG_IS_OPCODE flag.
+enum class LeakageErrorModelCode {
+    DEPOLARIZING_LEAKAGE = 0,
+    BIT_AND_PHASE_FLIP_LEAKAGE = 1
+};
+
 }  // namespace stim
 
 #endif

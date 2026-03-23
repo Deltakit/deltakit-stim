@@ -22,6 +22,7 @@
 #include <type_traits>
 
 #include "stim/circuit/gate_decomposition.h"
+#include "stim/gates/gates.h"
 #include "stim/stabilizers/pauli_string.h"
 #include "stim/util_bot/error_decomp.h"
 
@@ -343,10 +344,13 @@ void ErrorAnalyzer::undo_MZ_with_context(const CircuitInstruction &inst, const c
 
 void ErrorAnalyzer::undo_TWO_QUBIT_GATE_LEAKAGE_ERROR(const CircuitInstruction &inst) {
     static constexpr double MAXIMALLY_MIXED_P = 0.75;
+    static constexpr double BIT_AND_PHASE_FLIP_P = 0.5;
 
     if (!accumulate_errors) {
         return;
     }
+
+    LeakageErrorModelCode model = inst.args.size() >= 5 ? static_cast<LeakageErrorModelCode>(inst.args[4]) : LeakageErrorModelCode::DEPOLARIZING_LEAKAGE;
 
     for (size_t k = inst.targets.size() - 2; k + 2 != 0; k -= 2) {
         auto c = inst.targets[k];
@@ -360,18 +364,104 @@ void ErrorAnalyzer::undo_TWO_QUBIT_GATE_LEAKAGE_ERROR(const CircuitInstruction &
             for (const auto tar : {cd, td}) {
                 if (!tracker.l_data[tar].lh_rec_bits.empty() && tracker.l_data[tar].total_pL > 0) {
                     const auto &[l_her_bits, tot_pL, rev_dec] = tracker.l_data[tar];
-                    double pL = depolarize1_probability_to_independent_per_channel_probability(
-                        MAXIMALLY_MIXED_P * (rev_dec / tot_pL));
-                    if (pL > MAXIMALLY_MIXED_P) {
-                        throw std::invalid_argument("Can't analyze over-mixing DEPOLARIZE1 errors (probability > 3/4).");
+                    
+                    if (model == LeakageErrorModelCode::BIT_AND_PHASE_FLIP_LEAKAGE) {
+                        bool control_leaked = tar == cd;
+                        double pL = BIT_AND_PHASE_FLIP_P * (rev_dec / tot_pL);
+                        if (pL > BIT_AND_PHASE_FLIP_P) {
+                            throw std::invalid_argument(
+                                "Can't analyze over-mixing bit-and-phase-flip errors with probability " + std::to_string(pL) + " > 1/2.");
+                        }
+
+                        switch (inst.gate_type) {
+                            case GateType::CX:
+                                if (control_leaked) {
+                                    // Control leaked: X error on target qubit
+                                    add_error_combinations<2>(
+                                        {0, 0, 0, pL},
+                                        {
+                                            tracker.zs[td].range(),
+                                            l_her_bits.range()
+                                        },
+                                        false,
+                                        inst.tag,
+                                        true);
+                                } else {
+                                    // Target leaked: Z error on control qubit
+                                    add_error_combinations<2>(
+                                        {0, 0, 0, pL},
+                                        {
+                                            tracker.xs[cd].range(),
+                                            l_her_bits.range()
+                                        },
+                                        false,
+                                        inst.tag,
+                                        true);
+                                }
+                                break;
+
+                            case GateType::CY:
+                                if (control_leaked) {
+                                    // Control leaked: Y error on target qubit
+                                    add_error_combinations<3>(
+                                        {0, 0, 0, 0, 0, 0, 0, pL},
+                                        {
+                                            tracker.xs[td].range(),
+                                            tracker.zs[td].range(),
+                                            l_her_bits.range()
+                                        },
+                                        false,
+                                        inst.tag,
+                                        true);
+                                } else {
+                                    // Target leaked: Z error on control qubit
+                                    add_error_combinations<2>(
+                                        {0, 0, 0, pL},
+                                        {
+                                            tracker.xs[cd].range(),
+                                            l_her_bits.range()
+                                        },
+                                        false,
+                                        inst.tag,
+                                        true);
+                                }
+                                break;
+
+                            case GateType::CZ:
+                                // Control or target leaked: Z error on the non-leaked qubit
+                                add_error_combinations<2>(
+                                    {0, 0, 0, pL},
+                                    {
+                                        tracker.xs[tar == cd ? td : cd].range(),
+                                        l_her_bits.range()
+                                    },
+                                    false,
+                                    inst.tag,
+                                    true);
+                                break;
+
+                            default:
+                                throw std::invalid_argument("Unsupported gate type for bit-and-phase-flip leakage model: " + std::string(GATE_DATA[inst.gate_type].name));
+                        }
+                    } else {
+                        double pL = depolarize1_probability_to_independent_per_channel_probability(
+                            MAXIMALLY_MIXED_P * (rev_dec / tot_pL));
+                        if (pL > MAXIMALLY_MIXED_P) {
+                            throw std::invalid_argument(
+                                "Can't analyze over-mixing DEPOLARIZE1 errors with probability " + std::to_string(pL) + " > 3/4.");
+                        }
+                        const uint32_t depol_candidate = tar == cd ? td : cd;
+                        add_error_combinations<3>(
+                            {0, 0, 0, 0, 0, pL, pL, pL},
+                            {
+                                tracker.xs[depol_candidate].range(),
+                                tracker.zs[depol_candidate].range(),
+                                l_her_bits.range()
+                            },
+                            false,
+                            inst.tag,
+                            true);
                     }
-                    const uint32_t depol_candidate = tar == cd ? td : cd;
-                    add_error_combinations<3>(
-                        {0, 0, 0, 0, 0, pL, pL, pL},
-                        {tracker.xs[depol_candidate].range(), tracker.zs[depol_candidate].range(), l_her_bits.range()},
-                        false,
-                        inst.tag,
-			true);
                 }
             }
         }
@@ -661,7 +751,7 @@ void ErrorAnalyzer::undo_HERALD_LEAKAGE_EVENT(const CircuitInstruction &inst) {
                 },
                 false,
                 inst.tag,
-		true);
+                true);
         }
     }
 }
