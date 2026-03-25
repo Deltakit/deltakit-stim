@@ -418,13 +418,13 @@ TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, bit_and_phase_flip_model_CX_control
     const size_t n = 10000;
     auto circuit = Circuit(R"CIRCUIT(
         LEAKAGE(1.0) 0
-        CX(0.0, 0.0, 0.0, 0.0, 1) 0 1
+        CX(0.0, 0.0, 0.0, 1) 0 1
     )CIRCUIT");
     
     auto [control_x, control_z, target_x, target_z] = get_counts<W>(circuit, n);
-    
+
     EXPECT_NEAR(target_x, n * 0.5, n * 0.05);
-    EXPECT_EQ(target_z, 0);
+    EXPECT_NEAR(target_z, 5000, 100);
     EXPECT_EQ(control_x, 0);
     EXPECT_EQ(control_z, 0);
 })
@@ -433,13 +433,13 @@ TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, bit_and_phase_flip_model_CX_target,
     const size_t n = 10000;
     auto circuit = Circuit(R"CIRCUIT(
         LEAKAGE(1.0) 1
-        CX(0.0, 0.0, 0.0, 0.0, 1) 0 1
+        CX(0.0, 0.0, 0.0, 1) 0 1
     )CIRCUIT");
     
     auto [control_x, control_z, target_x, target_z] = get_counts<W>(circuit, n);
     
     EXPECT_NEAR(control_z, n * 0.5, n * 0.05);
-    EXPECT_EQ(control_x, 0);
+    EXPECT_NEAR(control_x, 5000, 100);
     EXPECT_EQ(target_x, 0);
     EXPECT_EQ(target_z, 0);
 })
@@ -448,7 +448,7 @@ TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, bit_and_phase_flip_model_CY_control
     const size_t n = 10000;
     auto circuit = Circuit(R"CIRCUIT(
         LEAKAGE(1.0) 0
-        CY(0.0, 0.0, 0.0, 0.0, 1) 0 1
+        CY(0.0, 0.0, 0.0, 1) 0 1
     )CIRCUIT");
     
     auto [control_x, control_z, target_x, target_z] = get_counts<W>(circuit, n);
@@ -463,13 +463,13 @@ TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, bit_and_phase_flip_model_CY_target,
     const size_t n = 10000;
     auto circuit = Circuit(R"CIRCUIT(
         LEAKAGE(1.0) 1
-        CY(0.0, 0.0, 0.0, 0.0, 1) 0 1
+        CY(0.0, 0.0, 0.0, 1) 0 1
     )CIRCUIT");
     
     auto [control_x, control_z, target_x, target_z] = get_counts<W>(circuit, n);
     
     EXPECT_NEAR(control_z, n * 0.5, n * 0.05);
-    EXPECT_EQ(control_x, 0);
+    EXPECT_NEAR(control_x, 5000, 100);
     EXPECT_EQ(target_x, 0);
     EXPECT_EQ(target_z, 0);
 })
@@ -478,13 +478,13 @@ TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, bit_and_phase_flip_model_CZ_control
     const size_t n = 10000;
     auto circuit = Circuit(R"CIRCUIT(
         LEAKAGE(1.0) 0
-        CZ(0.0, 0.0, 0.0, 0.0, 1) 0 1
+        CZ(0.0, 0.0, 0.0, 1) 0 1
     )CIRCUIT");
     
     auto [control_x, control_z, target_x, target_z] = get_counts<W>(circuit, n);
     
     EXPECT_NEAR(target_z, n * 0.5, n * 0.05);
-    EXPECT_EQ(target_x, 0);
+    EXPECT_NEAR(target_x, 5000, 100);
     EXPECT_EQ(control_x, 0);
     EXPECT_EQ(control_z, 0);
 })
@@ -493,13 +493,13 @@ TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, bit_and_phase_flip_model_CZ_target,
     const size_t n = 10000;
     auto circuit = Circuit(R"CIRCUIT(
         LEAKAGE(1.0) 1
-        CZ(0.0, 0.0, 0.0, 0.0, 1) 0 1
+        CZ(0.0, 0.0, 0.0, 1) 0 1
     )CIRCUIT");
     
     auto [control_x, control_z, target_x, target_z] = get_counts<W>(circuit, n);
     
     EXPECT_NEAR(control_z, n * 0.5, n * 0.05);
-    EXPECT_EQ(control_x, 0);
+    EXPECT_NEAR(control_x, 5000, 100);
     EXPECT_EQ(target_x, 0);
     EXPECT_EQ(target_z, 0);
 })
