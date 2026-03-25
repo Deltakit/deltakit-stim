@@ -25,14 +25,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
-
+        uses: actions/checkout@v5
       - name: Install uv
         uses: astral-sh/setup-uv@v7
-
       - name: Package synchronisation
         run: uv sync --python 3.13 --resolution highest --group docs
-
       - name: Build documentation
         run: uv run --no-sync sphinx-build -W -b html docs docs/_build/html
         env:
