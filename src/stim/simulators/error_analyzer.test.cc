@@ -1,4 +1,5 @@
 #include "stim/simulators/error_analyzer.h"
+#include "stim/simulators/error_analyzer_pl_data.h"
 
 #include <regex>
 
