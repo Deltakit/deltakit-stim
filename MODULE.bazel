@@ -1,6 +1,7 @@
 bazel_dep(name = "googletest", version = "1.14.0.bcr.1")
 bazel_dep(name = "pybind11_bazel", version = "3.0.0")
 bazel_dep(name = "rules_python", version = "1.6.3")
+bazel_dep(name = "platforms", version = "1.0.0")
 
 # --- Python 3.13 setup ---
 python = use_extension("@rules_python//python/extensions:python.bzl", "python")
