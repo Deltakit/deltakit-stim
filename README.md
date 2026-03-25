@@ -65,11 +65,3 @@ For any reference to Stim, please consider using the citation:
   year = {2021}
 }
 ```
-
-## Build Wheels for Internal PyPI Release
-
-* Branch out of default branch for your feature branch.
-* Bump version in `setup.py`.
-* Make a pull request with `release` as the target branch.
-* Upon merge, source and wheel distributions will be built and published on [Riverlane's internal PyPI index](https://riv-pypi.azurewebsites.net/home/)
-* Finally, merge `release` branch back into default branch.
