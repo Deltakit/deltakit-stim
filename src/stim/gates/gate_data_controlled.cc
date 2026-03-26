@@ -299,9 +299,8 @@ S 0
             .name = "CX",
             .id = GateType::CX,
             .best_candidate_inverse_id = GateType::CX,
-            .arg_count = ARG_COUNT_SYGIL_ZERO_OR_FOUR_OR_FIVE,
-            .flags = (GateFlags)(GATE_IS_UNITARY | GATE_TARGETS_PAIRS | GATE_CAN_TARGET_BITS | GATE_IS_NOISY |
-                                 GATE_TRANSPORTS_LEAKAGE | GATE_LAST_ARG_IS_OPCODE),
+            .arg_count = ARG_COUNT_SYGIL_ZERO_OR_FOUR,
+            .flags = (GateFlags)(GATE_IS_UNITARY | GATE_TARGETS_PAIRS | GATE_CAN_TARGET_BITS | GATE_IS_NOISY | GATE_TRANSPORTS_LEAKAGE),
             .category = "C_Two Qubit Clifford Gates",
             .help = R"MARKDOWN(
 The Z-controlled X gate.
@@ -350,7 +349,6 @@ Example:
     #   target -> control, meaning our control would be "re-leaked".
     # Note: leakage can be introduced into a circuit via the LEAKAGE channel.
     CX(0.01, 0.02, 0.03, 0.04) 2 5
-    Optional fifth argument: leakage model (0=depolarising, 1=bit/phase flip)
 
     # Bit flip qubit 6 if the most recent measurement result was TRUE.
     CX rec[-1] 6
@@ -374,9 +372,8 @@ CNOT 0 1
             .name = "CY",
             .id = GateType::CY,
             .best_candidate_inverse_id = GateType::CY,
-            .arg_count = ARG_COUNT_SYGIL_ZERO_OR_FOUR_OR_FIVE,
-            .flags = (GateFlags)(GATE_IS_UNITARY | GATE_TARGETS_PAIRS | GATE_CAN_TARGET_BITS | GATE_IS_NOISY |
-                                 GATE_TRANSPORTS_LEAKAGE | GATE_LAST_ARG_IS_OPCODE),
+            .arg_count = ARG_COUNT_SYGIL_ZERO_OR_FOUR,
+            .flags = (GateFlags)(GATE_IS_UNITARY | GATE_TARGETS_PAIRS | GATE_CAN_TARGET_BITS | GATE_IS_NOISY | GATE_TRANSPORTS_LEAKAGE),
             .category = "C_Two Qubit Clifford Gates",
             .help = R"MARKDOWN(
 The Z-controlled Y gate.
@@ -425,7 +422,6 @@ Example:
     #   target -> control, meaning our control would be "re-leaked".
     # Note: leakage can be introduced into a circuit via the LEAKAGE channel.
     CY(0.01, 0.02, 0.03, 0.04) 2 5
-    Optional fifth argument: leakage model (0=depolarising, 1=bit/phase flip)
 
     # Apply Y to qubit 6 if the most recent measurement result was TRUE.
     CY rec[-1] 6
@@ -452,9 +448,8 @@ S 1
             .name = "CZ",
             .id = GateType::CZ,
             .best_candidate_inverse_id = GateType::CZ,
-            .arg_count = ARG_COUNT_SYGIL_ZERO_OR_FOUR_OR_FIVE,
-            .flags = (GateFlags)(GATE_IS_UNITARY | GATE_TARGETS_PAIRS | GATE_CAN_TARGET_BITS | GATE_IS_NOISY |
-                                 GATE_TRANSPORTS_LEAKAGE | GATE_LAST_ARG_IS_OPCODE),
+            .arg_count = ARG_COUNT_SYGIL_ZERO_OR_FOUR,
+            .flags = (GateFlags)(GATE_IS_UNITARY | GATE_TARGETS_PAIRS | GATE_CAN_TARGET_BITS | GATE_IS_NOISY | GATE_TRANSPORTS_LEAKAGE),
             .category = "C_Two Qubit Clifford Gates",
             .help = R"MARKDOWN(
 The Z-controlled Z gate.
@@ -506,7 +501,6 @@ Example:
     #   target -> control, meaning our control would be "re-leaked".
     # Note: leakage can be introduced into a circuit via the LEAKAGE channel.
     CZ(0.01, 0.02, 0.03, 0.04) 2 5
-    Optional fifth argument: leakage model (0=depolarising, 1=bit/phase flip)
 
     # Apply Z to qubit 7 if the 3rd most recent measurement result was TRUE.
     CZ 7 rec[-3]

@@ -429,10 +429,10 @@ TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, bit_and_phase_flip_model_CX_control
     
     auto [control_x, control_z, target_x, target_z] = get_counts<W>(circuit, n);
 
-    EXPECT_EQ(target_x, 0);
-    EXPECT_EQ(target_z, 0);
-    EXPECT_NEAR(control_x, n * 0.5, n * 0.05);
-    EXPECT_NEAR(control_z, n * 0.5, n * 0.05);
+    EXPECT_NEAR(target_x, n * 0.5, n * 0.05);
+    EXPECT_NEAR(target_z, n * 0.5, n * 0.05);
+    EXPECT_EQ(control_x, 0);
+    EXPECT_EQ(control_z, 0);
 })
 
 TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, bit_and_phase_flip_model_CX_target, {
@@ -444,10 +444,10 @@ TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, bit_and_phase_flip_model_CX_target,
     
     auto [control_x, control_z, target_x, target_z] = get_counts<W>(circuit, n);
     
-    EXPECT_EQ(control_z, 0);
-    EXPECT_EQ(control_x, 0);
-    EXPECT_NEAR(target_x, n * 0.5, n * 0.05);
-    EXPECT_NEAR(target_z, n * 0.5, n * 0.05);
+    EXPECT_NEAR(control_z, n * 0.5, n * 0.05);
+    EXPECT_NEAR(control_x, n * 0.5, n * 0.05);
+    EXPECT_EQ(target_x, 0);
+    EXPECT_EQ(target_z, 0);
 })
 
 TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, bit_and_phase_flip_model_CY_control, {
@@ -459,10 +459,10 @@ TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, bit_and_phase_flip_model_CY_control
     
     auto [control_x, control_z, target_x, target_z] = get_counts<W>(circuit, n);
     
-    EXPECT_EQ(target_x, 0);
-    EXPECT_EQ(target_z, 0);
-    EXPECT_NEAR(control_x, n * 0.5, n * 0.05);
-    EXPECT_NEAR(control_z, n * 0.5, n * 0.05);
+    EXPECT_NEAR(target_x, n * 0.5, n * 0.05);
+    EXPECT_NEAR(target_z, n * 0.5, n * 0.05);
+    EXPECT_EQ(control_x, 0);
+    EXPECT_EQ(control_z, 0);
 })
 
 TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, bit_and_phase_flip_model_CY_target, {
@@ -474,10 +474,10 @@ TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, bit_and_phase_flip_model_CY_target,
     
     auto [control_x, control_z, target_x, target_z] = get_counts<W>(circuit, n);
     
-    EXPECT_EQ(control_z, 0);
-    EXPECT_EQ(control_x, 0);
-    EXPECT_NEAR(target_x, n * 0.5, n * 0.05);
-    EXPECT_NEAR(target_z, n * 0.5, n * 0.05);
+    EXPECT_NEAR(control_z, n * 0.5, n * 0.05);
+    EXPECT_NEAR(control_x, n * 0.5, n * 0.05);
+    EXPECT_EQ(target_x, 0);
+    EXPECT_EQ(target_z, 0);
 })
 
 TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, bit_and_phase_flip_model_CZ_control, {
@@ -489,10 +489,10 @@ TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, bit_and_phase_flip_model_CZ_control
     
     auto [control_x, control_z, target_x, target_z] = get_counts<W>(circuit, n);
     
-    EXPECT_EQ(target_z, 0);
-    EXPECT_EQ(target_x, 0);
-    EXPECT_NEAR(control_x, n * 0.5, n * 0.05);
-    EXPECT_NEAR(control_z, n * 0.5, n * 0.05);
+    EXPECT_NEAR(target_z, n * 0.5, n * 0.05);
+    EXPECT_NEAR(target_x, n * 0.5, n * 0.05);
+    EXPECT_EQ(control_x, 0);
+    EXPECT_EQ(control_z, 0);
 })
 
 TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, bit_and_phase_flip_model_CZ_target, {
@@ -504,8 +504,8 @@ TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, bit_and_phase_flip_model_CZ_target,
     
     auto [control_x, control_z, target_x, target_z] = get_counts<W>(circuit, n);
     
-    EXPECT_EQ(control_z, 0);
-    EXPECT_EQ(control_x, 0);
-    EXPECT_NEAR(target_x, n * 0.5, n * 0.05);
-    EXPECT_NEAR(target_z, n * 0.5, n * 0.05);
+    EXPECT_NEAR(control_z, n * 0.5, n * 0.05);
+    EXPECT_NEAR(control_x, n * 0.5, n * 0.05);
+    EXPECT_EQ(target_x, 0);
+    EXPECT_EQ(target_z, 0);
 })

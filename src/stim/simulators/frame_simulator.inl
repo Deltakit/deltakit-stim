@@ -466,9 +466,8 @@ void FrameSimulator<W>::single_cy(uint32_t c, uint32_t t) {
 }
 
 template <size_t W>
-template <std::invocable<uint32_t, int, uint64_t> LEAKAGE_MODEL>
-void FrameSimulator<W>::propagate_leakage(const uint32_t c, const uint32_t t, const float p_spread_cont_tar, const float p_spread_tar_cont, 
-        const float p_mobility_cont_tar, const float p_mobility_tar_cont, LEAKAGE_MODEL apply_leakage_model) {
+void FrameSimulator<W>::propagate_leakage(const uint32_t c, const uint32_t t, const float p_spread_cont_tar, const float p_spread_tar_cont,
+        const float p_mobility_cont_tar, const float p_mobility_tar_cont) {
     const auto c_leakage_state = leakage_table[c];
     const auto t_leakage_state = leakage_table[t];
 
@@ -496,9 +495,9 @@ void FrameSimulator<W>::propagate_leakage(const uint32_t c, const uint32_t t, co
                 rng_buf = rng();
                 buf_size = 64;
             }
-            
-            // Apply leakage error model for control leakage
-            apply_leakage_model(c, leakage_event, rng_buf);
+            x_table[t][leakage_event] ^= (bool)(rng_buf & 1);
+            z_table[t][leakage_event] ^= (bool)(rng_buf & 2);
+
             rng_buf >>= 2;
             buf_size -= 2;
             // Implements leakage spreading from control to target by leaking the target at a given shot
@@ -525,9 +524,9 @@ void FrameSimulator<W>::propagate_leakage(const uint32_t c, const uint32_t t, co
                 rng_buf = rng();
                 buf_size = 64;
             }
-            
-            // Apply leakage error model for target leakage
-            apply_leakage_model(t, leakage_event, rng_buf);
+	    x_table[c][leakage_event] ^= (bool)(rng_buf & 1);
+            z_table[c][leakage_event] ^= (bool)(rng_buf & 2);
+
             rng_buf >>= 2;
             buf_size -= 2;
 
@@ -556,47 +555,14 @@ void FrameSimulator<W>::do_ZCX(const CircuitInstruction &target_data) {
     const auto &targets = target_data.targets;
     assert((targets.size() & 1) == 0);
     const float p_spread_cont_tar = target_data.args.empty() ? 0 : target_data.args[0];
-    const float p_spread_tar_cont = target_data.args.size() < 2 ? 0 : target_data.args[1];
-    const float p_mobility_cont_tar = target_data.args.size() < 3 ? 0 : target_data.args[2];
-    const float p_mobility_tar_cont = target_data.args.size() < 4 ? 0 : target_data.args[3];
-
-    ModelCode leakage_model = target_data.args.size() == 5 ? static_cast<ModelCode>(target_data.args[4]) : ModelCode::DEPOLARIZING_LEAKAGE;
+    const float p_spread_tar_cont = target_data.args.empty() ? 0 : target_data.args[1];
+    const float p_mobility_cont_tar = target_data.args.empty() ? 0 : target_data.args[2];
+    const float p_mobility_tar_cont = target_data.args.empty() ? 0 : target_data.args[3];
 
     for (size_t k = 0; k < targets.size(); k += 2) {
         single_cx(targets[k].data, targets[k + 1].data);
         if (targets[k].is_qubit_target() && targets[k + 1].is_qubit_target()) {
-            if (leakage_model == ModelCode::BIT_AND_PHASE_FLIP_LEAKAGE) {
-                // Bit-and-phase-flip: CX errors
-                propagate_leakage(
-                    targets[k].value(),
-                    targets[k + 1].value(),
-                    p_spread_cont_tar,
-                    p_spread_tar_cont,
-                    p_mobility_cont_tar,
-                    p_mobility_tar_cont,
-                    [&x_table = x_table, &z_table = z_table, c = targets[k].value(), t = targets[k + 1].value()](uint32_t leaked_qubit, int leakage_event, uint64_t rng_buf) {
-                        if (leaked_qubit == c) {
-                            // Control leaks: X error on target
-                            x_table[t][leakage_event] ^= (bool)(rng_buf & 1);
-                        } else {
-                            // Target leaks: Z error on control
-                            z_table[c][leakage_event] ^= (bool)(rng_buf & 1);
-                        }
-                    });
-            } else {
-                // Depolarizing: Random X and Z errors
-                propagate_leakage(
-                    targets[k].value(),
-                    targets[k + 1].value(),
-                    p_spread_cont_tar,
-                    p_spread_tar_cont,
-                    p_mobility_cont_tar,
-                    p_mobility_tar_cont,
-                    [&x_table = x_table, &z_table = z_table](uint32_t leaked_qubit, int leakage_event, uint64_t rng_buf) {
-                        x_table[leaked_qubit][leakage_event] ^= (bool)(rng_buf & 1);
-                        z_table[leaked_qubit][leakage_event] ^= (bool)(rng_buf & 2);
-                    });
-            }
+	   propagate_leakage(targets[k].value(), targets[k + 1].value(), p_spread_cont_tar, p_spread_tar_cont, p_mobility_cont_tar, p_mobility_tar_cont);
         }
     }
 }
@@ -606,48 +572,14 @@ void FrameSimulator<W>::do_ZCY(const CircuitInstruction &target_data) {
     const auto &targets = target_data.targets;
     assert((targets.size() & 1) == 0);
     const float p_spread_cont_tar = target_data.args.empty() ? 0 : target_data.args[0];
-    const float p_spread_tar_cont = target_data.args.size() < 2 ? 0 : target_data.args[1];
-    const float p_mobility_cont_tar = target_data.args.size() < 3 ? 0 : target_data.args[2];
-    const float p_mobility_tar_cont = target_data.args.size() < 4 ? 0 : target_data.args[3];
-
-    ModelCode leakage_model = target_data.args.size() == 5 ? static_cast<ModelCode>(target_data.args[4]) : ModelCode::DEPOLARIZING_LEAKAGE;	
-
+    const float p_spread_tar_cont = target_data.args.empty() ? 0 : target_data.args[1];
+    const float p_mobility_cont_tar = target_data.args.empty() ? 0 : target_data.args[2];
+    const float p_mobility_tar_cont = target_data.args.empty() ? 0 : target_data.args[3];
+    
     for (size_t k = 0; k < targets.size(); k += 2) {
         single_cy(targets[k].data, targets[k + 1].data);
         if (targets[k].is_qubit_target() && targets[k + 1].is_qubit_target()) {
-            if (leakage_model == ModelCode::BIT_AND_PHASE_FLIP_LEAKAGE) {
-                // Bit-and-phase-flip: CY errors
-                propagate_leakage(
-                    targets[k].value(),
-                    targets[k + 1].value(),
-                    p_spread_cont_tar,
-                    p_spread_tar_cont,
-                    p_mobility_cont_tar,
-                    p_mobility_tar_cont,
-                    [&x_table = x_table, &z_table = z_table, c = targets[k].value(), t = targets[k + 1].value()](uint32_t leaked_qubit, int leakage_event, uint64_t rng_buf) {
-                        if (leaked_qubit == c) {
-                            // Control leaks: Y error on target
-                            x_table[t][leakage_event] ^= (bool)(rng_buf & 1);
-                            z_table[t][leakage_event] ^= (bool)(rng_buf & 1);
-                        } else {
-                            // Target leaks: Z error on control
-                            z_table[c][leakage_event] ^= (bool)(rng_buf & 1);
-                        }
-                    });
-            } else {
-                // Depolarizing: Random X and Z errors
-                propagate_leakage(
-                    targets[k].value(),
-                    targets[k + 1].value(),
-                    p_spread_cont_tar,
-                    p_spread_tar_cont,
-                    p_mobility_cont_tar,
-                    p_mobility_tar_cont,
-                    [&x_table = x_table, &z_table = z_table](uint32_t leaked_qubit, int leakage_event, uint64_t rng_buf) {
-                        x_table[leaked_qubit][leakage_event] ^= (bool)(rng_buf & 1);
-                        z_table[leaked_qubit][leakage_event] ^= (bool)(rng_buf & 2);
-                    });
-            }
+	   propagate_leakage(targets[k].value(), targets[k + 1].value(), p_spread_cont_tar, p_spread_tar_cont, p_mobility_cont_tar, p_mobility_tar_cont);
         }
     }
 }
@@ -657,11 +589,9 @@ void FrameSimulator<W>::do_ZCZ(const CircuitInstruction &target_data) {
     const auto &targets = target_data.targets;
     assert((targets.size() & 1) == 0);
     const float p_spread_cont_tar = target_data.args.empty() ? 0 : target_data.args[0];
-    const float p_spread_tar_cont = target_data.args.size() < 2 ? 0 : target_data.args[1];
-    const float p_mobility_cont_tar = target_data.args.size() < 3 ? 0 : target_data.args[2];
-    const float p_mobility_tar_cont = target_data.args.size() < 4 ? 0 : target_data.args[3];
-
-    ModelCode leakage_model = target_data.args.size() == 5 ? static_cast<ModelCode>(target_data.args[4]) : ModelCode::DEPOLARIZING_LEAKAGE;
+    const float p_spread_tar_cont = target_data.args.empty() ? 0 : target_data.args[1];
+    const float p_mobility_cont_tar = target_data.args.empty() ? 0 : target_data.args[2];
+    const float p_mobility_tar_cont = target_data.args.empty() ? 0 : target_data.args[3];
 
     for (size_t k = 0; k < targets.size(); k += 2) {
         size_t c = targets[k].data;
@@ -683,39 +613,11 @@ void FrameSimulator<W>::do_ZCZ(const CircuitInstruction &target_data) {
             xor_control_bit_into(c, z_table[t]);
         } else if (!(c & (TARGET_RECORD_BIT | TARGET_SWEEP_BIT))) {
             xor_control_bit_into(t, z_table[c]);
+        } else {
+            // Both targets are bits. No effect.
         }
         if (targets[k].is_qubit_target() && targets[k + 1].is_qubit_target()) {
-            if (leakage_model == ModelCode::BIT_AND_PHASE_FLIP_LEAKAGE) {
-                // Bit-and-phase-flip: CZ errors
-                propagate_leakage(
-                    targets[k].value(),
-                    targets[k + 1].value(),
-                    p_spread_cont_tar,
-                    p_spread_tar_cont,
-                    p_mobility_cont_tar,
-                    p_mobility_tar_cont,
-		    [&x_table = x_table, &z_table = z_table, c = targets[k].value(), t = targets[k + 1].value()](uint32_t leaked_qubit, int leakage_event, uint64_t rng_buf) {
-                        // Both target and control: apply a Z error to the other qubit.
-                        if (leaked_qubit == c) {
-                            z_table[t][leakage_event] ^= (bool)(rng_buf & 1);
-                        } else {
-                            z_table[c][leakage_event] ^= (bool)(rng_buf & 1);
-                        }
-                    });
-            } else {
-                // Depolarizing: Random X and Z errors
-                propagate_leakage(
-                    targets[k].value(),
-                    targets[k + 1].value(),
-                    p_spread_cont_tar,
-                    p_spread_tar_cont,
-                    p_mobility_cont_tar,
-                    p_mobility_tar_cont,
-                    [&x_table = x_table, &z_table = z_table](uint32_t leaked_qubit, int leakage_event, uint64_t rng_buf) {
-                        x_table[leaked_qubit][leakage_event] ^= (bool)(rng_buf & 1);
-                        z_table[leaked_qubit][leakage_event] ^= (bool)(rng_buf & 2);
-                    });
-            }
+	   propagate_leakage(targets[k].value(), targets[k + 1].value(), p_spread_cont_tar, p_spread_tar_cont, p_mobility_cont_tar, p_mobility_tar_cont);
         }
     }
 }
@@ -789,9 +691,9 @@ void FrameSimulator<W>::do_SQRT_XX(const CircuitInstruction &target_data) {
     const auto &targets = target_data.targets;
     assert((targets.size() & 1) == 0);
     const float p_spread_cont_tar = target_data.args.empty() ? 0 : target_data.args[0];
-    const float p_spread_tar_cont = target_data.args.size() < 2 ? 0 : target_data.args[1];
-    const float p_mobility_cont_tar = target_data.args.size() < 3 ? 0 : target_data.args[2];
-    const float p_mobility_tar_cont = target_data.args.size() < 4 ? 0 : target_data.args[3];
+    const float p_spread_tar_cont = target_data.args.empty() ? 0 : target_data.args[1];
+    const float p_mobility_cont_tar = target_data.args.empty() ? 0 : target_data.args[2];
+    const float p_mobility_tar_cont = target_data.args.empty() ? 0 : target_data.args[3];
     
     for (size_t k = 0; k < targets.size(); k += 2) {
         size_t q1 = targets[k].data;
@@ -807,18 +709,7 @@ void FrameSimulator<W>::do_SQRT_XX(const CircuitInstruction &target_data) {
                 x2 ^= dz;
             });
         if (targets[k].is_qubit_target() && targets[k + 1].is_qubit_target()) {
-            propagate_leakage(
-                targets[k].value(), 
-                targets[k + 1].value(), 
-                p_spread_cont_tar, 
-                p_spread_tar_cont, 
-                p_mobility_cont_tar, 
-                p_mobility_tar_cont,
-                [&x_table = x_table, &z_table = z_table](uint32_t leaked_qubit, int leakage_event, uint64_t rng_buf) {
-                    // Depolarizing behavior for SQRT_XX: Random X and Z errors
-                    x_table[leaked_qubit][leakage_event] ^= (bool)(rng_buf & 1);
-                    z_table[leaked_qubit][leakage_event] ^= (bool)(rng_buf & 2);
-                });
+	   propagate_leakage(targets[k].value(), targets[k + 1].value(), p_spread_cont_tar, p_spread_tar_cont, p_mobility_cont_tar, p_mobility_tar_cont);
         }
     }
 }

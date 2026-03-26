@@ -163,12 +163,6 @@ void CircuitInstruction::validate() const {
                 "Gate " + std::string(gate.name) + " was given " + std::to_string(args.size()) + " parens arguments (" +
                 comma_sep(args).str() + ") but takes 0 or 4 parens arguments.");
         }
-    } else if (gate.arg_count == ARG_COUNT_SYGIL_ZERO_OR_FOUR_OR_FIVE) {
-        if (args.size() != 0 && args.size() != 4 && args.size() != 5) {
-            throw std::invalid_argument(
-                "Gate " + std::string(gate.name) + " was given " + std::to_string(args.size()) + " parens arguments (" +
-                comma_sep(args).str() + ") but takes 0, 4, or 5 parens arguments.");
-        }
     } else if (args.size() != gate.arg_count && gate.arg_count != ARG_COUNT_SYGIL_ANY) {
         throw std::invalid_argument(
             "Gate " + std::string(gate.name) + " was given " + std::to_string(args.size()) + " parens arguments (" +
@@ -178,17 +172,6 @@ void CircuitInstruction::validate() const {
     if ((gate.flags & GATE_TAKES_NO_TARGETS) && !targets.empty()) {
         throw std::invalid_argument(
             "Gate " + std::string(gate.name) + " takes no targets but was given targets" + targets_str(targets) + ".");
-    }
-
-    // Validation for gates with opcode as last argument
-    if ((gate.flags & GATE_LAST_ARG_IS_OPCODE) && args.size() == 5) {
-        double opcode = args.back();
-        if (opcode != round(opcode) || opcode < 0) {
-            throw std::invalid_argument(
-                "Gate " + std::string(gate.name) +
-                " requires the last argument (opcode) to be a non-negative integer, but got " + std::to_string(opcode) +
-                ".");
-        }
     }
 
     if (gate.flags & GATE_ARGS_ARE_DISJOINT_PROBABILITIES) {

@@ -27,11 +27,6 @@
 
 namespace stim {
 
-enum class ModelCode {
-    DEPOLARIZING_LEAKAGE = 0,
-    BIT_AND_PHASE_FLIP_LEAKAGE = 1
-};
-
 enum class FrameSimulatorMode {
     STORE_MEASUREMENTS_TO_MEMORY,  // all measurements stored, detections not stored
     STREAM_MEASUREMENTS_TO_DISK,   // measurements stored up to lookback, detections not stored
@@ -165,8 +160,8 @@ struct FrameSimulator {
     void single_cx(uint32_t c, uint32_t t);
     void single_cy(uint32_t c, uint32_t t);
 
-    template <std::invocable<uint32_t, int, uint64_t> LEAKAGE_MODEL>
-    void propagate_leakage(const uint32_t c, const uint32_t t, const float p_spread_cont_tar, const float p_spread_tar_cont, const float p_mobility_cont_tar, const float p_mobility_tar_cont, LEAKAGE_MODEL apply_leakage_model);
+    void propagate_leakage(const uint32_t c, const uint32_t t, const float p_spread_cont_tar, const float p_spread_tar_cont,
+        const float p_mobility_cont_tar, const float p_mobility_tar_cont);    
 
 };
 
