@@ -24,7 +24,6 @@
 #include <array>
 #include <string>
 #include <vector>
-#include <iostream>
 #include "stim/gates/gates.h"
 
 using namespace stim;
@@ -243,11 +242,6 @@ TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, leaked_qubits_depolarise_qubits_whe
         }
     }
 })
-
-
-
-
-
 
 
 TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, control_will_leak_target_if_leakage_spreading_is_certain_and_control_is_already_leaked, {

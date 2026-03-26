@@ -4,14 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "lestim"
-version = "0.1.0"
+version = "1.16"
 description = "A Stim extension package to account for non-computational errors."
 readme = "README.md"
-requires-python = ">=3.10,<3.14"
-license = "Apache-2.0"
-license-files = ["LICENSE"]
-
-authors = [{ name = "Deltakit Team", email = "deltakit@riverlane.com" }]
+requires-python = ">=3.10"
 
 classifiers = [
   "Development Status :: 3 - Alpha",
@@ -25,6 +21,7 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Programming Language :: Python :: Implementation :: CPython",
   "Topic :: Scientific/Engineering",
   "Topic :: Scientific/Engineering :: Quantum Computing",
