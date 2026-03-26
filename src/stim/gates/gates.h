@@ -55,8 +55,6 @@ constexpr uint8_t ARG_COUNT_SYGIL_ZERO_OR_ONE = uint8_t{0xFE};
 /// mobility as separate probabilities
 constexpr uint8_t ARG_COUNT_SYGIL_ZERO_OR_FOUR = uint8_t{0xFD};
 
-
-
 constexpr inline uint16_t gate_name_to_hash(std::string_view text) {
     // HACK: A collision is considered to be an error.
     // Just do *anything* that makes all the defined gates have different values.

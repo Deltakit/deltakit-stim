@@ -523,8 +523,9 @@ void FrameSimulator<W>::propagate_leakage(const uint32_t c, const uint32_t t, co
                 rng_buf = rng();
                 buf_size = 64;
             }
-            x_table[c][leakage_event] ^= (bool)(rng_buf & 1);
+	    x_table[c][leakage_event] ^= (bool)(rng_buf & 1);
             z_table[c][leakage_event] ^= (bool)(rng_buf & 2);
+
             rng_buf >>= 2;
             buf_size -= 2;
 
@@ -556,10 +557,11 @@ void FrameSimulator<W>::do_ZCX(const CircuitInstruction &target_data) {
     const float p_spread_tar_cont = target_data.args.empty() ? 0 : target_data.args[1];
     const float p_mobility_cont_tar = target_data.args.empty() ? 0 : target_data.args[2];
     const float p_mobility_tar_cont = target_data.args.empty() ? 0 : target_data.args[3];
+
     for (size_t k = 0; k < targets.size(); k += 2) {
         single_cx(targets[k].data, targets[k + 1].data);
         if (targets[k].is_qubit_target() && targets[k + 1].is_qubit_target()) {
-            propagate_leakage(targets[k].value(), targets[k + 1].value(), p_spread_cont_tar, p_spread_tar_cont, p_mobility_cont_tar, p_mobility_tar_cont);
+	   propagate_leakage(targets[k].value(), targets[k + 1].value(), p_spread_cont_tar, p_spread_tar_cont, p_mobility_cont_tar, p_mobility_tar_cont);
         }
     }
 }
@@ -572,10 +574,11 @@ void FrameSimulator<W>::do_ZCY(const CircuitInstruction &target_data) {
     const float p_spread_tar_cont = target_data.args.empty() ? 0 : target_data.args[1];
     const float p_mobility_cont_tar = target_data.args.empty() ? 0 : target_data.args[2];
     const float p_mobility_tar_cont = target_data.args.empty() ? 0 : target_data.args[3];
+    
     for (size_t k = 0; k < targets.size(); k += 2) {
         single_cy(targets[k].data, targets[k + 1].data);
         if (targets[k].is_qubit_target() && targets[k + 1].is_qubit_target()) {
-            propagate_leakage(targets[k].value(), targets[k + 1].value(), p_spread_cont_tar, p_spread_tar_cont, p_mobility_cont_tar, p_mobility_tar_cont);
+	   propagate_leakage(targets[k].value(), targets[k + 1].value(), p_spread_cont_tar, p_spread_tar_cont, p_mobility_cont_tar, p_mobility_tar_cont);
         }
     }
 }
@@ -588,6 +591,7 @@ void FrameSimulator<W>::do_ZCZ(const CircuitInstruction &target_data) {
     const float p_spread_tar_cont = target_data.args.empty() ? 0 : target_data.args[1];
     const float p_mobility_cont_tar = target_data.args.empty() ? 0 : target_data.args[2];
     const float p_mobility_tar_cont = target_data.args.empty() ? 0 : target_data.args[3];
+
     for (size_t k = 0; k < targets.size(); k += 2) {
         size_t c = targets[k].data;
         size_t t = targets[k + 1].data;
@@ -611,7 +615,7 @@ void FrameSimulator<W>::do_ZCZ(const CircuitInstruction &target_data) {
         }
 
         if (targets[k].is_qubit_target() && targets[k + 1].is_qubit_target()) {
-            propagate_leakage(targets[k].value(), targets[k + 1].value(), p_spread_cont_tar, p_spread_tar_cont, p_mobility_cont_tar, p_mobility_tar_cont);
+	   propagate_leakage(targets[k].value(), targets[k + 1].value(), p_spread_cont_tar, p_spread_tar_cont, p_mobility_cont_tar, p_mobility_tar_cont);
         }
     }
 }
@@ -688,6 +692,7 @@ void FrameSimulator<W>::do_SQRT_XX(const CircuitInstruction &target_data) {
     const float p_spread_tar_cont = target_data.args.empty() ? 0 : target_data.args[1];
     const float p_mobility_cont_tar = target_data.args.empty() ? 0 : target_data.args[2];
     const float p_mobility_tar_cont = target_data.args.empty() ? 0 : target_data.args[3];
+    
     for (size_t k = 0; k < targets.size(); k += 2) {
         size_t q1 = targets[k].data;
         size_t q2 = targets[k+1].data;
@@ -702,7 +707,7 @@ void FrameSimulator<W>::do_SQRT_XX(const CircuitInstruction &target_data) {
                 x2 ^= dz;
             });
         if (targets[k].is_qubit_target() && targets[k + 1].is_qubit_target()) {
-            propagate_leakage(targets[k].value(), targets[k + 1].value(), p_spread_cont_tar, p_spread_tar_cont, p_mobility_cont_tar, p_mobility_tar_cont);
+	   propagate_leakage(targets[k].value(), targets[k + 1].value(), p_spread_cont_tar, p_spread_tar_cont, p_mobility_cont_tar, p_mobility_tar_cont);
         }
     }
 }
