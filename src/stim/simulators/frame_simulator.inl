@@ -560,12 +560,12 @@ void FrameSimulator<W>::do_ZCX(const CircuitInstruction &target_data) {
     const float p_mobility_cont_tar = target_data.args.size() < 3 ? 0 : target_data.args[2];
     const float p_mobility_tar_cont = target_data.args.size() < 4 ? 0 : target_data.args[3];
 
-    LeakageErrorModelCode leakage_model = target_data.args.size() == 5 ? static_cast<LeakageErrorModelCode>(target_data.args[4]) : LeakageErrorModelCode::DEPOLARIZING_LEAKAGE;
+    ModelCode leakage_model = target_data.args.size() == 5 ? static_cast<ModelCode>(target_data.args[4]) : ModelCode::DEPOLARIZING_LEAKAGE;
 
     for (size_t k = 0; k < targets.size(); k += 2) {
         single_cx(targets[k].data, targets[k + 1].data);
         if (targets[k].is_qubit_target() && targets[k + 1].is_qubit_target()) {
-            if (leakage_model == LeakageErrorModelCode::BIT_AND_PHASE_FLIP_LEAKAGE) {
+            if (leakage_model == ModelCode::BIT_AND_PHASE_FLIP_LEAKAGE) {
                 // Bit-and-phase-flip: CX errors
                 propagate_leakage(
                     targets[k].value(),
@@ -610,12 +610,12 @@ void FrameSimulator<W>::do_ZCY(const CircuitInstruction &target_data) {
     const float p_mobility_cont_tar = target_data.args.size() < 3 ? 0 : target_data.args[2];
     const float p_mobility_tar_cont = target_data.args.size() < 4 ? 0 : target_data.args[3];
 
-    LeakageErrorModelCode leakage_model = target_data.args.size() == 5 ? static_cast<LeakageErrorModelCode>(target_data.args[4]) : LeakageErrorModelCode::DEPOLARIZING_LEAKAGE;
+    ModelCode leakage_model = target_data.args.size() == 5 ? static_cast<ModelCode>(target_data.args[4]) : ModelCode::DEPOLARIZING_LEAKAGE;	
 
     for (size_t k = 0; k < targets.size(); k += 2) {
         single_cy(targets[k].data, targets[k + 1].data);
         if (targets[k].is_qubit_target() && targets[k + 1].is_qubit_target()) {
-            if (leakage_model == LeakageErrorModelCode::BIT_AND_PHASE_FLIP_LEAKAGE) {
+            if (leakage_model == ModelCode::BIT_AND_PHASE_FLIP_LEAKAGE) {
                 // Bit-and-phase-flip: CY errors
                 propagate_leakage(
                     targets[k].value(),
@@ -661,7 +661,7 @@ void FrameSimulator<W>::do_ZCZ(const CircuitInstruction &target_data) {
     const float p_mobility_cont_tar = target_data.args.size() < 3 ? 0 : target_data.args[2];
     const float p_mobility_tar_cont = target_data.args.size() < 4 ? 0 : target_data.args[3];
 
-    LeakageErrorModelCode leakage_model = target_data.args.size() == 5 ? static_cast<LeakageErrorModelCode>(target_data.args[4]) : LeakageErrorModelCode::DEPOLARIZING_LEAKAGE;
+    ModelCode leakage_model = target_data.args.size() == 5 ? static_cast<ModelCode>(target_data.args[4]) : ModelCode::DEPOLARIZING_LEAKAGE;
 
     for (size_t k = 0; k < targets.size(); k += 2) {
         size_t c = targets[k].data;
@@ -685,7 +685,7 @@ void FrameSimulator<W>::do_ZCZ(const CircuitInstruction &target_data) {
             xor_control_bit_into(t, z_table[c]);
         }
         if (targets[k].is_qubit_target() && targets[k + 1].is_qubit_target()) {
-            if (leakage_model == LeakageErrorModelCode::BIT_AND_PHASE_FLIP_LEAKAGE) {
+            if (leakage_model == ModelCode::BIT_AND_PHASE_FLIP_LEAKAGE) {
                 // Bit-and-phase-flip: CZ errors
                 propagate_leakage(
                     targets[k].value(),
@@ -694,8 +694,8 @@ void FrameSimulator<W>::do_ZCZ(const CircuitInstruction &target_data) {
                     p_spread_tar_cont,
                     p_mobility_cont_tar,
                     p_mobility_tar_cont,
-                    [&z_table = z_table, c = targets[k].value(), t = targets[k + 1].value()](uint32_t leaked_qubit, int leakage_event, uint64_t rng_buf) {
-                        // Both target and control: Z error
+		    [&x_table = x_table, &z_table = z_table, c = targets[k].value(), t = targets[k + 1].value()](uint32_t leaked_qubit, int leakage_event, uint64_t rng_buf) {
+                        // Both target and control: apply a Z error to the other qubit.
                         if (leaked_qubit == c) {
                             z_table[t][leakage_event] ^= (bool)(rng_buf & 1);
                         } else {
