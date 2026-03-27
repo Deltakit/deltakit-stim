@@ -21,10 +21,10 @@ to the list of `dependencies`.
 
 ## Installation from source
 
-The simplest way to contribute is to `git clone` LeStim from the private GitHub [repository](https://github.com/riverlane/le-stim)
+The simplest way to contribute is to `git clone` LeStim from the GitHub [repository](https://github.com/Deltakit/lestim.git)
 
 ```bash
-git clone https://github.com/riverlane/le-stim
+git clone https://github.com/Deltakit/lestim.git
 ```
 
 Then, the C++ package can be installed either using build managers [CMake](https://cmake.org/) 
