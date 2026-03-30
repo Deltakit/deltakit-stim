@@ -15,26 +15,25 @@ jobs:
     name: Publish package to private Azure index.
     strategy:
       matrix:
-        os_dist = [
-          {os: ubuntu-latest, dist: cp39-manylinux_x86_64},
-          {os: ubuntu-latest, dist: cp310-manylinux_x86_64},
-          {os: ubuntu-latest, dist: cp311-manylinux_x86_64},
-          {os: ubuntu-latest, dist: cp312-manylinux_x86_64},
-          {os: ubuntu-latest, dist: cp313-manylinux_x86_64},
-          {os: ubuntu-latest, dist: cp314-manylinux_x86_64},
-          {os: macos-latest, dist: cp39-macosx_x86_64, macosarch: x86_64},
-          {os: macos-latest, dist: cp310-macosx_x86_64, macosarch: x86_64},
-          {os: macos-latest, dist: cp311-macosx_x86_64, macosarch: x86_64},
-          {os: macos-latest, dist: cp312-macosx_x86_64, macosarch: x86_64},
-          {os: macos-latest, dist: cp313-macosx_x86_64, macosarch: x86_64},
-          {os: macos-latest, dist: cp314-macosx_x86_64, macosarch: x86_64},
-          {os: macos-latest, dist: cp39-macosx_arm64, arch: arm64},
-          {os: macos-latest, dist: cp310-macosx_arm64, arch: arm64},
-          {os: macos-latest, dist: cp311-macosx_arm64, arch: arm64},
-          {os: macos-latest, dist: cp312-macosx_arm64, arch: arm64},
-          {os: macos-latest, dist: cp313-macosx_arm64, arch: arm64},
-          {os: macos-latest, dist: cp314-macosx_arm64, arch: arm64},
-        ]
+        os_dist:
+          - {os: ubuntu-latest, dist: cp39-manylinux_x86_64}
+          - {os: ubuntu-latest, dist: cp310-manylinux_x86_64}
+          - {os: ubuntu-latest, dist: cp311-manylinux_x86_64}
+          - {os: ubuntu-latest, dist: cp312-manylinux_x86_64}
+          - {os: ubuntu-latest, dist: cp313-manylinux_x86_64}
+          - {os: ubuntu-latest, dist: cp314-manylinux_x86_64}
+          - {os: macos-latest, dist: cp39-macosx_x86_64, arch: x86_64}
+          - {os: macos-latest, dist: cp310-macosx_x86_64, arch: x86_64}
+          - {os: macos-latest, dist: cp311-macosx_x86_64, arch: x86_64}
+          - {os: macos-latest, dist: cp312-macosx_x86_64, arch: x86_64}
+          - {os: macos-latest, dist: cp313-macosx_x86_64, arch: x86_64}
+          - {os: macos-latest, dist: cp314-macosx_x86_64, arch: x86_64}
+          - {os: macos-latest, dist: cp39-macosx_arm64, arch: arm64}
+          - {os: macos-latest, dist: cp310-macosx_arm64, arch: arm64}
+          - {os: macos-latest, dist: cp311-macosx_arm64, arch: arm64}
+          - {os: macos-latest, dist: cp312-macosx_arm64, arch: arm64}
+          - {os: macos-latest, dist: cp313-macosx_arm64, arch: arm64}
+          - {os: macos-latest, dist: cp314-macosx_arm64, arch: arm64}
     runs-on: ${{ matrix.os_dist.os }}
     # permissions:
     #   id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
