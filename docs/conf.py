@@ -7,12 +7,12 @@
 # -- Path setup --------------------------------------------------------------
 from __future__ import annotations
 
-# import lestim
+# import deltakit_stim
 
 # -- Project information -----------------------------------------------------
 
-project = "LeStim"
-# version = lestim.__version__
+project = "Deltakit-Stim"
+# version = deltakit_stim.__version__
 version = "1.15"
 copyright = "2020-2025, Riverlane"  # noqa: A001
 author = "Riverlane Ltd and contributors"

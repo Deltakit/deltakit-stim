@@ -1,4 +1,4 @@
-name: Test LeStim
+name: Test Deltakit-Stim
 
 on:
   push:
@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   cpp_unit_tests:
-    name: Run LeStim C++ unit tests
+    name: Run Deltakit-Stim C++ unit tests
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
@@ -45,7 +45,7 @@ jobs:
           bazel run //:stim_test --test_filter=-"match_graph_drawer_3d.*:circuit_diagram_timeline_3d*"
 
   pybind_tests:
-    name: Run LeStim Python bindings tests
+    name: Run Deltakit-Stim Python bindings tests
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]

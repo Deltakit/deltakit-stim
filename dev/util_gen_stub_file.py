@@ -266,7 +266,7 @@ def print_doc(*, full_name: str, parent: object, obj: object, level: int) -> Opt
             text += '(metaclass=abc.ABCMeta)'
         text += ':'
     if doc:
-        doc = doc.replace('stim', 'lestim')
+        doc = doc.replace('stim', 'deltakit_stim')
         if text:
             text += "\n"
         text += indented(paragraph=f"\"\"\"{doc.rstrip()}\n\"\"\"",
