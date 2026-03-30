@@ -206,7 +206,7 @@ jobs:
       - run: python -m pip install pybind11==2.9.2
       - run: python setup.py sdist
       - run: python -m pip install dist/*.tar.gz
-      - run: bash ./dev/regen_lestim_docs.sh
+      - run: bash ./dev/regen_deltakit_stim_docs.sh
 
   upload_dev_release_to_pypi:
     needs: [build_wheel, build_sdist, check_sdist_installs]

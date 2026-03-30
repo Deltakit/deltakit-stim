@@ -1,6 +1,6 @@
-# LeStim
+# Deltakit-Stim
 
-Leakage-Stim (abbrv. LeStim) is a [Stim](https://github.com/quantumlib/Stim) fork extending its functionalities to the non-computational leakage error and a new adaptive detector error model (DEM). It consists of a set of instructions to handle single qubit leakage within Stim's API definition. Specifically:
+Deltakit-Stim is a [Stim](https://github.com/quantumlib/Stim) fork extending its functionalities to the non-computational leakage error and a new adaptive detector error model (DEM). It consists of a set of instructions to handle single qubit leakage within Stim's API definition. Specifically:
 
 - A leakage reset `RL` as a new `GateType`. It returns the indexed qubits in the sealed state, that is the encoded quantum state.
 - A leakage channel `LEAKAGE` as a new `GateType`. It creates a noisy channel for leakage. 
@@ -14,23 +14,23 @@ The adaptative DEM is an extension to current Stim's DEM datastructure to hold m
 Whenever using [`hatch`](https://hatch.pypa.io/latest/), [`uv`](https://docs.astral.sh/uv/) or any pyproject-compatible Python manager, edit file `pyproject.toml` to add the line
 
 ```toml
-  "lestim"
+  "deltakit-stim"
 ```
 
 to the list of `dependencies`.
 
 ## Installation from source
 
-The simplest way to contribute is to `git clone` LeStim from the GitHub [repository](https://github.com/Deltakit/lestim.git)
+The simplest way to contribute is to `git clone` Deltakit-Stim from the GitHub [repository](https://github.com/Deltakit/deltakit-stim.git)
 
 ```bash
-git clone https://github.com/Deltakit/lestim.git
+git clone https://github.com/Deltakit/deltakit-stim.git
 ```
 
 Then, the C++ package can be installed either using build managers [CMake](https://cmake.org/) 
 
 ```bash
-cd le-stim
+cd deltakit-stim
 mkdir build
 cd build
 cmake ..
@@ -45,7 +45,7 @@ bazel build //:stim
 provided a C++ compiler is installed on the system. 
 
 [!WARNING]
-There is a known issue when both `stim` and `lestim` are installed in the same Python runtime. This is currently under investigation but the recommendation is not to install both.
+There is a known issue when both `stim` and `deltakit-stim` are installed in the same Python runtime. This is currently under investigation but the recommendation is not to install both.
 
 ## Citation
 

@@ -1,10 +1,10 @@
 import sys
 
-import lestim
+import deltakit_stim
 
 
 def main_argv():
-    lestim.main(command_line_args=sys.argv[1:])
+    deltakit_stim.main(command_line_args=sys.argv[1:])
 
 
 if __name__ == '__main__':
