@@ -1682,8 +1682,8 @@ wheels = [
 ]
 
 [[package]]
-name = "lestim"
-version = "1.16"
+name = "deltakit-stim"
+version = "0.2.0"
 source = { editable = "." }
 
 [package.dev-dependencies]
