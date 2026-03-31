@@ -53,12 +53,12 @@ To get started with deltakit-stim, an example demonstrating how deltakit-stim ha
 
 **How Deltakit-Stim models leakage differently:**
 
-1. **Specify where leakage occurs**: Use `LEAKAGE(p)` gates at locations where leakage is introduced.
-2. **Automatic propagation**: Deltakit-stim tracks how leakage spreads through sub-sequent gate operations.
-3. **Detect accumulated leakage**: `HERALD_LEAKAGE_EVENT` converts the accumulated leakage throughout the circuit into heralded errors in the DEM.
-4. **Leakage-aware decoding**: The DEM contains heralded errors with probabilities calculated from this accumulated leakage, enabling better decoding decisions.
+1. **Specify where leakage occurs**: Use `LEAKAGE(p)` gates to introduce leakage, where `p` is the probability of each specified qubit leaking.
+2. **Leakage propagation through gates**: Deltakit-Stim models how two-qubit gates (CZ, CX, CY, etc.) spread leakage between qubits and introduce depolarizing errors when leaked qubits interact. users can configure leakage spreading and transfer rates using optional gate parameters (see gate documentation for details).
+3. **Detect accumulated leakage**: `HERALD_LEAKAGE_EVENT` records a heralded error in the DEM based on the total accumulated leakage probability at that qubit up to that point in the circuit. Reset gates (R, RX, RY, MR, MRX, MRY, etc.) clear the accumulated leakage for their target qubits.
+4. **Leakage-aware decoding**: The DEM contains heralded errors with probabilities derived from the accumulated leakage, enabling leakage-aware decoding strategies.
 
-This is different from Stim's `HERALDED_ERASE`, where you must specify the exact space-time location of each heralded error without tracking how leakage propagates.
+This differs from Stim's `HERALDED_ERASE`, which requires explicitly specifying each heralded error at a particular qubit and time step, without automatic tracking of leakage accumulation and propagation.
 
 The example below demonstrates how `HERALD_LEAKAGE_EVENT` enables leakage detection.
 
@@ -71,7 +71,7 @@ To run the examples below, you'll need:
 
 ### Leakage Detection with HERALD_LEAKAGE_EVENT
 
-This example demonstrates the key capability of `HERALD_LEAKAGE_EVENT`: enabling detection of which specific qubits have leaked, which is essential for leakage-aware error correction.
+This example demonstrates the use of `HERALD_LEAKAGE_EVENT`, which enables the detection of qubits that have leaked, which is essential for leakage-aware error correction.
 
 ```python
 import numpy as np
@@ -116,7 +116,7 @@ print(f"\nDEM without herald:\n{dem_no_herald}")
 
 #### With Leakage Detection
 
-By adding `HERALD_LEAKAGE_EVENT`, we can now detect which qubits leaked. The leakage array will flag leaked qubits, and the DEM will include heralded error entries.
+Adding `HERALD_LEAKAGE_EVENT` enables detection of leaked qubits. The simulation records which qubits have leaked, and the DEM includes corresponding heralded error entries.
 
 ```python
 circuit_with_herald = """
