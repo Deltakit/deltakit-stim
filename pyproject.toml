@@ -3,7 +3,7 @@ requires = ["setuptools>=80", "wheel", "pybind11~=2.11.1"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "lestim"
+name = "deltakit-stim"
 version = "0.1.0"
 description = "A Stim extension package to account for non-computational errors."
 readme = "README.md"
