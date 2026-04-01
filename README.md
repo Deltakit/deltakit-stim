@@ -62,24 +62,13 @@ This differs from Stim's `HERALDED_ERASE`, which requires explicitly specifying 
 
 The example below demonstrates how `HERALD_LEAKAGE_EVENT` enables leakage detection.
 
-### Prerequisites
-
-To run the examples below, you'll need:
-1. A Deltakit account and API token from [deltakit.riverlane.com](https://deltakit.riverlane.com/dashboard/token)
-2. Deltakit explorer installed: `pip install deltakit-explorer`
-3. Set your token: `Client.set_token('<your-token>')` or via the `DELTAKIT_TOKEN` environment variable
-
 ### Leakage Detection with HERALD_LEAKAGE_EVENT
 
 This example demonstrates the use of `HERALD_LEAKAGE_EVENT`, which enables the detection of qubits that have leaked, which is essential for leakage-aware error correction.
 
 ```python
 import numpy as np
-import deltakit_stim as stim
-from deltakit.explorer import Client
-from deltakit.explorer.simulation import simulate_with_stim
-
-client = Client.get_instance()
+import deltakit_stim
 ```
 
 #### Without Leakage Detection
@@ -87,72 +76,64 @@ client = Client.get_instance()
 This circuit uses the `LEAKAGE(0.1)` gate to simulate leakage on qubit 1, but without `HERALD_LEAKAGE_EVENT`, we cannot detect which qubits leaked. The leakage information is not tracked.
 
 ```python
-circuit_no_herald = """
-QUBIT_COORDS(0, 0) 0
-QUBIT_COORDS(1, 0) 1
-QUBIT_COORDS(2, 0) 2
-RZ 0 1 2
+circuit_no_herald = deltakit_stim.Circuit("""
+R 0 1 2
 CZ 0 1
 CZ 1 2
 LEAKAGE(0.1) 1
-MZ 0 1 2
-DETECTOR(0, 0) rec[-3]
-DETECTOR(1, 0) rec[-2]
-DETECTOR(2, 0) rec[-1]
-OBSERVABLE_INCLUDE(0) rec[-1]
-"""
+M 0 1 2
+DETECTOR rec[-3]
+DETECTOR rec[-2]
+DETECTOR rec[-1]
+""")
 
-measurements_no_herald, leakage_no_herald = simulate_with_stim(
-    circuit_no_herald, shots=1000, client=client
-)
-print(f"Without herald - Measurements: {measurements_no_herald.as_numpy().shape}")
-print(f"Without herald - Leakage: {leakage_no_herald.as_numpy().shape} (empty)")
+sampler = circuit_no_herald.compile_detector_sampler()
+detection_events = sampler.sample(shots=1000)
 
-# Generate the DEM to see how errors are modeled
-circuit_obj_no_herald = stim.Circuit(circuit_no_herald)
-dem_no_herald = circuit_obj_no_herald.detector_error_model()
+print(f"Without herald - Detection events shape: {detection_events.shape}")
+print(f"Without herald - Number of detectors: {detection_events.shape[1]}")
+
+# Generate the DEM
+dem_no_herald = circuit_no_herald.detector_error_model()
 print(f"\nDEM without herald:\n{dem_no_herald}")
 ```
 
 #### With Leakage Detection
 
-Adding `HERALD_LEAKAGE_EVENT` enables detection of leaked qubits. The simulation records which qubits have leaked, and the DEM includes corresponding heralded error entries.
+Adding `HERALD_LEAKAGE_EVENT` enables detection of leaked qubits. The herald results are recorded in the measurement record and accessed by a specified detector.
 
 ```python
-circuit_with_herald = """
-QUBIT_COORDS(0, 0) 0
-QUBIT_COORDS(1, 0) 1
-QUBIT_COORDS(2, 0) 2
-RZ 0 1 2
+circuit_with_herald = deltakit_stim.Circuit("""
+R 0 1 2
 CZ 0 1
 CZ 1 2
 LEAKAGE(0.1) 1
 HERALD_LEAKAGE_EVENT 1
-MZ 0 1 2
-DETECTOR(0, 0) rec[-3]
-DETECTOR(1, 0) rec[-2]
-DETECTOR(2, 0) rec[-1]
-OBSERVABLE_INCLUDE(0) rec[-1]
-"""
+M 0 1 2
+DETECTOR rec[-4]
+DETECTOR rec[-3]
+DETECTOR rec[-2]
+DETECTOR rec[-1]
+""")
 
-measurements_with_herald, leakage_with_herald = simulate_with_stim(
-    circuit_with_herald, shots=1000, client=client
-)
-print(f"With herald - Measurements: {measurements_with_herald.as_numpy().shape}")
-print(f"With herald - Leakage: {leakage_with_herald.as_numpy().shape}")
+sampler = circuit_with_herald.compile_detector_sampler()
+detection_events = sampler.sample(shots=1000)
 
-leakage_detected = np.sum(leakage_with_herald.as_numpy())
-total_possible = leakage_with_herald.as_numpy().shape[0] * leakage_with_herald.as_numpy().shape[1]
-print(f"\nLeakage events detected: {leakage_detected} out of {total_possible} possible")
-print(f"Leakage rate: {leakage_detected / total_possible * 100:.2f}%")
+print(f"With herald - Detection events shape: {detection_events.shape}")
+print(f"With herald - Number of detectors: {detection_events.shape[1]}")
 
-# Generate the DEM to see the heralded error entries
-circuit_obj_with_herald = stim.Circuit(circuit_with_herald)
-dem_with_herald = circuit_obj_with_herald.detector_error_model()
+# The first detector (use index 0 to capture this below) captures the herald event as rec[-4] is the HERALD_LEAKAGE_EVENT
+herald_events = detection_events[:, 0]
+leakage_detected = np.sum(herald_events)
+print(f"\nLeakage events detected: {leakage_detected} out of {len(herald_events)} shots")
+print(f"Leakage rate: {leakage_detected / len(herald_events) * 100:.2f}%")
+
+# Generate the DEM to see the heralded errors
+dem_with_herald = circuit_with_herald.detector_error_model()
 print(f"\nDEM with herald:\n{dem_with_herald}")
 ```
 
-The simulation shows that adding `HERALD_LEAKAGE_EVENT` enables leakage detection. Without the herald, no leakage information is recorded. With the herald, the leakage array tracks all qubits, detecting approximately 90 leakage events out of 3000 possible measurements (3.0% rate).
+The simulation shows that adding `HERALD_LEAKAGE_EVENT` enables leakage detection. Without the herald, there are only 3 detectors (one per measurement). With the herald, there are 4 detectors, where the additional detector captures the herald event, detecting 104 leakage events out of 1000 shots, giving approximtely a 10% rate and matching the 0.1 leakage probability.
 
 The Detector Error Models also differ:
 
@@ -165,11 +146,11 @@ detector D2
 
 **DEM with herald:**
 ```
-error(0.5) D1 D2 D3
-detector D0
+error(0.5) D0 D2
 ```
 
-Without `HERALD_LEAKAGE_EVENT`, the DEM only contains detector definitions. With `HERALD_LEAKAGE_EVENT`, a herald detector D3 is added, and the heralded error `error(0.5) D1 D2 D3` appears. This error indicates that when the herald detector D3 fires ( which signals that qubit 1 leaked), detectors D1 and D2 are affected with 50% probability due to the random measurement outcome of the leaked qubit.
+Without `HERALD_LEAKAGE_EVENT`, the DEM only contains detector definitions. With `HERALD_LEAKAGE_EVENT`, heralded errors appear in the DEM showing how the leakage affects the relevant detectors. The heralded error `error(0.5) D0 D2` indicates that when the herald detector D0 fires (showing qubit 1 leaked), detector D2 is affected with 50% probability because measuring a leaked qubit produces a random outcome.
+
 ### Use in Error Correction
 
 Leakage-aware decoders use the herald information from `HERALD_LEAKAGE_EVENT` to make better correction decisions. The [Local Clustering Decoder](https://www.nature.com/articles/s41467-025-66773-x) demonstrates that leakage-aware decoding can reduce physical qubit requirements by a factor of 4 compared to standard non-adaptive decoding.
