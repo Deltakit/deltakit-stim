@@ -44,9 +44,6 @@ bazel build //:stim
 
 provided a C++ compiler is installed on the system. 
 
-[!WARNING]
-There is a known issue when both `stim` and `deltakit-stim` are installed in the same Python runtime. This is currently under investigation but the recommendation is not to install both.
-
 ## Getting Started
 
 To get started with deltakit-stim, an example demonstrating how deltakit-stim handles leakage will be introduced. Qubits are designed to operate in two computational states: |0⟩ and |1⟩. However, qubits can sometimes "leak" into higher energy states (|2⟩, |3⟩, etc.) that are outside the computational sub-space. Leakage is a significant source of error as leaked qubits can spread errors to other qubits through multi-qubit gates.
