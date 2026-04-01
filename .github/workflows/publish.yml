@@ -9,7 +9,7 @@ on:
 
 concurrency:
   group: fast-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+  # cancel-in-progress: true
 
 jobs:
   build_wheels:
@@ -17,24 +17,18 @@ jobs:
     strategy:
       matrix:
         os_dist:
-          - {os: ubuntu-latest, dist: cp39-manylinux_x86_64}
           - {os: ubuntu-latest, dist: cp310-manylinux_x86_64}
           - {os: ubuntu-latest, dist: cp311-manylinux_x86_64}
           - {os: ubuntu-latest, dist: cp312-manylinux_x86_64}
           - {os: ubuntu-latest, dist: cp313-manylinux_x86_64}
-          - {os: ubuntu-latest, dist: cp314-manylinux_x86_64}
-          - {os: macos-latest, dist: cp39-macosx_x86_64, arch: x86_64}
           - {os: macos-latest, dist: cp310-macosx_x86_64, arch: x86_64}
           - {os: macos-latest, dist: cp311-macosx_x86_64, arch: x86_64}
           - {os: macos-latest, dist: cp312-macosx_x86_64, arch: x86_64}
           - {os: macos-latest, dist: cp313-macosx_x86_64, arch: x86_64}
-          - {os: macos-latest, dist: cp314-macosx_x86_64, arch: x86_64}
-          - {os: macos-latest, dist: cp39-macosx_arm64, arch: arm64}
           - {os: macos-latest, dist: cp310-macosx_arm64, arch: arm64}
           - {os: macos-latest, dist: cp311-macosx_arm64, arch: arm64}
           - {os: macos-latest, dist: cp312-macosx_arm64, arch: arm64}
           - {os: macos-latest, dist: cp313-macosx_arm64, arch: arm64}
-          - {os: macos-latest, dist: cp314-macosx_arm64, arch: arm64}
     runs-on: ${{ matrix.os_dist.os }}
     env:
       CIBW_BUILD: "${{ matrix.os_dist.dist }}"
