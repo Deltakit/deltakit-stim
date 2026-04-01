@@ -52,7 +52,7 @@ To get started with deltakit-stim, an example demonstrating how deltakit-stim ha
 
 1. **Specify where leakage occurs**: Use `LEAKAGE(p)` gates to introduce leakage, where `p` is the probability of each specified qubit leaking.
 2. **Leakage propagation through gates**: Deltakit-Stim models how two-qubit gates (CZ, CX, CY, etc.) spread leakage between qubits and introduce depolarizing errors when leaked qubits interact. Users can configure leakage spreading and transfer rates using optional gate parameters (see gate documentation for details).
-3. **Detect accumulated leakage**: `HERALD_LEAKAGE_EVENT` records a heralded error in the DEM based on the total accumulated leakage probability at that qubit up to that point in the circuit. Reset gates (R, RX etc.) clear the accumulated leakage for their target qubits.
+3. **Detect accumulated leakage**: `HERALD_LEAKAGE_EVENT` adds a bit to the measurement record (accessible via `rec[-...]`) indicating whether a qubit has leaked, based on the accumulated leakage from `LEAKAGE` gates and propagation through 2-qubit gates. Reset gates (R, RX etc.) clear the accumulated leakage for their target qubits.
 4. **Leakage-aware decoding**: The DEM contains heralded errors with probabilities derived from the accumulated leakage, enabling leakage-aware decoding strategies.
 
 This differs from Stim's `HERALDED_ERASE`, which requires explicitly specifying each heralded error at a particular qubit and time step, without automatic tracking of leakage accumulation and propagation.
@@ -117,6 +117,7 @@ For complete examples of leakage-aware decoding workflows, see the [Deltakit Dec
 
 For any reference to Stim, please consider using the citation:
 
+```
 @article{gidney2021stim,
   doi = {10.22331/q-2021-07-06-497},
   url = {https://doi.org/10.22331/q-2021-07-06-497},
@@ -130,9 +131,11 @@ For any reference to Stim, please consider using the citation:
   month = jul,
   year = {2021}
 }
+```
 
 If you use Deltakit-Stim's leakage-aware features, please also consider citing the Local Clustering Decoder paper, which details the leakage-aware decoding method:
 
+```
 @article{locher2025local,
   doi = {10.1038/s41467-025-66773-x},
   url = {https://doi.org/10.1038/s41467-025-66773-x},
