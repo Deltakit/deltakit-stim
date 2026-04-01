@@ -69,7 +69,8 @@ jobs:
     needs: [build_sdist, build_wheels]
     runs-on: ubuntu-latest
     environment:
-      name: testpypi
+      name: pypi
+      url: https://pypi.org/p/deltakit-stim
     permissions:
       id-token: write  # IMPORTANT: mandatory for trusted publishing
     steps:
