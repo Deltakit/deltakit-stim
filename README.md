@@ -49,13 +49,13 @@ There is a known issue when both `stim` and `deltakit-stim` are installed in the
 
 ## Getting Started
 
-To get started with deltakit-stim, an example demonstrating how deltakit-stim handles lekage will be introduced. Qubits are designed to operate in two computational states: |0⟩ and |1⟩. However, qubits can sometimes "leak" into higher energy states (|2⟩, |3⟩, etc.) that are outside the computational sub-space. Leakage is a significant source of error as leaked qubits can spread errors to other qubits through multi-qubit gates.
+To get started with deltakit-stim, an example demonstrating how deltakit-stim handles leakage will be introduced. Qubits are designed to operate in two computational states: |0⟩ and |1⟩. However, qubits can sometimes "leak" into higher energy states (|2⟩, |3⟩, etc.) that are outside the computational sub-space. Leakage is a significant source of error as leaked qubits can spread errors to other qubits through multi-qubit gates.
 
 **How Deltakit-Stim models leakage differently:**
 
 1. **Specify where leakage occurs**: Use `LEAKAGE(p)` gates to introduce leakage, where `p` is the probability of each specified qubit leaking.
 2. **Leakage propagation through gates**: Deltakit-Stim models how two-qubit gates (CZ, CX, CY, etc.) spread leakage between qubits and introduce depolarizing errors when leaked qubits interact. users can configure leakage spreading and transfer rates using optional gate parameters (see gate documentation for details).
-3. **Detect accumulated leakage**: `HERALD_LEAKAGE_EVENT` records a heralded error in the DEM based on the total accumulated leakage probability at that qubit up to that point in the circuit. Reset gates (R, RX, RY, MR, MRX, MRY, etc.) clear the accumulated leakage for their target qubits.
+3. **Detect accumulated leakage**: `HERALD_LEAKAGE_EVENT` records a heralded error in the DEM based on the total accumulated leakage probability at that qubit up to that point in the circuit. Reset gates (R, RX etc.) clear the accumulated leakage for their target qubits.
 4. **Leakage-aware decoding**: The DEM contains heralded errors with probabilities derived from the accumulated leakage, enabling leakage-aware decoding strategies.
 
 This differs from Stim's `HERALDED_ERASE`, which requires explicitly specifying each heralded error at a particular qubit and time step, without automatic tracking of leakage accumulation and propagation.
@@ -172,7 +172,7 @@ detector D0
 Without `HERALD_LEAKAGE_EVENT`, the DEM only contains detector definitions. With `HERALD_LEAKAGE_EVENT`, a herald detector D3 is added, and the heralded error `error(0.5) D1 D2 D3` appears. This error indicates that when the herald detector D3 fires ( which signals that qubit 1 leaked), detectors D1 and D2 are affected with 50% probability due to the random measurement outcome of the leaked qubit.
 ### Use in Error Correction
 
-Leakage-aware decoders use the herald information from `HERALD_LEAKAGE_EVENT` to make better correction decisions. Studies show this can reduce the required code distance by up to 50% for the same target logical error rate. The [Local Clustering Decoder](https://arxiv.org/abs/2411.10343) supports leakage-aware decoding with Deltakit-Stim.
+Leakage-aware decoders use the herald information from `HERALD_LEAKAGE_EVENT` to make better correction decisions. The [Local Clustering Decoder](https://www.nature.com/articles/s41467-025-66773-x) demonstrates that leakage-aware decoding can reduce physical qubit requirements by a factor of 4 compared to standard non-adaptive decoding.
 
 For complete examples of leakage-aware decoding workflows, see the [Deltakit Decoding guide](https://deltakit-docs.riverlane.com/en/docs/guide/decoding.html#leakage-aware-decoding).
 
