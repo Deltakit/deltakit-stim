@@ -86,7 +86,7 @@ detection_events = sampler.sample(shots=1000)
 print(f"Detection events shape: {detection_events.shape}")
 print(f"Number of detectors: {detection_events.shape[1]}")
 
-# The first detector (index 0) captures the herald event as rec[-4] is the HERALD_LEAKAGE_EVENT
+# The first detector (index 0) references rec[-4], the result of HERALD_LEAKAGE_EVENT
 herald_events = detection_events[:, 0]
 leakage_detected = np.sum(herald_events)
 print(f"\nLeakage events detected: {leakage_detected} out of {len(herald_events)} shots")
