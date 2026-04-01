@@ -12,33 +12,30 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # publish_private_index:
   build_wheels:
     name: Build wheels
     strategy:
       matrix:
         os_dist:
-          # - {os: ubuntu-latest, dist: cp39-manylinux_x86_64}
+          - {os: ubuntu-latest, dist: cp39-manylinux_x86_64}
           - {os: ubuntu-latest, dist: cp310-manylinux_x86_64}
-          # - {os: ubuntu-latest, dist: cp311-manylinux_x86_64}
-          # - {os: ubuntu-latest, dist: cp312-manylinux_x86_64}
-          # - {os: ubuntu-latest, dist: cp313-manylinux_x86_64}
-          # - {os: ubuntu-latest, dist: cp314-manylinux_x86_64}
-          # - {os: macos-latest, dist: cp39-macosx_x86_64, arch: x86_64}
-          # - {os: macos-latest, dist: cp310-macosx_x86_64, arch: x86_64}
-          # - {os: macos-latest, dist: cp311-macosx_x86_64, arch: x86_64}
-          # - {os: macos-latest, dist: cp312-macosx_x86_64, arch: x86_64}
-          # - {os: macos-latest, dist: cp313-macosx_x86_64, arch: x86_64}
-          # - {os: macos-latest, dist: cp314-macosx_x86_64, arch: x86_64}
-          # - {os: macos-latest, dist: cp39-macosx_arm64, arch: arm64}
-          # - {os: macos-latest, dist: cp310-macosx_arm64, arch: arm64}
-          # - {os: macos-latest, dist: cp311-macosx_arm64, arch: arm64}
-          # - {os: macos-latest, dist: cp312-macosx_arm64, arch: arm64}
-          # - {os: macos-latest, dist: cp313-macosx_arm64, arch: arm64}
-          # - {os: macos-latest, dist: cp314-macosx_arm64, arch: arm64}
+          - {os: ubuntu-latest, dist: cp311-manylinux_x86_64}
+          - {os: ubuntu-latest, dist: cp312-manylinux_x86_64}
+          - {os: ubuntu-latest, dist: cp313-manylinux_x86_64}
+          - {os: ubuntu-latest, dist: cp314-manylinux_x86_64}
+          - {os: macos-latest, dist: cp39-macosx_x86_64, arch: x86_64}
+          - {os: macos-latest, dist: cp310-macosx_x86_64, arch: x86_64}
+          - {os: macos-latest, dist: cp311-macosx_x86_64, arch: x86_64}
+          - {os: macos-latest, dist: cp312-macosx_x86_64, arch: x86_64}
+          - {os: macos-latest, dist: cp313-macosx_x86_64, arch: x86_64}
+          - {os: macos-latest, dist: cp314-macosx_x86_64, arch: x86_64}
+          - {os: macos-latest, dist: cp39-macosx_arm64, arch: arm64}
+          - {os: macos-latest, dist: cp310-macosx_arm64, arch: arm64}
+          - {os: macos-latest, dist: cp311-macosx_arm64, arch: arm64}
+          - {os: macos-latest, dist: cp312-macosx_arm64, arch: arm64}
+          - {os: macos-latest, dist: cp313-macosx_arm64, arch: arm64}
+          - {os: macos-latest, dist: cp314-macosx_arm64, arch: arm64}
     runs-on: ${{ matrix.os_dist.os }}
-    # permissions:
-    #   id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
     env:
       CIBW_BUILD: "${{ matrix.os_dist.dist }}"
       CIBW_ARCHS_MACOS: "${{ matrix.os_dist.arch }}"
@@ -48,21 +45,13 @@ jobs:
         # with:
         #   ref: ${{ github.event.release.tag_name }}
 
-      # - name: Set up Python
-      #   uses: actions/setup-python@v6
-      # - name: Install dependencies for wheel building
-      #   run: pip install pybind11 cibuildwheel setuptools wheel
-      # - name: Build the wheel
-      #   run: |
-      #     python -m cibuildwheel --print-build-identifiers
-      #     python -m cibuildwheel --output-dir dist
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.4.0
 
-      # - uses: actions/upload-artifact@v7
-      #   with:
-      #     name: "dist-${{ matrix.os_dist.dist }}"
-      #     path: ./wheelhouse/*.whl
+      - uses: actions/upload-artifact@v7
+        with:
+          name: "dist-${{ matrix.os_dist.dist }}"
+          path: ./wheelhouse/*.whl
 
   build_sdist:
     runs-on: ubuntu-latest
@@ -77,26 +66,27 @@ jobs:
       - run: python -m pip install pybind11==2.9.2
       - run: python setup.py sdist
       # - run: python -m pip install dist/*.tar.gz
-      # - uses: actions/upload-artifact@v7
-      #   with:
-      #     name: dist-sdist
-      #     path: ./dist/*.tar.gz
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist-sdist
+          path: ./dist/*.tar.gz
 
-  # publish:
-  #   name: Publish Python distribution to PyPI
-  #   needs: [build_sdist, build_wheels]
-  #   runs-on: ubuntu-latest
-  #   environment:
-  #     name: testpypi
-  #   permissions:
-  #     id-token: write  # IMPORTANT: mandatory for trusted publishing
-  #   steps:
-  #   - name: Download all the dists
-  #     uses: actions/download-artifact@v7
-  #     with:
-  #       pattern: dist-*
-  #       path: ./dist/
-  #       merge-multiple: true
+  publish:
+    name: Publish Python distribution to PyPI
+    needs: [build_sdist, build_wheels]
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+    permissions:
+      id-token: write  # IMPORTANT: mandatory for trusted publishing
+    steps:
+    - name: Download all the dists
+      uses: actions/download-artifact@v7
+      with:
+        pattern: dist-*
+        path: ./dist/
+        merge-multiple: true
+    - run: ls dist/ 
   #   - name: Publish distribution to PyPI
   #     uses: pypa/gh-action-pypi-publish@release/v1
   #     with:
