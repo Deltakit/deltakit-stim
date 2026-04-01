@@ -1,15 +1,14 @@
 name: Publish Deltakit-Stim
 
 on:
-  # release:
-  #   types: [published]
-  # For tests
   push:
-    branches: [release-test]
+    tags:
+      - 'v*'
+  workflow_dispatch:
 
 concurrency:
   group: fast-${{ github.head_ref || github.run_id }}
-  # cancel-in-progress: true
+  cancel-in-progress: true
 
 jobs:
   build_wheels:
@@ -36,8 +35,8 @@ jobs:
     steps:
       - name: Check out Deltakit-Stim main code
         uses: actions/checkout@v6
-        # with:
-        #   ref: ${{ github.event.release.tag_name }}
+        with:
+          ref: ${{ github.ref }}
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.4.0
@@ -51,8 +50,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-        # with:
-        #   ref: ${{ github.event.release.tag_name }}
+        with:
+          ref: ${{ github.ref }}
       - uses: actions/setup-python@v6
         with:
           python-version: '3.10.*'
@@ -81,7 +80,7 @@ jobs:
         path: ./dist/
         merge-multiple: true
     - run: ls dist/ 
-  #   - name: Publish distribution to PyPI
-  #     uses: pypa/gh-action-pypi-publish@release/v1
-  #     with:
-  #       repository-url: https://test.pypi.org/legacy/
+    - name: Publish distribution to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: https://test.pypi.org/legacy/
