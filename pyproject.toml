@@ -8,8 +8,10 @@ version = "0.1.0"
 description = "A Stim extension package to account for non-computational errors."
 readme = "README.md"
 requires-python = ">=3.10,<3.14"
-license = "Apache-2.0"
-license-files = ["LICENSE"]
+license = { text = "Apache-2.0" }
+# setup.py complains when building sdists
+# See issue https://github.com/pypa/packaging-problems/issues/870
+# license-files = ["LICENSE"]
 
 authors = [{ name = "Deltakit Team", email = "deltakit@riverlane.com" }]
 
