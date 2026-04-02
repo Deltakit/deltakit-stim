@@ -15,11 +15,11 @@
 name: ci
 on:
   workflow_dispatch:
-  push:
-    branches:
-     - release
-    tags:
-      - v*
+  # push:
+  #   branches:
+  #    - release
+  #   tags:
+  #     - v*
 
 jobs:
   build_wheel:
