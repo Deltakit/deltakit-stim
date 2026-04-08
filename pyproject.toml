@@ -36,11 +36,11 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Homepage = "https://github.com/Deltakit/deltakit"
-Source = "https://github.com/Deltakit/deltakit"
+Homepage = "https://github.com/Deltakit/deltakit-stim"
+Source = "https://github.com/Deltakit/deltakit-stim"
 Documentation = "https://deltakit.riverlane.com/"
 Issues = "https://github.com/Deltakit/deltakit/issues"
-Changelog = "https://github.com/Deltakit/deltakit/releases"
+Changelog = "https://github.com/Deltakit/deltakit-stim/releases"
 
 [dependency-groups]
 tests_extras = [
