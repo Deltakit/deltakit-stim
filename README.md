@@ -136,16 +136,14 @@ For any reference to Stim, please consider using the citation:
 If you use Deltakit-Stim's leakage-aware features, please also consider citing the Local Clustering Decoder paper, which details the leakage-aware decoding method:
 
 ```
-@article{locher2025local,
-  doi = {10.1038/s41467-025-66773-x},
-  url = {https://doi.org/10.1038/s41467-025-66773-x},
-  title = {Local clustering decoder: beating the trade-off of code distance and circuit depth in quantum error correction},
-  author = {Locher, Dominik F. and Bohdanowicz, Thomas C. and Lao, Lingling and Leroux, Ian and Beale, Stefanie J. and Verdon, Guillaume and Vuillot, Christophe and Brown, Natalie C.},
+@article{ziad2025local,
+  doi     = {10.1038/s41467-025-66773-x},
+  url     = {https://doi.org/10.1038/s41467-025-66773-x},
+  title   = {Local clustering decoder as a fast and adaptive hardware decoder for the surface code},
+  author  = {Ziad, Abbas B. and Zalawadiya, Ankit and Topal, Canberk and Camps, Joan and Gehér, György P. and Stafford, Matthew P. and Turner, Mark L.},
   journal = {Nature Communications},
-  volume = {16},
-  number = {1},
-  pages = {554},
-  year = {2025},
-  publisher = {Nature Publishing Group}
+  volume  = {16},
+  pages   = {11048},
+  year    = {2025},
 }
 ```

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "deltakit-stim"
-version = "0.1.1"
+version = "0.1.2"
 description = "A Stim extension package to account for non-computational errors."
 readme = "README.md"
 requires-python = ">=3.10,<3.14"
@@ -36,11 +36,11 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Homepage = "https://github.com/Deltakit/deltakit"
-Source = "https://github.com/Deltakit/deltakit"
+Homepage = "https://github.com/Deltakit/deltakit-stim"
+Source = "https://github.com/Deltakit/deltakit-stim"
 Documentation = "https://deltakit.riverlane.com/"
 Issues = "https://github.com/Deltakit/deltakit/issues"
-Changelog = "https://github.com/Deltakit/deltakit/releases"
+Changelog = "https://github.com/Deltakit/deltakit-stim/releases"
 
 [dependency-groups]
 tests_extras = [
