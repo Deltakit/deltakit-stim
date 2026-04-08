@@ -134,11 +134,8 @@ with open('glue/python/README.md', encoding='UTF-8') as f:
 setup(
     name='deltakit-stim',
     version=__version__,
-    author='Craig Gidney',
-    author_email='craig.gidney@gmail.com',
-    url='https://github.com/quantumlib/stim',
     license='Apache 2',
-    description='A fast library for analyzing with quantum stabilizer circuits.',
+    description='A Stim extension package to account for non-computational errors.',
     long_description=long_description,
     long_description_content_type='text/markdown',
     ext_modules=ext_modules,
