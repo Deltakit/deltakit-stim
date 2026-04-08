@@ -142,7 +142,7 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     ext_modules=ext_modules,
-    python_requires='>=3.8.0',
+    python_requires='>=3.10,<3.14',
     packages=['deltakit_stim'],
     package_dir={'deltakit_stim': 'glue/python/src/deltakit_stim'},
     package_data={'': [*HEADER_FILES, 'glue/python/src/stim/__init__.pyi', 'glue/python/README.md', 'pyproject.toml']},
