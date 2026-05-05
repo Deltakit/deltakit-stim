@@ -1,0 +1,48 @@
+name: Nightly Tests
+
+on:
+  schedule:
+    # Run at 2 AM UTC every day
+    - cron: '0 2 * * *'
+  workflow_dispatch: # Allow manual triggering
+
+concurrency:
+  group: nightly-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  pybind_tests:
+    name: Run Deltakit-Stim Python bindings tests
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out main code
+        uses: actions/checkout@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+      - name: Package synchronisation
+        run: uv sync --python 3.13 --resolution highest --group test
+      - name: Set up Bazel
+        uses: bazel-contrib/setup-bazel@0.18.0
+        with:
+          # Avoid downloading Bazel every time.
+          bazelisk-cache: true
+          # Store build cache per workflow.
+          disk-cache: ${{ github.workflow }}
+          # Share repository cache between workflows.
+          repository-cache: true
+      - name: Clean Bazel build artifacts
+        run: bazel clean
+      - name: Build wheel
+        run: bazel build //:stim_dev_wheel
+      - name: Install wheel
+        run: uv pip install bazel-bin/stim-0.0.dev0-py3-none-any.whl
+      - name: Test bindings
+        run: uv run --python 3.13 --no-sync pytest
+      # - name: Run failing binding tests
+      #   run: |
+      #     uv run --python 3.13 --no-sync pytest src/stim/simulators/frame_simulator_pybind_test.py
+      #     uv run --python 3.13 --no-sync pytest src/stim/stabilizers/tableau_pybind_test.py
+      #     uv run --python 3.13 --no-sync pytest src/stim/util_top/export_qasm_pybind_test.py
