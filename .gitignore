@@ -49,6 +49,7 @@ MODULE.bazel.lock
 *~
 MODULE.bazel.lock
 .ninja_lock
+uv.lock
 
 # Sphinx documentation
 docs/_build/
