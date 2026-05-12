@@ -28,6 +28,9 @@ pybind11::object gate_num_parens_argument_range(const GateTypeWrapper &self_id) 
     if (self.arg_count == ARG_COUNT_SYGIL_ZERO_OR_ONE) {
         return r(2);
     }
+    if (self.arg_count == ARG_COUNT_SYGIL_ZERO_OR_ONE_OR_TWO) {
+        return r(3);
+    }
     if (self.arg_count == ARG_COUNT_SYGIL_ZERO_OR_FOUR) {
         return r(5);
     }

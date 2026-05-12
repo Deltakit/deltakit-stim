@@ -502,7 +502,7 @@ Examples:
             .name = "HERALD_LEAKAGE_EVENT",
             .id = GateType::HERALD_LEAKAGE_EVENT,
             .best_candidate_inverse_id = GateType::HERALD_LEAKAGE_EVENT,
-            .arg_count = ARG_COUNT_SYGIL_ZERO_OR_ONE,
+            .arg_count = ARG_COUNT_SYGIL_ZERO_OR_ONE_OR_TWO,
             .flags = (GateFlags)(GATE_IS_SINGLE_QUBIT_GATE | GATE_PRODUCES_RESULTS | GATE_IS_NOISY | GATE_ARGS_ARE_DISJOINT_PROBABILITIES),
             .category = "L_Collapsing Gates",
             .help = R"MARKDOWN(
@@ -516,12 +516,14 @@ herald leakage during measurement.
 
 Parens Arguments:
 
-    If no parens argument is given, the heralding readout is perfect.
-    If one parens argument is given, the heralding readout is noisy.
-    Heralding noise is modelled asymmetrically: it only ever results
-    in a leaked qubit being read as unleaked. That is, it never lifts
-    an unleaked qubit into the leaked state. The argument is the
-    probability of leaked qubits being declared unleaked.
+    If no parens arguments are given, the heralding readout has no heralding noise.
+
+    The two optional parens arguments allow leakage heralding errors to be specified
+    asymmetrically. The first argument specifies the probability of a false negative
+    heralding error where a leaked qubit is readout in the sealed state. By contrast,
+    the second argument specifies the probability of a false positive heralding error
+    where a sealed qubit is readout in the leaked state. If just one probability is
+    specified, this captures the false negative case.
 
 Targets:
 
@@ -537,6 +539,9 @@ Examples:
 
     # Same as above but leaked qubits will be incorrectly classified as unleaked 3% of the time
     HERALD_LEAKAGE_EVENT(0.03) 0 1
+
+    # Same as above but leaked qubits will be have 3% false negative rate, 1% false positive rate
+    HERALD_LEAKAGE_EVENT(0.03, 0.01) 0 1 
 
     # To populate a syndrome with the heralding bit during detector sampling use a DETECTOR annotation
     # that refers back to this channel

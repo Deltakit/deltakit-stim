@@ -19,6 +19,7 @@
 #include "stim/circuit/circuit.test.h"
 #include "stim/gen/gen_surface_code.h"
 #include "stim/mem/simd_word.test.h"
+#include "stim/simulators/frame_simulator_util.h"
 #include "stim/util_bot/test_util.test.h"
 
 #include <array>
@@ -354,21 +355,33 @@ TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, test_relaxation_channel, {
                 num_leaked_before_relaxation * 1.001);
 })
 
-TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, leakage_heralding, {
+TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, herald_leakage_event_two_parameter, {
     auto circuit = Circuit(R"CIRCUIT(
-        HERALD_LEAKAGE_EVENT 1 3
+        HERALD_LEAKAGE_EVENT(0, 0) 1 3
         DETECTOR rec[-2]
         DETECTOR rec[-1]
-        HERALD_LEAKAGE_EVENT(0.3) 1 3
+        HERALD_LEAKAGE_EVENT(0.1, 0.05) 1 3
+        DETECTOR rec[-2]
+        DETECTOR rec[-1]
+        HERALD_LEAKAGE_EVENT(0, 0.1) 1 3
+        DETECTOR rec[-2]
+        DETECTOR rec[-1]
+        HERALD_LEAKAGE_EVENT(0.2, 0) 1 3
         DETECTOR rec[-2]
         DETECTOR rec[-1]
 
-        LEAKAGE(0.2) 1 3
+        LEAKAGE(0.25) 1 3
 
-        HERALD_LEAKAGE_EVENT 1 3
+        HERALD_LEAKAGE_EVENT(0, 0) 1 3
         DETECTOR rec[-2]
         DETECTOR rec[-1]
-        HERALD_LEAKAGE_EVENT(0.3) 1 3
+        HERALD_LEAKAGE_EVENT(0.1, 0.05) 1 3
+        DETECTOR rec[-2]
+        DETECTOR rec[-1]
+        HERALD_LEAKAGE_EVENT(0, 0.1) 1 3
+        DETECTOR rec[-2]
+        DETECTOR rec[-1]
+        HERALD_LEAKAGE_EVENT(0.2, 0) 1 3
         DETECTOR rec[-2]
         DETECTOR rec[-1]
     )CIRCUIT");
@@ -378,17 +391,76 @@ TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, leakage_heralding, {
     frame_sim.configure_for(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, batch_size);
     frame_sim.do_circuit(circuit);
 
-    for (size_t i = 0; i < 4; ++i) {
+    for (size_t i = 0; i < 2; ++i) {
         ASSERT_EQ(frame_sim.det_record.storage[i].popcnt(), 0);
     }
-    const size_t num_leaked = batch_size * 0.2;
+
+    const size_t expected_fp = batch_size * 0.05;
+    for (size_t i = 2; i < 4; ++i) {
+        ASSERT_NEAR(frame_sim.det_record.storage[i].popcnt(), expected_fp, batch_size * 0.01);
+    }
+
+    const size_t expected_fp_only = batch_size * 0.1;
     for (size_t i = 4; i < 6; ++i) {
+        ASSERT_NEAR(frame_sim.det_record.storage[i].popcnt(), expected_fp_only, batch_size * 0.01);
+    }
+
+    for (size_t i = 6; i < 8; ++i) {
+        ASSERT_EQ(frame_sim.det_record.storage[i].popcnt(), 0);
+    }
+    
+    const size_t num_leaked = batch_size * 0.25;
+    for (size_t i = 8; i < 10; ++i) {
         ASSERT_NEAR(frame_sim.det_record.storage[i].popcnt(), num_leaked, batch_size * 0.01);
     }
-    const size_t noisy_num_leaked = num_leaked * 0.7;
-    for (size_t i = 6; i < 8; ++i) {
-        ASSERT_NEAR(frame_sim.det_record.storage[i].popcnt(), noisy_num_leaked, noisy_num_leaked * 0.05);
+
+    const size_t expected_noisy = num_leaked * 0.9 + (batch_size - num_leaked) * 0.05;
+    for (size_t i = 10; i < 12; ++i) {
+        ASSERT_NEAR(frame_sim.det_record.storage[i].popcnt(), expected_noisy, batch_size * 0.01);
     }
+
+    const size_t expected_fp_after = num_leaked + (batch_size - num_leaked) * 0.1;
+    for (size_t i = 12; i < 14; ++i) {
+        ASSERT_NEAR(frame_sim.det_record.storage[i].popcnt(), expected_fp_after, batch_size * 0.01);
+    }
+
+    const size_t expected_fn_after = num_leaked * 0.8;
+    for (size_t i = 14; i < 16; ++i) {
+        ASSERT_NEAR(frame_sim.det_record.storage[i].popcnt(), expected_fn_after, batch_size * 0.01);
+    }
+})
+
+
+// Qubit 0 is leaked so storage[0] fires for every shot; qubit 1 is not leaked and fp_prob=0
+// so storage[1] should be zero.
+TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, herald_leakage_event_m_record_position_leakage_path, {
+    auto circuit = Circuit(R"CIRCUIT(
+        LEAKAGE(1) 0
+        HERALD_LEAKAGE_EVENT(0, 0) 0 1
+    )CIRCUIT");
+    const size_t batch_size = 1000;
+    FrameSimulator<W> frame_sim(
+        circuit.compute_stats(), FrameSimulatorMode::STORE_MEASUREMENTS_TO_MEMORY, batch_size, INDEPENDENT_TEST_RNG());
+    frame_sim.do_circuit(circuit);
+    ASSERT_EQ(frame_sim.m_record.stored, 2);
+    ASSERT_EQ(frame_sim.m_record.storage[0].popcnt(), batch_size);
+    ASSERT_EQ(frame_sim.m_record.storage[1].popcnt(), 0);
+})
+
+// Qubit 1 is not leaked and fp_prob=1 so every shot gives a false positive, storage[1]
+// should fire for every shot.
+TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, herald_leakage_event_m_record_position_fp_path, {
+    auto circuit = Circuit(R"CIRCUIT(
+        LEAKAGE(1) 0
+        HERALD_LEAKAGE_EVENT(0, 1) 0 1
+    )CIRCUIT");
+    const size_t batch_size = 1000;
+    FrameSimulator<W> frame_sim(
+        circuit.compute_stats(), FrameSimulatorMode::STORE_MEASUREMENTS_TO_MEMORY, batch_size, INDEPENDENT_TEST_RNG());
+    frame_sim.do_circuit(circuit);
+    ASSERT_EQ(frame_sim.m_record.stored, 2);
+    ASSERT_EQ(frame_sim.m_record.storage[0].popcnt(), batch_size);
+    ASSERT_EQ(frame_sim.m_record.storage[1].popcnt(), batch_size);
 })
 
 // Helper function for bit-and-phase flip model to test the frame simulator logic by taking a circuit with leakage on 

@@ -160,7 +160,7 @@ struct FrameSimulator {
     void single_cx(uint32_t c, uint32_t t);
     void single_cy(uint32_t c, uint32_t t);
 
-    template <std::invocable<uint32_t, int, uint64_t> LEAKAGE_MODEL>
+    template <std::invocable<uint32_t, uint32_t, uint64_t> LEAKAGE_MODEL>
     void propagate_leakage(const uint32_t c, const uint32_t t, const float p_spread_cont_tar, const float p_spread_tar_cont, const float p_mobility_cont_tar, const float p_mobility_tar_cont, LEAKAGE_MODEL apply_leakage_model);
 
 };

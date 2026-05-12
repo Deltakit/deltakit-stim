@@ -169,6 +169,12 @@ void CircuitInstruction::validate() const {
                 "Gate " + std::string(gate.name) + " was given " + std::to_string(args.size()) + " parens arguments (" +
                 comma_sep(args).str() + ") but takes 0, 4, or 5 parens arguments.");
         }
+    } else if (gate.arg_count == ARG_COUNT_SYGIL_ZERO_OR_ONE_OR_TWO) {
+        if (args.size() > 2) {
+            throw std::invalid_argument(
+                "Gate " + std::string(gate.name) + " was given " + std::to_string(args.size()) + " parens arguments (" +
+                comma_sep(args).str() + ") but takes 0, 1, or 2 parens arguments.");
+        }
     } else if (args.size() != gate.arg_count && gate.arg_count != ARG_COUNT_SYGIL_ANY) {
         throw std::invalid_argument(
             "Gate " + std::string(gate.name) + " was given " + std::to_string(args.size()) + " parens arguments (" +

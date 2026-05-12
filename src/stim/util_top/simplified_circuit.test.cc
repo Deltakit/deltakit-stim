@@ -22,7 +22,7 @@ bool is_simplification_correct(const Gate &gate) {
     std::vector<double> args;
     while (args.size() < gate.arg_count && gate.arg_count != ARG_COUNT_SYGIL_ANY &&
            gate.arg_count != ARG_COUNT_SYGIL_ZERO_OR_ONE && gate.arg_count != ARG_COUNT_SYGIL_ZERO_OR_FOUR &&
-           gate.arg_count != ARG_COUNT_SYGIL_ZERO_OR_FOUR_OR_FIVE) {
+           gate.arg_count != ARG_COUNT_SYGIL_ZERO_OR_FOUR_OR_FIVE && gate.arg_count != ARG_COUNT_SYGIL_ZERO_OR_ONE_OR_TWO) {
         args.push_back(args.empty() ? 1 : 0);
     }
 

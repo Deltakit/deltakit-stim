@@ -55,6 +55,9 @@ constexpr uint8_t ARG_COUNT_SYGIL_ZERO_OR_FOUR = uint8_t{0xFD};
 /// Used for gates' argument count to indicate that a gate takes 0, 4, or 5 parens arguments.
 constexpr uint8_t ARG_COUNT_SYGIL_ZERO_OR_FOUR_OR_FIVE = uint8_t{0xFC};
 
+/// Used for gates' argument count to indicate that a gate takes 0, 1, or 2 parens arguments.
+constexpr uint8_t ARG_COUNT_SYGIL_ZERO_OR_ONE_OR_TWO = uint8_t{0xFB};
+
 constexpr inline uint16_t gate_name_to_hash(std::string_view text) {
     // HACK: A collision is considered to be an error.
     // Just do *anything* that makes all the defined gates have different values.

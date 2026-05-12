@@ -2039,3 +2039,13 @@ TEST(circuit, leakage_opcode_parsing_and_validation) {
         ASSERT_NO_THROW({ Circuit(std::string(g.name) + "(1.5, 0.2, 0.3, 0.4) 0 1"); });
     }
 }
+
+TEST(circuit, herald_leakage_event_parsing) {
+    // Test different argument counts for HERALD_LEAKAGE_EVENT
+    ASSERT_NO_THROW(Circuit("HERALD_LEAKAGE_EVENT 0"));
+    ASSERT_NO_THROW(Circuit("HERALD_LEAKAGE_EVENT(0.03) 0"));  
+    ASSERT_NO_THROW(Circuit("HERALD_LEAKAGE_EVENT(0.03, 0.01) 0"));
+    
+    // Test invalid argument count for 3 parameters
+    ASSERT_THROW(Circuit("HERALD_LEAKAGE_EVENT(0.1, 0.2, 0.3) 0"), std::invalid_argument);
+}
