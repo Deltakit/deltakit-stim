@@ -13,6 +13,8 @@
 # limitations under the License.
 import pathlib
 
+import subprocess
+import sys
 import tempfile
 
 import doctest
@@ -21,45 +23,45 @@ import numpy as np
 import pytest
 import types
 
-import stim
+import lestim
 import re
 
 def test_version():
-    assert re.match(r"^\d\.\d+", stim.__version__)
+    assert re.match(r"^\d\.\d+", lestim.__version__)
 
 
 def test_targets():
-    t = stim.target_x(5)
-    assert isinstance(t, stim.GateTarget)
+    t = lestim.target_x(5)
+    assert isinstance(t, lestim.GateTarget)
     assert t.is_x_target and t.value == 5
     assert not t.is_y_target
 
-    t = stim.target_y(6)
-    assert isinstance(t, stim.GateTarget)
+    t = lestim.target_y(6)
+    assert isinstance(t, lestim.GateTarget)
     assert t.is_y_target and t.value == 6
 
-    t = stim.target_z(5)
-    assert isinstance(t, stim.GateTarget)
+    t = lestim.target_z(5)
+    assert isinstance(t, lestim.GateTarget)
     assert t.is_z_target and t.value == 5
 
-    t = stim.target_inv(5)
-    assert isinstance(t, stim.GateTarget)
+    t = lestim.target_inv(5)
+    assert isinstance(t, lestim.GateTarget)
     assert t.is_inverted_result_target and t.value == 5
 
-    t = stim.target_rec(-5)
-    assert isinstance(t, stim.GateTarget)
+    t = lestim.target_rec(-5)
+    assert isinstance(t, lestim.GateTarget)
     assert t.is_measurement_record_target and not t.is_inverted_result_target and t.value == -5
 
-    t = stim.target_sweep_bit(4)
-    assert isinstance(t, stim.GateTarget)
+    t = lestim.target_sweep_bit(4)
+    assert isinstance(t, lestim.GateTarget)
     assert t.is_sweep_bit_target and not t.is_inverted_result_target and t.value == 4
 
-    t = stim.target_combiner()
-    assert isinstance(t, stim.GateTarget)
+    t = lestim.target_combiner()
+    assert isinstance(t, lestim.GateTarget)
 
 
 def test_gate_data():
-    data = stim.gate_data()
+    data = lestim.gate_data()
     assert len(data) == 85
     assert data["CX"].name == "CX"
     assert data["CX"].aliases == ["CNOT", "CX", "ZCX"]
@@ -68,7 +70,7 @@ def test_gate_data():
 
 
 def test_format_data():
-    format_data = stim._UNSTABLE_raw_format_data()
+    format_data = lestim._UNSTABLE_raw_format_data()
     assert len(format_data) >= 6
 
     # Check that example code has needed imports.
@@ -124,7 +126,7 @@ def test_format_data():
 def test_main_write_to_file():
     with tempfile.TemporaryDirectory() as d:
         p = pathlib.Path(d) / 'tmp'
-        assert stim.main(command_line_args=[
+        assert lestim.main(command_line_args=[
             "gen",
             "--code=repetition_code",
             "--task=memory",
@@ -137,14 +139,14 @@ def test_main_write_to_file():
 
 
 def test_main_help(capsys):
-    assert stim.main(command_line_args=["help"]) == 0
+    assert lestim.main(command_line_args=["help"]) == 0
     captured = capsys.readouterr()
     assert captured.err == ""
     assert 'Available stim commands' in captured.out
 
 
 def test_main_redirects_stdout(capsys):
-    assert stim.main(command_line_args=[
+    assert lestim.main(command_line_args=[
         "gen",
         "--code=repetition_code",
         "--task=memory",
@@ -157,7 +159,7 @@ def test_main_redirects_stdout(capsys):
 
 
 def test_main_redirects_stderr(capsys):
-    assert stim.main(command_line_args=[
+    assert lestim.main(command_line_args=[
         "gen",
         "--code=XXXXX",
         "--task=memory",
@@ -170,132 +172,143 @@ def test_main_redirects_stderr(capsys):
 
 
 def test_target_methods_accept_gate_targets():
-    assert stim.target_inv(stim.GateTarget(5)) == stim.target_inv(5)
-    assert stim.target_inv(stim.target_inv(5)) == stim.GateTarget(5)
-    assert stim.target_inv(stim.target_x(5)) == stim.target_x(5, invert=True)
-    assert stim.target_inv(stim.target_y(5)) == stim.target_y(5, invert=True)
-    assert stim.target_inv(stim.target_z(5)) == stim.target_z(5, invert=True)
+    assert lestim.target_inv(lestim.GateTarget(5)) == lestim.target_inv(5)
+    assert lestim.target_inv(lestim.target_inv(5)) == lestim.GateTarget(5)
+    assert lestim.target_inv(lestim.target_x(5)) == lestim.target_x(5, invert=True)
+    assert lestim.target_inv(lestim.target_y(5)) == lestim.target_y(5, invert=True)
+    assert lestim.target_inv(lestim.target_z(5)) == lestim.target_z(5, invert=True)
 
-    assert stim.target_x(stim.GateTarget(5)) == stim.target_x(5)
-    assert stim.target_x(stim.target_inv(stim.GateTarget(5))) == stim.target_x(5, invert=True)
-    assert stim.target_x(stim.GateTarget(5), invert=True) == stim.target_x(5, invert=True)
-    assert stim.target_x(stim.target_inv(stim.GateTarget(5)), invert=True) == stim.target_x(5)
+    assert lestim.target_x(lestim.GateTarget(5)) == lestim.target_x(5)
+    assert lestim.target_x(lestim.target_inv(lestim.GateTarget(5))) == lestim.target_x(5, invert=True)
+    assert lestim.target_x(lestim.GateTarget(5), invert=True) == lestim.target_x(5, invert=True)
+    assert lestim.target_x(lestim.target_inv(lestim.GateTarget(5)), invert=True) == lestim.target_x(5)
 
-    assert stim.target_y(stim.GateTarget(5)) == stim.target_y(5)
-    assert stim.target_y(stim.target_inv(stim.GateTarget(5))) == stim.target_y(5, invert=True)
-    assert stim.target_y(stim.GateTarget(5), invert=True) == stim.target_y(5, invert=True)
-    assert stim.target_y(stim.target_inv(stim.GateTarget(5)), invert=True) == stim.target_y(5)
+    assert lestim.target_y(lestim.GateTarget(5)) == lestim.target_y(5)
+    assert lestim.target_y(lestim.target_inv(lestim.GateTarget(5))) == lestim.target_y(5, invert=True)
+    assert lestim.target_y(lestim.GateTarget(5), invert=True) == lestim.target_y(5, invert=True)
+    assert lestim.target_y(lestim.target_inv(lestim.GateTarget(5)), invert=True) == lestim.target_y(5)
 
-    assert stim.target_z(stim.GateTarget(5)) == stim.target_z(5)
-    assert stim.target_z(stim.target_inv(stim.GateTarget(5))) == stim.target_z(5, invert=True)
-    assert stim.target_z(stim.GateTarget(5), invert=True) == stim.target_z(5, invert=True)
-    assert stim.target_z(stim.target_inv(stim.GateTarget(5)), invert=True) == stim.target_z(5)
-
-    with pytest.raises(ValueError):
-        stim.target_inv(stim.target_sweep_bit(4))
+    assert lestim.target_z(lestim.GateTarget(5)) == lestim.target_z(5)
+    assert lestim.target_z(lestim.target_inv(lestim.GateTarget(5))) == lestim.target_z(5, invert=True)
+    assert lestim.target_z(lestim.GateTarget(5), invert=True) == lestim.target_z(5, invert=True)
+    assert lestim.target_z(lestim.target_inv(lestim.GateTarget(5)), invert=True) == lestim.target_z(5)
 
     with pytest.raises(ValueError):
-        stim.target_inv(stim.target_rec(-4))
+        lestim.target_inv(lestim.target_sweep_bit(4))
 
     with pytest.raises(ValueError):
-        stim.target_x(stim.target_sweep_bit(4))
+        lestim.target_inv(lestim.target_rec(-4))
 
     with pytest.raises(ValueError):
-        stim.target_y(stim.target_sweep_bit(4))
+        lestim.target_x(lestim.target_sweep_bit(4))
 
     with pytest.raises(ValueError):
-        stim.target_z(stim.target_sweep_bit(4))
+        lestim.target_y(lestim.target_sweep_bit(4))
+
+    with pytest.raises(ValueError):
+        lestim.target_z(lestim.target_sweep_bit(4))
 
 
 def test_target_pauli():
-    assert stim.target_pauli(2, "I") == stim.GateTarget(2)
-    assert stim.target_pauli(2, "X") == stim.target_x(2)
-    assert stim.target_pauli(2, "Y") == stim.target_y(2)
-    assert stim.target_pauli(2, "Z") == stim.target_z(2)
-    assert stim.target_pauli(5, "x") == stim.target_x(5)
-    assert stim.target_pauli(2, "y") == stim.target_y(2)
-    assert stim.target_pauli(2, "z") == stim.target_z(2)
-    assert stim.target_pauli(2, 0) == stim.GateTarget(2)
-    assert stim.target_pauli(2, 1) == stim.target_x(2)
-    assert stim.target_pauli(2, 2) == stim.target_y(2)
-    assert stim.target_pauli(2, 3) == stim.target_z(2)
-    assert stim.target_pauli(2, 3, True) == stim.target_z(2, True)
-    assert stim.target_pauli(qubit_index=2, pauli=3, invert=True) == stim.target_z(2, True)
-    assert stim.target_pauli(5, np.array([2], dtype=np.uint8)[0]) == stim.target_y(5)
-    assert stim.target_pauli(5, np.array([2], dtype=np.uint32)[0]) == stim.target_y(5)
-    assert stim.target_pauli(5, np.array([2], dtype=np.int16)[0]) == stim.target_y(5)
+    assert lestim.target_pauli(2, "I") == lestim.GateTarget(2)
+    assert lestim.target_pauli(2, "X") == lestim.target_x(2)
+    assert lestim.target_pauli(2, "Y") == lestim.target_y(2)
+    assert lestim.target_pauli(2, "Z") == lestim.target_z(2)
+    assert lestim.target_pauli(5, "x") == lestim.target_x(5)
+    assert lestim.target_pauli(2, "y") == lestim.target_y(2)
+    assert lestim.target_pauli(2, "z") == lestim.target_z(2)
+    assert lestim.target_pauli(2, 0) == lestim.GateTarget(2)
+    assert lestim.target_pauli(2, 1) == lestim.target_x(2)
+    assert lestim.target_pauli(2, 2) == lestim.target_y(2)
+    assert lestim.target_pauli(2, 3) == lestim.target_z(2)
+    assert lestim.target_pauli(2, 3, True) == lestim.target_z(2, True)
+    assert lestim.target_pauli(qubit_index=2, pauli=3, invert=True) == lestim.target_z(2, True)
+    assert lestim.target_pauli(5, np.array([2], dtype=np.uint8)[0]) == lestim.target_y(5)
+    assert lestim.target_pauli(5, np.array([2], dtype=np.uint32)[0]) == lestim.target_y(5)
+    assert lestim.target_pauli(5, np.array([2], dtype=np.int16)[0]) == lestim.target_y(5)
 
     with pytest.raises(ValueError, match="too large"):
-        stim.target_pauli(2**31, 'X')
+        lestim.target_pauli(2**31, 'X')
     with pytest.raises(ValueError, match="Expected pauli"):
-        stim.target_pauli(5, 'F')
+        lestim.target_pauli(5, 'F')
     with pytest.raises(ValueError, match="Expected pauli"):
-        stim.target_pauli(5, np.array([257], dtype=np.uint32)[0])
+        lestim.target_pauli(5, np.array([257], dtype=np.uint32)[0])
 
 
 def test_target_combined_paulis():
-    assert stim.target_combined_paulis(stim.PauliString("XYZ")) == [
-        stim.target_x(0),
-        stim.target_combiner(),
-        stim.target_y(1),
-        stim.target_combiner(),
-        stim.target_z(2),
+    assert lestim.target_combined_paulis(lestim.PauliString("XYZ")) == [
+        lestim.target_x(0),
+        lestim.target_combiner(),
+        lestim.target_y(1),
+        lestim.target_combiner(),
+        lestim.target_z(2),
     ]
 
-    assert stim.target_combined_paulis(stim.PauliString("X"), True) == [
-        stim.target_x(0, True),
+    assert lestim.target_combined_paulis(lestim.PauliString("X"), True) == [
+        lestim.target_x(0, True),
     ]
 
-    assert stim.target_combined_paulis(stim.PauliString("-XYIZ")) == [
-        stim.target_x(0, invert=True),
-        stim.target_combiner(),
-        stim.target_y(1),
-        stim.target_combiner(),
-        stim.target_z(3),
+    assert lestim.target_combined_paulis(lestim.PauliString("-XYIZ")) == [
+        lestim.target_x(0, invert=True),
+        lestim.target_combiner(),
+        lestim.target_y(1),
+        lestim.target_combiner(),
+        lestim.target_z(3),
     ]
 
-    assert stim.target_combined_paulis(stim.PauliString("-XYIZ"), True) == [
-        stim.target_x(0),
-        stim.target_combiner(),
-        stim.target_y(1),
-        stim.target_combiner(),
-        stim.target_z(3),
+    assert lestim.target_combined_paulis(lestim.PauliString("-XYIZ"), True) == [
+        lestim.target_x(0),
+        lestim.target_combiner(),
+        lestim.target_y(1),
+        lestim.target_combiner(),
+        lestim.target_z(3),
     ]
 
-    assert stim.target_combined_paulis([stim.target_x(5), stim.target_z(9)]) == [
-        stim.target_x(5),
-        stim.target_combiner(),
-        stim.target_z(9),
+    assert lestim.target_combined_paulis([lestim.target_x(5), lestim.target_z(9)]) == [
+        lestim.target_x(5),
+        lestim.target_combiner(),
+        lestim.target_z(9),
     ]
 
-    assert stim.target_combined_paulis([stim.target_x(5, True), stim.target_z(9)]) == [
-        stim.target_x(5, True),
-        stim.target_combiner(),
-        stim.target_z(9),
+    assert lestim.target_combined_paulis([lestim.target_x(5, True), lestim.target_z(9)]) == [
+        lestim.target_x(5, True),
+        lestim.target_combiner(),
+        lestim.target_z(9),
     ]
-    assert stim.target_combined_paulis([stim.target_x(5), stim.target_z(9, True)]) == [
-        stim.target_x(5, True),
-        stim.target_combiner(),
-        stim.target_z(9),
+    assert lestim.target_combined_paulis([lestim.target_x(5), lestim.target_z(9, True)]) == [
+        lestim.target_x(5, True),
+        lestim.target_combiner(),
+        lestim.target_z(9),
     ]
-    assert stim.target_combined_paulis([stim.target_x(5), stim.target_z(9)], True) == [
-        stim.target_x(5, True),
-        stim.target_combiner(),
-        stim.target_z(9),
+    assert lestim.target_combined_paulis([lestim.target_x(5), lestim.target_z(9)], True) == [
+        lestim.target_x(5, True),
+        lestim.target_combiner(),
+        lestim.target_z(9),
     ]
-    assert stim.target_combined_paulis([stim.target_y(4)]) == [
-        stim.target_y(4),
+    assert lestim.target_combined_paulis([lestim.target_y(4)]) == [
+        lestim.target_y(4),
     ]
 
     with pytest.raises(ValueError, match="Expected a pauli string"):
-        stim.target_combined_paulis([stim.target_rec(-2)])
+        lestim.target_combined_paulis([lestim.target_rec(-2)])
     with pytest.raises(ValueError, match="Expected a pauli string"):
-        stim.target_combined_paulis([object()])
+        lestim.target_combined_paulis([object()])
     with pytest.raises(ValueError, match="Identity pauli product"):
-        stim.target_combined_paulis([])
+        lestim.target_combined_paulis([])
     with pytest.raises(ValueError, match="Identity pauli product"):
-        stim.target_combined_paulis(stim.PauliString(0))
+        lestim.target_combined_paulis(lestim.PauliString(0))
     with pytest.raises(ValueError, match="Identity pauli product"):
-        stim.target_combined_paulis(stim.PauliString(10))
+        lestim.target_combined_paulis(lestim.PauliString(10))
     with pytest.raises(ValueError, match="Imaginary"):
-        stim.target_combined_paulis(stim.PauliString("iX"))
+        lestim.target_combined_paulis(lestim.PauliString("iX"))
+
+
+def test_lestim_stim_compatibility():
+    """Show that lestim can be imported after stim without their python bindings conflicting"""
+    code = "import stim, lestim"
+    subprocess.run(
+        [sys.executable, "-c", code],
+        capture_output=True,
+        text=True,
+        check=True,
+    )

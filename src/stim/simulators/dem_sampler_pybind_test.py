@@ -1,13 +1,13 @@
 import numpy as np
 import pathlib
 import pytest
-import stim
+import lestim
 import tempfile
 
 
 @pytest.mark.parametrize("bit_packed", [False, True])
 def test_dem_sampler_sample(bit_packed: bool):
-    noisy_dem = stim.DetectorErrorModel("""
+    noisy_dem = lestim.DetectorErrorModel("""
         error(0.125) D0
         error(0.25) D1
     """)
@@ -19,7 +19,7 @@ def test_dem_sampler_sample(bit_packed: bool):
 
 
 def test_dem_sampler_sampler_write():
-    dem = stim.DetectorErrorModel('''
+    dem = lestim.DetectorErrorModel('''
        error(0) D0
        error(0) D1
        error(0) D0
@@ -45,7 +45,7 @@ def test_dem_sampler_sampler_write():
         with open(d / 'err.hits') as f:
             assert f.read() == "3\n"
 
-        sampler = stim.DetectorErrorModel('''
+        sampler = lestim.DetectorErrorModel('''
            error(1) D0  # this should be overridden by the replay.
            error(1) D1
            error(1) D0
@@ -74,7 +74,7 @@ def test_dem_sampler_sampler_write():
 
 
 def test_dem_sampler_actually_fills_obs_array():
-    dem = stim.DetectorErrorModel('''
+    dem = lestim.DetectorErrorModel('''
        error(1) L0
     ''')
     sampler = dem.compile_sampler()

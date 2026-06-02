@@ -1,8 +1,8 @@
-import stim
+import lestim
 
 
 def test_CircuitErrorLocationStackFrame():
-    v1 = stim.CircuitErrorLocationStackFrame(
+    v1 = lestim.CircuitErrorLocationStackFrame(
         instruction_offset=1,
         iteration_index=2,
         instruction_repetitions_arg=3,
@@ -11,7 +11,7 @@ def test_CircuitErrorLocationStackFrame():
     assert v1.iteration_index == 2
     assert v1.instruction_repetitions_arg == 3
 
-    v2 = stim.CircuitErrorLocationStackFrame(
+    v2 = lestim.CircuitErrorLocationStackFrame(
         instruction_offset=2,
         iteration_index=3,
         instruction_repetitions_arg=5,
@@ -19,86 +19,86 @@ def test_CircuitErrorLocationStackFrame():
     assert v1 != v2
     assert v1 == v1
     assert len({v1, v1, v2}) == 2  # Check hashable.
-    assert eval(repr(v1), {"stim": stim}) == v1
-    assert eval(repr(v2), {"stim": stim}) == v2
+    assert eval(repr(v1), {"stim": lestim}) == v1
+    assert eval(repr(v2), {"stim": lestim}) == v2
     assert str(v1) == repr(v1)
 
 
 def test_GateTargetWithCoords():
-    v1 = stim.GateTargetWithCoords(
-        gate_target=stim.target_x(5),
+    v1 = lestim.GateTargetWithCoords(
+        gate_target=lestim.target_x(5),
         coords=[1, 2, 3],
     )
-    assert v1.gate_target == stim.GateTarget(stim.target_x(5))
+    assert v1.gate_target == lestim.GateTarget(lestim.target_x(5))
     assert v1.coords == [1, 2, 3]
-    v2 = stim.GateTargetWithCoords(
-        gate_target=stim.GateTarget(4),
+    v2 = lestim.GateTargetWithCoords(
+        gate_target=lestim.GateTarget(4),
         coords=[1, 2],
     )
     assert v1 != v2
     assert v1 == v1
     assert len({v1, v1, v2}) == 2  # Check hashable.
-    assert eval(repr(v1), {"stim": stim}) == v1
-    assert eval(repr(v2), {"stim": stim}) == v2
+    assert eval(repr(v1), {"stim": lestim}) == v1
+    assert eval(repr(v2), {"stim": lestim}) == v2
     assert str(v1) == 'X5[coords 1,2,3]'
 
 
 def test_DemTargetWithCoords():
-    v1 = stim.DemTargetWithCoords(
-        dem_target=stim.DemTarget.relative_detector_id(5),
+    v1 = lestim.DemTargetWithCoords(
+        dem_target=lestim.DemTarget.relative_detector_id(5),
         coords=[1, 2, 3],
     )
-    assert v1.dem_target == stim.DemTarget.relative_detector_id(5)
+    assert v1.dem_target == lestim.DemTarget.relative_detector_id(5)
     assert v1.coords == [1, 2, 3]
-    v2 = stim.DemTargetWithCoords(
-        dem_target=stim.DemTarget.logical_observable_id(3),
+    v2 = lestim.DemTargetWithCoords(
+        dem_target=lestim.DemTarget.logical_observable_id(3),
         coords=(),
     )
     assert v1 != v2
     assert v1 == v1
     assert len({v1, v1, v2}) == 2  # Check hashable.
-    assert eval(repr(v1), {"stim": stim}) == v1
-    assert eval(repr(v2), {"stim": stim}) == v2
+    assert eval(repr(v1), {"stim": lestim}) == v1
+    assert eval(repr(v2), {"stim": lestim}) == v2
     assert str(v1) == 'D5[coords 1,2,3]'
 
 
 def test_FlippedMeasurement():
-    v1 = stim.FlippedMeasurement(
+    v1 = lestim.FlippedMeasurement(
         record_index=5,
         observable=[
-            stim.GateTargetWithCoords(
-                gate_target=stim.target_x(5),
+            lestim.GateTargetWithCoords(
+                gate_target=lestim.target_x(5),
                 coords=[1, 2, 3]),
         ],
     )
     assert v1.record_index == 5
     assert v1.observable == [
-        stim.GateTargetWithCoords(
-            gate_target=stim.target_x(5),
+        lestim.GateTargetWithCoords(
+            gate_target=lestim.target_x(5),
             coords=[1, 2, 3]),
     ]
-    v2 = stim.FlippedMeasurement(
+    v2 = lestim.FlippedMeasurement(
         record_index=5,
         observable=[],
     )
     assert v1 != v2
     assert v1 == v1
     assert len({v1, v1, v2}) == 2  # Check hashable.
-    assert eval(repr(v1), {"stim": stim}) == v1
-    assert eval(repr(v2), {"stim": stim}) == v2
+    assert eval(repr(v1), {"stim": lestim}) == v1
+    assert eval(repr(v2), {"stim": lestim}) == v2
     assert str(v1) == repr(v1)
 
 
 def test_CircuitTargetsInsideInstruction():
-    v1 = stim.CircuitTargetsInsideInstruction(
+    v1 = lestim.CircuitTargetsInsideInstruction(
         gate="X_ERROR",
         args=[0.25],
         target_range_start=2,
         target_range_end=5,
         targets_in_range=[
-            stim.GateTargetWithCoords(gate_target=5, coords=[1, 2]),
-            stim.GateTargetWithCoords(gate_target=6, coords=[1, 3]),
-            stim.GateTargetWithCoords(gate_target=7, coords=[]),
+            lestim.GateTargetWithCoords(gate_target=5, coords=[1, 2]),
+            lestim.GateTargetWithCoords(gate_target=6, coords=[1, 3]),
+            lestim.GateTargetWithCoords(gate_target=7, coords=[]),
         ],
     )
     assert v1.gate == "X_ERROR"
@@ -106,11 +106,11 @@ def test_CircuitTargetsInsideInstruction():
     assert v1.target_range_start == 2
     assert v1.target_range_end == 5
     assert v1.targets_in_range == [
-        stim.GateTargetWithCoords(gate_target=5, coords=[1, 2]),
-        stim.GateTargetWithCoords(gate_target=6, coords=[1, 3]),
-        stim.GateTargetWithCoords(gate_target=7, coords=[]),
+        lestim.GateTargetWithCoords(gate_target=5, coords=[1, 2]),
+        lestim.GateTargetWithCoords(gate_target=6, coords=[1, 3]),
+        lestim.GateTargetWithCoords(gate_target=7, coords=[]),
     ]
-    v2 = stim.CircuitTargetsInsideInstruction(
+    v2 = lestim.CircuitTargetsInsideInstruction(
         gate="Z_ERROR",
         args=[0.125],
         target_range_start=3,
@@ -120,44 +120,44 @@ def test_CircuitTargetsInsideInstruction():
     assert v1 != v2
     assert v1 == v1
     assert len({v1, v1, v2}) == 2  # Check hashable.
-    assert eval(repr(v1), {"stim": stim}) == v1
-    assert eval(repr(v2), {"stim": stim}) == v2
+    assert eval(repr(v1), {"stim": lestim}) == v1
+    assert eval(repr(v2), {"stim": lestim}) == v2
     assert str(v1) == "X_ERROR(0.25) 5[coords 1,2] 6[coords 1,3] 7"
 
 
 def test_CircuitErrorLocation():
-    m = stim.FlippedMeasurement(
+    m = lestim.FlippedMeasurement(
         record_index=5,
         observable=[
-            stim.GateTargetWithCoords(
-                gate_target=stim.target_x(5),
+            lestim.GateTargetWithCoords(
+                gate_target=lestim.target_x(5),
                 coords=[1, 2, 3]),
         ],
     )
     p = [
-        stim.GateTargetWithCoords(
-            gate_target=stim.target_y(6),
+        lestim.GateTargetWithCoords(
+            gate_target=lestim.target_y(6),
             coords=[1, 2, 3]),
     ]
-    t = stim.CircuitTargetsInsideInstruction(
+    t = lestim.CircuitTargetsInsideInstruction(
         gate="X_ERROR",
         args=[0.25],
         target_range_start=2,
         target_range_end=5,
         targets_in_range=[
-            stim.GateTargetWithCoords(gate_target=5, coords=[1, 2]),
-            stim.GateTargetWithCoords(gate_target=6, coords=[1, 3]),
-            stim.GateTargetWithCoords(gate_target=7, coords=[]),
+            lestim.GateTargetWithCoords(gate_target=5, coords=[1, 2]),
+            lestim.GateTargetWithCoords(gate_target=6, coords=[1, 3]),
+            lestim.GateTargetWithCoords(gate_target=7, coords=[]),
         ],
     )
     s = [
-        stim.CircuitErrorLocationStackFrame(
+        lestim.CircuitErrorLocationStackFrame(
             instruction_offset=1,
             iteration_index=2,
             instruction_repetitions_arg=3,
         )
     ] * 2
-    v1 = stim.CircuitErrorLocation(
+    v1 = lestim.CircuitErrorLocation(
         tick_offset=5,
         flipped_pauli_product=p,
         flipped_measurement=m,
@@ -169,7 +169,7 @@ def test_CircuitErrorLocation():
     assert v1.flipped_measurement == m
     assert v1.instruction_targets == t
     assert v1.stack_frames == s
-    v2 = stim.CircuitErrorLocation(
+    v2 = lestim.CircuitErrorLocation(
         tick_offset=5,
         flipped_pauli_product=[],
         flipped_measurement=None,
@@ -180,8 +180,8 @@ def test_CircuitErrorLocation():
     assert v1 != v2
     assert v1 == v1
     assert len({v1, v1, v2}) == 2  # Check hashable.
-    assert eval(repr(v1), {"stim": stim}) == v1
-    assert eval(repr(v2), {"stim": stim}) == v2
+    assert eval(repr(v1), {"stim": lestim}) == v1
+    assert eval(repr(v2), {"stim": lestim}) == v2
     assert str(v1) == """CircuitErrorLocation {
     flipped_pauli_product: Y6[coords 1,2,3]
     flipped_measurement.measurement_record_index: 5
@@ -197,65 +197,65 @@ def test_CircuitErrorLocation():
 
 
 def test_MatchedError():
-    m = stim.FlippedMeasurement(
+    m = lestim.FlippedMeasurement(
         record_index=5,
         observable=[
-            stim.GateTargetWithCoords(
-                gate_target=stim.target_x(5),
+            lestim.GateTargetWithCoords(
+                gate_target=lestim.target_x(5),
                 coords=[1, 2, 3]),
         ],
     )
     p = [
-        stim.GateTargetWithCoords(
-            gate_target=stim.target_y(6),
+        lestim.GateTargetWithCoords(
+            gate_target=lestim.target_y(6),
             coords=[1, 2, 3]),
     ]
-    t = stim.CircuitTargetsInsideInstruction(
+    t = lestim.CircuitTargetsInsideInstruction(
         gate="X_ERROR",
         args=[0.25],
         target_range_start=2,
         target_range_end=5,
         targets_in_range=[
-            stim.GateTargetWithCoords(gate_target=5, coords=[1, 2]),
-            stim.GateTargetWithCoords(gate_target=6, coords=[1, 3]),
-            stim.GateTargetWithCoords(gate_target=7, coords=[]),
+            lestim.GateTargetWithCoords(gate_target=5, coords=[1, 2]),
+            lestim.GateTargetWithCoords(gate_target=6, coords=[1, 3]),
+            lestim.GateTargetWithCoords(gate_target=7, coords=[]),
         ],
     )
     s = [
-        stim.CircuitErrorLocationStackFrame(
+        lestim.CircuitErrorLocationStackFrame(
             instruction_offset=1,
             iteration_index=2,
             instruction_repetitions_arg=3,
         )
     ] * 2
-    e = stim.CircuitErrorLocation(
+    e = lestim.CircuitErrorLocation(
         tick_offset=5,
         flipped_pauli_product=p,
         flipped_measurement=m,
         instruction_targets=t,
         stack_frames=s,
     )
-    v1 = stim.ExplainedError(
-        dem_error_terms=[stim.DemTargetWithCoords(
-            dem_target=stim.DemTarget.relative_detector_id(5),
+    v1 = lestim.ExplainedError(
+        dem_error_terms=[lestim.DemTargetWithCoords(
+            dem_target=lestim.DemTarget.relative_detector_id(5),
             coords=[1, 2, 3],
         )],
         circuit_error_locations=[e],
     )
-    assert v1.dem_error_terms == [stim.DemTargetWithCoords(
-        dem_target=stim.DemTarget.relative_detector_id(5),
+    assert v1.dem_error_terms == [lestim.DemTargetWithCoords(
+        dem_target=lestim.DemTarget.relative_detector_id(5),
         coords=[1, 2, 3],
     )]
     assert v1.circuit_error_locations == [e]
-    v2 = stim.ExplainedError(
+    v2 = lestim.ExplainedError(
         dem_error_terms=[],
         circuit_error_locations=[],
     )
     assert v1 != v2
     assert v1 == v1
     assert len({v1, v1, v2}) == 2  # Check hashable.
-    assert eval(repr(v1), {"stim": stim}) == v1
-    assert eval(repr(v2), {"stim": stim}) == v2
+    assert eval(repr(v1), {"stim": lestim}) == v1
+    assert eval(repr(v2), {"stim": lestim}) == v2
     assert str(v1) == """ExplainedError {
     dem_error_terms: D5[coords 1,2,3]
     CircuitErrorLocation {

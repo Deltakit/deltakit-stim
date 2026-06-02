@@ -1,19 +1,19 @@
 import pytest
-import stim
+import lestim
 
 
 def test_inv_circuit():
-    inv_circuit, inv_flows = stim.Circuit().time_reversed_for_flows([])
-    assert inv_circuit == stim.Circuit()
+    inv_circuit, inv_flows = lestim.Circuit().time_reversed_for_flows([])
+    assert inv_circuit == lestim.Circuit()
     assert inv_flows == []
 
-    inv_circuit, inv_flows = stim.Circuit("""
+    inv_circuit, inv_flows = lestim.Circuit("""
         R 0
         H 0
         MX 0
         DETECTOR rec[-1]
     """).time_reversed_for_flows([])
-    assert inv_circuit == stim.Circuit("""
+    assert inv_circuit == lestim.Circuit("""
         RX 0
         H 0
         M 0
@@ -21,46 +21,46 @@ def test_inv_circuit():
     """)
     assert inv_flows == []
 
-    inv_circuit, inv_flows = stim.Circuit("""
+    inv_circuit, inv_flows = lestim.Circuit("""
         M 0
-    """).time_reversed_for_flows([stim.Flow('Z -> rec[-1]')])
-    assert inv_circuit == stim.Circuit("""
+    """).time_reversed_for_flows([lestim.Flow('Z -> rec[-1]')])
+    assert inv_circuit == lestim.Circuit("""
         R 0
     """)
-    assert inv_flows == [stim.Flow('1 -> Z')]
+    assert inv_flows == [lestim.Flow('1 -> Z')]
     assert inv_circuit.has_all_flows(inv_flows, unsigned=True)
 
-    inv_circuit, inv_flows = stim.Circuit("""
+    inv_circuit, inv_flows = lestim.Circuit("""
         R 0
-    """).time_reversed_for_flows([stim.Flow('1 -> Z')])
-    assert inv_circuit == stim.Circuit("""
+    """).time_reversed_for_flows([lestim.Flow('1 -> Z')])
+    assert inv_circuit == lestim.Circuit("""
         M 0
     """)
-    assert inv_flows == [stim.Flow('Z -> rec[-1]')]
+    assert inv_flows == [lestim.Flow('Z -> rec[-1]')]
 
-    inv_circuit, inv_flows = stim.Circuit("""
+    inv_circuit, inv_flows = lestim.Circuit("""
         M 0
-    """).time_reversed_for_flows([stim.Flow('1 -> Z xor rec[-1]')])
-    assert inv_circuit == stim.Circuit("""
+    """).time_reversed_for_flows([lestim.Flow('1 -> Z xor rec[-1]')])
+    assert inv_circuit == lestim.Circuit("""
         M 0
     """)
-    assert inv_flows == [stim.Flow('Z -> rec[-1]')]
+    assert inv_flows == [lestim.Flow('Z -> rec[-1]')]
 
-    inv_circuit, inv_flows = stim.Circuit("""
+    inv_circuit, inv_flows = lestim.Circuit("""
         M 0
     """).time_reversed_for_flows(
-        flows=[stim.Flow('Z -> rec[-1]')],
+        flows=[lestim.Flow('Z -> rec[-1]')],
         dont_turn_measurements_into_resets=True,
     )
-    assert inv_circuit == stim.Circuit("""
+    assert inv_circuit == lestim.Circuit("""
         M 0
     """)
-    assert inv_flows == [stim.Flow('1 -> Z xor rec[-1]')]
+    assert inv_flows == [lestim.Flow('1 -> Z xor rec[-1]')]
 
-    inv_circuit, inv_flows = stim.Circuit("""
+    inv_circuit, inv_flows = lestim.Circuit("""
         MR(0.125) 0
     """).time_reversed_for_flows([])
-    assert inv_circuit == stim.Circuit("""
+    assert inv_circuit == lestim.Circuit("""
         MR 0
         X_ERROR(0.125) 0
     """)
@@ -68,7 +68,7 @@ def test_inv_circuit():
 
 
 def test_inv_circuit_surface_code():
-    circuit = stim.Circuit.generated(
+    circuit = lestim.Circuit.generated(
         "surface_code:rotated_memory_x",
         distance=3,
         rounds=2,
@@ -81,7 +81,7 @@ def test_inv_circuit_surface_code():
 
     # Check observable is time reversed.
     num_ticks = circuit.num_ticks
-    l0 = stim.target_logical_observable_id(0)
+    l0 = lestim.target_logical_observable_id(0)
     assert inv_circuit.num_ticks == num_ticks
     assert {num_ticks - t - 1: v for t, v in det_regions[l0].items()} == inv_det_regions[l0]
 
@@ -98,28 +98,28 @@ def test_inv_circuit_surface_code():
 
 def test_more_flow_qubits_than_circuit_qubits():
     flows = [
-        stim.Flow("X300 -> X300"),
-        stim.Flow("X2*Z301 -> Z2*Z301"),
+        lestim.Flow("X300 -> X300"),
+        lestim.Flow("X2*Z301 -> Z2*Z301"),
     ]
-    circuit = stim.Circuit("H 2")
+    circuit = lestim.Circuit("H 2")
     assert circuit.has_flow(flows[0])
     assert circuit.has_flow(flows[1])
     assert circuit.has_all_flows(flows)
     new_circuit, new_flows = circuit.time_reversed_for_flows(flows=flows)
     assert new_circuit == circuit
     assert new_flows == [
-        stim.Flow("X300 -> X300"),
-        stim.Flow("Z2*Z301 -> X2*Z301"),
+        lestim.Flow("X300 -> X300"),
+        lestim.Flow("Z2*Z301 -> X2*Z301"),
     ]
 
 
 def test_measurement_ordering():
-    circuit = stim.Circuit("""
+    circuit = lestim.Circuit("""
         M 0 1
     """)
     flows = [
-        stim.Flow("I -> Z0 xor rec[-2]"),
-        stim.Flow("I -> Z1 xor rec[-1]"),
+        lestim.Flow("I -> Z0 xor rec[-2]"),
+        lestim.Flow("I -> Z1 xor rec[-1]"),
     ]
     assert circuit.has_all_flows(flows, unsigned=True)
     new_circuit, new_flows = circuit.time_reversed_for_flows(flows)
@@ -127,12 +127,12 @@ def test_measurement_ordering():
 
 
 def test_measurement_ordering_2():
-    circuit = stim.Circuit("""
+    circuit = lestim.Circuit("""
         MZZ 0 1 2 3
     """)
     flows = [
-        stim.Flow("I -> Z0*Z1 xor rec[-2]"),
-        stim.Flow("I -> Z2*Z3 xor rec[-1]"),
+        lestim.Flow("I -> Z0*Z1 xor rec[-2]"),
+        lestim.Flow("I -> Z2*Z3 xor rec[-1]"),
     ]
     assert circuit.has_all_flows(flows, unsigned=True)
     new_circuit, new_flows = circuit.time_reversed_for_flows(flows)
@@ -140,14 +140,14 @@ def test_measurement_ordering_2():
 
 
 def test_measurement_ordering_3():
-    circuit = stim.Circuit("""
+    circuit = lestim.Circuit("""
         MR 0 1
     """)
     flows = [
-        stim.Flow("Z0 -> rec[-2]"),
-        stim.Flow("Z1 -> rec[-1]"),
-        stim.Flow("I -> Z0"),
-        stim.Flow("I -> Z1"),
+        lestim.Flow("Z0 -> rec[-2]"),
+        lestim.Flow("Z1 -> rec[-1]"),
+        lestim.Flow("I -> Z0"),
+        lestim.Flow("I -> Z1"),
     ]
     assert circuit.has_all_flows(flows, unsigned=True)
     new_circuit, new_flows = circuit.time_reversed_for_flows(flows)
@@ -155,25 +155,25 @@ def test_measurement_ordering_3():
 
 
 def test_feedback():
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         R 1
         M 1
         CX rec[-1] 0
     """)
     with pytest.raises(ValueError):
-        c.time_reversed_for_flows([stim.Flow("Z0 -> Z0")])
+        c.time_reversed_for_flows([lestim.Flow("Z0 -> Z0")])
         # TODO: once feedback is supported verify the inv flow is correct
 
 
 def test_obs_include_paulis():
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         RX 0
         OBSERVABLE_INCLUDE[test1](2) X0
         OBSERVABLE_INCLUDE[test2](3) Y1
         MY 1
         OBSERVABLE_INCLUDE(3) rec[-1]
     """)
-    assert c.time_reversed_for_flows([]) == (stim.Circuit("""
+    assert c.time_reversed_for_flows([]) == (lestim.Circuit("""
         RY 1
         OBSERVABLE_INCLUDE[test2](3) Y1
         OBSERVABLE_INCLUDE[test1](2) X0
