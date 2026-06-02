@@ -57,21 +57,6 @@ jobs:
         uses: astral-sh/setup-uv@v7
       - name: Package synchronisation
         run: uv sync --python 3.13 --resolution highest --group test
-      - name: Set up Bazel
-        uses: bazel-contrib/setup-bazel@0.18.0
-        with:
-          # Avoid downloading Bazel every time.
-          bazelisk-cache: true
-          # Store build cache per workflow.
-          disk-cache: ${{ github.workflow }}
-          # Share repository cache between workflows.
-          repository-cache: true
-      - name: Clean Bazel build artifacts
-        run: bazel clean
-      - name: Build wheel
-        run: bazel build //:stim_dev_wheel
-      - name: Install wheel
-        run: uv pip install bazel-bin/stim-0.0.dev0-py3-none-any.whl
       - name: Test bindings
         run: uv run --python 3.13 --no-sync pytest
       # - name: Run failing binding tests

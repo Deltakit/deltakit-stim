@@ -20,11 +20,11 @@ This is the default format used by Stim, because it's the easiest to understand.
 *Example of producing 01 format data using stim's python API:*
 
     >>> import pathlib
-    >>> import stim
+    >>> import lestim
     >>> import tempfile
     >>> with tempfile.TemporaryDirectory() as d:
     ...     path = str(pathlib.Path(d) / "tmp.dat")
-    ...     stim.Circuit("""
+    ...     lestim.Circuit("""
     ...         X 1
     ...         M 0 0 0 0 1 1 1 1 0 0 1 1 0 1
     ...     """).compile_sampler().sample_write(shots=10, filepath=path, format="01")
@@ -88,11 +88,11 @@ This format requires the reader to know the number of bits in each shot.
 *Example of producing b8 format data using stim's python API:*
 
     >>> import pathlib
-    >>> import stim
+    >>> import lestim
     >>> import tempfile
     >>> with tempfile.TemporaryDirectory() as d:
     ...     path = str(pathlib.Path(d) / "tmp.dat")
-    ...     stim.Circuit("""
+    ...     lestim.Circuit("""
     ...         X 1
     ...         M 0 0 0 0 1 1 1 1 0 0 1 1 0 1
     ...     """).compile_sampler().sample_write(shots=10, filepath=path, format="b8")
@@ -157,11 +157,11 @@ where it is possible to parallelize across shots using SIMD instructions.
 *Example of producing ptb64 format data using stim's python API:*
 
     >>> import pathlib
-    >>> import stim
+    >>> import lestim
     >>> import tempfile
     >>> with tempfile.TemporaryDirectory() as d:
     ...     path = str(pathlib.Path(d) / "tmp.dat")
-    ...     stim.Circuit("""
+    ...     lestim.Circuit("""
     ...         X 1
     ...         M 0 1
     ...     """).compile_sampler().sample_write(shots=64, filepath=path, format="ptb64")
@@ -233,11 +233,11 @@ events.
 *Example of producing hits format data using stim's python API:*
 
     >>> import pathlib
-    >>> import stim
+    >>> import lestim
     >>> import tempfile
     >>> with tempfile.TemporaryDirectory() as d:
     ...     path = str(pathlib.Path(d) / "tmp.dat")
-    ...     stim.Circuit("""
+    ...     lestim.Circuit("""
     ...         X 1
     ...         M 0 0 0 0 1 1 1 1 0 0 1 1 0 1
     ...     """).compile_sampler().sample_write(shots=10, filepath=path, format="hits")
@@ -302,11 +302,11 @@ events.
 *Example of producing r8 format data using stim's python API:*
 
     >>> import pathlib
-    >>> import stim
+    >>> import lestim
     >>> import tempfile
     >>> with tempfile.TemporaryDirectory() as d:
     ...     path = str(pathlib.Path(d) / "tmp.dat")
-    ...     stim.Circuit("""
+    ...     lestim.Circuit("""
     ...         X 1
     ...         M 0 0 0 0 1 1 1 1 0 0 1 1 0 1
     ...     """).compile_sampler().sample_write(shots=10, filepath=path, format="r8")
@@ -316,7 +316,7 @@ events.
 
     >>> with tempfile.TemporaryDirectory() as d:
     ...     path = str(pathlib.Path(d) / "tmp.dat")
-    ...     stim.Circuit("""
+    ...     lestim.Circuit("""
     ...         X 1
     ...         M 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
     ...     """).compile_sampler().sample_write(shots=10, filepath=path, format="r8")
@@ -385,11 +385,11 @@ wants to produce vectors of bits instead of sets.
 *Example of producing dets format data using stim's python API:*
 
     >>> import pathlib
-    >>> import stim
+    >>> import lestim
     >>> import tempfile
     >>> with tempfile.TemporaryDirectory() as d:
     ...     path = str(pathlib.Path(d) / "tmp.dat")
-    ...     stim.Circuit("""
+    ...     lestim.Circuit("""
     ...         X 1
     ...         M 0 0 0 0 1 1 1 1 0 0 1 1 0 1 0 1
     ...     """).compile_sampler().sample_write(shots=3, filepath=path, format="dets")
@@ -401,7 +401,7 @@ wants to produce vectors of bits instead of sets.
 
     >>> with tempfile.TemporaryDirectory() as d:
     ...     path = str(pathlib.Path(d) / "tmp.dat")
-    ...     stim.Circuit("""
+    ...     lestim.Circuit("""
     ...         X_ERROR(1) 1
     ...         M 0 1 2
     ...         DETECTOR rec[-1]

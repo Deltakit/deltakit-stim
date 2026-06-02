@@ -12,33 +12,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import stim
+import lestim
 
 
 def test_init_vs_properties():
-    v = stim.DemRepeatBlock(5, stim.DetectorErrorModel('error(0.125) D1 L2'))
+    v = lestim.DemRepeatBlock(5, lestim.DetectorErrorModel('error(0.125) D1 L2'))
     assert v.repeat_count == 5
-    assert v.body_copy() == stim.DetectorErrorModel('error(0.125) D1 L2')
+    assert v.body_copy() == lestim.DetectorErrorModel('error(0.125) D1 L2')
     assert v.body_copy() is not v.body_copy()
 
 
 def test_equality():
-    m0 = stim.DetectorErrorModel()
-    m1 = stim.DetectorErrorModel('error(0.125) D1 L2')
-    assert stim.DemRepeatBlock(5, m0) == stim.DemRepeatBlock(5, m0)
-    assert not (stim.DemRepeatBlock(5, m0) != stim.DemRepeatBlock(5, m0))
-    assert stim.DemRepeatBlock(5, m0) != stim.DemRepeatBlock(5, m1)
-    assert not (stim.DemRepeatBlock(5, m0) == stim.DemRepeatBlock(5, m1))
-    assert stim.DemRepeatBlock(5, m0) != stim.DemRepeatBlock(6, m0)
+    m0 = lestim.DetectorErrorModel()
+    m1 = lestim.DetectorErrorModel('error(0.125) D1 L2')
+    assert lestim.DemRepeatBlock(5, m0) == lestim.DemRepeatBlock(5, m0)
+    assert not (lestim.DemRepeatBlock(5, m0) != lestim.DemRepeatBlock(5, m0))
+    assert lestim.DemRepeatBlock(5, m0) != lestim.DemRepeatBlock(5, m1)
+    assert not (lestim.DemRepeatBlock(5, m0) == lestim.DemRepeatBlock(5, m1))
+    assert lestim.DemRepeatBlock(5, m0) != lestim.DemRepeatBlock(6, m0)
 
 
 def test_repr():
-    v = stim.DemRepeatBlock(5, stim.DetectorErrorModel('error(0.125) D1 L2'))
-    assert eval(repr(v), {"stim": stim}) == v
+    v = lestim.DemRepeatBlock(5, lestim.DetectorErrorModel('error(0.125) D1 L2'))
+    assert eval(repr(v), {"stim": lestim}) == v
 
 
 def test_type():
-    assert [e.type for e in stim.DetectorErrorModel('''
+    assert [e.type for e in lestim.DetectorErrorModel('''
         detector D0
         REPEAT 5 {
             error(0.1) D0

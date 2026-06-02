@@ -16,13 +16,13 @@ import pathlib
 import tempfile
 from typing import cast
 
-import stim
+import lestim
 import pytest
 import numpy as np
 
 
 def test_circuit_init_num_measurements_num_qubits():
-    c = stim.Circuit()
+    c = lestim.Circuit()
     assert c.num_qubits == c.num_measurements == 0
     assert str(c).strip() == ""
 
@@ -43,7 +43,7 @@ M 0
 
 
 def test_circuit_append_operation():
-    c = stim.Circuit()
+    c = lestim.Circuit()
 
     with pytest.raises(IndexError, match="Gate not found"):
         c.append_operation("NOT_A_GATE", [0])
@@ -52,27 +52,27 @@ def test_circuit_append_operation():
     with pytest.raises(ValueError, match="takes 0"):
         c.append_operation("X", [0], 0.5)
     with pytest.raises(ValueError, match="invalid modifiers"):
-        c.append_operation("X", [stim.target_inv(0)])
+        c.append_operation("X", [lestim.target_inv(0)])
     with pytest.raises(ValueError, match="invalid modifiers"):
-        c.append_operation("X", [stim.target_x(0)])
+        c.append_operation("X", [lestim.target_x(0)])
     with pytest.raises(IndexError, match="lookback"):
-        stim.target_rec(0)
+        lestim.target_rec(0)
     with pytest.raises(IndexError, match="lookback"):
-        stim.target_rec(1)
+        lestim.target_rec(1)
     with pytest.raises(IndexError, match="lookback"):
-        stim.target_rec(-2**30)
-    assert stim.target_rec(-1) is not None
-    assert stim.target_rec(-15) is not None
+        lestim.target_rec(-2**30)
+    assert lestim.target_rec(-1) is not None
+    assert lestim.target_rec(-15) is not None
 
     c.append_operation("X", [0])
     c.append_operation("X", [1, 2])
     c.append_operation("X", [3])
     c.append_operation("CNOT", [0, 1])
-    c.append_operation("M", [0, stim.target_inv(1)])
+    c.append_operation("M", [0, lestim.target_inv(1)])
     c.append_operation("X_ERROR", [0], 0.25)
-    c.append_operation("CORRELATED_ERROR", [stim.target_x(0), stim.target_y(1)], 0.5)
-    c.append_operation("DETECTOR", [stim.target_rec(-1)])
-    c.append_operation("OBSERVABLE_INCLUDE", [stim.target_rec(-1), stim.target_rec(-2)], 5)
+    c.append_operation("CORRELATED_ERROR", [lestim.target_x(0), lestim.target_y(1)], 0.5)
+    c.append_operation("DETECTOR", [lestim.target_rec(-1)])
+    c.append_operation("OBSERVABLE_INCLUDE", [lestim.target_rec(-1), lestim.target_rec(-2)], 5)
     assert str(c).strip() == """
 X 0 1 2 3
 CX 0 1
@@ -85,10 +85,10 @@ OBSERVABLE_INCLUDE(5) rec[-1] rec[-2]
 
 
 def test_circuit_iadd():
-    c = stim.Circuit()
+    c = lestim.Circuit()
     alias = c
     c.append_operation("X", [1, 2])
-    c2 = stim.Circuit()
+    c2 = lestim.Circuit()
     c2.append_operation("Y", [3])
     c2.append_operation("M", [4])
     c += c2
@@ -112,9 +112,9 @@ M 4
 
 
 def test_circuit_add():
-    c = stim.Circuit()
+    c = lestim.Circuit()
     c.append_operation("X", [1, 2])
-    c2 = stim.Circuit()
+    c2 = lestim.Circuit()
     c2.append_operation("Y", [3])
     c2.append_operation("M", [4])
     assert str(c + c2).strip() == """
@@ -132,7 +132,7 @@ M 4
 
 
 def test_circuit_mul():
-    c = stim.Circuit()
+    c = lestim.Circuit()
     c.append_operation("Y", [3])
     c.append_operation("M", [4])
     assert str(c * 2) == str(2 * c) == """
@@ -167,7 +167,7 @@ REPEAT 3 {
 
 
 def test_circuit_repr():
-    v = stim.Circuit("""
+    v = lestim.Circuit("""
         X 0
         M 0
     """)
@@ -176,7 +176,7 @@ def test_circuit_repr():
     X 0
     M 0
 ''')"""
-    assert eval(r, {'stim': stim}) == v
+    assert eval(r, {'stim': lestim}) == v
 
 
 def test_circuit_eq():
@@ -188,33 +188,33 @@ def test_circuit_eq():
         Y 0
         M 0
     """
-    assert stim.Circuit() == stim.Circuit()
-    assert stim.Circuit() != stim.Circuit(a)
-    assert not (stim.Circuit() != stim.Circuit())
-    assert not (stim.Circuit() == stim.Circuit(a))
-    assert stim.Circuit(a) == stim.Circuit(a)
-    assert stim.Circuit(b) == stim.Circuit(b)
-    assert stim.Circuit(a) != stim.Circuit(b)
+    assert lestim.Circuit() == lestim.Circuit()
+    assert lestim.Circuit() != lestim.Circuit(a)
+    assert not (lestim.Circuit() != lestim.Circuit())
+    assert not (lestim.Circuit() == lestim.Circuit(a))
+    assert lestim.Circuit(a) == lestim.Circuit(a)
+    assert lestim.Circuit(b) == lestim.Circuit(b)
+    assert lestim.Circuit(a) != lestim.Circuit(b)
 
-    assert stim.Circuit() != None
-    assert stim.Circuit != object()
-    assert stim.Circuit != "another type"
-    assert not (stim.Circuit == None)
-    assert not (stim.Circuit == object())
-    assert not (stim.Circuit == "another type")
+    assert lestim.Circuit() != None
+    assert lestim.Circuit != object()
+    assert lestim.Circuit != "another type"
+    assert not (lestim.Circuit == None)
+    assert not (lestim.Circuit == object())
+    assert not (lestim.Circuit == "another type")
 
 
 def test_circuit_clear():
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         X 0
         M 0
     """)
     c.clear()
-    assert c == stim.Circuit()
+    assert c == lestim.Circuit()
 
 
 def test_circuit_compile_sampler():
-    c = stim.Circuit()
+    c = lestim.Circuit()
     s = c.compile_sampler()
     c.append_operation("M", [0])
     assert repr(s) == "stim.CompiledMeasurementSampler(stim.Circuit())"
@@ -235,18 +235,18 @@ stim.CompiledMeasurementSampler(stim.Circuit('''
     H 0 1 2 3 4
     M 0 1 2 3 4
 '''))
-    """.strip() == str(stim.CompiledMeasurementSampler(c))
+    """.strip() == str(lestim.CompiledMeasurementSampler(c))
 
     # Check that expression can be evaluated.
-    _ = eval(r, {"stim": stim})
+    _ = eval(r, {"stim": lestim})
 
 
 def test_circuit_compile_detector_sampler():
-    c = stim.Circuit()
+    c = lestim.Circuit()
     s = c.compile_detector_sampler()
     c.append_operation("M", [0])
     assert repr(s) == "stim.CompiledDetectorSampler(stim.Circuit())"
-    c.append_operation("DETECTOR", [stim.target_rec(-1)])
+    c.append_operation("DETECTOR", [lestim.target_rec(-1)])
     s = c.compile_detector_sampler()
     r = repr(s)
     assert r == """
@@ -257,11 +257,11 @@ stim.CompiledDetectorSampler(stim.Circuit('''
     """.strip()
 
     # Check that expression can be evaluated.
-    _ = eval(r, {"stim": stim})
+    _ = eval(r, {"stim": lestim})
 
 
 def test_circuit_flattened_operations():
-    assert stim.Circuit('''
+    assert lestim.Circuit('''
         H 0
         REPEAT 3 {
             X_ERROR(0.125) 1
@@ -281,21 +281,21 @@ def test_circuit_flattened_operations():
 
 
 def test_copy():
-    c = stim.Circuit("H 0")
+    c = lestim.Circuit("H 0")
     c2 = c.copy()
     assert c == c2
     assert c is not c2
 
 
 def test_hash():
-    # stim.Circuit is mutable. It must not also be value-hashable.
+    # lestim.Circuit is mutable. It must not also be value-hashable.
     # Defining __hash__ requires defining a FrozenCircuit variant instead.
     with pytest.raises(TypeError, match="unhashable"):
-        _ = hash(stim.Circuit())
+        _ = hash(lestim.Circuit())
 
 
 def test_circuit_generation():
-    surface_code_circuit = stim.Circuit.generated(
+    surface_code_circuit = lestim.Circuit.generated(
             "surface_code:rotated_memory_z",
             distance=5,
             rounds=10)
@@ -306,41 +306,41 @@ def test_circuit_generation():
 
 def test_circuit_generation_errors():
     with pytest.raises(ValueError, match="Known repetition_code tasks"):
-        stim.Circuit.generated(
+        lestim.Circuit.generated(
             "repetition_code:UNKNOWN",
             distance=3,
             rounds=1000)
     with pytest.raises(ValueError, match="Expected type to start with."):
-        stim.Circuit.generated(
+        lestim.Circuit.generated(
             "UNKNOWN:memory",
             distance=0,
             rounds=1000)
     with pytest.raises(ValueError, match="distance >= 2"):
-        stim.Circuit.generated(
+        lestim.Circuit.generated(
             "repetition_code:memory",
             distance=1,
             rounds=1000)
 
     with pytest.raises(ValueError, match="0 <= after_clifford_depolarization <= 1"):
-        stim.Circuit.generated(
+        lestim.Circuit.generated(
             "repetition_code:memory",
             distance=3,
             rounds=1000,
             after_clifford_depolarization=-1)
     with pytest.raises(ValueError, match="0 <= before_round_data_depolarization <= 1"):
-        stim.Circuit.generated(
+        lestim.Circuit.generated(
             "repetition_code:memory",
             distance=3,
             rounds=1000,
             before_round_data_depolarization=-1)
     with pytest.raises(ValueError, match="0 <= after_reset_flip_probability <= 1"):
-        stim.Circuit.generated(
+        lestim.Circuit.generated(
             "repetition_code:memory",
             distance=3,
             rounds=1000,
             after_reset_flip_probability=-1)
     with pytest.raises(ValueError, match="0 <= before_measure_flip_probability <= 1"):
-        stim.Circuit.generated(
+        lestim.Circuit.generated(
             "repetition_code:memory",
             distance=3,
             rounds=1000,
@@ -348,14 +348,14 @@ def test_circuit_generation_errors():
 
 
 def test_num_detectors():
-    assert stim.Circuit().num_detectors == 0
-    assert stim.Circuit("DETECTOR").num_detectors == 1
-    assert stim.Circuit("""
+    assert lestim.Circuit().num_detectors == 0
+    assert lestim.Circuit("DETECTOR").num_detectors == 1
+    assert lestim.Circuit("""
         REPEAT 1000 {
             DETECTOR
         }
     """).num_detectors == 1000
-    assert stim.Circuit("""
+    assert lestim.Circuit("""
         DETECTOR
         REPEAT 1000000 {
             REPEAT 1000000 {
@@ -367,10 +367,10 @@ def test_num_detectors():
 
 
 def test_num_observables():
-    assert stim.Circuit().num_observables == 0
-    assert stim.Circuit("OBSERVABLE_INCLUDE(0)").num_observables == 1
-    assert stim.Circuit("OBSERVABLE_INCLUDE(1)").num_observables == 2
-    assert stim.Circuit("""
+    assert lestim.Circuit().num_observables == 0
+    assert lestim.Circuit("OBSERVABLE_INCLUDE(0)").num_observables == 1
+    assert lestim.Circuit("OBSERVABLE_INCLUDE(1)").num_observables == 2
+    assert lestim.Circuit("""
         M 0
         OBSERVABLE_INCLUDE(2)
         REPEAT 1000000 {
@@ -384,7 +384,7 @@ def test_num_observables():
 
 
 def test_indexing_operations():
-    c = stim.Circuit()
+    c = lestim.Circuit()
     assert len(c) == 0
     assert list(c) == []
     with pytest.raises(IndexError):
@@ -392,16 +392,16 @@ def test_indexing_operations():
     with pytest.raises(IndexError):
         _ = c[-1]
 
-    c = stim.Circuit('X 0')
+    c = lestim.Circuit('X 0')
     assert len(c) == 1
-    assert list(c) == [stim.CircuitInstruction('X', [stim.GateTarget(0)])]
-    assert c[0] == c[-1] == stim.CircuitInstruction('X', [stim.GateTarget(0)])
+    assert list(c) == [lestim.CircuitInstruction('X', [lestim.GateTarget(0)])]
+    assert c[0] == c[-1] == lestim.CircuitInstruction('X', [lestim.GateTarget(0)])
     with pytest.raises(IndexError):
         _ = c[1]
     with pytest.raises(IndexError):
         _ = c[-2]
 
-    c = stim.Circuit('''
+    c = lestim.Circuit('''
         X 5 6
         REPEAT 1000 {
             H 5
@@ -414,14 +414,14 @@ def test_indexing_operations():
     with pytest.raises(IndexError):
         _ = c[-4]
     assert list(c) == [
-        stim.CircuitInstruction('X', [stim.GateTarget(5), stim.GateTarget(6)]),
-        stim.CircuitRepeatBlock(1000, stim.Circuit('H 5')),
-        stim.CircuitInstruction('M', [stim.GateTarget(stim.target_inv(0))]),
+        lestim.CircuitInstruction('X', [lestim.GateTarget(5), lestim.GateTarget(6)]),
+        lestim.CircuitRepeatBlock(1000, lestim.Circuit('H 5')),
+        lestim.CircuitInstruction('M', [lestim.GateTarget(lestim.target_inv(0))]),
     ]
 
 
 def test_slicing():
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         H 0
         REPEAT 5 {
             X 1
@@ -431,17 +431,17 @@ def test_slicing():
     """)
     assert c[:] is not c
     assert c[:] == c
-    assert c[1:-1] == stim.Circuit("""
+    assert c[1:-1] == lestim.Circuit("""
         REPEAT 5 {
             X 1
         }
         Y 2
     """)
-    assert c[::2] == stim.Circuit("""
+    assert c[::2] == lestim.Circuit("""
         H 0
         Y 2
     """)
-    assert c[1::2] == stim.Circuit("""
+    assert c[1::2] == lestim.Circuit("""
         REPEAT 5 {
             X 1
         }
@@ -450,37 +450,37 @@ def test_slicing():
 
 
 def test_reappend_gate_targets():
-    expected = stim.Circuit("""
+    expected = lestim.Circuit("""
         MPP !X0 * X1
         CX rec[-1] 5
     """)
-    c = stim.Circuit()
-    c.append_operation("MPP", cast(stim.CircuitInstruction, expected[0]).targets_copy())
-    c.append_operation("CX", cast(stim.CircuitInstruction, expected[1]).targets_copy())
+    c = lestim.Circuit()
+    c.append_operation("MPP", cast(lestim.CircuitInstruction, expected[0]).targets_copy())
+    c.append_operation("CX", cast(lestim.CircuitInstruction, expected[1]).targets_copy())
     assert c == expected
 
 
 def test_append_instructions_and_blocks():
-    c = stim.Circuit()
+    c = lestim.Circuit()
 
     c.append_operation("TICK")
-    assert c == stim.Circuit("TICK")
+    assert c == lestim.Circuit("TICK")
 
     with pytest.raises(ValueError, match="no targets"):
         c.append_operation("TICK", [1, 2, 3])
 
-    c.append_operation(stim.Circuit("H 1")[0])
-    assert c == stim.Circuit("TICK\nH 1")
+    c.append_operation(lestim.Circuit("H 1")[0])
+    assert c == lestim.Circuit("TICK\nH 1")
 
-    c.append_operation(stim.Circuit("CX 1 2 3 4")[0])
-    assert c == stim.Circuit("""
+    c.append_operation(lestim.Circuit("CX 1 2 3 4")[0])
+    assert c == lestim.Circuit("""
         TICK
         H 1
         CX 1 2 3 4
     """)
 
-    c.append_operation((stim.Circuit("X 5") * 100)[0])
-    assert c == stim.Circuit("""
+    c.append_operation((lestim.Circuit("X 5") * 100)[0])
+    assert c == lestim.Circuit("""
         TICK
         H 1
         CX 1 2 3 4
@@ -489,8 +489,8 @@ def test_append_instructions_and_blocks():
         }
     """)
 
-    c.append_operation(stim.Circuit("PAULI_CHANNEL_1(0.125, 0.25, 0.325) 4 5 6")[0])
-    assert c == stim.Circuit("""
+    c.append_operation(lestim.Circuit("PAULI_CHANNEL_1(0.125, 0.25, 0.325) 4 5 6")[0])
+    assert c == lestim.Circuit("""
         TICK
         H 1
         CX 1 2 3 4
@@ -504,23 +504,23 @@ def test_append_instructions_and_blocks():
         c.append_operation(object())
 
     with pytest.raises(ValueError, match="targets"):
-        c.append_operation(stim.Circuit("H 1")[0], [2])
+        c.append_operation(lestim.Circuit("H 1")[0], [2])
 
     with pytest.raises(ValueError, match="arg"):
-        c.append_operation(stim.Circuit("H 1")[0], [], 0.1)
+        c.append_operation(lestim.Circuit("H 1")[0], [], 0.1)
 
     with pytest.raises(ValueError, match="targets"):
-        c.append_operation((stim.Circuit("H 1") * 5)[0], [2])
+        c.append_operation((lestim.Circuit("H 1") * 5)[0], [2])
 
     with pytest.raises(ValueError, match="arg"):
-        c.append_operation((stim.Circuit("H 1") * 5)[0], [], 0.1)
+        c.append_operation((lestim.Circuit("H 1") * 5)[0], [], 0.1)
 
     with pytest.raises(ValueError, match="repeat 0"):
-        c.append_operation(stim.CircuitRepeatBlock(0, stim.Circuit("H 1")))
+        c.append_operation(lestim.CircuitRepeatBlock(0, lestim.Circuit("H 1")))
 
 
 def test_circuit_measurement_sampling_seeded():
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         H 0
         M 0
     """)
@@ -545,7 +545,7 @@ def test_circuit_measurement_sampling_seeded():
 
 
 def test_circuit_detector_sampling_seeded():
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         X_ERROR(0.5) 0
         M 0
         DETECTOR rec[-1]
@@ -571,24 +571,24 @@ def test_circuit_detector_sampling_seeded():
 
 
 def test_approx_equals():
-    base = stim.Circuit("X_ERROR(0.099) 0")
-    assert not base.approx_equals(stim.Circuit("X_ERROR(0.101) 0"), atol=0)
-    assert not base.approx_equals(stim.Circuit("X_ERROR(0.101) 0"), atol=0.00001)
-    assert base.approx_equals(stim.Circuit("X_ERROR(0.101) 0"), atol=0.01)
-    assert base.approx_equals(stim.Circuit("X_ERROR(0.101) 0"), atol=999)
-    assert not base.approx_equals(stim.Circuit("DEPOLARIZE1(0.101) 0"), atol=999)
+    base = lestim.Circuit("X_ERROR(0.099) 0")
+    assert not base.approx_equals(lestim.Circuit("X_ERROR(0.101) 0"), atol=0)
+    assert not base.approx_equals(lestim.Circuit("X_ERROR(0.101) 0"), atol=0.00001)
+    assert base.approx_equals(lestim.Circuit("X_ERROR(0.101) 0"), atol=0.01)
+    assert base.approx_equals(lestim.Circuit("X_ERROR(0.101) 0"), atol=999)
+    assert not base.approx_equals(lestim.Circuit("DEPOLARIZE1(0.101) 0"), atol=999)
 
     assert not base.approx_equals(object(), atol=999)
-    assert not base.approx_equals(stim.PauliString("XYZ"), atol=999)
+    assert not base.approx_equals(lestim.PauliString("XYZ"), atol=999)
 
 
 def test_append_extended_cases():
-    c = stim.Circuit()
+    c = lestim.Circuit()
     c.append("H", 5)
     c.append("CNOT", [0, 1])
     c.append("H", c[0].targets_copy()[0])
     c.append("X", (e + 1 for e in range(5)))
-    assert c == stim.Circuit("""
+    assert c == lestim.Circuit("""
         H 5
         CNOT 0 1
         H 5
@@ -599,7 +599,7 @@ def test_append_extended_cases():
 def test_pickle():
     import pickle
 
-    t = stim.Circuit("""
+    t = lestim.Circuit("""
         H 0
         REPEAT 100 {
             M 0
@@ -611,28 +611,28 @@ def test_pickle():
 
 
 def test_backwards_compatibility_vs_safety_append_vs_append_operation():
-    c = stim.Circuit()
+    c = lestim.Circuit()
     with pytest.raises(ValueError, match="takes 1 parens argument"):
         c.append("X_ERROR", [5])
     with pytest.raises(ValueError, match="takes 1 parens argument"):
         c.append("OBSERVABLE_INCLUDE", [])
-    assert c == stim.Circuit()
+    assert c == lestim.Circuit()
     c.append_operation("X_ERROR", [5])
-    assert c == stim.Circuit("X_ERROR(0) 5")
+    assert c == lestim.Circuit("X_ERROR(0) 5")
     c.append_operation("Z_ERROR", [5], 0.25)
-    assert c == stim.Circuit("X_ERROR(0) 5\nZ_ERROR(0.25) 5")
+    assert c == lestim.Circuit("X_ERROR(0) 5\nZ_ERROR(0.25) 5")
 
 
 def test_anti_commuting_mpp_error_message():
     with pytest.raises(ValueError, match="while analyzing a Pauli product measurement"):
-        stim.Circuit("""
+        lestim.Circuit("""
             MPP X0 Z0
             DETECTOR rec[-1]
         """).detector_error_model()
 
 
 def test_blocked_remnant_edge_error():
-    circuit = stim.Circuit("""
+    circuit = lestim.Circuit("""
         X_ERROR(0.125) 0
         CORRELATED_ERROR(0.25) X0 X1
         M 0 1
@@ -642,7 +642,7 @@ def test_blocked_remnant_edge_error():
         DETECTOR rec[-2]
     """)
 
-    assert circuit.detector_error_model(decompose_errors=True) == stim.DetectorErrorModel("""
+    assert circuit.detector_error_model(decompose_errors=True) == lestim.DetectorErrorModel("""
         error(0.125) D2 D3
         error(0.25) D2 D3 ^ D0 D1
     """)
@@ -655,14 +655,14 @@ def test_blocked_remnant_edge_error():
     assert circuit.detector_error_model(
         decompose_errors=True,
         block_decomposition_from_introducing_remnant_edges=True,
-        ignore_decomposition_failures=True) == stim.DetectorErrorModel("""
+        ignore_decomposition_failures=True) == lestim.DetectorErrorModel("""
             error(0.25) D0 D1 D2 D3
             error(0.125) D2 D3
         """)
 
 
 def test_shortest_graphlike_error():
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         TICK
         X_ERROR(0.125) 0
         Y_ERROR(0.125) 0
@@ -672,7 +672,7 @@ def test_shortest_graphlike_error():
 
     actual = c.shortest_graphlike_error()
     assert len(actual) == 1
-    assert isinstance(actual[0], stim.ExplainedError)
+    assert isinstance(actual[0], lestim.ExplainedError)
     assert str(actual[0]) == """ExplainedError {
     dem_error_terms: L0
     CircuitErrorLocation {
@@ -695,7 +695,7 @@ def test_shortest_graphlike_error():
 
     actual = c.shortest_graphlike_error(canonicalize_circuit_errors=True)
     assert len(actual) == 1
-    assert isinstance(actual[0], stim.ExplainedError)
+    assert isinstance(actual[0], lestim.ExplainedError)
     assert str(actual[0]) == """ExplainedError {
     dem_error_terms: L0
     CircuitErrorLocation {
@@ -711,7 +711,7 @@ def test_shortest_graphlike_error():
 
 def test_shortest_graphlike_error_empty():
     with pytest.raises(ValueError, match="Failed to find"):
-        stim.Circuit().shortest_graphlike_error()
+        lestim.Circuit().shortest_graphlike_error()
 
 
 def test_shortest_graphlike_error_msgs():
@@ -719,16 +719,16 @@ def test_shortest_graphlike_error_msgs():
             ValueError,
             match="NO OBSERVABLES"
     ):
-        stim.Circuit().shortest_graphlike_error()
+        lestim.Circuit().shortest_graphlike_error()
 
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         M 0
         OBSERVABLE_INCLUDE(0) rec[-1]
     """)
     with pytest.raises(ValueError, match="NO DETECTORS"):
         c.shortest_graphlike_error()
 
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         X_ERROR(0.1) 0
         M 0
     """)
@@ -737,7 +737,7 @@ def test_shortest_graphlike_error_msgs():
     with pytest.raises(ValueError, match=""):
         c.shortest_graphlike_error()
 
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         M 0
         DETECTOR rec[-1]
         OBSERVABLE_INCLUDE(0) rec[-1]
@@ -745,7 +745,7 @@ def test_shortest_graphlike_error_msgs():
     with pytest.raises(ValueError, match="NO ERRORS"):
         c.shortest_graphlike_error()
 
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         M(0.1) 0
         DETECTOR rec[-1]
         DETECTOR rec[-1]
@@ -755,7 +755,7 @@ def test_shortest_graphlike_error_msgs():
     with pytest.raises(ValueError, match="NO GRAPHLIKE ERRORS"):
         c.shortest_graphlike_error()
 
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         X_ERROR(0.1) 0
         M 0
         DETECTOR rec[-1]
@@ -766,7 +766,7 @@ def test_shortest_graphlike_error_msgs():
 
 def test_search_for_undetectable_logical_errors_empty():
     with pytest.raises(ValueError, match="Failed to find"):
-        stim.Circuit().search_for_undetectable_logical_errors(
+        lestim.Circuit().search_for_undetectable_logical_errors(
             dont_explore_edges_increasing_symptom_degree=True,
             dont_explore_edges_with_degree_above=4,
             dont_explore_detection_event_sets_with_size_above=4,
@@ -775,13 +775,13 @@ def test_search_for_undetectable_logical_errors_empty():
 
 def test_search_for_undetectable_logical_errors_msgs():
     with pytest.raises(ValueError, match=r"NO OBSERVABLES(.|\n)*NO DETECTORS"):
-        stim.Circuit().search_for_undetectable_logical_errors(
+        lestim.Circuit().search_for_undetectable_logical_errors(
             dont_explore_edges_increasing_symptom_degree=True,
             dont_explore_edges_with_degree_above=4,
             dont_explore_detection_event_sets_with_size_above=4,
         )
 
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         M 0
         OBSERVABLE_INCLUDE(0) rec[-1]
     """)
@@ -792,7 +792,7 @@ def test_search_for_undetectable_logical_errors_msgs():
             dont_explore_detection_event_sets_with_size_above=4,
         )
 
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         X_ERROR(0.1) 0
         M 0
     """)
@@ -803,7 +803,7 @@ def test_search_for_undetectable_logical_errors_msgs():
             dont_explore_detection_event_sets_with_size_above=4,
         )
 
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         M 0
         DETECTOR rec[-1]
         OBSERVABLE_INCLUDE(0) rec[-1]
@@ -815,7 +815,7 @@ def test_search_for_undetectable_logical_errors_msgs():
             dont_explore_detection_event_sets_with_size_above=4,
         )
 
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         X_ERROR(0.1) 0
         M 0
         DETECTOR rec[-1]
@@ -829,7 +829,7 @@ def test_search_for_undetectable_logical_errors_msgs():
 
 
 def test_shortest_error_sat_problem_unrecognized_format():
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         X_ERROR(0.1) 0
         M 0
         OBSERVABLE_INCLUDE(0) rec[-1]
@@ -842,7 +842,7 @@ def test_shortest_error_sat_problem_unrecognized_format():
 
 
 def test_shortest_error_sat_problem():
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         X_ERROR(0.1) 0
         M 0
         OBSERVABLE_INCLUDE(0) rec[-1]
@@ -855,7 +855,7 @@ def test_shortest_error_sat_problem():
 
 
 def test_likeliest_error_sat_problem():
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         X_ERROR(0.1) 0
         M 0
         OBSERVABLE_INCLUDE(0) rec[-1]
@@ -868,7 +868,7 @@ def test_likeliest_error_sat_problem():
 
 
 def test_shortest_graphlike_error_ignore():
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         TICK
         X_ERROR(0.125) 0
         M 0
@@ -883,7 +883,7 @@ def test_shortest_graphlike_error_ignore():
 
 
 def test_coords():
-    circuit = stim.Circuit("""
+    circuit = lestim.Circuit("""
         QUBIT_COORDS(1, 2, 3) 0
         QUBIT_COORDS(2) 1
         SHIFT_COORDS(5)
@@ -897,7 +897,7 @@ def test_coords():
 
 
 def test_explain_errors():
-    circuit = stim.Circuit("""
+    circuit = lestim.Circuit("""
         H 0
         CNOT 0 1
         DEPOLARIZE1(0.01) 0
@@ -944,7 +944,7 @@ def test_explain_errors():
 }"""
 
     r = circuit.explain_detector_error_model_errors(
-        dem_filter=stim.DetectorErrorModel('error(1) D0 D1'),
+        dem_filter=lestim.DetectorErrorModel('error(1) D0 D1'),
         reduce_to_one_representative_error=True,
     )
     assert len(r) == 1
@@ -962,7 +962,7 @@ def test_explain_errors():
 
 
 def test_without_noise():
-    assert stim.Circuit("""
+    assert lestim.Circuit("""
         X_ERROR(0.25) 0
         CNOT 0 1
         M(0.125) 0
@@ -970,7 +970,7 @@ def test_without_noise():
             DEPOLARIZE1(0.25) 0 1 2
             X 0 1 2
         }
-    """).without_noise() == stim.Circuit("""
+    """).without_noise() == lestim.Circuit("""
         CNOT 0 1
         M 0
         REPEAT 50 {
@@ -980,7 +980,7 @@ def test_without_noise():
 
 
 def test_flattened():
-    assert stim.Circuit("""
+    assert lestim.Circuit("""
         SHIFT_COORDS(5, 0)
         QUBIT_COORDS(1, 2, 3) 0
         REPEAT 5 {
@@ -989,7 +989,7 @@ def test_flattened():
             DETECTOR(1, 0) rec[-1]
             SHIFT_COORDS(0, 1)
         }
-    """).flattened() == stim.Circuit("""
+    """).flattened() == lestim.Circuit("""
         QUBIT_COORDS(6, 2, 3) 0
         MR 0 1
         DETECTOR(5, 0) rec[-2]
@@ -1011,51 +1011,51 @@ def test_flattened():
 
 def test_complex_slice_does_not_seg_fault():
     with pytest.raises(TypeError):
-        _ = stim.Circuit()[1j]
+        _ = lestim.Circuit()[1j]
 
 
 def test_circuit_from_file():
     with tempfile.TemporaryDirectory() as tmpdir:
-        path = tmpdir + '/tmp.stim'
+        path = tmpdir + '/tmp.lestim'
         with open(path, 'w') as f:
             print('H 5', file=f)
-        assert stim.Circuit.from_file(path) == stim.Circuit('H 5')
+        assert lestim.Circuit.from_file(path) == lestim.Circuit('H 5')
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        path = pathlib.Path(tmpdir) / 'tmp.stim'
+        path = pathlib.Path(tmpdir) / 'tmp.lestim'
         with open(path, 'w') as f:
             print('H 5', file=f)
-        assert stim.Circuit.from_file(path) == stim.Circuit('H 5')
+        assert lestim.Circuit.from_file(path) == lestim.Circuit('H 5')
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        path = tmpdir + '/tmp.stim'
+        path = tmpdir + '/tmp.lestim'
         with open(path, 'w') as f:
             print('CNOT 4 5', file=f)
         with open(path) as f:
-            assert stim.Circuit.from_file(f) == stim.Circuit('CX 4 5')
+            assert lestim.Circuit.from_file(f) == lestim.Circuit('CX 4 5')
 
     with pytest.raises(ValueError, match="how to read"):
-        stim.Circuit.from_file(object())
+        lestim.Circuit.from_file(object())
     with pytest.raises(ValueError, match="how to read"):
-        stim.Circuit.from_file(123)
+        lestim.Circuit.from_file(123)
 
 
 def test_circuit_to_file():
-    c = stim.Circuit('H 5\ncnot 0 1')
+    c = lestim.Circuit('H 5\ncnot 0 1')
     with tempfile.TemporaryDirectory() as tmpdir:
-        path = tmpdir + '/tmp.stim'
+        path = tmpdir + '/tmp.lestim'
         c.to_file(path)
         with open(path) as f:
             assert f.read() == 'H 5\nCX 0 1\n'
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        path = pathlib.Path(tmpdir) / 'tmp.stim'
+        path = pathlib.Path(tmpdir) / 'tmp.lestim'
         c.to_file(path)
         with open(path) as f:
             assert f.read() == 'H 5\nCX 0 1\n'
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        path = tmpdir + '/tmp.stim'
+        path = tmpdir + '/tmp.lestim'
         with open(path, 'w') as f:
             c.to_file(f)
         with open(path) as f:
@@ -1068,7 +1068,7 @@ def test_circuit_to_file():
 
 
 def test_diagram():
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         H 0
         CX 0 1
     """)
@@ -1079,7 +1079,7 @@ q1: ---X-
     """.strip()
     assert str(c.diagram(type='timeline-text')) == str(c.diagram())
 
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         H 0
         CNOT 0 1
         TICK
@@ -1092,7 +1092,7 @@ q0: -Z:D0-
 q1: -Z:D0-
     """.strip()
 
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         H 0
         CNOT 0 1 0 2
         TICK
@@ -1143,24 +1143,24 @@ q2: ------
 
 
 def test_circuit_inverse():
-    assert stim.Circuit("""
+    assert lestim.Circuit("""
         S 0 1
         CX 0 1 0 2
-    """).inverse() == stim.Circuit("""
+    """).inverse() == lestim.Circuit("""
         CX 0 2 0 1
         S_DAG 1 0
     """)
 
 
 def test_circuit_slice_reverse():
-    c = stim.Circuit()
-    assert c[::-1] == stim.Circuit()
-    c = stim.Circuit("X 1\nY 2\nZ 3")
-    assert c[::-1] == stim.Circuit("Z 3\nY 2\nX 1")
+    c = lestim.Circuit()
+    assert c[::-1] == lestim.Circuit()
+    c = lestim.Circuit("X 1\nY 2\nZ 3")
+    assert c[::-1] == lestim.Circuit("Z 3\nY 2\nX 1")
 
 
 def test_with_inlined_feedback_bad_end_eats_into_loop():
-    assert stim.Circuit("""
+    assert lestim.Circuit("""
         CX 0 1
         M 1
         CX rec[-1] 1
@@ -1168,7 +1168,7 @@ def test_with_inlined_feedback_bad_end_eats_into_loop():
         M 1
         DETECTOR rec[-1] rec[-2]
         OBSERVABLE_INCLUDE(0) rec[-1]
-    """).with_inlined_feedback() == stim.Circuit("""
+    """).with_inlined_feedback() == lestim.Circuit("""
         CX 0 1
         M 1
         OBSERVABLE_INCLUDE(0) rec[-1]
@@ -1178,7 +1178,7 @@ def test_with_inlined_feedback_bad_end_eats_into_loop():
         OBSERVABLE_INCLUDE(0) rec[-1]
     """)
 
-    before = stim.Circuit("""
+    before = lestim.Circuit("""
         R 0 1 2 3 4 5 6
 
         X_ERROR(0.125) 0 1 2 3 4 5 6
@@ -1234,7 +1234,7 @@ def test_with_inlined_feedback_bad_end_eats_into_loop():
         OBSERVABLE_INCLUDE(0) rec[-1]
     """)
     after = before.with_inlined_feedback()
-    assert after == stim.Circuit("""
+    assert after == lestim.Circuit("""
         R 0 1 2 3 4 5 6
 
         X_ERROR(0.125) 0 1 2 3 4 5 6
@@ -1324,7 +1324,7 @@ def test_with_inlined_feedback_bad_end_eats_into_loop():
 
 
 def test_with_inlined_feedback():
-    assert stim.Circuit("""
+    assert lestim.Circuit("""
         CX 0 1
         M 1
         CX rec[-1] 1
@@ -1332,7 +1332,7 @@ def test_with_inlined_feedback():
         M 1
         DETECTOR rec[-1] rec[-2]
         OBSERVABLE_INCLUDE(0) rec[-1]
-    """).with_inlined_feedback() == stim.Circuit("""
+    """).with_inlined_feedback() == lestim.Circuit("""
         CX 0 1
         M 1
         OBSERVABLE_INCLUDE(0) rec[-1]
@@ -1342,7 +1342,7 @@ def test_with_inlined_feedback():
         OBSERVABLE_INCLUDE(0) rec[-1]
     """)
 
-    before = stim.Circuit("""
+    before = lestim.Circuit("""
         R 0 1 2 3 4 5 6
 
         X_ERROR(0.125) 0 1 2 3 4 5 6
@@ -1398,7 +1398,7 @@ def test_with_inlined_feedback():
         OBSERVABLE_INCLUDE(0) rec[-1]
     """)
     after = before.with_inlined_feedback()
-    assert str(after) == str(stim.Circuit("""
+    assert str(after) == str(lestim.Circuit("""
         R 0 1 2 3 4 5 6
 
         X_ERROR(0.125) 0 1 2 3 4 5 6
@@ -1472,13 +1472,13 @@ def test_with_inlined_feedback():
 
 
 def test_detslice_ops_diagram_no_ticks_does_not_hang():
-    assert stim.Circuit.generated("surface_code:rotated_memory_x", rounds=5, distance=5).diagram("detslice-svg") is not None
+    assert lestim.Circuit.generated("surface_code:rotated_memory_x", rounds=5, distance=5).diagram("detslice-svg") is not None
 
 
 def test_num_ticks():
-    assert stim.Circuit().num_ticks == 0
-    assert stim.Circuit("TICK").num_ticks == 1
-    assert stim.Circuit("""
+    assert lestim.Circuit().num_ticks == 0
+    assert lestim.Circuit("TICK").num_ticks == 1
+    assert lestim.Circuit("""
         TICK
         REPEAT 100 {
             TICK
@@ -1488,7 +1488,7 @@ def test_num_ticks():
             }
         }
     """).num_ticks == 1201
-    assert stim.Circuit("""
+    assert lestim.Circuit("""
         H 0
         TICK
         CX 0 1
@@ -1497,7 +1497,7 @@ def test_num_ticks():
 
 
 def test_reference_sample():
-    circuit = stim.Circuit(
+    circuit = lestim.Circuit(
         """
         H 0
         CNOT 0 1
@@ -1505,7 +1505,7 @@ def test_reference_sample():
     )
     ref = circuit.reference_sample()
     assert len(ref) == 0
-    circuit = stim.Circuit(
+    circuit = lestim.Circuit(
         """
         H 0 1
         CX 0 2 1 3
@@ -1525,7 +1525,7 @@ def test_reference_sample():
 
 
 def test_max_mix_depolarization_is_allowed_in_dem_conversion_without_args():
-    assert stim.Circuit("""
+    assert lestim.Circuit("""
         H 0
         CX 0 1
         DEPOLARIZE1(0.75) 0
@@ -1534,13 +1534,13 @@ def test_max_mix_depolarization_is_allowed_in_dem_conversion_without_args():
         M 0 1
         DETECTOR rec[-1]
         DETECTOR rec[-2]
-    """).detector_error_model(approximate_disjoint_errors=True) == stim.DetectorErrorModel("""
+    """).detector_error_model(approximate_disjoint_errors=True) == lestim.DetectorErrorModel("""
         error(0.5) D0
         error(0.5) D0 D1
         error(0.5) D1
     """)
 
-    assert stim.Circuit("""
+    assert lestim.Circuit("""
         H 0 1
         CX 0 2 1 3
         DEPOLARIZE2(0.9375) 0 1
@@ -1551,7 +1551,7 @@ def test_max_mix_depolarization_is_allowed_in_dem_conversion_without_args():
         DETECTOR rec[-2]
         DETECTOR rec[-3]
         DETECTOR rec[-4]
-    """).detector_error_model() == stim.DetectorErrorModel("""
+    """).detector_error_model() == lestim.DetectorErrorModel("""
         error(0.5) D0
         error(0.5) D0 D1
         error(0.5) D0 D1 D2
@@ -1571,7 +1571,7 @@ def test_max_mix_depolarization_is_allowed_in_dem_conversion_without_args():
 
 
 def test_shortest_graphlike_error_many_obs():
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         MPP Z0*Z1 Z1*Z2 Z2*Z3 Z3*Z4
         X_ERROR(0.1) 0 1 2 3 4
         MPP Z0*Z1 Z1*Z2 Z2*Z3 Z3*Z4
@@ -1586,9 +1586,9 @@ def test_shortest_graphlike_error_many_obs():
 
 
 def test_detslice_filter_coords_flexibility():
-    c = stim.Circuit.generated("repetition_code:memory", distance=3, rounds=3)
-    d1 = c.diagram("detslice", filter_coords=[stim.DemTarget.relative_detector_id(1)])
-    d2 = c.diagram("detslice-svg", filter_coords=stim.DemTarget.relative_detector_id(1))
+    c = lestim.Circuit.generated("repetition_code:memory", distance=3, rounds=3)
+    d1 = c.diagram("detslice", filter_coords=[lestim.DemTarget.relative_detector_id(1)])
+    d2 = c.diagram("detslice-svg", filter_coords=lestim.DemTarget.relative_detector_id(1))
     d3 = c.diagram("detslice", filter_coords=["D1"])
     d4 = c.diagram("detslice", filter_coords="D1")
     d5 = c.diagram("detector-slice-svg", filter_coords=[3, 0])
@@ -1600,7 +1600,7 @@ def test_detslice_filter_coords_flexibility():
     assert str(d1) == str(d6)
     assert str(d1) != str(c.diagram("detslice", filter_coords="L0"))
 
-    d1 = c.diagram("detslice", filter_coords=[stim.DemTarget.relative_detector_id(1), stim.DemTarget.relative_detector_id(3), stim.DemTarget.relative_detector_id(5), "D7"])
+    d1 = c.diagram("detslice", filter_coords=[lestim.DemTarget.relative_detector_id(1), lestim.DemTarget.relative_detector_id(3), lestim.DemTarget.relative_detector_id(5), "D7"])
     d2 = c.diagram("detslice", filter_coords=["D1", "D3", "D5", "D7"])
     d3 = c.diagram("detslice-svg", filter_coords=[3,])
     d4 = c.diagram("detslice-svg", filter_coords=[[3,]])
@@ -1612,51 +1612,51 @@ def test_detslice_filter_coords_flexibility():
 
 
 def test_has_flow_ry():
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         RY 0
     """)
-    assert c.has_flow(stim.Flow("1 -> Y"))
-    assert not c.has_flow(stim.Flow("1 -> -Y"))
-    assert not c.has_flow(stim.Flow("1 -> X"))
-    assert c.has_flow(stim.Flow("1 -> Y"), unsigned=True)
-    assert not c.has_flow(stim.Flow("1 -> X"), unsigned=True)
-    assert c.has_flow(stim.Flow("1 -> -Y"), unsigned=True)
+    assert c.has_flow(lestim.Flow("1 -> Y"))
+    assert not c.has_flow(lestim.Flow("1 -> -Y"))
+    assert not c.has_flow(lestim.Flow("1 -> X"))
+    assert c.has_flow(lestim.Flow("1 -> Y"), unsigned=True)
+    assert not c.has_flow(lestim.Flow("1 -> X"), unsigned=True)
+    assert c.has_flow(lestim.Flow("1 -> -Y"), unsigned=True)
 
 
 def test_has_flow_cxs():
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         CX 0 1
         S 0
     """)
 
-    assert c.has_flow(stim.Flow("X_ -> YX"))
-    assert c.has_flow(stim.Flow("Y_ -> -XX"))
-    assert not c.has_flow(stim.Flow("X_ -> XX"))
-    assert not c.has_flow(stim.Flow("X_ -> -XX"))
+    assert c.has_flow(lestim.Flow("X_ -> YX"))
+    assert c.has_flow(lestim.Flow("Y_ -> -XX"))
+    assert not c.has_flow(lestim.Flow("X_ -> XX"))
+    assert not c.has_flow(lestim.Flow("X_ -> -XX"))
 
-    assert c.has_flow(stim.Flow("X_ -> YX"), unsigned=True)
-    assert c.has_flow(stim.Flow("Y_ -> -XX"), unsigned=True)
-    assert not c.has_flow(stim.Flow("X_ -> XX"), unsigned=True)
-    assert not c.has_flow(stim.Flow("X_ -> -XX"), unsigned=True)
+    assert c.has_flow(lestim.Flow("X_ -> YX"), unsigned=True)
+    assert c.has_flow(lestim.Flow("Y_ -> -XX"), unsigned=True)
+    assert not c.has_flow(lestim.Flow("X_ -> XX"), unsigned=True)
+    assert not c.has_flow(lestim.Flow("X_ -> -XX"), unsigned=True)
 
 
 def test_has_flow_cxm():
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         CX 0 1
         M 1
     """)
-    assert c.has_flow(stim.Flow("1 -> _Z xor rec[0]"))
-    assert c.has_flow(stim.Flow("ZZ -> rec[0]"))
-    assert c.has_flow(stim.Flow("ZZ -> _Z"))
-    assert c.has_flow(stim.Flow("XX -> X_"))
-    assert c.has_flow(stim.Flow("1 -> _Z xor rec[0]"), unsigned=True)
-    assert c.has_flow(stim.Flow("ZZ -> rec[0]"), unsigned=True)
-    assert c.has_flow(stim.Flow("ZZ -> _Z"), unsigned=True)
-    assert c.has_flow(stim.Flow("XX -> X_"), unsigned=True)
+    assert c.has_flow(lestim.Flow("1 -> _Z xor rec[0]"))
+    assert c.has_flow(lestim.Flow("ZZ -> rec[0]"))
+    assert c.has_flow(lestim.Flow("ZZ -> _Z"))
+    assert c.has_flow(lestim.Flow("XX -> X_"))
+    assert c.has_flow(lestim.Flow("1 -> _Z xor rec[0]"), unsigned=True)
+    assert c.has_flow(lestim.Flow("ZZ -> rec[0]"), unsigned=True)
+    assert c.has_flow(lestim.Flow("ZZ -> _Z"), unsigned=True)
+    assert c.has_flow(lestim.Flow("XX -> X_"), unsigned=True)
 
 
 def test_has_flow_lattice_surgery():
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         # Lattice surgery CNOT with feedback.
         RX 2
         MZZ 2 0
@@ -1667,20 +1667,20 @@ def test_has_flow_lattice_surgery():
 
         S 0
     """)
-    assert c.has_flow(stim.Flow("X_ -> YX"))
-    assert c.has_flow(stim.Flow("Z_ -> Z_"))
-    assert c.has_flow(stim.Flow("_X -> _X"))
-    assert c.has_flow(stim.Flow("_Z -> ZZ"))
-    assert not c.has_flow(stim.Flow("X_ -> XX"))
+    assert c.has_flow(lestim.Flow("X_ -> YX"))
+    assert c.has_flow(lestim.Flow("Z_ -> Z_"))
+    assert c.has_flow(lestim.Flow("_X -> _X"))
+    assert c.has_flow(lestim.Flow("_Z -> ZZ"))
+    assert not c.has_flow(lestim.Flow("X_ -> XX"))
 
-    assert not c.has_flow(stim.Flow("X_ -> XX"))
-    assert not c.has_flow(stim.Flow("X_ -> -YX"))
-    assert not c.has_flow(stim.Flow("X_ -> XX"), unsigned=True)
-    assert c.has_flow(stim.Flow("X_ -> -YX"), unsigned=True)
+    assert not c.has_flow(lestim.Flow("X_ -> XX"))
+    assert not c.has_flow(lestim.Flow("X_ -> -YX"))
+    assert not c.has_flow(lestim.Flow("X_ -> XX"), unsigned=True)
+    assert c.has_flow(lestim.Flow("X_ -> -YX"), unsigned=True)
 
 
 def test_has_flow_lattice_surgery_without_feedback():
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         # Lattice surgery CNOT without feedback.
         RX 2
         MZZ 2 0
@@ -1689,58 +1689,58 @@ def test_has_flow_lattice_surgery_without_feedback():
 
         S 0
     """)
-    assert c.has_flow(stim.Flow("X_ -> YX xor rec[1]"))
-    assert c.has_flow(stim.Flow("Z_ -> Z_"))
-    assert c.has_flow(stim.Flow("_X -> _X"))
-    assert c.has_flow(stim.Flow("_Z -> ZZ xor rec[0] xor rec[2]"))
-    assert not c.has_flow(stim.Flow("X_ -> XX"))
+    assert c.has_flow(lestim.Flow("X_ -> YX xor rec[1]"))
+    assert c.has_flow(lestim.Flow("Z_ -> Z_"))
+    assert c.has_flow(lestim.Flow("_X -> _X"))
+    assert c.has_flow(lestim.Flow("_Z -> ZZ xor rec[0] xor rec[2]"))
+    assert not c.has_flow(lestim.Flow("X_ -> XX"))
     assert c.has_all_flows([])
     assert c.has_all_flows([
-        stim.Flow("X_ -> YX xor rec[1]"),
-        stim.Flow("Z_ -> Z_"),
+        lestim.Flow("X_ -> YX xor rec[1]"),
+        lestim.Flow("Z_ -> Z_"),
     ])
     assert not c.has_all_flows([
-        stim.Flow("X_ -> YX xor rec[1]"),
-        stim.Flow("Z_ -> Z_"),
-        stim.Flow("X_ -> XX"),
+        lestim.Flow("X_ -> YX xor rec[1]"),
+        lestim.Flow("Z_ -> Z_"),
+        lestim.Flow("X_ -> XX"),
     ])
 
-    assert not c.has_flow(stim.Flow("X_ -> XX"))
-    assert not c.has_flow(stim.Flow("X_ -> -YX"))
-    assert not c.has_flow(stim.Flow("X_ -> XX"), unsigned=True)
-    assert c.has_flow(stim.Flow("X_ -> -YX xor rec[1]"), unsigned=True)
+    assert not c.has_flow(lestim.Flow("X_ -> XX"))
+    assert not c.has_flow(lestim.Flow("X_ -> -YX"))
+    assert not c.has_flow(lestim.Flow("X_ -> XX"), unsigned=True)
+    assert c.has_flow(lestim.Flow("X_ -> -YX xor rec[1]"), unsigned=True)
 
 
 def test_has_flow_shorthands():
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         MZ 99
         MXX 1 99
         MZZ 0 99
         MX 99
     """)
 
-    assert c.has_flow(stim.Flow("X_ -> XX xor rec[1] xor rec[3]"))
-    assert c.has_flow(stim.Flow("Z_ -> Z_"))
-    assert c.has_flow(stim.Flow("_X -> _X"))
-    assert c.has_flow(stim.Flow("_Z -> ZZ xor rec[0] xor rec[2]"))
+    assert c.has_flow(lestim.Flow("X_ -> XX xor rec[1] xor rec[3]"))
+    assert c.has_flow(lestim.Flow("Z_ -> Z_"))
+    assert c.has_flow(lestim.Flow("_X -> _X"))
+    assert c.has_flow(lestim.Flow("_Z -> ZZ xor rec[0] xor rec[2]"))
 
-    assert c.has_flow(stim.Flow("X_ -> XX xor rec[1] xor rec[3]"))
-    assert not c.has_flow(stim.Flow("Z_ -> -Z_"))
-    assert not c.has_flow(stim.Flow("-Z_ -> Z_"))
-    assert not c.has_flow(stim.Flow("Z_ -> X_"))
-    assert c.has_flow(stim.Flow("iX_ -> iXX xor rec[1] xor rec[3]"))
-    assert not c.has_flow(stim.Flow("-iX_ -> iXX xor rec[1] xor rec[3]"))
-    assert c.has_flow(stim.Flow("-iX_ -> -iXX xor rec[1] xor rec[3]"))
+    assert c.has_flow(lestim.Flow("X_ -> XX xor rec[1] xor rec[3]"))
+    assert not c.has_flow(lestim.Flow("Z_ -> -Z_"))
+    assert not c.has_flow(lestim.Flow("-Z_ -> Z_"))
+    assert not c.has_flow(lestim.Flow("Z_ -> X_"))
+    assert c.has_flow(lestim.Flow("iX_ -> iXX xor rec[1] xor rec[3]"))
+    assert not c.has_flow(lestim.Flow("-iX_ -> iXX xor rec[1] xor rec[3]"))
+    assert c.has_flow(lestim.Flow("-iX_ -> -iXX xor rec[1] xor rec[3]"))
     with pytest.raises(ValueError, match="Anti-Hermitian"):
-        stim.Flow("iX_ -> XX")
+        lestim.Flow("iX_ -> XX")
 
 
 def test_decomposed():
-    assert stim.Circuit("""
+    assert lestim.Circuit("""
         ISWAP 0 1 2 1
         TICK
         MPP X1*Z2*Y3
-    """).decomposed() == stim.Circuit("""
+    """).decomposed() == lestim.Circuit("""
         H 0
         CX 0 1 1 0
         H 1
@@ -1766,7 +1766,7 @@ def test_decomposed():
 
 
 def test_detecting_regions():
-    assert stim.Circuit('''
+    assert lestim.Circuit('''
         R 0
         TICK
         H 0
@@ -1775,25 +1775,25 @@ def test_detecting_regions():
         TICK
         MX 0 1
         DETECTOR rec[-1] rec[-2]
-    ''').detecting_regions() == {stim.DemTarget.relative_detector_id(0): {
-        0: stim.PauliString("Z_"),
-        1: stim.PauliString("X_"),
-        2: stim.PauliString("XX"),
+    ''').detecting_regions() == {lestim.DemTarget.relative_detector_id(0): {
+        0: lestim.PauliString("Z_"),
+        1: lestim.PauliString("X_"),
+        2: lestim.PauliString("XX"),
     }}
 
 
 def test_detecting_region_filters():
-    c = stim.Circuit.generated("repetition_code:memory", distance=3, rounds=3)
+    c = lestim.Circuit.generated("repetition_code:memory", distance=3, rounds=3)
     assert len(c.detecting_regions(targets=["D"])) == c.num_detectors
     assert len(c.detecting_regions(targets=["L"])) == c.num_observables
     assert len(c.detecting_regions()) == c.num_observables + c.num_detectors
     assert len(c.detecting_regions(targets=["D0"])) == 1
     assert len(c.detecting_regions(targets=["D0", "L0"])) == 2
-    assert len(c.detecting_regions(targets=[stim.target_relative_detector_id(0), "D0"])) == 1
+    assert len(c.detecting_regions(targets=[lestim.target_relative_detector_id(0), "D0"])) == 1
 
 
 def test_detecting_regions_mzz():
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         TICK
         MZZ 0 1 1 2
         TICK
@@ -1801,50 +1801,50 @@ def test_detecting_regions_mzz():
         DETECTOR rec[-1]
     """)
     assert c.detecting_regions() == {
-        stim.target_relative_detector_id(0): {
-            0: stim.PauliString("__Z"),
-            1: stim.PauliString("__Z"),
+        lestim.target_relative_detector_id(0): {
+            0: lestim.PauliString("__Z"),
+            1: lestim.PauliString("__Z"),
         },
     }
 
 
 def test_insert():
-    c = stim.Circuit()
+    c = lestim.Circuit()
     with pytest.raises(ValueError, match='type'):
         c.insert(0, object())
     with pytest.raises(ValueError, match='index <'):
-        c.insert(1, stim.CircuitInstruction("H", [1]))
+        c.insert(1, lestim.CircuitInstruction("H", [1]))
     with pytest.raises(ValueError, match='index <'):
-        c.insert(-1, stim.CircuitInstruction("H", [1]))
-    c.insert(0, stim.CircuitInstruction("H", [1]))
-    assert c == stim.Circuit("""
+        c.insert(-1, lestim.CircuitInstruction("H", [1]))
+    c.insert(0, lestim.CircuitInstruction("H", [1]))
+    assert c == lestim.Circuit("""
         H 1
     """)
 
     with pytest.raises(ValueError, match='index <'):
-        c.insert(2, stim.CircuitInstruction("S", [2]))
+        c.insert(2, lestim.CircuitInstruction("S", [2]))
     with pytest.raises(ValueError, match='index <'):
-        c.insert(-2, stim.CircuitInstruction("S", [2]))
-    c.insert(0, stim.CircuitInstruction("S", [2, 3]))
-    assert c == stim.Circuit("""
+        c.insert(-2, lestim.CircuitInstruction("S", [2]))
+    c.insert(0, lestim.CircuitInstruction("S", [2, 3]))
+    assert c == lestim.Circuit("""
         S 2 3
         H 1
     """)
 
-    c.insert(-1, stim.Circuit("H 5\nM 2"))
-    assert c == stim.Circuit("""
+    c.insert(-1, lestim.Circuit("H 5\nM 2"))
+    assert c == lestim.Circuit("""
         S 2 3
         H 5
         M 2
         H 1
     """)
 
-    c.insert(2, stim.Circuit("""
+    c.insert(2, lestim.Circuit("""
         REPEAT 100 {
             M 3
         }
     """))
-    assert c == stim.Circuit("""
+    assert c == lestim.Circuit("""
         S 2 3
         H 5
         REPEAT 100 {
@@ -1854,12 +1854,12 @@ def test_insert():
         H 1
     """)
 
-    c.insert(2, stim.Circuit("""
+    c.insert(2, lestim.Circuit("""
         REPEAT 100 {
             M 3
         }
     """)[0])
-    assert c == stim.Circuit("""
+    assert c == lestim.Circuit("""
         S 2 3
         H 5
         REPEAT 100 {
@@ -1875,116 +1875,116 @@ def test_insert():
 
 def test_pop():
     with pytest.raises(IndexError, match='index'):
-        stim.Circuit().pop()
+        lestim.Circuit().pop()
     with pytest.raises(IndexError, match='index'):
-        stim.Circuit().pop(-1)
+        lestim.Circuit().pop(-1)
     with pytest.raises(IndexError, match='index'):
-        stim.Circuit().pop(0)
-    c = stim.Circuit("H 0")
+        lestim.Circuit().pop(0)
+    c = lestim.Circuit("H 0")
     with pytest.raises(IndexError, match='index'):
         c.pop(1)
     with pytest.raises(IndexError, match='index'):
         c.pop(-2)
-    assert c.pop(0) == stim.CircuitInstruction("H", [0])
-    c = stim.Circuit("H 0\n X 1")
-    assert c.pop() == stim.CircuitInstruction("X", [1])
-    assert c.pop() == stim.CircuitInstruction("H", [0])
+    assert c.pop(0) == lestim.CircuitInstruction("H", [0])
+    c = lestim.Circuit("H 0\n X 1")
+    assert c.pop() == lestim.CircuitInstruction("X", [1])
+    assert c.pop() == lestim.CircuitInstruction("H", [0])
 
 
 def test_circuit_create_with_odd_cx():
     with pytest.raises(ValueError, match="0, 1, 2"):
-        stim.Circuit("CX 0 1 2")
+        lestim.Circuit("CX 0 1 2")
 
 
 def test_to_tableau():
-    assert stim.Circuit().to_tableau() == stim.Tableau(0)
-    assert stim.Circuit("QUBIT_COORDS 0").to_tableau() == stim.Tableau(1)
-    assert stim.Circuit("I 0").to_tableau() == stim.Tableau(1)
-    assert stim.Circuit("H 0").to_tableau() == stim.Tableau.from_named_gate("H")
-    assert stim.Circuit("CX 0 1").to_tableau() == stim.Tableau.from_named_gate("CX")
-    assert stim.Circuit("SPP Z0").to_tableau() == stim.Tableau.from_named_gate("S")
-    assert stim.Circuit("SPP X0").to_tableau() == stim.Tableau.from_named_gate("SQRT_X")
-    assert stim.Circuit("SPP_DAG Y0*Y1").to_tableau() == stim.Tableau.from_named_gate("SQRT_YY_DAG")
+    assert lestim.Circuit().to_tableau() == lestim.Tableau(0)
+    assert lestim.Circuit("QUBIT_COORDS 0").to_tableau() == lestim.Tableau(1)
+    assert lestim.Circuit("I 0").to_tableau() == lestim.Tableau(1)
+    assert lestim.Circuit("H 0").to_tableau() == lestim.Tableau.from_named_gate("H")
+    assert lestim.Circuit("CX 0 1").to_tableau() == lestim.Tableau.from_named_gate("CX")
+    assert lestim.Circuit("SPP Z0").to_tableau() == lestim.Tableau.from_named_gate("S")
+    assert lestim.Circuit("SPP X0").to_tableau() == lestim.Tableau.from_named_gate("SQRT_X")
+    assert lestim.Circuit("SPP_DAG Y0*Y1").to_tableau() == lestim.Tableau.from_named_gate("SQRT_YY_DAG")
 
 
 def test_circuit_tags():
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         H[test] 0
     """)
     assert str(c) == "H[test] 0"
     assert c[0].tag == 'test'
-    c.append(stim.CircuitInstruction('CX', [0, 1], tag='test2'))
+    c.append(lestim.CircuitInstruction('CX', [0, 1], tag='test2'))
     assert c[1].tag == 'test2'
-    assert c == stim.Circuit("""
+    assert c == lestim.Circuit("""
         H[test] 0
         CX[test2] 0 1
     """)
-    assert c != stim.Circuit("""
+    assert c != lestim.Circuit("""
         H 0
         CX 0 1
     """)
 
 
 def test_circuit_add_tags():
-    assert stim.Circuit("""
+    assert lestim.Circuit("""
         H[test] 0
-    """) + stim.Circuit("""
+    """) + lestim.Circuit("""
         CX[test2] 0 1
-    """) == stim.Circuit("""
+    """) == lestim.Circuit("""
         H[test] 0
         CX[test2] 0 1
     """)
 
 
 def test_circuit_eq_tags():
-    assert stim.CircuitInstruction("TICK", tag="a") == stim.CircuitInstruction("TICK", tag="a")
-    assert stim.CircuitInstruction("TICK", tag="a") != stim.CircuitInstruction("TICK", tag="b")
-    assert stim.CircuitRepeatBlock(1, stim.Circuit(), tag="a") == stim.CircuitRepeatBlock(1, stim.Circuit(), tag="a")
-    assert stim.CircuitRepeatBlock(1, stim.Circuit(), tag="a") != stim.CircuitRepeatBlock(1, stim.Circuit(), tag="b")
-    assert stim.Circuit("""
+    assert lestim.CircuitInstruction("TICK", tag="a") == lestim.CircuitInstruction("TICK", tag="a")
+    assert lestim.CircuitInstruction("TICK", tag="a") != lestim.CircuitInstruction("TICK", tag="b")
+    assert lestim.CircuitRepeatBlock(1, lestim.Circuit(), tag="a") == lestim.CircuitRepeatBlock(1, lestim.Circuit(), tag="a")
+    assert lestim.CircuitRepeatBlock(1, lestim.Circuit(), tag="a") != lestim.CircuitRepeatBlock(1, lestim.Circuit(), tag="b")
+    assert lestim.Circuit("""
         H[test] 0
-    """) == stim.Circuit("""
+    """) == lestim.Circuit("""
         H[test] 0
     """)
-    assert stim.Circuit("""
+    assert lestim.Circuit("""
         H[test] 0
-    """) != stim.Circuit("""
+    """) != lestim.Circuit("""
         H[test2] 0
     """)
-    assert stim.Circuit("""
+    assert lestim.Circuit("""
         H[test] 0
-    """) != stim.Circuit("""
+    """) != lestim.Circuit("""
         H 0
     """)
-    assert stim.Circuit("""
+    assert lestim.Circuit("""
         H[] 0
-    """) == stim.Circuit("""
+    """) == lestim.Circuit("""
         H 0
     """)
 
 
 def test_circuit_get_item_tags():
-    assert stim.Circuit("""
+    assert lestim.Circuit("""
         H[test] 0
         CX[test2] 1 2
         REPEAT[test3] 3 {
             M[test4](0.25) 4
         }
-    """)[1] == stim.CircuitInstruction("CX[test2] 1 2")
-    assert stim.Circuit("""
+    """)[1] == lestim.CircuitInstruction("CX[test2] 1 2")
+    assert lestim.Circuit("""
         H[test] 0
         CX[test2] 1 2
         REPEAT[test3] 3 {
             M[test4](0.25) 4
         }
-    """)[2] == stim.CircuitRepeatBlock(3, stim.Circuit("M[test4](0.25) 4"), tag="test3")
-    assert stim.Circuit("""
+    """)[2] == lestim.CircuitRepeatBlock(3, lestim.Circuit("M[test4](0.25) 4"), tag="test3")
+    assert lestim.Circuit("""
         H[test] 0
         CX[test2] 1 2
         REPEAT[test3] 3 {
             M[test4](0.25) 4
         }
-    """)[1:3] == stim.Circuit("""
+    """)[1:3] == lestim.Circuit("""
         CX[test2] 1 2
         REPEAT[test3] 3 {
             M[test4](0.25) 4
@@ -1993,16 +1993,16 @@ def test_circuit_get_item_tags():
 
 
 def test_tags_iadd():
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         H[test] 0
         CX[test2] 1 2
     """)
-    c += stim.Circuit("""
+    c += lestim.Circuit("""
         REPEAT[test3] 3 {
             M[test4](0.25) 4
         }
     """)
-    assert c == stim.Circuit("""
+    assert c == lestim.Circuit("""
         H[test] 0
         CX[test2] 1 2
         REPEAT[test3] 3 {
@@ -2012,12 +2012,12 @@ def test_tags_iadd():
 
 
 def test_tags_imul():
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         H[test] 0
         CX[test2] 1 2
     """)
     c *= 2
-    assert c == stim.Circuit("""
+    assert c == lestim.Circuit("""
         REPEAT 2 {
             H[test] 0
             CX[test2] 1 2
@@ -2026,11 +2026,11 @@ def test_tags_imul():
 
 
 def test_tags_mul():
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         H[test] 0
         CX[test2] 1 2
     """)
-    assert c * 2 == stim.Circuit("""
+    assert c * 2 == lestim.Circuit("""
         REPEAT 2 {
             H[test] 0
             CX[test2] 1 2
@@ -2039,14 +2039,14 @@ def test_tags_mul():
 
 
 def test_tags_append():
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         H[test] 0
         CX[test2] 1 2
     """)
-    c.append(stim.CircuitRepeatBlock(3, stim.Circuit("""
+    c.append(lestim.CircuitRepeatBlock(3, lestim.Circuit("""
         M[test4](0.25) 4
     """), tag="test3"))
-    assert c == stim.Circuit("""
+    assert c == lestim.Circuit("""
         H[test] 0
         CX[test2] 1 2
         REPEAT[test3] 3 {
@@ -2056,30 +2056,30 @@ def test_tags_append():
 
 
 def test_tags_append_from_stim_program_text():
-    c = stim.Circuit()
+    c = lestim.Circuit()
     c.append_from_stim_program_text("""
         H[test] 0
         CX[test2] 1 2
     """)
-    assert c == stim.Circuit("""
+    assert c == lestim.Circuit("""
         H[test] 0
         CX[test2] 1 2
     """)
 
 
 def test_tag_approx_equals():
-    assert not stim.Circuit("H[test] 0").approx_equals(stim.Circuit("H[test2] 0"), atol=3)
-    assert stim.Circuit("H[test] 0").approx_equals(stim.Circuit("H[test] 0"), atol=3)
+    assert not lestim.Circuit("H[test] 0").approx_equals(lestim.Circuit("H[test2] 0"), atol=3)
+    assert lestim.Circuit("H[test] 0").approx_equals(lestim.Circuit("H[test] 0"), atol=3)
 
 
 def test_tag_clear():
-    c = stim.Circuit("H[test] 0")
+    c = lestim.Circuit("H[test] 0")
     c.clear()
-    assert c == stim.Circuit()
+    assert c == lestim.Circuit()
 
 
 def test_tag_compile_samplers():
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         R[test1] 0
         X_ERROR[test2](0.25) 0
         M[test3](0.25) 0
@@ -2093,13 +2093,13 @@ def test_tag_compile_samplers():
 
 
 def test_tag_detector_error_model():
-    dem = stim.Circuit("""
+    dem = lestim.Circuit("""
         R[test1] 0
         X_ERROR[test2](0.25) 0
         M[test3](0.25) 0
         DETECTOR[test4](1, 2) rec[-1]
     """).detector_error_model()
-    assert dem == stim.DetectorErrorModel("""
+    assert dem == lestim.DetectorErrorModel("""
         error[test2](0.25) D0
         error[test3](0.25) D0
         detector[test4](1, 2) D0
@@ -2107,7 +2107,7 @@ def test_tag_detector_error_model():
 
 
 def test_tag_copy():
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         H[test] 0
         CX[test2] 1 2
         REPEAT[test3] 3 {
@@ -2120,7 +2120,7 @@ def test_tag_copy():
 
 
 def test_tag_count_determined_measurements():
-    assert stim.Circuit("""
+    assert lestim.Circuit("""
         R[test1] 0
         X_ERROR[test2](0.25) 0
         M[test3](0.25) 0
@@ -2129,13 +2129,13 @@ def test_tag_count_determined_measurements():
 
 
 def test_tag_decomposed():
-    assert stim.Circuit("""
+    assert lestim.Circuit("""
         RX[test1] 0
         X_ERROR[test2](0.25) 0
         MPP[test3](0.25) X0*Z1
         DETECTOR[test4](1, 2) rec[-1]
         SPP[test5] Y0
-    """).decomposed() == stim.Circuit("""
+    """).decomposed() == lestim.Circuit("""
         R[test1] 0
         H[test1] 0
         X_ERROR[test2](0.25) 0
@@ -2157,18 +2157,18 @@ def test_tag_decomposed():
 
 
 def test_tag_detecting_regions():
-    assert stim.Circuit("""
+    assert lestim.Circuit("""
         R[test1] 0
         X_ERROR[test2](0.25) 0
         TICK
         M[test3](0.25) 0
         DETECTOR[test4](1, 2) rec[-1]
-    """).detecting_regions() == {stim.DemTarget('D0'): {0: stim.PauliString("Z")}}
+    """).detecting_regions() == {lestim.DemTarget('D0'): {0: lestim.PauliString("Z")}}
 
 
 def test_tag_diagram():
     # TODO: include tags in diagrams
-    assert str(stim.Circuit("""
+    assert str(lestim.Circuit("""
         R[test1] 0
         X_ERROR[test2](0.25) 0
         M[test3](0.25) 0
@@ -2179,12 +2179,12 @@ def test_tag_diagram():
 
 
 def test_tag_flattened():
-    assert stim.Circuit("""
+    assert lestim.Circuit("""
         R[test1] 0
         REPEAT[test1.5] 2 {
             H[test2] 0
         }
-    """).flattened() == stim.Circuit("""
+    """).flattened() == lestim.Circuit("""
         R[test1] 0
         H[test2] 0
         H[test2] 0
@@ -2192,13 +2192,13 @@ def test_tag_flattened():
 
 
 def test_tag_from_file():
-    c = stim.Circuit.from_file(io.StringIO("""
+    c = lestim.Circuit.from_file(io.StringIO("""
         R[test1] 0
         REPEAT[test1.5] 2 {
             H[test2] 0
         }
     """))
-    assert c == stim.Circuit("""
+    assert c == lestim.Circuit("""
         R[test1] 0
         REPEAT[test1.5] 2 {
             H[test2] 0
@@ -2211,12 +2211,12 @@ def test_tag_from_file():
 
 
 def test_tag_insert():
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         H[test1] 0
         S[test2] 0
     """)
-    c.insert(1, stim.CircuitInstruction("CX[test3] 0 1"))
-    assert c == stim.Circuit("""
+    c.insert(1, lestim.CircuitInstruction("CX[test3] 0 1"))
+    assert c == lestim.Circuit("""
         H[test1] 0
         CX[test3] 0 1
         S[test2] 0
@@ -2224,7 +2224,7 @@ def test_tag_insert():
 
 
 def test_tag_fuse():
-    c = stim.Circuit("""
+    c = lestim.Circuit("""
         H[test1] 0
         H[test1] 0
         H[test2] 0
@@ -2237,14 +2237,14 @@ def test_tag_fuse():
 
 
 def test_tag_inverse():
-    assert stim.Circuit("""
+    assert lestim.Circuit("""
         S[test1] 0
         CX[test2] 0 1
         SPP[test3] X0*Y1
         REPEAT[test4] 2 {
             H[test5] 0
         }
-    """).inverse() == stim.Circuit("""
+    """).inverse() == lestim.Circuit("""
         REPEAT[test4] 2 {
             H[test5] 0
         }
@@ -2255,14 +2255,14 @@ def test_tag_inverse():
 
 
 def test_tag_time_reversed_for_flows():
-    c, _ = stim.Circuit("""
+    c, _ = lestim.Circuit("""
         R[test1] 0
         X_ERROR[test2](0.25) 0
         SQRT_X[test3] 0
         MY[test4] 0
         DETECTOR[test5] rec[-1]
     """).time_reversed_for_flows([])
-    assert c == stim.Circuit("""
+    assert c == lestim.Circuit("""
         RY[test4] 0
         SQRT_X_DAG[test3] 0
         X_ERROR[test2](0.25) 0
@@ -2272,14 +2272,14 @@ def test_tag_time_reversed_for_flows():
 
 
 def test_tag_with_inlined_feedback():
-    assert stim.Circuit("""
+    assert lestim.Circuit("""
         R[test1] 0
         X_ERROR[test2](0.25) 0 1
         MR[test3] 0
         CX[test4] rec[-1] 1
         M[test5] 1
         DETECTOR[test6] rec[-1]
-    """).with_inlined_feedback() == stim.Circuit("""
+    """).with_inlined_feedback() == lestim.Circuit("""
         R[test1] 0
         X_ERROR[test2](0.25) 0 1
         MR[test3] 0
@@ -2289,12 +2289,12 @@ def test_tag_with_inlined_feedback():
 
 
 def test_tag_without_noise():
-    assert stim.Circuit("""
+    assert lestim.Circuit("""
         R[test1] 0
         X_ERROR[test2](0.25) 0 1
         M[test3](0.25) 0
         DETECTOR[test4] rec[-1]
-    """).without_noise() == stim.Circuit("""
+    """).without_noise() == lestim.Circuit("""
         R[test1] 0
         M[test3] 0
         DETECTOR[test4] rec[-1]
@@ -2302,41 +2302,41 @@ def test_tag_without_noise():
 
 
 def test_append_tag():
-    c = stim.Circuit()
+    c = lestim.Circuit()
     c.append("H", [2, 3], tag="test")
-    assert c == stim.Circuit("H[test] 2 3")
+    assert c == lestim.Circuit("H[test] 2 3")
 
     with pytest.raises(ValueError, match="tag"):
         c.append(c[0], tag="newtag")
 
     with pytest.raises(ValueError, match="tag"):
-        c.append(stim.CircuitRepeatBlock(10, stim.Circuit()), tag="newtag")
+        c.append(lestim.CircuitRepeatBlock(10, lestim.Circuit()), tag="newtag")
 
-    assert c == stim.Circuit("H[test] 2 3")
+    assert c == lestim.Circuit("H[test] 2 3")
 
 
 def test_append_pauli_string():
-    c = stim.Circuit()
+    c = lestim.Circuit()
     c.append("MPP", [
-        stim.PauliString("X1*Y2*Z3"),
-        stim.target_y(4),
-        stim.PauliString("Z5"),
+        lestim.PauliString("X1*Y2*Z3"),
+        lestim.target_y(4),
+        lestim.PauliString("Z5"),
     ])
-    assert c == stim.Circuit("""
+    assert c == lestim.Circuit("""
         MPP X1*Y2*Z3 Y4 Z5
     """)
-    c.append("MPP", stim.PauliString("X1*X2"))
-    assert c == stim.Circuit("""
+    c.append("MPP", lestim.PauliString("X1*X2"))
+    assert c == lestim.Circuit("""
         MPP X1*Y2*Z3 Y4 Z5 X1*X2
     """)
 
     with pytest.raises(ValueError, match="empty stim.PauliString"):
-        c.append("MPP", stim.PauliString(""))
+        c.append("MPP", lestim.PauliString(""))
     with pytest.raises(ValueError, match="empty stim.PauliString"):
-        c.append("MPP", [stim.PauliString("")])
+        c.append("MPP", [lestim.PauliString("")])
     with pytest.raises(ValueError, match="empty stim.PauliString"):
-        c.append("MPP", [stim.PauliString("X1"), stim.PauliString("")])
-    assert c == stim.Circuit("""
+        c.append("MPP", [lestim.PauliString("X1"), lestim.PauliString("")])
+    assert c == lestim.Circuit("""
         MPP X1*Y2*Z3 Y4 Z5 X1*X2
     """)
 
@@ -2347,16 +2347,16 @@ def test_append_pauli_string():
 
 
 def test_without_tags():
-    circuit = stim.Circuit("""
+    circuit = lestim.Circuit("""
         H[tag] 5
     """)
-    assert circuit.without_tags() == stim.Circuit("""
+    assert circuit.without_tags() == lestim.Circuit("""
         H 5
     """)
 
 
 def test_reference_detector_and_observable_signs():
-    det, obs = stim.Circuit("""
+    det, obs = lestim.Circuit("""
         X 1
         M 0 1
         DETECTOR rec[-1]
@@ -2368,7 +2368,7 @@ def test_reference_detector_and_observable_signs():
     np.testing.assert_array_equal(det, [True, False])
     np.testing.assert_array_equal(obs, [False, False, False, True])
 
-    det, obs = stim.Circuit("""
+    det, obs = lestim.Circuit("""
         X 1
         M 0 1
         DETECTOR rec[-1]
@@ -2380,7 +2380,7 @@ def test_reference_detector_and_observable_signs():
     np.testing.assert_array_equal(det, [0b01])
     np.testing.assert_array_equal(obs, [0b1000])
 
-    circuit = stim.Circuit.generated("surface_code:rotated_memory_x", rounds=3, distance=3)
+    circuit = lestim.Circuit.generated("surface_code:rotated_memory_x", rounds=3, distance=3)
     det, obs = circuit.reference_detector_and_observable_signs(bit_packed=True)
     assert det.dtype == np.uint8
     assert obs.dtype == np.uint8
@@ -2391,26 +2391,26 @@ def test_reference_detector_and_observable_signs():
 
 
 def test_without_noise_removes_id_errors():
-    assert stim.Circuit("""
+    assert lestim.Circuit("""
         I_ERROR 0
         I_ERROR(0.25) 1
         II_ERROR 2 3
         II_ERROR(0.125) 3 4
         H 0
-    """).without_noise() == stim.Circuit("""
+    """).without_noise() == lestim.Circuit("""
         H 0
     """)
 
 
 def test_append_circuit_to_circuit():
-    circuit = stim.Circuit("""
+    circuit = lestim.Circuit("""
         H 0
     """)
-    circuit.append(stim.Circuit("""
+    circuit.append(lestim.Circuit("""
         X 1
         Z 2
     """))
-    assert circuit == stim.Circuit("""
+    assert circuit == lestim.Circuit("""
         H 0
         X 1
         Z 2
