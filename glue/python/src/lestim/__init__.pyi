@@ -1696,6 +1696,13 @@ class Circuit:
             >>> lestim.Circuit('''
             ...     RY 0
             ... ''').has_flow(lestim.Flow(
+            ...     output=lestim.PauliString("Y"),
+            ... ))
+            True
+
+            >>> lestim.Circuit('''
+            ...     RY 0
+            ... ''').has_flow(stim.Flow(
             ...     output=lestim.PauliString("X"),
             ... ))
             False
@@ -6254,7 +6261,7 @@ class DetectorErrorModel:
             ...     lestim.DemTarget.separator(),
             ...     lestim.DemTarget.relative_detector_id(2),
             ...     lestim.DemTarget.logical_observable_id(3),
-            ... ])
+            ... ], tag='test-tag')
             >>> print(repr(m))
             lestim.DetectorErrorModel('''
                 error(0.125) D1

@@ -1,5 +1,5 @@
-.idea/*
-cmake-build-debug/*
+.idea
+cmake-build-debug
 a.out
 perf.data
 perf.data.old
@@ -42,6 +42,8 @@ build.ninja
 .ninja_log
 .pytest_cache
 node_modules
+MODULE.bazel.lock
+.ninja_lock
 # Project specific
 # Ignore Emacs backup files.
 *~

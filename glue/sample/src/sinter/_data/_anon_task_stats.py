@@ -80,10 +80,10 @@ class AnonTaskStats:
         """
         if isinstance(other, AnonTaskStats):
             return AnonTaskStats(
-                shots=self.shots + other.shots,
-                errors=self.errors + other.errors,
-                discards=self.discards + other.discards,
-                seconds=self.seconds + other.seconds,
+                shots=int(self.shots + other.shots),
+                errors=int(self.errors + other.errors),
+                discards=int(self.discards + other.discards),
+                seconds=float(self.seconds + other.seconds),
                 custom_counts=self.custom_counts + other.custom_counts,
             )
 

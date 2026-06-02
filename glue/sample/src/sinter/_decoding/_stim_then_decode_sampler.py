@@ -81,7 +81,7 @@ def classify_discards_and_errors(
             out_count_observable_error_combos[err_key] += 1
 
     num_errors = np.count_nonzero(fail_mask)
-    return num_discards, num_errors
+    return int(num_discards), int(num_errors)
 
 
 class DiskDecoder(CompiledDecoder):
@@ -197,8 +197,8 @@ class _CompiledStimThenDecodeSampler(CompiledSampler):
             raise ValueError("predictions.dtype != np.uint8")
         if len(predictions.shape) != 2:
             raise ValueError("len(predictions.shape) != 2")
-        if predictions.shape[0] != num_shots:
-            raise ValueError("predictions.shape[0] != num_shots")
+        if predictions.shape[0] != num_shots - num_discards_1:
+            raise ValueError("predictions.shape[0] != num_shots - num_discards_1")
         if predictions.shape[1] < actual_obs.shape[1]:
             raise ValueError("predictions.shape[1] < actual_obs.shape[1]")
         if predictions.shape[1] > actual_obs.shape[1] + 1:

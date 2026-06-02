@@ -7,6 +7,7 @@
 
 import lestim._detect_machine_architecture as _tmp
 
+
 _tmp = _tmp._UNSTABLE_detect_march()
 # NOTE: avx2 disabled until https://github.com/quantumlib/Stim/issues/432 is fixed
 # if _tmp == 'avx2':
