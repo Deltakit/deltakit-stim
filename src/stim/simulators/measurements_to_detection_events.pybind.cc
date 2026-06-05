@@ -148,6 +148,7 @@ stim_pybind::pybind_compiled_measurements_to_detection_events_converter(pybind11
     return pybind11::class_<CompiledMeasurementsToDetectionEventsConverter>(
         m,
         "CompiledMeasurementsToDetectionEventsConverter",
+        pybind11::module_local(),
         "A tool for quickly converting measurements from an analyzed stabilizer circuit into detection events.");
 }
 

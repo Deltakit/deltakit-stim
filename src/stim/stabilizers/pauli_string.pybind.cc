@@ -307,6 +307,7 @@ pybind11::class_<FlexPauliString> stim_pybind::pybind_pauli_string(pybind11::mod
     return pybind11::class_<FlexPauliString>(
         m,
         "PauliString",
+        pybind11::module_local(),
         clean_doc_string(R"DOC(
             A signed Pauli tensor product (e.g. "+X \u2297 X \u2297 X" or "-Y \u2297 Z".
 

@@ -83,6 +83,7 @@ pybind11::class_<DemSampler<MAX_BITWORD_WIDTH>> stim_pybind::pybind_dem_sampler(
     return pybind11::class_<DemSampler<MAX_BITWORD_WIDTH>>(
         m,
         "CompiledDemSampler",
+        pybind11::module_local(),
         clean_doc_string(R"DOC(
             A helper class for efficiently sampler from a detector error model.
 

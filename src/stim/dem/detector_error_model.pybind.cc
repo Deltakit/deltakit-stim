@@ -75,6 +75,7 @@ pybind11::class_<stim::DetectorErrorModel> stim_pybind::pybind_detector_error_mo
     auto c = pybind11::class_<DetectorErrorModel>(
         m,
         "DetectorErrorModel",
+        pybind11::module_local(),
         clean_doc_string(R"DOC(
             An error model built out of independent error mechanics.
 

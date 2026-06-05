@@ -185,6 +185,7 @@ pybind11::class_<FrameSimulator<MAX_BITWORD_WIDTH>> stim_pybind::pybind_frame_si
     return pybind11::class_<FrameSimulator<MAX_BITWORD_WIDTH>>(
         m,
         "FlipSimulator",
+        pybind11::module_local(),
         clean_doc_string(R"DOC(
             A simulator that tracks whether things are flipped, instead of what they are.
 

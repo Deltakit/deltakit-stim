@@ -1,3 +1,26 @@
 [build-system]
 requires = ["setuptools", "wheel", "pybind11~=2.11.1"]
 build-backend = "setuptools.build_meta"
+
+[tool.cibuildwheel]
+build-verbosity = 1
+archs = "x86_64"
+environment-pass = ["SSH_AUTH_SOCK"]
+before-build = "bash cibw_before_build.sh"
+
+[tool.cibuildwheel.linux]
+manylinux-x86_64-image = "manylinux_2_28"
+environment = """\
+SSH_AUTH_SOCK="/host$SSH_AUTH_SOCK" \
+CXX=/opt/rh/gcc-toolset-11/root/usr/bin/g++ \
+CC=/opt/rh/gcc-toolset-11/root/usr/bin/gcc
+"""
+
+[tool.cibuildwheel.macos]
+archs = "arm64"
+environment = """\
+MACOSX_DEPLOYMENT_TARGET=14.0 \
+LDFLAGS="-L/opt/homebrew/opt/llvm@16/lib/c++ -Wl,-rpath,/opt/homebrew/opt/llvm@16/lib/c++" \
+PATH="/usr/local/opt/llvm@16/bin:$PATH" \
+CPPFLAGS="-I/opt/homebrew/opt/llvm@16/include"
+"""

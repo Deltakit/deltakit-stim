@@ -155,7 +155,7 @@ CompiledDetectorSampler stim_pybind::py_init_compiled_detector_sampler(
 
 pybind11::class_<CompiledDetectorSampler> stim_pybind::pybind_compiled_detector_sampler(pybind11::module &m) {
     return pybind11::class_<CompiledDetectorSampler>(
-        m, "CompiledDetectorSampler", "An analyzed stabilizer circuit whose detection events can be sampled quickly.");
+        m, "CompiledDetectorSampler", pybind11::module_local(),"An analyzed stabilizer circuit whose detection events can be sampled quickly.");
 }
 
 void stim_pybind::pybind_compiled_detector_sampler_methods(

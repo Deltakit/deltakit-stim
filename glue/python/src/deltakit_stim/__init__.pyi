@@ -1,16 +1,16 @@
 """Stim (Development Version): a fast quantum stabilizer circuit library."""
-# (This is a stubs file describing the classes and methods in stim.)
+# (This is a stubs file describing the classes and methods in lestim.)
 from __future__ import annotations
 from typing import overload, TYPE_CHECKING, List, Dict, Tuple, Any, Union, Iterable, Optional, Sequence, Literal
 if TYPE_CHECKING:
     import io
     import pathlib
     import numpy as np
-    import stim
+    import lestim
 class Circuit:
     """A mutable stabilizer circuit.
 
-    The stim.Circuit class is arguably the most important object in the
+    The lestim.Circuit class is arguably the most important object in the
     entire library. It is the interface through which you explain a
     noisy quantum computation to Stim, in order to do fast bulk sampling
     or fast error analysis.
@@ -19,21 +19,21 @@ class Circuit:
     new quantum error correction construction. Stim can help you do this
     but the very first step is to create a circuit implementing the
     construction. Once you have the circuit you can then use methods like
-    stim.Circuit.detector_error_model() to create an object that can be
+    lestim.Circuit.detector_error_model() to create an object that can be
     used to configure the decoder, or like
-    stim.Circuit.compile_detector_sampler() to produce problems for the
-    decoder to solve, or like stim.Circuit.shortest_graphlike_error() to
+    lestim.Circuit.compile_detector_sampler() to produce problems for the
+    decoder to solve, or like lestim.Circuit.shortest_graphlike_error() to
     check for mistakes in the implementation of the code.
 
     Examples:
-        >>> import stim
-        >>> c = stim.Circuit()
+        >>> import lestim
+        >>> c = lestim.Circuit()
         >>> c.append("X", 0)
         >>> c.append("M", 0)
         >>> c.compile_sampler().sample(shots=1)
         array([[ True]])
 
-        >>> stim.Circuit('''
+        >>> lestim.Circuit('''
         ...    H 0
         ...    CNOT 0 1
         ...    M 0 1
@@ -43,21 +43,21 @@ class Circuit:
     """
     def __add__(
         self,
-        second: stim.Circuit,
-    ) -> stim.Circuit:
+        second: lestim.Circuit,
+    ) -> lestim.Circuit:
         """Creates a circuit by appending two circuits.
 
         Examples:
-            >>> import stim
-            >>> c1 = stim.Circuit('''
+            >>> import lestim
+            >>> c1 = lestim.Circuit('''
             ...    X 0
             ...    Y 1 2
             ... ''')
-            >>> c2 = stim.Circuit('''
+            >>> c2 = lestim.Circuit('''
             ...    M 0 1 2
             ... ''')
             >>> c1 + c2
-            stim.Circuit('''
+            lestim.Circuit('''
                 X 0
                 Y 1 2
                 M 0 1 2
@@ -65,7 +65,7 @@ class Circuit:
         """
     def __eq__(
         self,
-        arg0: stim.Circuit,
+        arg0: lestim.Circuit,
     ) -> bool:
         """Determines if two circuits have identical contents.
         """
@@ -73,13 +73,13 @@ class Circuit:
     def __getitem__(
         self,
         index_or_slice: int,
-    ) -> Union[stim.CircuitInstruction, stim.CircuitRepeatBlock]:
+    ) -> Union[lestim.CircuitInstruction, lestim.CircuitRepeatBlock]:
         pass
     @overload
     def __getitem__(
         self,
         index_or_slice: slice,
-    ) -> stim.Circuit:
+    ) -> lestim.Circuit:
         pass
     def __getitem__(
         self,
@@ -97,8 +97,8 @@ class Circuit:
             slice.
 
         Examples:
-            >>> import stim
-            >>> circuit = stim.Circuit('''
+            >>> import lestim
+            >>> circuit = lestim.Circuit('''
             ...    X 0
             ...    X_ERROR(0.5) 2
             ...    REPEAT 100 {
@@ -110,14 +110,14 @@ class Circuit:
             ...    DETECTOR rec[-1]
             ... ''')
             >>> circuit[1]
-            stim.CircuitInstruction('X_ERROR', [stim.GateTarget(2)], [0.5])
+            lestim.CircuitInstruction('X_ERROR', [lestim.GateTarget(2)], [0.5])
             >>> circuit[2]
-            stim.CircuitRepeatBlock(100, stim.Circuit('''
+            lestim.CircuitRepeatBlock(100, lestim.Circuit('''
                 X 0
                 Y 1 2
             '''))
             >>> circuit[1::2]
-            stim.Circuit('''
+            lestim.Circuit('''
                 X_ERROR(0.5) 2
                 TICK
                 DETECTOR rec[-1]
@@ -125,22 +125,22 @@ class Circuit:
         """
     def __iadd__(
         self,
-        second: stim.Circuit,
-    ) -> stim.Circuit:
+        second: lestim.Circuit,
+    ) -> lestim.Circuit:
         """Appends a circuit into the receiving circuit (mutating it).
 
         Examples:
-            >>> import stim
-            >>> c1 = stim.Circuit('''
+            >>> import lestim
+            >>> c1 = lestim.Circuit('''
             ...    X 0
             ...    Y 1 2
             ... ''')
-            >>> c2 = stim.Circuit('''
+            >>> c2 = lestim.Circuit('''
             ...    M 0 1 2
             ... ''')
             >>> c1 += c2
             >>> print(repr(c1))
-            stim.Circuit('''
+            lestim.Circuit('''
                 X 0
                 Y 1 2
                 M 0 1 2
@@ -149,7 +149,7 @@ class Circuit:
     def __imul__(
         self,
         repetitions: int,
-    ) -> stim.Circuit:
+    ) -> lestim.Circuit:
         """Mutates the circuit by putting its contents into a REPEAT block.
 
         Special case: if the repetition count is 0, the circuit is cleared.
@@ -159,14 +159,14 @@ class Circuit:
             repetitions: The number of times the REPEAT block should repeat.
 
         Examples:
-            >>> import stim
-            >>> c = stim.Circuit('''
+            >>> import lestim
+            >>> c = lestim.Circuit('''
             ...    X 0
             ...    Y 1 2
             ... ''')
             >>> c *= 3
             >>> print(repr(c))
-            stim.Circuit('''
+            lestim.Circuit('''
                 REPEAT 3 {
                     X 0
                     Y 1 2
@@ -177,16 +177,16 @@ class Circuit:
         self,
         stim_program_text: str = '',
     ) -> None:
-        """Creates a stim.Circuit.
+        """Creates a lestim.Circuit.
 
         Args:
             stim_program_text: Defaults to empty. Describes operations to append into
                 the circuit.
 
         Examples:
-            >>> import stim
-            >>> empty = stim.Circuit()
-            >>> not_empty = stim.Circuit('''
+            >>> import lestim
+            >>> empty = lestim.Circuit()
+            >>> not_empty = lestim.Circuit('''
             ...    X 0
             ...    CNOT 0 1
             ...    M 1
@@ -200,10 +200,10 @@ class Circuit:
         Instructions inside of blocks are not included in this count.
 
         Examples:
-            >>> import stim
-            >>> len(stim.Circuit())
+            >>> import lestim
+            >>> len(lestim.Circuit())
             0
-            >>> len(stim.Circuit('''
+            >>> len(lestim.Circuit('''
             ...    X 0
             ...    X_ERROR(0.5) 1 2
             ...    TICK
@@ -211,7 +211,7 @@ class Circuit:
             ...    DETECTOR rec[-1]
             ... '''))
             5
-            >>> len(stim.Circuit('''
+            >>> len(lestim.Circuit('''
             ...    REPEAT 100 {
             ...        X 0
             ...        Y 1 2
@@ -222,7 +222,7 @@ class Circuit:
     def __mul__(
         self,
         repetitions: int,
-    ) -> stim.Circuit:
+    ) -> lestim.Circuit:
         """Repeats the circuit using a REPEAT block.
 
         Has special cases for 0 repetitions and 1 repetitions.
@@ -237,13 +237,13 @@ class Circuit:
                 that repeat block are this circuit.
 
         Examples:
-            >>> import stim
-            >>> c = stim.Circuit('''
+            >>> import lestim
+            >>> c = lestim.Circuit('''
             ...    X 0
             ...    Y 1 2
             ... ''')
             >>> c * 3
-            stim.Circuit('''
+            lestim.Circuit('''
                 REPEAT 3 {
                     X 0
                     Y 1 2
@@ -252,19 +252,19 @@ class Circuit:
         """
     def __ne__(
         self,
-        arg0: stim.Circuit,
+        arg0: lestim.Circuit,
     ) -> bool:
         """Determines if two circuits have non-identical contents.
         """
     def __repr__(
         self,
     ) -> str:
-        """Returns text that is a valid python expression evaluating to an equivalent `stim.Circuit`.
+        """Returns text that is a valid python expression evaluating to an equivalent `lestim.Circuit`.
         """
     def __rmul__(
         self,
         repetitions: int,
-    ) -> stim.Circuit:
+    ) -> lestim.Circuit:
         """Repeats the circuit using a REPEAT block.
 
         Has special cases for 0 repetitions and 1 repetitions.
@@ -279,13 +279,13 @@ class Circuit:
                 that repeat block are this circuit.
 
         Examples:
-            >>> import stim
-            >>> c = stim.Circuit('''
+            >>> import lestim
+            >>> c = lestim.Circuit('''
             ...    X 0
             ...    Y 1 2
             ... ''')
             >>> 3 * c
-            stim.Circuit('''
+            lestim.Circuit('''
                 REPEAT 3 {
                     X 0
                     Y 1 2
@@ -301,16 +301,25 @@ class Circuit:
     def append(
         self,
         name: str,
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
         targets: Union[int, stim.GateTarget, stim.PauliString, Iterable[Union[int, stim.GateTarget, stim.PauliString]]],
         arg: Union[float, Iterable[float], None] = None,
         *,
         tag: str = "",
+=======
+        targets: Union[int, lestim.GateTarget, Iterable[Union[int, lestim.GateTarget]]],
+        arg: Union[float, Iterable[float]],
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
     ) -> None:
         pass
     @overload
     def append(
         self,
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
         name: Union[stim.CircuitInstruction, stim.CircuitRepeatBlock, stim.Circuit],
+=======
+        name: Union[lestim.CircuitOperation, lestim.CircuitRepeatBlock],
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
     ) -> None:
         pass
     def append(
@@ -323,19 +332,42 @@ class Circuit:
     ) -> None:
         """Appends an operation into the circuit.
 
-        Note: `stim.Circuit.append_operation` is an alias of `stim.Circuit.append`.
+        Note: `lestim.Circuit.append_operation` is an alias of `lestim.Circuit.append`.
 
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
+=======
+        Examples:
+            >>> import lestim
+            >>> c = lestim.Circuit()
+            >>> c.append("X", 0)
+            >>> c.append("H", [0, 1])
+            >>> c.append("M", [0, lestim.target_inv(1)])
+            >>> c.append("CNOT", [lestim.target_rec(-1), 0])
+            >>> c.append("X_ERROR", [0], 0.125)
+            >>> c.append("CORRELATED_ERROR", [lestim.target_x(0), lestim.target_y(2)], 0.25)
+            >>> print(repr(c))
+            lestim.Circuit('''
+                X 0
+                H 0 1
+                M 0 !1
+                CX rec[-1] 0
+                X_ERROR(0.125) 0
+                E(0.25) X0 Y2
+            ''')
+
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
         Args:
             name: The name of the operation's gate (e.g. "H" or "M" or "CNOT").
 
-                This argument can also be set to a `stim.CircuitInstruction` or
-                `stim.CircuitInstructionBlock`, which results in the instruction or
+                This argument can also be set to a `lestim.CircuitInstruction` or
+                `lestim.CircuitInstructionBlock`, which results in the instruction or
                 block being appended to the circuit. The other arguments (targets
                 and arg) can't be specified when doing so.
 
                 (The argument being called `name` is no longer quite right, but
                 is being kept for backwards compatibility.)
             targets: The objects operated on by the gate. This can be either a
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
                 single target or an iterable of multiple targets.
 
                 Each target can be:
@@ -345,6 +377,13 @@ class Circuit:
                         `stim.CircuitInstruction.__getitem__` all return this type.
                     A `stim.PauliString`: This will automatically be expanded into
                         a product of pauli targets like `X1*Y2*Z3`.
+=======
+                single target or an iterable of multiple targets to broadcast the
+                gate over. Each target can be an integer (a qubit), a
+                lestim.GateTarget, or a special target from one of the `lestim.target_*`
+                methods (such as a measurement record target like `rec[-1]` from
+                `lestim.target_rec(-1)`).
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
             arg: The "parens arguments" for the gate, such as the probability for a
                 noise operation. A double or list of doubles parameterizing the
                 gate. Different gates take different parens arguments. For example,
@@ -385,8 +424,8 @@ class Circuit:
         """Appends operations described by a STIM format program into the circuit.
 
         Examples:
-            >>> import stim
-            >>> c = stim.Circuit()
+            >>> import lestim
+            >>> c = lestim.Circuit()
             >>> c.append_from_stim_program_text('''
             ...    H 0  # comment
             ...    CNOT 0 2
@@ -412,7 +451,7 @@ class Circuit:
         *,
         tag: str = '',
     ) -> None:
-        """[DEPRECATED] use stim.Circuit.append instead
+        """[DEPRECATED] use lestim.Circuit.append instead
         """
     def approx_equals(
         self,
@@ -438,8 +477,8 @@ class Circuit:
             receiving circuit up to the given tolerance, otherwise False.
 
         Examples:
-            >>> import stim
-            >>> base = stim.Circuit('''
+            >>> import lestim
+            >>> base = lestim.Circuit('''
             ...    X_ERROR(0.099) 0 1 2
             ...    M 0 1 2
             ... ''')
@@ -447,25 +486,25 @@ class Circuit:
             >>> base.approx_equals(base, atol=0)
             True
 
-            >>> base.approx_equals(stim.Circuit('''
+            >>> base.approx_equals(lestim.Circuit('''
             ...    X_ERROR(0.101) 0 1 2
             ...    M 0 1 2
             ... '''), atol=0)
             False
 
-            >>> base.approx_equals(stim.Circuit('''
+            >>> base.approx_equals(lestim.Circuit('''
             ...    X_ERROR(0.101) 0 1 2
             ...    M 0 1 2
             ... '''), atol=0.0001)
             False
 
-            >>> base.approx_equals(stim.Circuit('''
+            >>> base.approx_equals(lestim.Circuit('''
             ...    X_ERROR(0.101) 0 1 2
             ...    M 0 1 2
             ... '''), atol=0.01)
             True
 
-            >>> base.approx_equals(stim.Circuit('''
+            >>> base.approx_equals(lestim.Circuit('''
             ...    DEPOLARIZE1(0.099) 0 1 2
             ...    MRX 0 1 2
             ... '''), atol=9999)
@@ -477,20 +516,20 @@ class Circuit:
         """Clears the contents of the circuit.
 
         Examples:
-            >>> import stim
-            >>> c = stim.Circuit('''
+            >>> import lestim
+            >>> c = lestim.Circuit('''
             ...    X 0
             ...    Y 1 2
             ... ''')
             >>> c.clear()
             >>> c
-            stim.Circuit()
+            lestim.Circuit()
         """
     def compile_detector_sampler(
         self,
         *,
         seed: object = None,
-    ) -> stim.CompiledDetectorSampler:
+    ) -> lestim.CompiledDetectorSampler:
         """Returns an object that can batch sample detection events from the circuit.
 
         Args:
@@ -506,7 +545,7 @@ class Circuit:
                 same simulation results.
 
                 CAUTION: simulation results *WILL NOT* be consistent between versions of
-                Stim. This restriction is present to make it possible to have future
+                lestim. This restriction is present to make it possible to have future
                 optimizations to the random sampling, and is enforced by introducing
                 intentional differences in the seeding strategy from version to version.
 
@@ -520,8 +559,8 @@ class Circuit:
                 give different results from taking 100 shots in one call.
 
         Examples:
-            >>> import stim
-            >>> c = stim.Circuit('''
+            >>> import lestim
+            >>> c = lestim.Circuit('''
             ...    H 0
             ...    CNOT 0 1
             ...    M 0 1
@@ -535,7 +574,7 @@ class Circuit:
         self,
         *,
         skip_reference_sample: bool = False,
-    ) -> stim.CompiledMeasurementsToDetectionEventsConverter:
+    ) -> lestim.CompiledMeasurementsToDetectionEventsConverter:
         """Creates a measurement-to-detection-event converter for the given circuit.
 
         The converter can efficiently compute detection events and observable flips
@@ -558,12 +597,12 @@ class Circuit:
                 circuit (under noiseless execution).
 
         Returns:
-            An initialized stim.CompiledMeasurementsToDetectionEventsConverter.
+            An initialized lestim.CompiledMeasurementsToDetectionEventsConverter.
 
         Examples:
-            >>> import stim
+            >>> import lestim
             >>> import numpy as np
-            >>> converter = stim.Circuit('''
+            >>> converter = lestim.Circuit('''
             ...    X 0
             ...    M 0
             ...    DETECTOR rec[-1]
@@ -581,7 +620,7 @@ class Circuit:
         skip_reference_sample: bool = False,
         seed: Optional[int] = None,
         reference_sample: Optional[np.ndarray] = None,
-    ) -> stim.CompiledMeasurementSampler:
+    ) -> lestim.CompiledMeasurementSampler:
         """Returns an object that can quickly batch sample measurements from the circuit.
 
         Args:
@@ -612,7 +651,7 @@ class Circuit:
                 same simulation results.
 
                 CAUTION: simulation results *WILL NOT* be consistent between versions of
-                Stim. This restriction is present to make it possible to have future
+                lestim. This restriction is present to make it possible to have future
                 optimizations to the random sampling, and is enforced by introducing
                 intentional differences in the seeding strategy from version to version.
 
@@ -638,8 +677,8 @@ class Circuit:
             ValueError: skip_reference_sample is True and reference_sample is not None.
 
         Examples:
-            >>> import stim
-            >>> c = stim.Circuit('''
+            >>> import lestim
+            >>> c = lestim.Circuit('''
             ...    X 2
             ...    M 0 1 2
             ... ''')
@@ -649,13 +688,13 @@ class Circuit:
         """
     def copy(
         self,
-    ) -> stim.Circuit:
+    ) -> lestim.Circuit:
         """Returns a copy of the circuit. An independent circuit with the same contents.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> c1 = stim.Circuit("H 0")
+            >>> c1 = lestim.Circuit("H 0")
             >>> c2 = c1.copy()
             >>> c2 is c1
             False
@@ -708,21 +747,22 @@ class Circuit:
             The number of measurements that were predictable.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     R 0
             ...     M 0
             ... ''').count_determined_measurements()
             1
 
-            >>> stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     R 0
             ...     H 0
             ...     M 0
             ... ''').count_determined_measurements()
             0
 
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
             >>> stim.Circuit('''
             ...     M 0
             ... ''').count_determined_measurements()
@@ -742,6 +782,9 @@ class Circuit:
             6
 
             >>> stim.Circuit('''
+=======
+            >>> lestim.Circuit('''
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
             ...     R 0 1
             ...     MZZ 0 1
             ...     MYY 0 1
@@ -749,7 +792,7 @@ class Circuit:
             ... ''').count_determined_measurements()
             2
 
-            >>> circuit = stim.Circuit.generated(
+            >>> circuit = lestim.Circuit.generated(
             ...     "surface_code:rotated_memory_x",
             ...     distance=5,
             ...     rounds=9,
@@ -761,7 +804,7 @@ class Circuit:
         """
     def decomposed(
         self,
-    ) -> stim.Circuit:
+    ) -> lestim.Circuit:
         """Recreates the circuit using (mostly) the {H,S,CX,M,R} gate set.
 
         The intent of this method is to simplify the circuit to use fewer gate types,
@@ -782,25 +825,25 @@ class Circuit:
         - Repeat blocks are not flattened.
 
         Returns:
-            A `stim.Circuit` whose function is equivalent to the original circuit,
+            A `lestim.Circuit` whose function is equivalent to the original circuit,
             but with most gates decomposed into the {H,S,CX,M,R} gate set.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     SWAP 0 1
             ... ''').decomposed()
-            stim.Circuit('''
+            lestim.Circuit('''
                 CX 0 1 1 0 0 1
             ''')
 
-            >>> stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     ISWAP 0 1 2 1
             ...     TICK
             ...     MPP !X1*Y2*Z3
             ... ''').decomposed()
-            stim.Circuit('''
+            lestim.Circuit('''
                 H 0
                 CX 0 1 1 0
                 H 1
@@ -827,17 +870,17 @@ class Circuit:
     def detecting_regions(
         self,
         *,
-        targets: Optional[Iterable[stim.DemTarget | str | Iterable[float]]] = None,
+        targets: Optional[Iterable[lestim.DemTarget | str | Iterable[float]]] = None,
         ticks: Optional[Iterable[int]] = None,
-    ) -> Dict[stim.DemTarget, Dict[int, stim.PauliString]]:
+    ) -> Dict[lestim.DemTarget, Dict[int, lestim.PauliString]]:
         """Records where detectors and observables are sensitive to errors over time.
 
         The result of this method is a nested dictionary, mapping detectors/observables
         and ticks to Pauli sensitivities for that detector/observable at that time.
 
         For example, if observable 2 has Z-type sensitivity on qubits 5 and 6 during
-        tick 3, then `result[stim.target_logical_observable_id(2)][3]` will be equal to
-        `stim.PauliString("Z5*Z6")`.
+        tick 3, then `result[lestim.target_logical_observable_id(2)][3]` will be equal to
+        `lestim.PauliString("Z5*Z6")`.
 
         If you want sensitivities from more places in the circuit, besides just at the
         TICK instructions, you can work around this by making a version of the circuit
@@ -850,7 +893,7 @@ class Circuit:
                 matching any one filter are included.
 
                 A variety of filters are supported:
-                    stim.DemTarget: Includes the targeted detector or observable.
+                    lestim.DemTarget: Includes the targeted detector or observable.
                     Iterable[float]: Coordinate prefix match. Includes detectors whose
                         coordinate data begins with the same floats.
                     "D": Includes all detectors.
@@ -870,17 +913,17 @@ class Circuit:
                 regions.
 
         Returns:
-            Nested dictionaries keyed first by a `stim.DemTarget` identifying the
+            Nested dictionaries keyed first by a `lestim.DemTarget` identifying the
             detector or observable, then by the index of the tick, leading to a
             PauliString with that target's error sensitivity at that tick.
 
-            Note you can use `stim.PauliString.pauli_indices` to quickly get to the
+            Note you can use `lestim.PauliString.pauli_indices` to quickly get to the
             non-identity terms in the sensitivity.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> detecting_regions = stim.Circuit('''
+            >>> detecting_regions = lestim.Circuit('''
             ...     R 0
             ...     TICK
             ...     H 0
@@ -899,14 +942,14 @@ class Circuit:
                 tick 1 = +X_
                 tick 2 = +XX
 
-            >>> circuit = stim.Circuit.generated(
+            >>> circuit = lestim.Circuit.generated(
             ...     "surface_code:rotated_memory_x",
             ...     rounds=5,
             ...     distance=4,
             ... )
 
             >>> detecting_regions = circuit.detecting_regions(
-            ...     targets=["L0", (2, 4), stim.DemTarget.relative_detector_id(5)],
+            ...     targets=["L0", (2, 4), lestim.DemTarget.relative_detector_id(5)],
             ...     ticks=range(5, 15),
             ... )
             >>> for target, tick_regions in detecting_regions.items():
@@ -961,14 +1004,14 @@ class Circuit:
         approximate_disjoint_errors: float = False,
         ignore_decomposition_failures: bool = False,
         block_decomposition_from_introducing_remnant_edges: bool = False,
-    ) -> stim.DetectorErrorModel:
-        """Returns a stim.DetectorErrorModel describing the error processes in the circuit.
+    ) -> lestim.DetectorErrorModel:
+        """Returns a lestim.DetectorErrorModel describing the error processes in the circuit.
 
         Args:
             decompose_errors: Defaults to false. When set to true, the error analysis
                 attempts to decompose the components of composite error mechanisms (such
                 as depolarization errors) into simpler errors, and suggest this
-                decomposition via `stim.target_separator()` between the components. For
+                decomposition via `lestim.target_separator()` between the components. For
                 example, in an XZ surface code, single qubit depolarization has a Y
                 error term which can be decomposed into simpler X and Z error terms.
                 Decomposition fails (causing this method to throw) if it's not possible
@@ -1031,9 +1074,9 @@ class Circuit:
                 Irrelevant unless decompose_errors=True.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     X_ERROR(0.125) 0
             ...     X_ERROR(0.25) 1
             ...     CORRELATED_ERROR(0.375) X0 X1
@@ -1041,7 +1084,7 @@ class Circuit:
             ...     DETECTOR rec[-2]
             ...     DETECTOR rec[-1]
             ... ''').detector_error_model()
-            stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(0.125) D0
                 error(0.375) D0 D1
                 error(0.25) D1
@@ -1052,9 +1095,14 @@ class Circuit:
         type: Literal["timeline-text", "timeline-svg", "timeline-svg-html", "timeline-3d", "timeline-3d-html", "detslice-text", "detslice-svg", "detslice-svg-html", "matchgraph-svg", "matchgraph-svg-html", "matchgraph-3d", "matchgraph-3d-html", "timeslice-svg", "timeslice-svg-html", "detslice-with-ops-svg", "detslice-with-ops-svg-html", "interactive", "interactive-html"] = 'timeline-text',
         *,
         tick: Union[None, int, range] = None,
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
         filter_coords: Iterable[Union[Iterable[float], stim.DemTarget]] = ((),),
         rows: int | None = None,
     ) -> 'stim._DiagramHelper':
+=======
+        filter_coords: Iterable[Union[Iterable[float], lestim.DemTarget]] = ((),),
+    ) -> 'lestim._DiagramHelper':
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
         """Returns a diagram of the circuit, from a variety of options.
 
         Args:
@@ -1094,11 +1142,11 @@ class Circuit:
                 "detslice-svg-html": Same as detslice-svg but the SVG image
                     is inside a resizable HTML iframe.
                 "matchgraph-svg": An SVG image of the match graph extracted
-                    from the circuit by stim.Circuit.detector_error_model.
+                    from the circuit by lestim.Circuit.detector_error_model.
                 "matchgraph-svg-html": Same as matchgraph-svg but the SVG image
                     is inside a resizable HTML iframe.
                 "matchgraph-3d": An 3D model of the match graph extracted
-                    from the circuit by stim.Circuit.detector_error_model.
+                    from the circuit by lestim.Circuit.detector_error_model.
                 "matchgraph-3d-html": Same 3d model as 'match-graph-3d' but
                     embedded into an HTML web page containing an interactive
                     THREE.js viewer for the 3d model.
@@ -1128,6 +1176,7 @@ class Circuit:
 
                 Passing `range(A, B)` for a time slice will show the
                 operations between tick A and tick B.
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
             rows: In diagrams that have multiple separate pieces, such as timeslice
                 diagrams and detslice diagrams, this controls how many rows of
                 pieces there will be. If not specified, a number of rows that creates
@@ -1141,6 +1190,13 @@ class Circuit:
                 be included), a stim.DemTarget (specifying a detector or observable
                 to include), a string like "D5" or "L0" specifying a detector or
                 observable to include.
+=======
+            filter_coords: A set of acceptable coordinate prefixes, or
+                desired lestim.DemTargets. For detector slice diagrams, only
+                detectors match one of the filters are included. If no filter
+                is specified, all detectors are included (but no observables).
+                To include an observable, add it as one of the filters.
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
 
         Returns:
             An object whose `__str__` method returns the diagram, so that
@@ -1150,8 +1206,8 @@ class Circuit:
             viewer instead of as raw text.
 
         Examples:
-            >>> import stim
-            >>> circuit = stim.Circuit('''
+            >>> import lestim
+            >>> circuit = lestim.Circuit('''
             ...     H 0
             ...     CNOT 0 1 1 2
             ... ''')
@@ -1163,7 +1219,7 @@ class Circuit:
                      |
             q2: -----X-
 
-            >>> circuit = stim.Circuit('''
+            >>> circuit = lestim.Circuit('''
             ...     H 0
             ...     CNOT 0 1
             ...     TICK
@@ -1181,13 +1237,13 @@ class Circuit:
         *,
         dem_filter: object = None,
         reduce_to_one_representative_error: bool = False,
-    ) -> List[stim.ExplainedError]:
+    ) -> List[lestim.ExplainedError]:
         """Explains how detector error model errors are produced by circuit errors.
 
         Args:
             dem_filter: Defaults to None (unused). When used, the output will only
                 contain detector error model errors that appear in the given
-                `stim.DetectorErrorModel`. Any error mechanisms from the detector error
+                `lestim.DetectorErrorModel`. Any error mechanisms from the detector error
                 model that can't be reproduced using one error from the circuit will
                 also be included in the result, but with an empty list of associated
                 circuit error mechanisms.
@@ -1195,13 +1251,13 @@ class Circuit:
                 in the result will contain at most one circuit error mechanism.
 
         Returns:
-            A `List[stim.ExplainedError]` (see `stim.ExplainedError` for more
+            A `List[lestim.ExplainedError]` (see `lestim.ExplainedError` for more
             information). Each item in the list describes how a detector error model
             error can be produced by individual circuit errors.
 
         Examples:
-            >>> import stim
-            >>> circuit = stim.Circuit('''
+            >>> import lestim
+            >>> circuit = lestim.Circuit('''
             ...     # Create Bell pair.
             ...     H 0
             ...     CNOT 0 1
@@ -1219,7 +1275,7 @@ class Circuit:
             ...     DETECTOR rec[-2]
             ... ''')
             >>> explained_errors = circuit.explain_detector_error_model_errors(
-            ...     dem_filter=stim.DetectorErrorModel('error(1) D0 D1'),
+            ...     dem_filter=lestim.DetectorErrorModel('error(1) D0 D1'),
             ...     reduce_to_one_representative_error=True,
             ... )
             >>> print(explained_errors[0].circuit_error_locations[0])
@@ -1234,17 +1290,17 @@ class Circuit:
         """
     def flattened(
         self,
-    ) -> stim.Circuit:
+    ) -> lestim.Circuit:
         """Creates an equivalent circuit without REPEAT or SHIFT_COORDS.
 
         Returns:
-            A `stim.Circuit` with the same instructions in the same order,
+            A `lestim.Circuit` with the same instructions in the same order,
             but with loops flattened into repeated instructions and with
             all coordinate shifts inlined.
 
         Examples:
-            >>> import stim
-            >>> stim.Circuit('''
+            >>> import lestim
+            >>> lestim.Circuit('''
             ...     REPEAT 5 {
             ...         MR 0 1
             ...         DETECTOR(0, 0) rec[-2]
@@ -1252,7 +1308,7 @@ class Circuit:
             ...         SHIFT_COORDS(0, 1)
             ...     }
             ... ''').flattened()
-            stim.Circuit('''
+            lestim.Circuit('''
                 MR 0 1
                 DETECTOR(0, 0) rec[-2]
                 DETECTOR(1, 0) rec[-1]
@@ -1280,15 +1336,15 @@ class Circuit:
         avoid REPEAT blocks, `for instruction in circuit.flattened()`.
 
         Examples:
-            >>> import stim
-            >>> stim.Circuit('''
+            >>> import lestim
+            >>> lestim.Circuit('''
             ...    H 0
             ...    X_ERROR(0.125) 1
             ...    M 0 !1
             ... ''').flattened_operations()
             [('H', [0], 0), ('X_ERROR', [1], 0.125), ('M', [0, ('inv', 1)], 0)]
 
-            >>> stim.Circuit('''
+            >>> lestim.Circuit('''
             ...    REPEAT 2 {
             ...        H 6
             ...    }
@@ -1349,7 +1405,7 @@ class Circuit:
     @staticmethod
     def from_file(
         file: Union[io.TextIOBase, str, pathlib.Path],
-    ) -> stim.Circuit:
+    ) -> lestim.Circuit:
         """Reads a stim circuit from a file.
 
         The file format is defined at
@@ -1362,16 +1418,16 @@ class Circuit:
             The circuit parsed from the file.
 
         Examples:
-            >>> import stim
+            >>> import lestim
             >>> import tempfile
 
             >>> with tempfile.TemporaryDirectory() as tmpdir:
             ...     path = tmpdir + '/tmp.stim'
             ...     with open(path, 'w') as f:
             ...         print('H 5', file=f)
-            ...     circuit = stim.Circuit.from_file(path)
+            ...     circuit = lestim.Circuit.from_file(path)
             >>> circuit
-            stim.Circuit('''
+            lestim.Circuit('''
                 H 5
             ''')
 
@@ -1380,9 +1436,13 @@ class Circuit:
             ...     with open(path, 'w') as f:
             ...         print('CNOT 4 5', file=f)
             ...     with open(path) as f:
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
             ...         circuit = stim.Circuit.from_file(f)
+=======
+            ...         circuit = lestim.Circuit.from_file(path)
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
             >>> circuit
-            stim.Circuit('''
+            lestim.Circuit('''
                 CX 4 5
             ''')
         """
@@ -1396,7 +1456,7 @@ class Circuit:
         before_round_data_depolarization: float = 0.0,
         before_measure_flip_probability: float = 0.0,
         after_reset_flip_probability: float = 0.0,
-    ) -> stim.Circuit:
+    ) -> lestim.Circuit:
         """Generates common circuits.
 
         The generated circuits can include configurable noise.
@@ -1446,8 +1506,8 @@ class Circuit:
             The generated circuit.
 
         Examples:
-            >>> import stim
-            >>> circuit = stim.Circuit.generated(
+            >>> import lestim
+            >>> circuit = lestim.Circuit.generated(
             ...     "repetition_code:memory",
             ...     distance=4,
             ...     rounds=10000,
@@ -1504,8 +1564,8 @@ class Circuit:
             If `only` is specified, then `set(result.keys()) == set(only)`.
 
         Examples:
-            >>> import stim
-            >>> circuit = stim.Circuit('''
+            >>> import lestim
+            >>> circuit = lestim.Circuit('''
             ...    M 0
             ...    DETECTOR rec[-1]
             ...    DETECTOR(1, 2, 3) rec[-1]
@@ -1533,8 +1593,8 @@ class Circuit:
             in the result.
 
         Examples:
-            >>> import stim
-            >>> circuit = stim.Circuit('''
+            >>> import lestim
+            >>> circuit = lestim.Circuit('''
             ...    QUBIT_COORDS(1, 2, 3) 1
             ... ''')
             >>> circuit.get_final_qubit_coordinates()
@@ -1542,7 +1602,7 @@ class Circuit:
         """
     def has_all_flows(
         self,
-        flows: Iterable[stim.Flow],
+        flows: Iterable[lestim.Flow],
         *,
         unsigned: bool = False,
     ) -> bool:
@@ -1555,7 +1615,7 @@ class Circuit:
         This method ignores any noise in the circuit.
 
         Args:
-            flows: An iterable of `stim.Flow` instances representing the flows to check.
+            flows: An iterable of `lestim.Flow` instances representing the flows to check.
             unsigned: Defaults to False. When False, the flows must be correct including
                 the sign of the Pauli strings. When True, only the Pauli terms need to
                 be correct; the signs are permitted to be inverted. In effect, this
@@ -1565,26 +1625,26 @@ class Circuit:
             True if the circuit has the given flow; False otherwise.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> stim.Circuit('H 0').has_all_flows([
-            ...     stim.Flow('X -> Z'),
-            ...     stim.Flow('Y -> Y'),
-            ...     stim.Flow('Z -> X'),
+            >>> lestim.Circuit('H 0').has_all_flows([
+            ...     lestim.Flow('X -> Z'),
+            ...     lestim.Flow('Y -> Y'),
+            ...     lestim.Flow('Z -> X'),
             ... ])
             False
 
-            >>> stim.Circuit('H 0').has_all_flows([
-            ...     stim.Flow('X -> Z'),
-            ...     stim.Flow('Y -> -Y'),
-            ...     stim.Flow('Z -> X'),
+            >>> lestim.Circuit('H 0').has_all_flows([
+            ...     lestim.Flow('X -> Z'),
+            ...     lestim.Flow('Y -> -Y'),
+            ...     lestim.Flow('Z -> X'),
             ... ])
             True
 
-            >>> stim.Circuit('H 0').has_all_flows([
-            ...     stim.Flow('X -> Z'),
-            ...     stim.Flow('Y -> Y'),
-            ...     stim.Flow('Z -> X'),
+            >>> lestim.Circuit('H 0').has_all_flows([
+            ...     lestim.Flow('X -> Z'),
+            ...     lestim.Flow('Y -> Y'),
+            ...     lestim.Flow('Z -> X'),
             ... ], unsigned=True)
             True
 
@@ -1597,7 +1657,7 @@ class Circuit:
         """
     def has_flow(
         self,
-        flow: stim.Flow,
+        flow: lestim.Flow,
         *,
         unsigned: bool = False,
     ) -> bool:
@@ -1627,37 +1687,38 @@ class Circuit:
             True if the circuit has the given flow; False otherwise.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> m = stim.Circuit('M 0')
-            >>> m.has_flow(stim.Flow('Z -> Z'))
+            >>> m = lestim.Circuit('M 0')
+            >>> m.has_flow(lestim.Flow('Z -> Z'))
             True
-            >>> m.has_flow(stim.Flow('X -> X'))
+            >>> m.has_flow(lestim.Flow('X -> X'))
             False
-            >>> m.has_flow(stim.Flow('Z -> I'))
+            >>> m.has_flow(lestim.Flow('Z -> I'))
             False
-            >>> m.has_flow(stim.Flow('Z -> I xor rec[-1]'))
+            >>> m.has_flow(lestim.Flow('Z -> I xor rec[-1]'))
             True
-            >>> m.has_flow(stim.Flow('Z -> rec[-1]'))
-            True
-
-            >>> cx58 = stim.Circuit('CX 5 8')
-            >>> cx58.has_flow(stim.Flow('X5 -> X5*X8'))
-            True
-            >>> cx58.has_flow(stim.Flow('X_ -> XX'))
-            False
-            >>> cx58.has_flow(stim.Flow('_____X___ -> _____X__X'))
+            >>> m.has_flow(lestim.Flow('Z -> rec[-1]'))
             True
 
-            >>> stim.Circuit('''
+            >>> cx58 = lestim.Circuit('CX 5 8')
+            >>> cx58.has_flow(lestim.Flow('X5 -> X5*X8'))
+            True
+            >>> cx58.has_flow(lestim.Flow('X_ -> XX'))
+            False
+            >>> cx58.has_flow(lestim.Flow('_____X___ -> _____X__X'))
+            True
+
+            >>> lestim.Circuit('''
             ...     RY 0
-            ... ''').has_flow(stim.Flow(
-            ...     output=stim.PauliString("Y"),
+            ... ''').has_flow(lestim.Flow(
+            ...     output=lestim.PauliString("Y"),
             ... ))
             True
 
-            >>> stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     RY 0
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
             ...     X_ERROR(0.1) 0
             ... ''').has_flow(stim.Flow(
             ...     output=stim.PauliString("Y"),
@@ -1668,42 +1729,46 @@ class Circuit:
             ...     RY 0
             ... ''').has_flow(stim.Flow(
             ...     output=stim.PauliString("X"),
+=======
+            ... ''').has_flow(lestim.Flow(
+            ...     output=lestim.PauliString("X"),
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
             ... ))
             False
 
-            >>> stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     CX 0 1
-            ... ''').has_flow(stim.Flow(
-            ...     input=stim.PauliString("+X_"),
-            ...     output=stim.PauliString("+XX"),
+            ... ''').has_flow(lestim.Flow(
+            ...     input=lestim.PauliString("+X_"),
+            ...     output=lestim.PauliString("+XX"),
             ... ))
             True
 
-            >>> stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     # Lattice surgery CNOT
             ...     R 1
             ...     MXX 0 1
             ...     MZZ 1 2
             ...     MX 1
-            ... ''').has_flow(stim.Flow(
-            ...     input=stim.PauliString("+X_X"),
-            ...     output=stim.PauliString("+__X"),
+            ... ''').has_flow(lestim.Flow(
+            ...     input=lestim.PauliString("+X_X"),
+            ...     output=lestim.PauliString("+__X"),
             ...     measurements=[0, 2],
             ... ))
             True
 
-            >>> stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     H 0
             ... ''').has_flow(
-            ...     stim.Flow("Y -> Y"),
+            ...     lestim.Flow("Y -> Y"),
             ...     unsigned=True,
             ... )
             True
 
-            >>> stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     H 0
             ... ''').has_flow(
-            ...     stim.Flow("Y -> Y"),
+            ...     lestim.Flow("Y -> Y"),
             ...     unsigned=False,
             ... )
             False
@@ -1766,14 +1831,14 @@ class Circuit:
         """
     def inverse(
         self,
-    ) -> stim.Circuit:
+    ) -> lestim.Circuit:
         """Returns a circuit that applies the same operations but inverted and in reverse.
 
         If circuit starts with QUBIT_COORDS instructions, the returned circuit will
         still have the same QUBIT_COORDS instructions in the same order at the start.
 
         Returns:
-            A `stim.Circuit` that applies inverted operations in the reverse order.
+            A `lestim.Circuit` that applies inverted operations in the reverse order.
 
         Raises:
             ValueError: The circuit contains operations that don't have an inverse,
@@ -1781,18 +1846,18 @@ class Circuit:
                 such as SHIFT_COORDS.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     S 0 1
             ...     ISWAP 0 1 1 2
             ... ''').inverse()
-            stim.Circuit('''
+            lestim.Circuit('''
                 ISWAP_DAG 1 2 0 1
                 S_DAG 1 0
             ''')
 
-            >>> stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     QUBIT_COORDS(1, 2) 0
             ...     QUBIT_COORDS(4, 3) 1
             ...     QUBIT_COORDS(9, 5) 2
@@ -1803,7 +1868,7 @@ class Circuit:
             ...         S 1 2
             ...     }
             ... ''').inverse()
-            stim.Circuit('''
+            lestim.Circuit('''
                 QUBIT_COORDS(1, 2) 0
                 QUBIT_COORDS(4, 3) 1
                 QUBIT_COORDS(9, 5) 2
@@ -1877,8 +1942,8 @@ class Circuit:
             requested format.
 
         Examples:
-            >>> import stim
-            >>> circuit = stim.Circuit('''
+            >>> import lestim
+            >>> circuit = lestim.Circuit('''
             ...   X_ERROR(0.1) 0
             ...   M 0
             ...   OBSERVABLE_INCLUDE(0) rec[-1]
@@ -1961,8 +2026,8 @@ class Circuit:
         """Counts the number of bits produced when sampling the circuit's detectors.
 
         Examples:
-            >>> import stim
-            >>> c = stim.Circuit('''
+            >>> import lestim
+            >>> c = lestim.Circuit('''
             ...    M 0
             ...    DETECTOR rec[-1]
             ...    REPEAT 100 {
@@ -1981,8 +2046,8 @@ class Circuit:
         """Counts the number of bits produced when sampling the circuit's measurements.
 
         Examples:
-            >>> import stim
-            >>> c = stim.Circuit('''
+            >>> import lestim
+            >>> c = lestim.Circuit('''
             ...    M 0
             ...    REPEAT 100 {
             ...        M 0 1
@@ -2001,8 +2066,8 @@ class Circuit:
         OBSERVABLE_INCLUDE instruction.
 
         Examples:
-            >>> import stim
-            >>> c = stim.Circuit('''
+            >>> import lestim
+            >>> c = lestim.Circuit('''
             ...    M 0
             ...    OBSERVABLE_INCLUDE(2) rec[-1]
             ...    OBSERVABLE_INCLUDE(5) rec[-1]
@@ -2019,13 +2084,13 @@ class Circuit:
         This is always one more than the largest qubit index used by the circuit.
 
         Examples:
-            >>> import stim
-            >>> stim.Circuit('''
+            >>> import lestim
+            >>> lestim.Circuit('''
             ...    X 0
             ...    M 0 1
             ... ''').num_qubits
             2
-            >>> stim.Circuit('''
+            >>> lestim.Circuit('''
             ...    X 0
             ...    M 0 1
             ...    H 100
@@ -2041,12 +2106,12 @@ class Circuit:
         This is always one more than the largest sweep bit index used by the circuit.
 
         Examples:
-            >>> import stim
-            >>> stim.Circuit('''
+            >>> import lestim
+            >>> lestim.Circuit('''
             ...    CX sweep[2] 0
             ... ''').num_sweep_bits
             3
-            >>> stim.Circuit('''
+            >>> lestim.Circuit('''
             ...    CZ sweep[5] 0
             ...    CX sweep[2] 0
             ... ''').num_sweep_bits
@@ -2064,17 +2129,17 @@ class Circuit:
             The number of ticks executed by the circuit.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> stim.Circuit().num_ticks
+            >>> lestim.Circuit().num_ticks
             0
 
-            >>> stim.Circuit('''
+            >>> lestim.Circuit('''
             ...    TICK
             ... ''').num_ticks
             1
 
-            >>> stim.Circuit('''
+            >>> lestim.Circuit('''
             ...    H 0
             ...    TICK
             ...    CX 0 1
@@ -2082,7 +2147,7 @@ class Circuit:
             ... ''').num_ticks
             2
 
-            >>> stim.Circuit('''
+            >>> lestim.Circuit('''
             ...    H 0
             ...    TICK
             ...    REPEAT 100 {
@@ -2212,7 +2277,7 @@ class Circuit:
         dont_explore_edges_with_degree_above: int,
         dont_explore_edges_increasing_symptom_degree: bool,
         canonicalize_circuit_errors: bool = False,
-    ) -> List[stim.ExplainedError]:
+    ) -> List[lestim.ExplainedError]:
         """Searches for small sets of errors that form an undetectable logical error.
 
         THIS IS A HEURISTIC METHOD. It does not guarantee that it will find errors of
@@ -2222,7 +2287,7 @@ class Circuit:
         being considered.
 
         If you want a well behaved method that does provide guarantees of finding errors
-        of a particular type, use `stim.Circuit.shortest_graphlike_error`. This method
+        of a particular type, use `lestim.Circuit.shortest_graphlike_error`. This method
         is more thorough than that (assuming you don't truncate so hard you omit
         graphlike edges), but exactly how thorough is difficult to describe. It's also
         not guaranteed that the behavior of this method will not be changed in the
@@ -2280,13 +2345,13 @@ class Circuit:
         Returns:
             A list of error mechanisms that cause an undetected logical error.
 
-            Each entry in the list is a `stim.ExplainedError` detailing the location
+            Each entry in the list is a `lestim.ExplainedError` detailing the location
             and effects of a single physical error. The effects of the entire list
             combine to produce a logical frame change without any detection events.
 
         Examples:
-            >>> import stim
-            >>> circuit = stim.Circuit.generated(
+            >>> import lestim
+            >>> circuit = lestim.Circuit.generated(
             ...     "surface_code:rotated_memory_x",
             ...     rounds=5,
             ...     distance=5,
@@ -2349,8 +2414,8 @@ class Circuit:
             requested format.
 
         Examples:
-            >>> import stim
-            >>> circuit = stim.Circuit('''
+            >>> import lestim
+            >>> circuit = lestim.Circuit('''
             ...   X_ERROR(0.1) 0
             ...   M 0
             ...   OBSERVABLE_INCLUDE(0) rec[-1]
@@ -2370,7 +2435,7 @@ class Circuit:
         *,
         ignore_ungraphlike_errors: bool = True,
         canonicalize_circuit_errors: bool = False,
-    ) -> List[stim.ExplainedError]:
+    ) -> List[lestim.ExplainedError]:
         """Finds a minimum set of graphlike errors to produce an undetected logical error.
 
         A "graphlike error" is an error that creates at most two detection events
@@ -2382,7 +2447,7 @@ class Circuit:
         minimum *number* of physical errors, not the maximum probability of those
         physical errors all occurring.
 
-        This method works by converting the circuit into a `stim.DetectorErrorModel`
+        This method works by converting the circuit into a `lestim.DetectorErrorModel`
         using `circuit.detector_error_model(...)`, computing the shortest graphlike
         error of the error model, and then converting the physical errors making up that
         logical error back into representative circuit errors.
@@ -2420,14 +2485,14 @@ class Circuit:
         Returns:
             A list of error mechanisms that cause an undetected logical error.
 
-            Each entry in the list is a `stim.ExplainedError` detailing the location
+            Each entry in the list is a `lestim.ExplainedError` detailing the location
             and effects of a single physical error. The effects of the entire list
             combine to produce a logical frame change without any detection events.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> circuit = stim.Circuit.generated(
+            >>> circuit = lestim.Circuit.generated(
             ...     "repetition_code:memory",
             ...     rounds=10,
             ...     distance=7,
@@ -2528,10 +2593,10 @@ class Circuit:
         """
     def time_reversed_for_flows(
         self,
-        flows: Iterable[stim.Flow],
+        flows: Iterable[lestim.Flow],
         *,
         dont_turn_measurements_into_resets: bool = False,
-    ) -> Tuple[stim.Circuit, List[stim.Flow]]:
+    ) -> Tuple[lestim.Circuit, List[lestim.Flow]]:
         """Time-reverses the circuit while preserving error correction structure.
 
         This method returns a circuit that has the same internal detecting regions
@@ -2595,9 +2660,9 @@ class Circuit:
             It unconditionally sets the sign to False.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> inv_circuit, inv_flows = stim.Circuit('''
+            >>> inv_circuit, inv_flows = lestim.Circuit('''
             ...     R 0
             ...     H 0
             ...     S 0
@@ -2605,7 +2670,7 @@ class Circuit:
             ...     DETECTOR rec[-1]
             ... ''').time_reversed_for_flows([])
             >>> inv_circuit
-            stim.Circuit('''
+            lestim.Circuit('''
                 RY 0
                 S_DAG 0
                 H 0
@@ -2615,89 +2680,89 @@ class Circuit:
             >>> inv_flows
             []
 
-            >>> inv_circuit, inv_flows = stim.Circuit('''
+            >>> inv_circuit, inv_flows = lestim.Circuit('''
             ...     M 0
             ... ''').time_reversed_for_flows([
-            ...     stim.Flow("Z -> rec[-1]"),
+            ...     lestim.Flow("Z -> rec[-1]"),
             ... ])
             >>> inv_circuit
-            stim.Circuit('''
+            lestim.Circuit('''
                 R 0
             ''')
             >>> inv_flows
-            [stim.Flow("1 -> Z")]
+            [lestim.Flow("1 -> Z")]
             >>> inv_circuit.has_all_flows(inv_flows, unsigned=True)
             True
 
-            >>> inv_circuit, inv_flows = stim.Circuit('''
+            >>> inv_circuit, inv_flows = lestim.Circuit('''
             ...     R 0
             ... ''').time_reversed_for_flows([
-            ...     stim.Flow("1 -> Z"),
+            ...     lestim.Flow("1 -> Z"),
             ... ])
             >>> inv_circuit
-            stim.Circuit('''
+            lestim.Circuit('''
                 M 0
             ''')
             >>> inv_flows
-            [stim.Flow("Z -> rec[-1]")]
+            [lestim.Flow("Z -> rec[-1]")]
 
-            >>> inv_circuit, inv_flows = stim.Circuit('''
+            >>> inv_circuit, inv_flows = lestim.Circuit('''
             ...     M 0
             ... ''').time_reversed_for_flows([
-            ...     stim.Flow("1 -> Z xor rec[-1]"),
+            ...     lestim.Flow("1 -> Z xor rec[-1]"),
             ... ])
             >>> inv_circuit
-            stim.Circuit('''
+            lestim.Circuit('''
                 M 0
             ''')
             >>> inv_flows
-            [stim.Flow("Z -> rec[-1]")]
+            [lestim.Flow("Z -> rec[-1]")]
 
-            >>> inv_circuit, inv_flows = stim.Circuit('''
+            >>> inv_circuit, inv_flows = lestim.Circuit('''
             ...     M 0
             ... ''').time_reversed_for_flows(
-            ...     flows=[stim.Flow("Z -> rec[-1]")],
+            ...     flows=[lestim.Flow("Z -> rec[-1]")],
             ...     dont_turn_measurements_into_resets=True,
             ... )
             >>> inv_circuit
-            stim.Circuit('''
+            lestim.Circuit('''
                 M 0
             ''')
             >>> inv_flows
-            [stim.Flow("1 -> Z xor rec[-1]")]
+            [lestim.Flow("1 -> Z xor rec[-1]")]
 
-            >>> inv_circuit, inv_flows = stim.Circuit('''
+            >>> inv_circuit, inv_flows = lestim.Circuit('''
             ...     MR(0.125) 0
             ... ''').time_reversed_for_flows([])
             >>> inv_circuit
-            stim.Circuit('''
+            lestim.Circuit('''
                 MR 0
                 X_ERROR(0.125) 0
             ''')
             >>> inv_flows
             []
 
-            >>> inv_circuit, inv_flows = stim.Circuit('''
+            >>> inv_circuit, inv_flows = lestim.Circuit('''
             ...     MXX 0 1
             ...     H 0
             ... ''').time_reversed_for_flows([
-            ...     stim.Flow("ZZ -> YY xor rec[-1]"),
-            ...     stim.Flow("ZZ -> XZ"),
+            ...     lestim.Flow("ZZ -> YY xor rec[-1]"),
+            ...     lestim.Flow("ZZ -> XZ"),
             ... ])
             >>> inv_circuit
-            stim.Circuit('''
+            lestim.Circuit('''
                 H 0
                 MXX 0 1
             ''')
             >>> inv_flows
-            [stim.Flow("YY -> ZZ xor rec[-1]"), stim.Flow("XZ -> ZZ")]
+            [lestim.Flow("YY -> ZZ xor rec[-1]"), lestim.Flow("XZ -> ZZ")]
 
-            >>> stim.Circuit.generated(
+            >>> lestim.Circuit.generated(
             ...     "surface_code:rotated_memory_x",
             ...     distance=2,
             ...     rounds=1,
             ... ).time_reversed_for_flows([])[0]
-            stim.Circuit('''
+            lestim.Circuit('''
                 QUBIT_COORDS(1, 1) 1
                 QUBIT_COORDS(2, 0) 2
                 QUBIT_COORDS(3, 1) 3
@@ -2756,8 +2821,8 @@ class Circuit:
             A URL that can be opened in a web browser.
 
         Examples:
-            >>> import stim
-            >>> stim.Circuit('''
+            >>> import lestim
+            >>> lestim.Circuit('''
             ...     H 0
             ...     CNOT 0 1
             ...     S 1
@@ -2787,9 +2852,9 @@ class Circuit:
             file: A file path or an open file to write to.
 
         Examples:
-            >>> import stim
+            >>> import lestim
             >>> import tempfile
-            >>> c = stim.Circuit('H 5\nX 0')
+            >>> c = lestim.Circuit('H 5\nX 0')
 
             >>> with tempfile.TemporaryDirectory() as tmpdir:
             ...     path = tmpdir + '/tmp.stim'
@@ -2843,8 +2908,8 @@ class Circuit:
             The OpenQASM code as a string.
 
         Examples:
-            >>> import stim
-            >>> circuit = stim.Circuit('''
+            >>> import lestim
+            >>> circuit = lestim.Circuit('''
             ...     R 0 1
             ...     X 1
             ...     H 0
@@ -2886,8 +2951,8 @@ class Circuit:
             A URL that can be opened in a web browser.
 
         Examples:
-            >>> import stim
-            >>> stim.Circuit('''
+            >>> import lestim
+            >>> lestim.Circuit('''
             ...     H 0
             ...     CNOT 0 1
             ...     S 1
@@ -2900,7 +2965,7 @@ class Circuit:
         ignore_noise: bool = False,
         ignore_measurement: bool = False,
         ignore_reset: bool = False,
-    ) -> stim.Tableau:
+    ) -> lestim.Tableau:
         """Converts the circuit into an equivalent stabilizer tableau.
 
         Args:
@@ -2930,25 +2995,25 @@ class Circuit:
                 The circuit contains reset operations but ignore_reset=False.
 
         Examples:
-            >>> import stim
-            >>> stim.Circuit('''
+            >>> import lestim
+            >>> lestim.Circuit('''
             ...     H 0
             ...     CNOT 0 1
             ... ''').to_tableau()
-            stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    stim.PauliString("+Z_"),
-                    stim.PauliString("+_X"),
+                    lestim.PauliString("+Z_"),
+                    lestim.PauliString("+_X"),
                 ],
                 zs=[
-                    stim.PauliString("+XX"),
-                    stim.PauliString("+ZZ"),
+                    lestim.PauliString("+XX"),
+                    lestim.PauliString("+ZZ"),
                 ],
             )
         """
     def with_inlined_feedback(
         self,
-    ) -> stim.Circuit:
+    ) -> lestim.Circuit:
         """Returns a circuit without feedback with rewritten detectors/observables.
 
         When a feedback operation affects the expected parity of a detector or
@@ -2968,7 +3033,7 @@ class Circuit:
             assert dem1.approx_equals(dem2, 1e-5)
 
         Returns:
-            A `stim.Circuit` with feedback operations removed, with rewritten DETECTOR
+            A `lestim.Circuit` with feedback operations removed, with rewritten DETECTOR
             instructions (as needed to avoid changing the meaning of each detector), and
             with additional OBSERVABLE_INCLUDE instructions (as needed to avoid changing
             the meaning of each observable).
@@ -2979,9 +3044,9 @@ class Circuit:
             the structure of the circuit.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     CX 0 1        # copy to measure qubit
             ...     M 1           # measure first time
             ...     CX rec[-1] 1  # use feedback to reset measurement qubit
@@ -2990,7 +3055,7 @@ class Circuit:
             ...     DETECTOR rec[-1] rec[-2]
             ...     OBSERVABLE_INCLUDE(0) rec[-1]
             ... ''').with_inlined_feedback()
-            stim.Circuit('''
+            lestim.Circuit('''
                 CX 0 1
                 M 1
                 OBSERVABLE_INCLUDE(0) rec[-1]
@@ -3002,7 +3067,7 @@ class Circuit:
         """
     def without_noise(
         self,
-    ) -> stim.Circuit:
+    ) -> lestim.Circuit:
         """Returns a copy of the circuit with all noise processes removed.
 
         Pure noise instructions, such as X_ERROR and DEPOLARIZE2, are not
@@ -3012,17 +3077,17 @@ class Circuit:
         parameter removed.
 
         Returns:
-            A `stim.Circuit` with the same instructions except all noise
+            A `lestim.Circuit` with the same instructions except all noise
             processes have been removed.
 
         Examples:
-            >>> import stim
-            >>> stim.Circuit('''
+            >>> import lestim
+            >>> lestim.Circuit('''
             ...     X_ERROR(0.25) 0
             ...     CNOT 0 1
             ...     M(0.125) 0
             ... ''').without_noise()
-            stim.Circuit('''
+            lestim.Circuit('''
                 CX 0 1
                 M 0
             ''')
@@ -3074,8 +3139,9 @@ class CircuitErrorLocation:
         self,
         *,
         tick_offset: int,
-        flipped_pauli_product: List[stim.GateTargetWithCoords],
+        flipped_pauli_product: List[lestim.GateTargetWithCoords],
         flipped_measurement: object,
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
         instruction_targets: stim.CircuitTargetsInsideInstruction,
         stack_frames: List[stim.CircuitErrorLocationStackFrame],
         noise_tag: str = '',
@@ -3125,11 +3191,17 @@ class CircuitErrorLocation:
                     at target #1 of the instruction
                     resolving to DEPOLARIZE1(0.001) 0
             }
+=======
+        instruction_targets: lestim.CircuitTargetsInsideInstruction,
+        stack_frames: List[lestim.CircuitErrorLocationStackFrame],
+    ) -> None:
+        """Creates a lestim.CircuitErrorLocation.
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
         """
     @property
     def flipped_measurement(
         self,
-    ) -> Optional[stim.FlippedMeasurement]:
+    ) -> Optional[lestim.FlippedMeasurement]:
         """The measurement that was flipped by the error mechanism.
 
         If the error isn't a measurement error, this will be None.
@@ -3150,7 +3222,7 @@ class CircuitErrorLocation:
     @property
     def flipped_pauli_product(
         self,
-    ) -> List[stim.GateTargetWithCoords]:
+    ) -> List[lestim.GateTargetWithCoords]:
         """The Pauli errors that the error mechanism applied to qubits.
 
         When the error is a measurement error, this will be an empty list.
@@ -3169,7 +3241,7 @@ class CircuitErrorLocation:
     @property
     def instruction_targets(
         self,
-    ) -> stim.CircuitTargetsInsideInstruction:
+    ) -> lestim.CircuitTargetsInsideInstruction:
         """Within the error instruction, which may have hundreds of
         targets, which specific targets were being executed to
         produce the error.
@@ -3213,6 +3285,7 @@ class CircuitErrorLocation:
     @property
     def stack_frames(
         self,
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
     ) -> List[stim.CircuitErrorLocationStackFrame]:
         """Describes where in the circuit's execution the error happened.
 
@@ -3234,6 +3307,11 @@ class CircuitErrorLocation:
                 iteration_index=0,
                 instruction_repetitions_arg=0,
             )]
+=======
+    ) -> List[lestim.CircuitErrorLocationStackFrame]:
+        """Where in the circuit's execution does the error mechanism occur,
+        accounting for things like nested loops that iterate multiple times.
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
         """
     @property
     def tick_offset(
@@ -3296,6 +3374,7 @@ class CircuitErrorLocationStackFrame:
         iteration_index: int,
         instruction_repetitions_arg: int,
     ) -> None:
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
         """Creates a stim.CircuitErrorLocationStackFrame.
 
         Examples:
@@ -3305,6 +3384,9 @@ class CircuitErrorLocationStackFrame:
             ...     iteration_index=2,
             ...     instruction_repetitions_arg=3,
             ... )
+=======
+        """Creates a lestim.CircuitErrorLocationStackFrame.
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
         """
     @property
     def instruction_offset(
@@ -3382,24 +3464,24 @@ class CircuitInstruction:
     """An instruction, like `H 0 1` or `CNOT rec[-1] 5`, from a circuit.
 
     Examples:
-        >>> import stim
-        >>> circuit = stim.Circuit('''
+        >>> import lestim
+        >>> circuit = lestim.Circuit('''
         ...     H 0
         ...     M 0 1
         ...     X_ERROR(0.125) 5
         ... ''')
         >>> circuit[0]
-        stim.CircuitInstruction('H', [stim.GateTarget(0)], [])
+        lestim.CircuitInstruction('H', [lestim.GateTarget(0)], [])
         >>> circuit[1]
-        stim.CircuitInstruction('M', [stim.GateTarget(0), stim.GateTarget(1)], [])
+        lestim.CircuitInstruction('M', [lestim.GateTarget(0), lestim.GateTarget(1)], [])
         >>> circuit[2]
-        stim.CircuitInstruction('X_ERROR', [stim.GateTarget(5)], [0.125])
+        lestim.CircuitInstruction('X_ERROR', [lestim.GateTarget(5)], [0.125])
     """
     def __eq__(
         self,
-        arg0: stim.CircuitInstruction,
+        arg0: lestim.CircuitInstruction,
     ) -> bool:
-        """Determines if two `stim.CircuitInstruction`s are identical.
+        """Determines if two `lestim.CircuitInstruction`s are identical.
         """
     def __init__(
         self,
@@ -3409,15 +3491,19 @@ class CircuitInstruction:
         *,
         tag: str = "",
     ) -> None:
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
         """Creates or parses a `stim.CircuitInstruction`.
+=======
+        """Initializes a `lestim.CircuitInstruction`.
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
 
         Args:
             name: The name of the instruction being applied.
                 If `targets` and `gate_args` aren't specified, this can be a full
                 instruction line from a stim Circuit file, like "CX 0 1".
             targets: The targets the instruction is being applied to. These can be raw
-                values like `0` and `stim.target_rec(-1)`, or instances of
-                `stim.GateTarget`.
+                values like `0` and `lestim.target_rec(-1)`, or instances of
+                `lestim.GateTarget`.
             gate_args: The sequence of numeric arguments parameterizing a gate. For
                 noise gates this is their probabilities. For `OBSERVABLE_INCLUDE`
                 instructions it's the index of the logical observable to affect.
@@ -3441,14 +3527,14 @@ class CircuitInstruction:
         """
     def __ne__(
         self,
-        arg0: stim.CircuitInstruction,
+        arg0: lestim.CircuitInstruction,
     ) -> bool:
-        """Determines if two `stim.CircuitInstruction`s are different.
+        """Determines if two `lestim.CircuitInstruction`s are different.
         """
     def __repr__(
         self,
     ) -> str:
-        """Returns text that is a valid python expression evaluating to an equivalent `stim.CircuitInstruction`.
+        """Returns text that is a valid python expression evaluating to an equivalent `lestim.CircuitInstruction`.
         """
     def __str__(
         self,
@@ -3559,7 +3645,7 @@ class CircuitInstruction:
         """
     def targets_copy(
         self,
-    ) -> List[stim.GateTarget]:
+    ) -> List[lestim.GateTarget]:
         """Returns a copy of the targets of the instruction.
 
         Examples:
@@ -3577,8 +3663,8 @@ class CircuitRepeatBlock:
     """A REPEAT block from a circuit.
 
     Examples:
-        >>> import stim
-        >>> circuit = stim.Circuit('''
+        >>> import lestim
+        >>> circuit = lestim.Circuit('''
         ...     H 0
         ...     REPEAT 5 {
         ...         CX 0 1
@@ -3589,25 +3675,29 @@ class CircuitRepeatBlock:
         >>> repeat_block.repeat_count
         5
         >>> repeat_block.body_copy()
-        stim.Circuit('''
+        lestim.Circuit('''
             CX 0 1
             CZ 1 2
         ''')
     """
     def __eq__(
         self,
-        arg0: stim.CircuitRepeatBlock,
+        arg0: lestim.CircuitRepeatBlock,
     ) -> bool:
-        """Determines if two `stim.CircuitRepeatBlock`s are identical.
+        """Determines if two `lestim.CircuitRepeatBlock`s are identical.
         """
     def __init__(
         self,
         repeat_count: int,
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
         body: stim.Circuit,
         *,
         tag: str = '',
+=======
+        body: lestim.Circuit,
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
     ) -> None:
-        """Initializes a `stim.CircuitRepeatBlock`.
+        """Initializes a `lestim.CircuitRepeatBlock`.
 
         Args:
             repeat_count: The number of times to repeat the block.
@@ -3627,26 +3717,26 @@ class CircuitRepeatBlock:
         """
     def __ne__(
         self,
-        arg0: stim.CircuitRepeatBlock,
+        arg0: lestim.CircuitRepeatBlock,
     ) -> bool:
-        """Determines if two `stim.CircuitRepeatBlock`s are different.
+        """Determines if two `lestim.CircuitRepeatBlock`s are different.
         """
     def __repr__(
         self,
     ) -> str:
-        """Returns valid python code evaluating to an equivalent `stim.CircuitRepeatBlock`.
+        """Returns valid python code evaluating to an equivalent `lestim.CircuitRepeatBlock`.
         """
     def body_copy(
         self,
-    ) -> stim.Circuit:
+    ) -> lestim.Circuit:
         """Returns a copy of the body of the repeat block.
 
         (Making a copy is enforced to make it clear that editing the result won't change
         the block's body.)
 
         Examples:
-            >>> import stim
-            >>> circuit = stim.Circuit('''
+            >>> import lestim
+            >>> circuit = lestim.Circuit('''
             ...     H 0
             ...     REPEAT 5 {
             ...         CX 0 1
@@ -3655,7 +3745,7 @@ class CircuitRepeatBlock:
             ... ''')
             >>> repeat_block = circuit[1]
             >>> repeat_block.body_copy()
-            stim.Circuit('''
+            lestim.Circuit('''
                 CX 0 1
                 CZ 1 2
             ''')
@@ -3667,12 +3757,12 @@ class CircuitRepeatBlock:
         """Returns the name "REPEAT".
 
         This is a duck-typing convenience method. It exists so that code that doesn't
-        know whether it has a `stim.CircuitInstruction` or a `stim.CircuitRepeatBlock`
+        know whether it has a `lestim.CircuitInstruction` or a `lestim.CircuitRepeatBlock`
         can check the object's name without having to do an `instanceof` check first.
 
         Examples:
-            >>> import stim
-            >>> circuit = stim.Circuit('''
+            >>> import lestim
+            >>> circuit = lestim.Circuit('''
             ...     H 0
             ...     REPEAT 5 {
             ...         CX 1 2
@@ -3703,8 +3793,8 @@ class CircuitRepeatBlock:
         """The repetition count of the repeat block.
 
         Examples:
-            >>> import stim
-            >>> circuit = stim.Circuit('''
+            >>> import lestim
+            >>> circuit = lestim.Circuit('''
             ...     H 0
             ...     REPEAT 5 {
             ...         CX 0 1
@@ -3752,8 +3842,9 @@ class CircuitTargetsInsideInstruction:
         args: List[float],
         target_range_start: int,
         target_range_end: int,
-        targets_in_range: List[stim.GateTargetWithCoords],
+        targets_in_range: List[lestim.GateTargetWithCoords],
     ) -> None:
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
         """Creates a stim.CircuitTargetsInsideInstruction.
 
         Examples:
@@ -3766,6 +3857,9 @@ class CircuitTargetsInsideInstruction:
             ...     target_range_end=1,
             ...     targets_in_range=[stim.GateTargetWithCoords(0, [])],
             ... )
+=======
+        """Creates a lestim.CircuitTargetsInsideInstruction.
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
         """
     @property
     def args(
@@ -3871,7 +3965,7 @@ class CircuitTargetsInsideInstruction:
     @property
     def targets_in_range(
         self,
-    ) -> List[stim.GateTargetWithCoords]:
+    ) -> List[lestim.GateTargetWithCoords]:
         """Returns the subset of targets of the gate/instruction that were being executed.
 
         Includes coordinate data with the targets.
@@ -4447,8 +4541,8 @@ class CompiledDemSampler:
     """A helper class for efficiently sampler from a detector error model.
 
     Examples:
-        >>> import stim
-        >>> dem = stim.DetectorErrorModel('''
+        >>> import lestim
+        >>> dem = lestim.DetectorErrorModel('''
         ...    error(0) D0
         ...    error(1) D1 D2 L0
         ... ''')
@@ -4541,9 +4635,9 @@ class CompiledDemSampler:
             (i.e. like `np.packbits(data, bitorder='little', axis=1)`).
 
         Examples:
-            >>> import stim
+            >>> import lestim
             >>> import numpy as np
-            >>> dem = stim.DetectorErrorModel('''
+            >>> dem = lestim.DetectorErrorModel('''
             ...    error(0) D0
             ...    error(1) D1 D2 L0
             ... ''')
@@ -4606,7 +4700,7 @@ class CompiledDemSampler:
                    [2]], dtype=uint8)
 
             >>> # Recording and replaying errors.
-            >>> noisy_dem = stim.DetectorErrorModel('''
+            >>> noisy_dem = lestim.DetectorErrorModel('''
             ...    error(0.125) D0
             ...    error(0.25) D1
             ... ''')
@@ -4671,10 +4765,10 @@ class CompiledDemSampler:
             Nothing. Results are written to disk.
 
         Examples:
-            >>> import stim
+            >>> import lestim
             >>> import tempfile
             >>> import pathlib
-            >>> dem = stim.DetectorErrorModel('''
+            >>> dem = lestim.DetectorErrorModel('''
             ...    error(0) D0
             ...    error(0) D1
             ...    error(0) D0
@@ -4705,7 +4799,7 @@ class CompiledDetectorSampler:
     """
     def __init__(
         self,
-        circuit: stim.Circuit,
+        circuit: lestim.Circuit,
         *,
         seed: object = None,
     ) -> None:
@@ -4725,7 +4819,7 @@ class CompiledDetectorSampler:
                 same simulation results.
 
                 CAUTION: simulation results *WILL NOT* be consistent between versions of
-                Stim. This restriction is present to make it possible to have future
+                lestim. This restriction is present to make it possible to have future
                 optimizations to the random sampling, and is enforced by introducing
                 intentional differences in the seeding strategy from version to version.
 
@@ -4739,11 +4833,11 @@ class CompiledDetectorSampler:
                 give different results from taking 100 shots in one call.
 
         Returns:
-            An initialized stim.CompiledDetectorSampler.
+            An initialized lestim.CompiledDetectorSampler.
 
         Examples:
-            >>> import stim
-            >>> c = stim.Circuit('''
+            >>> import lestim
+            >>> c = lestim.Circuit('''
             ...    H 0
             ...    CNOT 0 1
             ...    X_ERROR(1.0) 0
@@ -4757,7 +4851,7 @@ class CompiledDetectorSampler:
     def __repr__(
         self,
     ) -> str:
-        """Returns valid python code evaluating to an equivalent `stim.CompiledDetectorSampler`.
+        """Returns valid python code evaluating to an equivalent `lestim.CompiledDetectorSampler`.
         """
     def sample(
         self,
@@ -4918,11 +5012,11 @@ class CompiledDetectorSampler:
             None.
 
         Examples:
-            >>> import stim
+            >>> import lestim
             >>> import tempfile
             >>> with tempfile.TemporaryDirectory() as d:
             ...     path = f"{d}/tmp.dat"
-            ...     c = stim.Circuit('''
+            ...     c = lestim.Circuit('''
             ...         X_ERROR(1) 0
             ...         M 0 1
             ...         DETECTOR rec[-2]
@@ -4943,7 +5037,7 @@ class CompiledMeasurementSampler:
     """
     def __init__(
         self,
-        circuit: stim.Circuit,
+        circuit: lestim.Circuit,
         *,
         skip_reference_sample: bool = False,
         seed: object = None,
@@ -4984,7 +5078,7 @@ class CompiledMeasurementSampler:
                 same simulation results.
 
                 CAUTION: simulation results *WILL NOT* be consistent between versions of
-                Stim. This restriction is present to make it possible to have future
+                lestim. This restriction is present to make it possible to have future
                 optimizations to the random sampling, and is enforced by introducing
                 intentional differences in the seeding strategy from version to version.
 
@@ -5007,11 +5101,11 @@ class CompiledMeasurementSampler:
                 is used, in which case it will be set to all-zeros.
 
         Returns:
-            An initialized stim.CompiledMeasurementSampler.
+            An initialized lestim.CompiledMeasurementSampler.
 
         Examples:
-            >>> import stim
-            >>> c = stim.Circuit('''
+            >>> import lestim
+            >>> c = lestim.Circuit('''
             ...    X 0   2 3
             ...    M 0 1 2 3
             ... ''')
@@ -5022,7 +5116,7 @@ class CompiledMeasurementSampler:
     def __repr__(
         self,
     ) -> str:
-        """Returns text that is a valid python expression evaluating to an equivalent `stim.CompiledMeasurementSampler`.
+        """Returns text that is a valid python expression evaluating to an equivalent `lestim.CompiledMeasurementSampler`.
         """
     def sample(
         self,
@@ -5052,8 +5146,8 @@ class CompiledMeasurementSampler:
                     (result[s, m // 8] >> (m % 8)) & 1
 
         Examples:
-            >>> import stim
-            >>> c = stim.Circuit('''
+            >>> import lestim
+            >>> c = lestim.Circuit('''
             ...    X 0   2 3
             ...    M 0 1 2 3
             ... ''')
@@ -5080,8 +5174,8 @@ class CompiledMeasurementSampler:
             `result[s, (m // 8)] & 2**(m % 8)`.
 
         Examples:
-            >>> import stim
-            >>> c = stim.Circuit('''
+            >>> import lestim
+            >>> c = lestim.Circuit('''
             ...    X 0 1 2 3 4 5 6 7     10
             ...    M 0 1 2 3 4 5 6 7 8 9 10
             ... ''')
@@ -5099,11 +5193,11 @@ class CompiledMeasurementSampler:
         """Samples measurements from the circuit and writes them to a file.
 
         Examples:
-            >>> import stim
+            >>> import lestim
             >>> import tempfile
             >>> with tempfile.TemporaryDirectory() as d:
             ...     path = f"{d}/tmp.dat"
-            ...     c = stim.Circuit('''
+            ...     c = lestim.Circuit('''
             ...         X 0   2 3
             ...         M 0 1 2 3
             ...     ''')
@@ -5131,7 +5225,7 @@ class CompiledMeasurementsToDetectionEventsConverter:
     """
     def __init__(
         self,
-        circuit: stim.Circuit,
+        circuit: lestim.Circuit,
         *,
         skip_reference_sample: bool = False,
     ) -> None:
@@ -5155,12 +5249,12 @@ class CompiledMeasurementsToDetectionEventsConverter:
                 circuit (under noiseless execution).
 
         Returns:
-            An initialized stim.CompiledMeasurementsToDetectionEventsConverter.
+            An initialized lestim.CompiledMeasurementsToDetectionEventsConverter.
 
         Examples:
-            >>> import stim
+            >>> import lestim
             >>> import numpy as np
-            >>> converter = stim.Circuit('''
+            >>> converter = lestim.Circuit('''
             ...    X 0
             ...    M 0
             ...    DETECTOR rec[-1]
@@ -5175,7 +5269,7 @@ class CompiledMeasurementsToDetectionEventsConverter:
     def __repr__(
         self,
     ) -> str:
-        """Returns text that is a valid python expression evaluating to an equivalent `stim.CompiledMeasurementsToDetectionEventsConverter`.
+        """Returns text that is a valid python expression evaluating to an equivalent `lestim.CompiledMeasurementsToDetectionEventsConverter`.
         """
     @overload
     def convert(
@@ -5252,9 +5346,9 @@ class CompiledMeasurementsToDetectionEventsConverter:
             circuit.num_detectors).
 
         Examples:
-            >>> import stim
+            >>> import lestim
             >>> import numpy as np
-            >>> converter = stim.Circuit('''
+            >>> converter = lestim.Circuit('''
             ...    X 0
             ...    M 0 1
             ...    DETECTOR rec[-1]
@@ -5327,9 +5421,9 @@ class CompiledMeasurementsToDetectionEventsConverter:
                 observable data is not output.
 
         Examples:
-            >>> import stim
+            >>> import lestim
             >>> import tempfile
-            >>> converter = stim.Circuit('''
+            >>> converter = lestim.Circuit('''
             ...    X 0
             ...    M 0
             ...    DETECTOR rec[-1]
@@ -5352,8 +5446,8 @@ class DemInstruction:
     """An instruction from a detector error model.
 
     Examples:
-        >>> import stim
-        >>> model = stim.DetectorErrorModel('''
+        >>> import lestim
+        >>> model = lestim.DetectorErrorModel('''
         ...     error(0.125) D0
         ...     error(0.125) D0 D1 L0
         ...     error(0.125) D1 D2
@@ -5362,11 +5456,11 @@ class DemInstruction:
         ... ''')
         >>> instruction = model[0]
         >>> instruction
-        stim.DemInstruction('error', [0.125], [stim.target_relative_detector_id(0)])
+        lestim.DemInstruction('error', [0.125], [lestim.target_relative_detector_id(0)])
     """
     def __eq__(
         self,
-        arg0: stim.DemInstruction,
+        arg0: lestim.DemInstruction,
     ) -> bool:
         """Determines if two instructions have identical contents.
         """
@@ -5378,7 +5472,11 @@ class DemInstruction:
         *,
         tag: str = "",
     ) -> None:
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
         """Creates or parses a stim.DemInstruction.
+=======
+        """Creates a lestim.DemInstruction.
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
 
         Args:
             type: The name of the instruction type (e.g. "error" or "shift_detectors").
@@ -5391,13 +5489,17 @@ class DemInstruction:
             tag: An arbitrary piece of text attached to the instruction.
 
         Examples:
-            >>> import stim
-            >>> instruction = stim.DemInstruction(
+            >>> import lestim
+            >>> instruction = lestim.DemInstruction(
             ...     'error',
             ...     [0.125],
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
             ...     [stim.target_relative_detector_id(5)],
             ...     tag='test-tag',
             ... )
+=======
+            ...     [lestim.target_relative_detector_id(5)])
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
             >>> print(instruction)
             error[test-tag](0.125) D5
 
@@ -5406,14 +5508,14 @@ class DemInstruction:
         """
     def __ne__(
         self,
-        arg0: stim.DemInstruction,
+        arg0: lestim.DemInstruction,
     ) -> bool:
         """Determines if two instructions have non-identical contents.
         """
     def __repr__(
         self,
     ) -> str:
-        """Returns text that is a valid python expression evaluating to an equivalent `stim.DetectorErrorModel`.
+        """Returns text that is a valid python expression evaluating to an equivalent `lestim.DetectorErrorModel`.
         """
     def __str__(
         self,
@@ -5490,7 +5592,7 @@ class DemInstruction:
         """
     def targets_copy(
         self,
-    ) -> List[Union[int, stim.DemTarget]]:
+    ) -> List[Union[int, lestim.DemTarget]]:
         """Returns a copy of the instruction's targets.
 
         The result is a copy, meaning that editing it won't change the instruction's
@@ -5519,31 +5621,31 @@ class DemRepeatBlock:
     """A repeat block from a detector error model.
 
     Examples:
-        >>> import stim
-        >>> model = stim.DetectorErrorModel('''
+        >>> import lestim
+        >>> model = lestim.DetectorErrorModel('''
         ...     repeat 100 {
         ...         error(0.125) D0 D1
         ...         shift_detectors 1
         ...     }
         ... ''')
         >>> model[0]
-        stim.DemRepeatBlock(100, stim.DetectorErrorModel('''
+        lestim.DemRepeatBlock(100, lestim.DetectorErrorModel('''
             error(0.125) D0 D1
             shift_detectors 1
         '''))
     """
     def __eq__(
         self,
-        arg0: stim.DemRepeatBlock,
+        arg0: lestim.DemRepeatBlock,
     ) -> bool:
         """Determines if two repeat blocks are identical.
         """
     def __init__(
         self,
         repeat_count: int,
-        block: stim.DetectorErrorModel,
+        block: lestim.DetectorErrorModel,
     ) -> None:
-        """Creates a stim.DemRepeatBlock.
+        """Creates a lestim.DemRepeatBlock.
 
         Args:
             repeat_count: The number of times the repeat block's body is supposed to
@@ -5552,25 +5654,26 @@ class DemRepeatBlock:
                 instructions to repeat.
 
         Examples:
-            >>> import stim
-            >>> repeat_block = stim.DemRepeatBlock(100, stim.DetectorErrorModel('''
+            >>> import lestim
+            >>> repeat_block = lestim.DemRepeatBlock(100, lestim.DetectorErrorModel('''
             ...     error(0.125) D0 D1
             ...     shift_detectors 1
             ... '''))
         """
     def __ne__(
         self,
-        arg0: stim.DemRepeatBlock,
+        arg0: lestim.DemRepeatBlock,
     ) -> bool:
         """Determines if two repeat blocks are different.
         """
     def __repr__(
         self,
     ) -> str:
-        """Returns text that is a valid python expression evaluating to an equivalent `stim.DemRepeatBlock`.
+        """Returns text that is a valid python expression evaluating to an equivalent `lestim.DemRepeatBlock`.
         """
     def body_copy(
         self,
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
     ) -> stim.DetectorErrorModel:
         """Returns a copy of the block's body, as a stim.DetectorErrorModel.
 
@@ -5585,6 +5688,10 @@ class DemRepeatBlock:
             True
             >>> repeat_block.body_copy() is repeat_block.body_copy()
             False
+=======
+    ) -> lestim.DetectorErrorModel:
+        """Returns a copy of the block's body, as a lestim.DetectorErrorModel.
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
         """
     @property
     def repeat_count(
@@ -5599,12 +5706,12 @@ class DemRepeatBlock:
         """Returns the type name "repeat".
 
         This is a duck-typing convenience method. It exists so that code that doesn't
-        know whether it has a `stim.DemInstruction` or a `stim.DemRepeatBlock`
+        know whether it has a `lestim.DemInstruction` or a `lestim.DemRepeatBlock`
         can check the type field without having to do an `instanceof` check first.
 
         Examples:
-            >>> import stim
-            >>> dem = stim.DetectorErrorModel('''
+            >>> import lestim
+            >>> dem = lestim.DetectorErrorModel('''
             ...     error(0.1) D0 L0
             ...     repeat 5 {
             ...         error(0.1) D0 D1
@@ -5620,9 +5727,9 @@ class DemTarget:
     """
     def __eq__(
         self,
-        arg0: stim.DemTarget,
+        arg0: lestim.DemTarget,
     ) -> bool:
-        """Determines if two `stim.DemTarget`s are identical.
+        """Determines if two `lestim.DemTarget`s are identical.
         """
     def __init__(
         self,
@@ -5646,14 +5753,14 @@ class DemTarget:
         """
     def __ne__(
         self,
-        arg0: stim.DemTarget,
+        arg0: lestim.DemTarget,
     ) -> bool:
-        """Determines if two `stim.DemTarget`s are different.
+        """Determines if two `lestim.DemTarget`s are different.
         """
     def __repr__(
         self,
     ) -> str:
-        """Returns valid python code evaluating to an equivalent `stim.DemTarget`.
+        """Returns valid python code evaluating to an equivalent `lestim.DemTarget`.
         """
     def __str__(
         self,
@@ -5714,7 +5821,7 @@ class DemTarget:
     @staticmethod
     def logical_observable_id(
         index: int,
-    ) -> stim.DemTarget:
+    ) -> lestim.DemTarget:
         """Returns a logical observable id identifying a frame change.
 
         Args:
@@ -5724,20 +5831,20 @@ class DemTarget:
             The logical observable target.
 
         Examples:
-            >>> import stim
-            >>> m = stim.DetectorErrorModel()
+            >>> import lestim
+            >>> m = lestim.DetectorErrorModel()
             >>> m.append("error", 0.25, [
-            ...     stim.DemTarget.logical_observable_id(13)
+            ...     lestim.DemTarget.logical_observable_id(13)
             ... ])
             >>> print(repr(m))
-            stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(0.25) L13
             ''')
         """
     @staticmethod
     def relative_detector_id(
         index: int,
-    ) -> stim.DemTarget:
+    ) -> lestim.DemTarget:
         """Returns a relative detector id (e.g. "D5" in a .dem file).
 
         Args:
@@ -5747,31 +5854,31 @@ class DemTarget:
             The relative detector target.
 
         Examples:
-            >>> import stim
-            >>> m = stim.DetectorErrorModel()
+            >>> import lestim
+            >>> m = lestim.DetectorErrorModel()
             >>> m.append("error", 0.25, [
-            ...     stim.DemTarget.relative_detector_id(13)
+            ...     lestim.DemTarget.relative_detector_id(13)
             ... ])
             >>> print(repr(m))
-            stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(0.25) D13
             ''')
         """
     @staticmethod
     def separator(
-    ) -> stim.DemTarget:
+    ) -> lestim.DemTarget:
         """Returns a target separator (e.g. "^" in a .dem file).
 
         Examples:
-            >>> import stim
-            >>> m = stim.DetectorErrorModel()
+            >>> import lestim
+            >>> m = lestim.DetectorErrorModel()
             >>> m.append("error", 0.25, [
-            ...     stim.DemTarget.relative_detector_id(1),
-            ...     stim.DemTarget.separator(),
-            ...     stim.DemTarget.relative_detector_id(2),
+            ...     lestim.DemTarget.relative_detector_id(1),
+            ...     lestim.DemTarget.separator(),
+            ...     lestim.DemTarget.relative_detector_id(2),
             ... ])
             >>> print(repr(m))
-            stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(0.25) D1 ^ D2
             ''')
         """
@@ -5782,10 +5889,18 @@ class DemTarget:
         """Returns the target's integer value.
 
         Example:
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
             >>> import stim
             >>> stim.DemTarget("D5").val
             5
             >>> stim.DemTarget("L6").val
+=======
+
+            >>> import lestim
+            >>> lestim.target_relative_detector_id(5).val
+            5
+            >>> lestim.target_logical_observable_id(6).val
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
             6
         """
 class DemTargetWithCoords:
@@ -5814,6 +5929,7 @@ class DemTargetWithCoords:
     """
     def __init__(
         self,
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
         dem_target: stim.DemTarget,
         coords: List[float],
     ) -> None:
@@ -5830,6 +5946,13 @@ class DemTargetWithCoords:
             ... ''').shortest_graphlike_error()
             >>> err[0].dem_error_terms[0]
             stim.DemTargetWithCoords(dem_target=stim.DemTarget('D0'), coords=[2, 3])
+=======
+        *,
+        dem_target: lestim.DemTarget,
+        coords: List[float],
+    ) -> None:
+        """Creates a lestim.DemTargetWithCoords.
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
         """
     @property
     def coords(
@@ -5854,6 +5977,7 @@ class DemTargetWithCoords:
     @property
     def dem_target(
         self,
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
     ) -> stim.DemTarget:
         """Returns the actual DEM target as a `stim.DemTarget`.
 
@@ -5868,6 +5992,10 @@ class DemTargetWithCoords:
             ... ''').shortest_graphlike_error()
             >>> err[0].dem_error_terms[0].dem_target
             stim.DemTarget('D0')
+=======
+    ) -> lestim.DemTarget:
+        """Returns the actual DEM target as a `lestim.DemTarget`.
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
         """
 class DetectorErrorModel:
     """An error model built out of independent error mechanics.
@@ -5905,8 +6033,8 @@ class DetectorErrorModel:
     the full error model.
 
     Examples:
-        >>> import stim
-        >>> model = stim.DetectorErrorModel('''
+        >>> import lestim
+        >>> model = lestim.DetectorErrorModel('''
         ...     error(0.125) D0
         ...     error(0.125) D0 D1 L0
         ...     error(0.125) D1 D2
@@ -5916,7 +6044,7 @@ class DetectorErrorModel:
         >>> len(model)
         5
 
-        >>> stim.Circuit('''
+        >>> lestim.Circuit('''
         ...     X_ERROR(0.125) 0
         ...     X_ERROR(0.25) 1
         ...     CORRELATED_ERROR(0.375) X0 X1
@@ -5924,7 +6052,7 @@ class DetectorErrorModel:
         ...     DETECTOR rec[-2]
         ...     DETECTOR rec[-1]
         ... ''').detector_error_model()
-        stim.DetectorErrorModel('''
+        lestim.DetectorErrorModel('''
             error(0.125) D0
             error(0.375) D0 D1
             error(0.25) D1
@@ -5932,27 +6060,27 @@ class DetectorErrorModel:
     """
     def __add__(
         self,
-        second: stim.DetectorErrorModel,
-    ) -> stim.DetectorErrorModel:
+        second: lestim.DetectorErrorModel,
+    ) -> lestim.DetectorErrorModel:
         """Creates a detector error model by appending two models.
 
         Examples:
-            >>> import stim
-            >>> m1 = stim.DetectorErrorModel('''
+            >>> import lestim
+            >>> m1 = lestim.DetectorErrorModel('''
             ...    error(0.125) D0
             ... ''')
-            >>> m2 = stim.DetectorErrorModel('''
+            >>> m2 = lestim.DetectorErrorModel('''
             ...    error(0.25) D1
             ... ''')
             >>> m1 + m2
-            stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(0.125) D0
                 error(0.25) D1
             ''')
         """
     def __eq__(
         self,
-        arg0: stim.DetectorErrorModel,
+        arg0: lestim.DetectorErrorModel,
     ) -> bool:
         """Determines if two detector error models have identical contents.
         """
@@ -5960,13 +6088,13 @@ class DetectorErrorModel:
     def __getitem__(
         self,
         index_or_slice: int,
-    ) -> Union[stim.DemInstruction, stim.DemRepeatBlock]:
+    ) -> Union[lestim.DemInstruction, lestim.DemRepeatBlock]:
         pass
     @overload
     def __getitem__(
         self,
         index_or_slice: slice,
-    ) -> stim.DetectorErrorModel:
+    ) -> lestim.DetectorErrorModel:
         pass
     def __getitem__(
         self,
@@ -5980,8 +6108,8 @@ class DetectorErrorModel:
                 model.
 
         Examples:
-            >>> import stim
-            >>> model = stim.DetectorErrorModel('''
+            >>> import lestim
+            >>> model = lestim.DetectorErrorModel('''
             ...    error(0.125) D0
             ...    error(0.125) D1 L1
             ...    repeat 100 {
@@ -5993,14 +6121,14 @@ class DetectorErrorModel:
             ...    detector D5
             ... ''')
             >>> model[0]
-            stim.DemInstruction('error', [0.125], [stim.target_relative_detector_id(0)])
+            lestim.DemInstruction('error', [0.125], [lestim.target_relative_detector_id(0)])
             >>> model[2]
-            stim.DemRepeatBlock(100, stim.DetectorErrorModel('''
+            lestim.DemRepeatBlock(100, lestim.DetectorErrorModel('''
                 error(0.125) D1 D2
                 shift_detectors 1
             '''))
             >>> model[1::2]
-            stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(0.125) D1 L1
                 error(0.125) D2
                 detector D5
@@ -6008,21 +6136,21 @@ class DetectorErrorModel:
         """
     def __iadd__(
         self,
-        second: stim.DetectorErrorModel,
-    ) -> stim.DetectorErrorModel:
+        second: lestim.DetectorErrorModel,
+    ) -> lestim.DetectorErrorModel:
         """Appends a detector error model into the receiving model (mutating it).
 
         Examples:
-            >>> import stim
-            >>> m1 = stim.DetectorErrorModel('''
+            >>> import lestim
+            >>> m1 = lestim.DetectorErrorModel('''
             ...    error(0.125) D0
             ... ''')
-            >>> m2 = stim.DetectorErrorModel('''
+            >>> m2 = lestim.DetectorErrorModel('''
             ...    error(0.25) D1
             ... ''')
             >>> m1 += m2
             >>> print(repr(m1))
-            stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(0.125) D0
                 error(0.25) D1
             ''')
@@ -6030,7 +6158,7 @@ class DetectorErrorModel:
     def __imul__(
         self,
         repetitions: int,
-    ) -> stim.DetectorErrorModel:
+    ) -> lestim.DetectorErrorModel:
         """Mutates the detector error model by putting its contents into a repeat block.
 
         Special case: if the repetition count is 0, the model is cleared.
@@ -6040,8 +6168,8 @@ class DetectorErrorModel:
             repetitions: The number of times the repeat block should repeat.
 
         Examples:
-            >>> import stim
-            >>> m = stim.DetectorErrorModel('''
+            >>> import lestim
+            >>> m = lestim.DetectorErrorModel('''
             ...    error(0.25) D0
             ...    shift_detectors 1
             ... ''')
@@ -6056,16 +6184,16 @@ class DetectorErrorModel:
         self,
         detector_error_model_text: str = '',
     ) -> None:
-        """Creates a stim.DetectorErrorModel.
+        """Creates a lestim.DetectorErrorModel.
 
         Args:
             detector_error_model_text: Defaults to empty. Describes instructions to
                 append into the circuit in the detector error model (.dem) format.
 
         Examples:
-            >>> import stim
-            >>> empty = stim.DetectorErrorModel()
-            >>> not_empty = stim.DetectorErrorModel('''
+            >>> import lestim
+            >>> empty = lestim.DetectorErrorModel()
+            >>> not_empty = lestim.DetectorErrorModel('''
             ...    error(0.125) D0 L0
             ... ''')
         """
@@ -6077,16 +6205,16 @@ class DetectorErrorModel:
         Instructions inside of blocks are not included in this count.
 
         Examples:
-            >>> import stim
-            >>> len(stim.DetectorErrorModel())
+            >>> import lestim
+            >>> len(lestim.DetectorErrorModel())
             0
-            >>> len(stim.DetectorErrorModel('''
+            >>> len(lestim.DetectorErrorModel('''
             ...    error(0.1) D0 D1
             ...    shift_detectors 100
             ...    logical_observable L5
             ... '''))
             3
-            >>> len(stim.DetectorErrorModel('''
+            >>> len(lestim.DetectorErrorModel('''
             ...    repeat 100 {
             ...        error(0.1) D0 D1
             ...        error(0.1) D1 D2
@@ -6097,7 +6225,7 @@ class DetectorErrorModel:
     def __mul__(
         self,
         repetitions: int,
-    ) -> stim.DetectorErrorModel:
+    ) -> lestim.DetectorErrorModel:
         """Repeats the detector error model using a repeat block.
 
         Has special cases for 0 repetitions and 1 repetitions.
@@ -6112,13 +6240,13 @@ class DetectorErrorModel:
             contents of that repeat block are this detector error model.
 
         Examples:
-            >>> import stim
-            >>> m = stim.DetectorErrorModel('''
+            >>> import lestim
+            >>> m = lestim.DetectorErrorModel('''
             ...    error(0.25) D0
             ...    shift_detectors 1
             ... ''')
             >>> m * 3
-            stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 repeat 3 {
                     error(0.25) D0
                     shift_detectors 1
@@ -6127,19 +6255,19 @@ class DetectorErrorModel:
         """
     def __ne__(
         self,
-        arg0: stim.DetectorErrorModel,
+        arg0: lestim.DetectorErrorModel,
     ) -> bool:
         """Determines if two detector error models have non-identical contents.
         """
     def __repr__(
         self,
     ) -> str:
-        """Returns valid python code evaluating to an equivalent `stim.DetectorErrorModel`.
+        """Returns valid python code evaluating to an equivalent `lestim.DetectorErrorModel`.
         """
     def __rmul__(
         self,
         repetitions: int,
-    ) -> stim.DetectorErrorModel:
+    ) -> lestim.DetectorErrorModel:
         """Repeats the detector error model using a repeat block.
 
         Has special cases for 0 repetitions and 1 repetitions.
@@ -6154,13 +6282,13 @@ class DetectorErrorModel:
             contents of that repeat block are this detector error model.
 
         Examples:
-            >>> import stim
-            >>> m = stim.DetectorErrorModel('''
+            >>> import lestim
+            >>> m = lestim.DetectorErrorModel('''
             ...    error(0.25) D0
             ...    shift_detectors 1
             ... ''')
             >>> 3 * m
-            stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 repeat 3 {
                     error(0.25) D0
                     shift_detectors 1
@@ -6183,10 +6311,16 @@ class DetectorErrorModel:
         """Appends an instruction to the detector error model.
 
         Args:
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
             instruction: Either the name of an instruction, a stim.DemInstruction, a
                 stim.DemRepeatBlock. or a stim.DetectorErrorModel. The
                 `parens_arguments`, `targets`, and 'tag' arguments should be given iff
                 the instruction is a name.
+=======
+            instruction: Either the name of an instruction, a lestim.DemInstruction, or a
+                lestim.DemRepeatBlock. The `parens_arguments` and `targets` arguments are
+                given if and only if the instruction is a name.
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
             parens_arguments: Numeric values parameterizing the instruction. The numbers
                 inside parentheses in a detector error model file (eg. the `0.25` in
                 `error(0.25) D0`). This argument can be given either a list of doubles,
@@ -6195,26 +6329,34 @@ class DetectorErrorModel:
             tag: An arbitrary piece of text attached to the repeat instruction.
 
         Examples:
-            >>> import stim
-            >>> m = stim.DetectorErrorModel()
+            >>> import lestim
+            >>> m = lestim.DetectorErrorModel()
             >>> m.append("error", 0.125, [
-            ...     stim.DemTarget.relative_detector_id(1),
+            ...     lestim.DemTarget.relative_detector_id(1),
             ... ])
             >>> m.append("error", 0.25, [
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
             ...     stim.DemTarget.relative_detector_id(1),
             ...     stim.DemTarget.separator(),
             ...     stim.DemTarget.relative_detector_id(2),
             ...     stim.DemTarget.logical_observable_id(3),
             ... ], tag='test-tag')
+=======
+            ...     lestim.DemTarget.relative_detector_id(1),
+            ...     lestim.DemTarget.separator(),
+            ...     lestim.DemTarget.relative_detector_id(2),
+            ...     lestim.DemTarget.logical_observable_id(3),
+            ... ])
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
             >>> print(repr(m))
-            stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(0.125) D1
                 error[test-tag](0.25) D1 ^ D2 L3
             ''')
 
             >>> m.append("shift_detectors", (1, 2, 3), [5])
             >>> print(repr(m))
-            stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(0.125) D1
                 error[test-tag](0.25) D1 ^ D2 L3
                 shift_detectors(1, 2, 3) 5
@@ -6224,7 +6366,7 @@ class DetectorErrorModel:
             >>> m.append(m[0])
             >>> m.append(m[-2])
             >>> print(repr(m))
-            stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(0.125) D1
                 error[test-tag](0.25) D1 ^ D2 L3
                 shift_detectors(1, 2, 3) 5
@@ -6265,30 +6407,30 @@ class DetectorErrorModel:
             the receiving circuit up to the given tolerance, otherwise False.
 
         Examples:
-            >>> import stim
-            >>> base = stim.DetectorErrorModel('''
+            >>> import lestim
+            >>> base = lestim.DetectorErrorModel('''
             ...    error(0.099) D0 D1
             ... ''')
 
             >>> base.approx_equals(base, atol=0)
             True
 
-            >>> base.approx_equals(stim.DetectorErrorModel('''
+            >>> base.approx_equals(lestim.DetectorErrorModel('''
             ...    error(0.101) D0 D1
             ... '''), atol=0)
             False
 
-            >>> base.approx_equals(stim.DetectorErrorModel('''
+            >>> base.approx_equals(lestim.DetectorErrorModel('''
             ...    error(0.101) D0 D1
             ... '''), atol=0.0001)
             False
 
-            >>> base.approx_equals(stim.DetectorErrorModel('''
+            >>> base.approx_equals(lestim.DetectorErrorModel('''
             ...    error(0.101) D0 D1
             ... '''), atol=0.01)
             True
 
-            >>> base.approx_equals(stim.DetectorErrorModel('''
+            >>> base.approx_equals(lestim.DetectorErrorModel('''
             ...    error(0.099) D0 D1 L0 L1 L2 L3 L4
             ... '''), atol=9999)
             False
@@ -6299,19 +6441,19 @@ class DetectorErrorModel:
         """Clears the contents of the detector error model.
 
         Examples:
-            >>> import stim
-            >>> model = stim.DetectorErrorModel('''
+            >>> import lestim
+            >>> model = lestim.DetectorErrorModel('''
             ...    error(0.1) D0 D1
             ... ''')
             >>> model.clear()
             >>> model
-            stim.DetectorErrorModel()
+            lestim.DetectorErrorModel()
         """
     def compile_sampler(
         self,
         *,
         seed: object = None,
-    ) -> stim.CompiledDemSampler:
+    ) -> lestim.CompiledDemSampler:
         """Returns a CompiledDemSampler that can batch sample from detector error models.
 
         Args:
@@ -6327,7 +6469,7 @@ class DetectorErrorModel:
                 same simulation results.
 
                 CAUTION: simulation results *WILL NOT* be consistent between versions of
-                Stim. This restriction is present to make it possible to have future
+                lestim. This restriction is present to make it possible to have future
                 optimizations to the random sampling, and is enforced by introducing
                 intentional differences in the seeding strategy from version to version.
 
@@ -6341,11 +6483,11 @@ class DetectorErrorModel:
                 give different results from taking 100 shots in one call.
 
         Returns:
-            A seeded stim.CompiledDemSampler for the given detector error model.
+            A seeded lestim.CompiledDemSampler for the given detector error model.
 
         Examples:
-            >>> import stim
-            >>> dem = stim.DetectorErrorModel('''
+            >>> import lestim
+            >>> dem = lestim.DetectorErrorModel('''
             ...    error(0) D0
             ...    error(1) D1 D2 L0
             ... ''')
@@ -6371,15 +6513,15 @@ class DetectorErrorModel:
         """
     def copy(
         self,
-    ) -> stim.DetectorErrorModel:
+    ) -> lestim.DetectorErrorModel:
         """Returns a copy of the detector error model.
 
         The copy is an independent detector error model with the same contents.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> c1 = stim.DetectorErrorModel("error(0.1) D0 D1")
+            >>> c1 = lestim.DetectorErrorModel("error(0.1) D0 D1")
             >>> c2 = c1.copy()
             >>> c2 is c1
             False
@@ -6421,9 +6563,9 @@ class DetectorErrorModel:
             viewer instead of as raw text.
 
         Examples:
-            >>> import stim
+            >>> import lestim
             >>> import tempfile
-            >>> circuit = stim.Circuit.generated(
+            >>> circuit = lestim.Circuit.generated(
             ...     "repetition_code:memory",
             ...     rounds=10,
             ...     distance=7,
@@ -6442,17 +6584,17 @@ class DetectorErrorModel:
         """
     def flattened(
         self,
-    ) -> stim.DetectorErrorModel:
+    ) -> lestim.DetectorErrorModel:
         """Returns the detector error model without repeat or detector_shift instructions.
 
         Returns:
-            A `stim.DetectorErrorModel` with the same errors in the same order, but with
+            A `lestim.DetectorErrorModel` with the same errors in the same order, but with
             repeat loops flattened into actually repeated instructions and with all
             coordinate/index shifts inlined.
 
         Examples:
-            >>> import stim
-            >>> stim.DetectorErrorModel('''
+            >>> import lestim
+            >>> lestim.DetectorErrorModel('''
             ...     error(0.125) D0
             ...     REPEAT 5 {
             ...         error(0.25) D0 D1
@@ -6460,7 +6602,7 @@ class DetectorErrorModel:
             ...     }
             ...     error(0.125) D0 L0
             ... ''').flattened()
-            stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(0.125) D0
                 error(0.25) D0 D1
                 error(0.25) D1 D2
@@ -6473,7 +6615,7 @@ class DetectorErrorModel:
     @staticmethod
     def from_file(
         file: Union[io.TextIOBase, str, pathlib.Path],
-    ) -> stim.DetectorErrorModel:
+    ) -> lestim.DetectorErrorModel:
         """Reads a detector error model from a file.
 
         The file format is defined at
@@ -6486,16 +6628,16 @@ class DetectorErrorModel:
             The circuit parsed from the file.
 
         Examples:
-            >>> import stim
+            >>> import lestim
             >>> import tempfile
 
             >>> with tempfile.TemporaryDirectory() as tmpdir:
             ...     path = tmpdir + '/tmp.stim'
             ...     with open(path, 'w') as f:
             ...         print('error(0.25) D2 D3', file=f)
-            ...     circuit = stim.DetectorErrorModel.from_file(path)
+            ...     circuit = lestim.DetectorErrorModel.from_file(path)
             >>> circuit
-            stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(0.25) D2 D3
             ''')
 
@@ -6504,9 +6646,13 @@ class DetectorErrorModel:
             ...     with open(path, 'w') as f:
             ...         print('error(0.25) D2 D3', file=f)
             ...     with open(path) as f:
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
             ...         circuit = stim.DetectorErrorModel.from_file(f)
+=======
+            ...         circuit = lestim.DetectorErrorModel.from_file(path)
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
             >>> circuit
-            stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(0.25) D2 D3
             ''')
         """
@@ -6527,8 +6673,8 @@ class DetectorErrorModel:
             empty tuple. If `only` is specified, then `set(result.keys()) == set(only)`.
 
         Examples:
-            >>> import stim
-            >>> dem = stim.DetectorErrorModel('''
+            >>> import lestim
+            >>> dem = lestim.DetectorErrorModel('''
             ...    error(0.25) D0 D1
             ...    detector(1, 2, 3) D1
             ...    shift_detectors(5) 1
@@ -6550,9 +6696,9 @@ class DetectorErrorModel:
         detectors is n.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     X_ERROR(0.125) 0
             ...     X_ERROR(0.25) 1
             ...     CORRELATED_ERROR(0.375) X0 X1
@@ -6562,12 +6708,12 @@ class DetectorErrorModel:
             ... ''').detector_error_model().num_detectors
             2
 
-            >>> stim.DetectorErrorModel('''
+            >>> lestim.DetectorErrorModel('''
             ...    error(0.1) D0 D199
             ... ''').num_detectors
             200
 
-            >>> stim.DetectorErrorModel('''
+            >>> lestim.DetectorErrorModel('''
             ...    shift_detectors 1000
             ...    error(0.1) D0 D199
             ... ''').num_detectors
@@ -6583,9 +6729,9 @@ class DetectorErrorModel:
         Redundant errors with the same targets count as separate errors.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> stim.DetectorErrorModel('''
+            >>> lestim.DetectorErrorModel('''
             ...     error(0.125) D0
             ...     repeat 100 {
             ...         repeat 5 {
@@ -6606,16 +6752,16 @@ class DetectorErrorModel:
         of observables is n.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     X_ERROR(0.125) 0
             ...     M 0
             ...     OBSERVABLE_INCLUDE(99) rec[-1]
             ... ''').detector_error_model().num_observables
             100
 
-            >>> stim.DetectorErrorModel('''
+            >>> lestim.DetectorErrorModel('''
             ...    error(0.1) L399
             ... ''').num_observables
             400
@@ -6623,14 +6769,14 @@ class DetectorErrorModel:
     def rounded(
         self,
         arg0: int,
-    ) -> stim.DetectorErrorModel:
+    ) -> lestim.DetectorErrorModel:
         """Creates an equivalent detector error model but with rounded error probabilities.
 
         Args:
             digits: The number of digits to round to.
 
         Returns:
-            A `stim.DetectorErrorModel` with the same instructions in the same order,
+            A `lestim.DetectorErrorModel` with the same instructions in the same order,
             but with the parens arguments of error instructions rounded to the given
             precision.
 
@@ -6638,20 +6784,20 @@ class DetectorErrorModel:
             included in the output.
 
         Examples:
-            >>> import stim
-            >>> dem = stim.DetectorErrorModel('''
+            >>> import lestim
+            >>> dem = lestim.DetectorErrorModel('''
             ...     error(0.019499) D0
             ...     error(0.000001) D0 D1
             ... ''')
 
             >>> dem.rounded(2)
-            stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(0.02) D0
                 error(0) D0 D1
             ''')
 
             >>> dem.rounded(3)
-            stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(0.019) D0
                 error(0) D0 D1
             ''')
@@ -6659,7 +6805,7 @@ class DetectorErrorModel:
     def shortest_graphlike_error(
         self,
         ignore_ungraphlike_errors: bool = True,
-    ) -> stim.DetectorErrorModel:
+    ) -> lestim.DetectorErrorModel:
         """Finds a minimum set of graphlike errors to produce an undetected logical error.
 
         Note that this method does not pay attention to error probabilities (other than
@@ -6715,28 +6861,28 @@ class DetectorErrorModel:
             large as the true code distance.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> stim.DetectorErrorModel('''
+            >>> lestim.DetectorErrorModel('''
             ...     error(0.125) D0
             ...     error(0.125) D0 D1
             ...     error(0.125) D1 L55
             ...     error(0.125) D1
             ... ''').shortest_graphlike_error()
-            stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(1) D1
                 error(1) D1 L55
             ''')
 
-            >>> stim.DetectorErrorModel('''
+            >>> lestim.DetectorErrorModel('''
             ...     error(0.125) D0 D1 D2
             ...     error(0.125) L0
             ... ''').shortest_graphlike_error(ignore_ungraphlike_errors=True)
-            stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(1) L0
             ''')
 
-            >>> circuit = stim.Circuit.generated(
+            >>> circuit = lestim.Circuit.generated(
             ...     "repetition_code:memory",
             ...     rounds=10,
             ...     distance=7,
@@ -6758,9 +6904,9 @@ class DetectorErrorModel:
             file: A file path or an open file to write to.
 
         Examples:
-            >>> import stim
+            >>> import lestim
             >>> import tempfile
-            >>> c = stim.DetectorErrorModel('error(0.25) D2 D3')
+            >>> c = lestim.DetectorErrorModel('error(0.25) D2 D3')
 
             >>> with tempfile.TemporaryDirectory() as tmpdir:
             ...     path = tmpdir + '/tmp.stim'
@@ -6825,9 +6971,10 @@ class ExplainedError:
     def __init__(
         self,
         *,
-        dem_error_terms: List[stim.DemTargetWithCoords],
-        circuit_error_locations: List[stim.CircuitErrorLocation],
+        dem_error_terms: List[lestim.DemTargetWithCoords],
+        circuit_error_locations: List[lestim.CircuitErrorLocation],
     ) -> None:
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
         """Creates a stim.ExplainedError.
 
         Examples:
@@ -6851,11 +6998,14 @@ class ExplainedError:
                         resolving to Y_ERROR(0.125) 0
                 }
             }
+=======
+        """Creates a lestim.ExplainedError.
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
         """
     @property
     def circuit_error_locations(
         self,
-    ) -> List[stim.CircuitErrorLocation]:
+    ) -> List[lestim.CircuitErrorLocation]:
         """The locations of circuit errors that produce the symptoms in dem_error_terms.
 
         Note: if this list contains a single entry, it may be because a result
@@ -6888,7 +7038,7 @@ class ExplainedError:
     @property
     def dem_error_terms(
         self,
-    ) -> List[stim.DemTargetWithCoords]:
+    ) -> List[lestim.DemTargetWithCoords]:
         """The detectors and observables flipped by this error mechanism.
         """
 class FlipSimulator:
@@ -6901,8 +7051,8 @@ class FlipSimulator:
     Supports interactive usage, where gates and measurements are applied on demand.
 
     Examples:
-        >>> import stim
-        >>> sim = stim.FlipSimulator(batch_size=256)
+        >>> import lestim
+        >>> sim = lestim.FlipSimulator(batch_size=256)
     """
     def __init__(
         self,
@@ -6912,7 +7062,7 @@ class FlipSimulator:
         num_qubits: int = 0,
         seed: Optional[int] = None,
     ) -> None:
-        """Initializes a stim.FlipSimulator.
+        """Initializes a lestim.FlipSimulator.
 
         Args:
             batch_size: For speed, the flip simulator simulates many instances in
@@ -6972,7 +7122,7 @@ class FlipSimulator:
                 same simulation results.
 
                 CAUTION: simulation results *WILL NOT* be consistent between versions of
-                Stim. This restriction is present to make it possible to have future
+                lestim. This restriction is present to make it possible to have future
                 optimizations to the random sampling, and is enforced by introducing
                 intentional differences in the seeding strategy from version to version.
 
@@ -6988,11 +7138,11 @@ class FlipSimulator:
                 seed.
 
         Returns:
-            An initialized stim.FlipSimulator.
+            An initialized lestim.FlipSimulator.
 
         Examples:
-            >>> import stim
-            >>> sim = stim.FlipSimulator(batch_size=256)
+            >>> import lestim
+            >>> sim = lestim.FlipSimulator(batch_size=256)
         """
     def append_measurement_flips(
         self,
@@ -7074,11 +7224,11 @@ class FlipSimulator:
         """Returns the number of instances being simulated by the simulator.
 
         Examples:
-            >>> import stim
-            >>> sim = stim.FlipSimulator(batch_size=256)
+            >>> import lestim
+            >>> sim = lestim.FlipSimulator(batch_size=256)
             >>> sim.batch_size
             256
-            >>> sim = stim.FlipSimulator(batch_size=42)
+            >>> sim = lestim.FlipSimulator(batch_size=42)
             >>> sim.batch_size
             42
         """
@@ -7113,9 +7263,9 @@ class FlipSimulator:
                 pair matching the mask. This argument specifies the probability.
 
         Examples:
-            >>> import stim
+            >>> import lestim
             >>> import numpy as np
-            >>> sim = stim.FlipSimulator(
+            >>> sim = lestim.FlipSimulator(
             ...     batch_size=2,
             ...     num_qubits=3,
             ...     disable_stabilizer_randomization=True,
@@ -7125,14 +7275,14 @@ class FlipSimulator:
             ...     mask=np.asarray([[True, False],[False, False],[True, True]]),
             ... )
             >>> sim.peek_pauli_flips()
-            [stim.PauliString("+X_X"), stim.PauliString("+__X")]
+            [lestim.PauliString("+X_X"), lestim.PauliString("+__X")]
 
             >>> sim.broadcast_pauli_errors(
             ...     pauli='Z',
             ...     mask=np.asarray([[False, True],[False, False],[True, True]]),
             ... )
             >>> sim.peek_pauli_flips()
-            [stim.PauliString("+X_Y"), stim.PauliString("+Z_Y")]
+            [lestim.PauliString("+X_Y"), lestim.PauliString("+Z_Y")]
         """
     def clear(
         self,
@@ -7235,7 +7385,7 @@ class FlipSimulator:
         """
     def do(
         self,
-        obj: Union[stim.Circuit, stim.CircuitInstruction, stim.CircuitRepeatBlock],
+        obj: Union[lestim.Circuit, lestim.CircuitInstruction, lestim.CircuitRepeatBlock],
     ) -> None:
         """Applies a circuit or circuit instruction to the simulator's state.
 
@@ -7246,12 +7396,12 @@ class FlipSimulator:
             obj: The circuit or instruction to apply to the simulator's state.
 
         Examples:
-            >>> import stim
-            >>> sim = stim.FlipSimulator(
+            >>> import lestim
+            >>> sim = lestim.FlipSimulator(
             ...     batch_size=1,
             ...     disable_stabilizer_randomization=True,
             ... )
-            >>> circuit = stim.Circuit('''
+            >>> circuit = lestim.Circuit('''
             ...     X_ERROR(1) 0 1 3
             ...     REPEAT 5 {
             ...         H 0
@@ -7260,15 +7410,15 @@ class FlipSimulator:
             ... ''')
             >>> sim.do(circuit)
             >>> sim.peek_pauli_flips()
-            [stim.PauliString("+ZZ_X")]
+            [lestim.PauliString("+ZZ_X")]
 
             >>> sim.do(circuit[0])
             >>> sim.peek_pauli_flips()
-            [stim.PauliString("+YY__")]
+            [lestim.PauliString("+YY__")]
 
             >>> sim.do(circuit[1])
             >>> sim.peek_pauli_flips()
-            [stim.PauliString("+YX__")]
+            [lestim.PauliString("+YX__")]
         """
     def generate_bernoulli_samples(
         self,
@@ -7376,9 +7526,9 @@ class FlipSimulator:
             the dtype to np.uint8.
 
         Examples:
-            >>> import stim
-            >>> sim = stim.FlipSimulator(batch_size=9)
-            >>> sim.do(stim.Circuit('''
+            >>> import lestim
+            >>> sim = lestim.FlipSimulator(batch_size=9)
+            >>> sim.do(lestim.Circuit('''
             ...     M 0 0 0
             ...     DETECTOR rec[-2] rec[-3]
             ...     DETECTOR rec[-1] rec[-2]
@@ -7447,9 +7597,9 @@ class FlipSimulator:
             the dtype to np.uint8.
 
         Examples:
-            >>> import stim
-            >>> sim = stim.FlipSimulator(batch_size=9)
-            >>> sim.do(stim.Circuit('M 0 1 2'))
+            >>> import lestim
+            >>> sim = lestim.FlipSimulator(batch_size=9)
+            >>> sim.do(lestim.Circuit('M 0 1 2'))
 
             >>> sim.get_measurement_flips()
             array([[False, False, False, False, False, False, False, False, False],
@@ -7513,9 +7663,9 @@ class FlipSimulator:
             the dtype to np.uint8.
 
         Examples:
-            >>> import stim
-            >>> sim = stim.FlipSimulator(batch_size=9)
-            >>> sim.do(stim.Circuit('''
+            >>> import lestim
+            >>> sim = lestim.FlipSimulator(batch_size=9)
+            >>> sim.do(lestim.Circuit('''
             ...     M 0 0 0
             ...     OBSERVABLE_INCLUDE(0) rec[-2]
             ...     OBSERVABLE_INCLUDE(1) rec[-1]
@@ -7545,11 +7695,11 @@ class FlipSimulator:
         """Returns the number of detectors that have been simulated and stored.
 
         Examples:
-            >>> import stim
-            >>> sim = stim.FlipSimulator(batch_size=256)
+            >>> import lestim
+            >>> sim = lestim.FlipSimulator(batch_size=256)
             >>> sim.num_detectors
             0
-            >>> sim.do(stim.Circuit('''
+            >>> sim.do(lestim.Circuit('''
             ...     M 0 0
             ...     DETECTOR rec[-1] rec[-2]
             ... '''))
@@ -7563,11 +7713,11 @@ class FlipSimulator:
         """Returns the number of measurements that have been simulated and stored.
 
         Examples:
-            >>> import stim
-            >>> sim = stim.FlipSimulator(batch_size=256)
+            >>> import lestim
+            >>> sim = lestim.FlipSimulator(batch_size=256)
             >>> sim.num_measurements
             0
-            >>> sim.do(stim.Circuit('M 3 5'))
+            >>> sim.do(lestim.Circuit('M 3 5'))
             >>> sim.num_measurements
             2
         """
@@ -7578,11 +7728,11 @@ class FlipSimulator:
         """Returns the number of observables currently tracked by the simulator.
 
         Examples:
-            >>> import stim
-            >>> sim = stim.FlipSimulator(batch_size=256)
+            >>> import lestim
+            >>> sim = lestim.FlipSimulator(batch_size=256)
             >>> sim.num_observables
             0
-            >>> sim.do(stim.Circuit('''
+            >>> sim.do(lestim.Circuit('''
             ...     M 0
             ...     OBSERVABLE_INCLUDE(4) rec[-1]
             ... '''))
@@ -7596,76 +7746,76 @@ class FlipSimulator:
         """Returns the number of qubits currently tracked by the simulator.
 
         Examples:
-            >>> import stim
-            >>> sim = stim.FlipSimulator(batch_size=256)
+            >>> import lestim
+            >>> sim = lestim.FlipSimulator(batch_size=256)
             >>> sim.num_qubits
             0
-            >>> sim = stim.FlipSimulator(batch_size=256, num_qubits=4)
+            >>> sim = lestim.FlipSimulator(batch_size=256, num_qubits=4)
             >>> sim.num_qubits
             4
-            >>> sim.do(stim.Circuit('H 5'))
+            >>> sim.do(lestim.Circuit('H 5'))
             >>> sim.num_qubits
             6
         """
     @overload
     def peek_pauli_flips(
         self,
-    ) -> List[stim.PauliString]:
+    ) -> List[lestim.PauliString]:
         pass
     @overload
     def peek_pauli_flips(
         self,
         *,
         instance_index: int,
-    ) -> stim.PauliString:
+    ) -> lestim.PauliString:
         pass
     def peek_pauli_flips(
         self,
         *,
         instance_index: Optional[int] = None,
-    ) -> Union[stim.PauliString, List[stim.PauliString]]:
-        """Returns the current pauli errors packed into stim.PauliString instances.
+    ) -> Union[lestim.PauliString, List[lestim.PauliString]]:
+        """Returns the current pauli errors packed into lestim.PauliString instances.
 
         Args:
             instance_index: Defaults to None. When set to None, the pauli errors from
-                all instances are returned as a list of `stim.PauliString`. When set to
-                an integer, a single `stim.PauliString` is returned containing the
+                all instances are returned as a list of `lestim.PauliString`. When set to
+                an integer, a single `lestim.PauliString` is returned containing the
                 errors for the indexed instance.
 
         Returns:
             if instance_index is None:
-                A list of stim.PauliString, with the k'th entry being the errors from
+                A list of lestim.PauliString, with the k'th entry being the errors from
                 the k'th simulation instance.
             else:
-                A stim.PauliString with the errors from the k'th simulation instance.
+                A lestim.PauliString with the errors from the k'th simulation instance.
 
         Examples:
-            >>> import stim
-            >>> sim = stim.FlipSimulator(
+            >>> import lestim
+            >>> sim = lestim.FlipSimulator(
             ...     batch_size=2,
             ...     disable_stabilizer_randomization=True,
             ...     num_qubits=10,
             ... )
 
             >>> sim.peek_pauli_flips()
-            [stim.PauliString("+__________"), stim.PauliString("+__________")]
+            [lestim.PauliString("+__________"), lestim.PauliString("+__________")]
 
             >>> sim.peek_pauli_flips(instance_index=0)
-            stim.PauliString("+__________")
+            lestim.PauliString("+__________")
 
-            >>> sim.do(stim.Circuit('''
+            >>> sim.do(lestim.Circuit('''
             ...     X_ERROR(1) 0 3 5
             ...     Z_ERROR(1) 3 6
             ... '''))
 
             >>> sim.peek_pauli_flips()
-            [stim.PauliString("+X__Y_XZ___"), stim.PauliString("+X__Y_XZ___")]
+            [lestim.PauliString("+X__Y_XZ___"), lestim.PauliString("+X__Y_XZ___")]
 
-            >>> sim = stim.FlipSimulator(
+            >>> sim = lestim.FlipSimulator(
             ...     batch_size=1,
             ...     num_qubits=100,
             ... )
-            >>> flips: stim.PauliString = sim.peek_pauli_flips(instance_index=0)
+            >>> flips: lestim.PauliString = sim.peek_pauli_flips(instance_index=0)
             >>> sorted(set(str(flips)))  # Should have Zs from stabilizer randomization
             ['+', 'Z', '_']
         """
@@ -7688,15 +7838,15 @@ class FlipSimulator:
                 indices to index from the end of the list.
 
         Examples:
-            >>> import stim
-            >>> sim = stim.FlipSimulator(
+            >>> import lestim
+            >>> sim = lestim.FlipSimulator(
             ...     batch_size=2,
             ...     num_qubits=3,
             ...     disable_stabilizer_randomization=True,
             ... )
             >>> sim.set_pauli_flip('X', qubit_index=2, instance_index=1)
             >>> sim.peek_pauli_flips()
-            [stim.PauliString("+___"), stim.PauliString("+__X")]
+            [lestim.PauliString("+___"), lestim.PauliString("+__X")]
         """
     def to_numpy(
         self,
@@ -7870,6 +8020,7 @@ class FlippedMeasurement:
     """
     def __init__(
         self,
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
         measurement_record_index: Optional[int],
         measured_observable: Iterable[stim.GateTargetWithCoords],
     ):
@@ -7885,11 +8036,18 @@ class FlippedMeasurement:
                 record_index=5,
                 observable=(),
             )
+=======
+        *,
+        record_index: int,
+        observable: object,
+    ) -> None:
+        """Creates a lestim.FlippedMeasurement.
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
         """
     @property
     def observable(
         self,
-    ) -> List[stim.GateTargetWithCoords]:
+    ) -> List[lestim.GateTargetWithCoords]:
         """Returns the observable of the flipped measurement.
 
         For example, an `MX 5` measurement will have the observable X5.
@@ -7925,9 +8083,9 @@ class Flow:
 
     Stabilizer circuits implement, and can be defined by, how they turn input
     stabilizers into output stabilizers mediated by measurements. These
-    relationships are called stabilizer flows, and `stim.Flow` is a representation
-    of such a flow. For example, a `stim.Flow` can be given to
-    `stim.Circuit.has_flow` to verify that a circuit implements the flow.
+    relationships are called stabilizer flows, and `lestim.Flow` is a representation
+    of such a flow. For example, a `lestim.Flow` can be given to
+    `lestim.Circuit.has_flow` to verify that a circuit implements the flow.
 
     A circuit has a stabilizer flow P -> Q if it maps the instantaneous stabilizer
     P at the start of the circuit to the instantaneous stabilizer Q at the end of
@@ -7948,35 +8106,35 @@ class Flow:
         their presence.
 
     Examples:
-        >>> import stim
-        >>> c = stim.Circuit("CNOT 2 4")
+        >>> import lestim
+        >>> c = lestim.Circuit("CNOT 2 4")
 
-        >>> c.has_flow(stim.Flow("__X__ -> __X_X"))
+        >>> c.has_flow(lestim.Flow("__X__ -> __X_X"))
         True
 
-        >>> c.has_flow(stim.Flow("X2*X4 -> X2"))
+        >>> c.has_flow(lestim.Flow("X2*X4 -> X2"))
         True
 
-        >>> c.has_flow(stim.Flow("Z4 -> Z4"))
+        >>> c.has_flow(lestim.Flow("Z4 -> Z4"))
         False
     """
     def __eq__(
         self,
-        arg0: stim.Flow,
+        arg0: lestim.Flow,
     ) -> bool:
         """Determines if two flows have identical contents.
         """
     def __init__(
         self,
-        arg: Union[None, str, stim.Flow] = None,
+        arg: Union[None, str, lestim.Flow] = None,
         /,
         *,
-        input: Optional[stim.PauliString] = None,
-        output: Optional[stim.PauliString] = None,
+        input: Optional[lestim.PauliString] = None,
+        output: Optional[lestim.PauliString] = None,
         measurements: Optional[Iterable[Union[int, GateTarget]]] = None,
         included_observables: Optional[Iterable[int]] = None,
     ) -> None:
-        """Initializes a stim.Flow.
+        """Initializes a lestim.Flow.
 
         When given a string, the string is parsed as flow shorthand. For example,
         the string "X_ -> ZZ xor rec[-1]" will result in a flow with input pauli string
@@ -7985,12 +8143,13 @@ class Flow:
         Args:
             arg [position-only]: Defaults to None. Must be specified by itself if used.
                 str: Initializes a flow by parsing the given shorthand text.
-                stim.Flow: Initializes a copy of the given flow.
+                lestim.Flow: Initializes a copy of the given flow.
                 None (default): Initializes an empty flow.
-            input: Defaults to None. Can be set to a stim.PauliString to directly
+            input: Defaults to None. Can be set to a lestim.PauliString to directly
                 specify the flow's input stabilizer.
-            output: Defaults to None. Can be set to a stim.PauliString to directly
+            output: Defaults to None. Can be set to a lestim.PauliString to directly
                 specify the flow's output stabilizer.
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
             measurements: Defaults to None. Can be set to a list of integers or gate
                 targets like `stim.target_rec(-1)`, to specify the measurements that
                 mediate the flow. Negative and positive measurement indices are allowed.
@@ -8003,21 +8162,29 @@ class Flow:
                 observable 3 should be an X term on qubit 5. By the end of the circuit
                 it will be measured. The `OBSERVABLE_INCLUDE(3)` instructions in the
                 circuit should explain how this happened.".
+=======
+            measurements: Can be set to a list of integers or gate targets like
+                `lestim.target_rec(-1)`, to specify the measurements that mediate the
+                flow. Negative and positive measurement indices are allowed. Indexes
+                follow the python convention where -1 is the last measurement in a
+                circuit and 0 is the first measurement in a circuit.
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> stim.Flow("X2 -> -Y2*Z4 xor rec[-1]")
-            stim.Flow("__X -> -__Y_Z xor rec[-1]")
+            >>> lestim.Flow("X2 -> -Y2*Z4 xor rec[-1]")
+            lestim.Flow("__X -> -__Y_Z xor rec[-1]")
 
-            >>> stim.Flow("Z -> 1 xor rec[-1]")
-            stim.Flow("Z -> rec[-1]")
+            >>> lestim.Flow("Z -> 1 xor rec[-1]")
+            lestim.Flow("Z -> rec[-1]")
 
-            >>> stim.Flow(
-            ...     input=stim.PauliString("XX"),
-            ...     output=stim.PauliString("_X"),
+            >>> lestim.Flow(
+            ...     input=lestim.PauliString("XX"),
+            ...     output=lestim.PauliString("_X"),
             ...     measurements=[],
             ... )
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
             stim.Flow("XX -> _X")
 
             >>> # Identical terms cancel.
@@ -8053,17 +8220,20 @@ class Flow:
 
             >>> stim.Flow("X -> rec[-1]") * stim.Flow("X -> rec[-2]")
             stim.Flow("_ -> rec[-2] xor rec[-1]")
+=======
+            lestim.Flow("XX -> _X")
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
         """
     def __ne__(
         self,
-        arg0: stim.Flow,
+        arg0: lestim.Flow,
     ) -> bool:
         """Determines if two flows have non-identical contents.
         """
     def __repr__(
         self,
     ) -> str:
-        """Returns valid python code evaluating to an equivalent `stim.Flow`.
+        """Returns valid python code evaluating to an equivalent `lestim.Flow`.
         """
     def __str__(
         self,
@@ -8096,14 +8266,14 @@ class Flow:
         """
     def input_copy(
         self,
-    ) -> stim.PauliString:
+    ) -> lestim.PauliString:
         """Returns a copy of the flow's input stabilizer.
 
         Examples:
-            >>> import stim
-            >>> f = stim.Flow(input=stim.PauliString('XX'))
+            >>> import lestim
+            >>> f = lestim.Flow(input=lestim.PauliString('XX'))
             >>> f.input_copy()
-            stim.PauliString("+XX")
+            lestim.PauliString("+XX")
 
             >>> f.input_copy() is f.input_copy()
             False
@@ -8114,8 +8284,8 @@ class Flow:
         """Returns a copy of the flow's measurement indices.
 
         Examples:
-            >>> import stim
-            >>> f = stim.Flow(measurements=[-1, 2])
+            >>> import lestim
+            >>> f = lestim.Flow(measurements=[-1, 2])
             >>> f.measurements_copy()
             [-1, 2]
 
@@ -8124,40 +8294,40 @@ class Flow:
         """
     def output_copy(
         self,
-    ) -> stim.PauliString:
+    ) -> lestim.PauliString:
         """Returns a copy of the flow's output stabilizer.
 
         Examples:
-            >>> import stim
-            >>> f = stim.Flow(output=stim.PauliString('XX'))
+            >>> import lestim
+            >>> f = lestim.Flow(output=lestim.PauliString('XX'))
             >>> f.output_copy()
-            stim.PauliString("+XX")
+            lestim.PauliString("+XX")
 
             >>> f.output_copy() is f.output_copy()
             False
         """
 class GateData:
-    """Details about a gate supported by stim.
+    """Details about a gate supported by lestim.
 
     Examples:
-        >>> import stim
-        >>> stim.gate_data('h').name
+        >>> import lestim
+        >>> lestim.gate_data('h').name
         'H'
-        >>> stim.gate_data('h').is_unitary
+        >>> lestim.gate_data('h').is_unitary
         True
-        >>> stim.gate_data('h').tableau
-        stim.Tableau.from_conjugated_generators(
+        >>> lestim.gate_data('h').tableau
+        lestim.Tableau.from_conjugated_generators(
             xs=[
-                stim.PauliString("+Z"),
+                lestim.PauliString("+Z"),
             ],
             zs=[
-                stim.PauliString("+X"),
+                lestim.PauliString("+X"),
             ],
         )
     """
     def __eq__(
         self,
-        arg0: stim.GateData,
+        arg0: lestim.GateData,
     ) -> bool:
         """Determines if two GateData instances are identical.
         """
@@ -8168,20 +8338,20 @@ class GateData:
         """Finds gate data for the named gate.
 
         Examples:
-            >>> import stim
-            >>> stim.GateData('H').is_unitary
+            >>> import lestim
+            >>> lestim.GateData('H').is_unitary
             True
         """
     def __ne__(
         self,
-        arg0: stim.GateData,
+        arg0: lestim.GateData,
     ) -> bool:
         """Determines if two GateData instances are not identical.
         """
     def __repr__(
         self,
     ) -> str:
-        """Returns text that is a valid python expression evaluating to an equivalent `stim.GateData`.
+        """Returns text that is a valid python expression evaluating to an equivalent `lestim.GateData`.
         """
     def __str__(
         self,
@@ -8198,16 +8368,16 @@ class GateData:
         case named, the result only includes upper cased aliases.
 
         Examples:
-            >>> import stim
-            >>> stim.gate_data('H').aliases
+            >>> import lestim
+            >>> lestim.gate_data('H').aliases
             ['H', 'H_XZ']
-            >>> stim.gate_data('cnot').aliases
+            >>> lestim.gate_data('cnot').aliases
             ['CNOT', 'CX', 'ZCX']
         """
     @property
     def flows(
         self,
-    ) -> Optional[List[stim.Flow]]:
+    ) -> Optional[List[lestim.Flow]]:
         """Returns stabilizer flow generators for the gate, or else None.
 
         A stabilizer flow describes an input-output relationship that the gate
@@ -8219,22 +8389,22 @@ class GateData:
         depend on how many qubits it targets and what basis it targets them in.
 
         Returns:
-            A list of stim.Flow instances representing the generators.
+            A list of lestim.Flow instances representing the generators.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> stim.gate_data('H').flows
-            [stim.Flow("X -> Z"), stim.Flow("Z -> X")]
+            >>> lestim.gate_data('H').flows
+            [lestim.Flow("X -> Z"), lestim.Flow("Z -> X")]
 
-            >>> for e in stim.gate_data('ISWAP').flows:
+            >>> for e in lestim.gate_data('ISWAP').flows:
             ...     print(e)
             X_ -> ZY
             Z_ -> _Z
             _X -> YZ
             _Z -> Z_
 
-            >>> for e in stim.gate_data('MXX').flows:
+            >>> for e in lestim.gate_data('MXX').flows:
             ...     print(e)
             X_ -> X_
             _X -> _X
@@ -8244,7 +8414,7 @@ class GateData:
     @property
     def generalized_inverse(
         self,
-    ) -> stim.GateData:
+    ) -> lestim.GateData:
         """The closest-thing-to-an-inverse for the gate, if forced to pick something.
 
         The generalized inverse of a unitary gate U is its actual inverse U^-1.
@@ -8260,31 +8430,31 @@ class GateData:
         The generalized inverse of an annotation like TICK is just the same annotation.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> stim.gate_data('H').generalized_inverse
-            stim.gate_data('H')
+            >>> lestim.gate_data('H').generalized_inverse
+            lestim.gate_data('H')
 
-            >>> stim.gate_data('CXSWAP').generalized_inverse
-            stim.gate_data('SWAPCX')
+            >>> lestim.gate_data('CXSWAP').generalized_inverse
+            lestim.gate_data('SWAPCX')
 
-            >>> stim.gate_data('X_ERROR').generalized_inverse
-            stim.gate_data('X_ERROR')
+            >>> lestim.gate_data('X_ERROR').generalized_inverse
+            lestim.gate_data('X_ERROR')
 
-            >>> stim.gate_data('MX').generalized_inverse
-            stim.gate_data('MX')
+            >>> lestim.gate_data('MX').generalized_inverse
+            lestim.gate_data('MX')
 
-            >>> stim.gate_data('MRY').generalized_inverse
-            stim.gate_data('MRY')
+            >>> lestim.gate_data('MRY').generalized_inverse
+            lestim.gate_data('MRY')
 
-            >>> stim.gate_data('R').generalized_inverse
-            stim.gate_data('M')
+            >>> lestim.gate_data('R').generalized_inverse
+            lestim.gate_data('M')
 
-            >>> stim.gate_data('DETECTOR').generalized_inverse
-            stim.gate_data('DETECTOR')
+            >>> lestim.gate_data('DETECTOR').generalized_inverse
+            lestim.gate_data('DETECTOR')
 
-            >>> stim.gate_data('TICK').generalized_inverse
-            stim.gate_data('TICK')
+            >>> lestim.gate_data('TICK').generalized_inverse
+            lestim.gate_data('TICK')
         """
     def hadamard_conjugated(
         self,
@@ -8343,7 +8513,7 @@ class GateData:
     @property
     def inverse(
         self,
-    ) -> Optional[stim.GateData]:
+    ) -> Optional[lestim.GateData]:
         """The inverse of the gate, or None if it has no inverse.
 
         The inverse V of a gate U must have the property that V undoes the effects of U
@@ -8355,29 +8525,29 @@ class GateData:
         should be equivalent to doing nothing at all.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> stim.gate_data('H').inverse
-            stim.gate_data('H')
+            >>> lestim.gate_data('H').inverse
+            lestim.gate_data('H')
 
-            >>> stim.gate_data('CX').inverse
-            stim.gate_data('CX')
+            >>> lestim.gate_data('CX').inverse
+            lestim.gate_data('CX')
 
-            >>> stim.gate_data('S').inverse
-            stim.gate_data('S_DAG')
+            >>> lestim.gate_data('S').inverse
+            lestim.gate_data('S_DAG')
 
-            >>> stim.gate_data('CXSWAP').inverse
-            stim.gate_data('SWAPCX')
+            >>> lestim.gate_data('CXSWAP').inverse
+            lestim.gate_data('SWAPCX')
 
-            >>> stim.gate_data('X_ERROR').inverse is None
+            >>> lestim.gate_data('X_ERROR').inverse is None
             True
-            >>> stim.gate_data('M').inverse is None
+            >>> lestim.gate_data('M').inverse is None
             True
-            >>> stim.gate_data('R').inverse is None
+            >>> lestim.gate_data('R').inverse is None
             True
-            >>> stim.gate_data('DETECTOR').inverse is None
+            >>> lestim.gate_data('DETECTOR').inverse is None
             True
-            >>> stim.gate_data('TICK').inverse is None
+            >>> lestim.gate_data('TICK').inverse is None
             True
         """
     @property
@@ -8391,26 +8561,26 @@ class GateData:
         noise that flips its result 0.1% of the time.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> stim.gate_data('M').is_noisy_gate
+            >>> lestim.gate_data('M').is_noisy_gate
             True
-            >>> stim.gate_data('MXX').is_noisy_gate
+            >>> lestim.gate_data('MXX').is_noisy_gate
             True
-            >>> stim.gate_data('X_ERROR').is_noisy_gate
+            >>> lestim.gate_data('X_ERROR').is_noisy_gate
             True
-            >>> stim.gate_data('CORRELATED_ERROR').is_noisy_gate
+            >>> lestim.gate_data('CORRELATED_ERROR').is_noisy_gate
             True
-            >>> stim.gate_data('MPP').is_noisy_gate
+            >>> lestim.gate_data('MPP').is_noisy_gate
             True
 
-            >>> stim.gate_data('H').is_noisy_gate
+            >>> lestim.gate_data('H').is_noisy_gate
             False
-            >>> stim.gate_data('CX').is_noisy_gate
+            >>> lestim.gate_data('CX').is_noisy_gate
             False
-            >>> stim.gate_data('R').is_noisy_gate
+            >>> lestim.gate_data('R').is_noisy_gate
             False
-            >>> stim.gate_data('DETECTOR').is_noisy_gate
+            >>> lestim.gate_data('DETECTOR').is_noisy_gate
             False
         """
     @property
@@ -8420,34 +8590,34 @@ class GateData:
         """Returns whether or not the gate resets qubits in any basis.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> stim.gate_data('R').is_reset
+            >>> lestim.gate_data('R').is_reset
             True
-            >>> stim.gate_data('RX').is_reset
+            >>> lestim.gate_data('RX').is_reset
             True
-            >>> stim.gate_data('MR').is_reset
+            >>> lestim.gate_data('MR').is_reset
             True
 
-            >>> stim.gate_data('M').is_reset
+            >>> lestim.gate_data('M').is_reset
             False
-            >>> stim.gate_data('MXX').is_reset
+            >>> lestim.gate_data('MXX').is_reset
             False
-            >>> stim.gate_data('MPP').is_reset
+            >>> lestim.gate_data('MPP').is_reset
             False
-            >>> stim.gate_data('H').is_reset
+            >>> lestim.gate_data('H').is_reset
             False
-            >>> stim.gate_data('CX').is_reset
+            >>> lestim.gate_data('CX').is_reset
             False
-            >>> stim.gate_data('HERALDED_ERASE').is_reset
+            >>> lestim.gate_data('HERALDED_ERASE').is_reset
             False
-            >>> stim.gate_data('DEPOLARIZE2').is_reset
+            >>> lestim.gate_data('DEPOLARIZE2').is_reset
             False
-            >>> stim.gate_data('X_ERROR').is_reset
+            >>> lestim.gate_data('X_ERROR').is_reset
             False
-            >>> stim.gate_data('CORRELATED_ERROR').is_reset
+            >>> lestim.gate_data('CORRELATED_ERROR').is_reset
             False
-            >>> stim.gate_data('DETECTOR').is_reset
+            >>> lestim.gate_data('DETECTOR').is_reset
             False
         """
     @property
@@ -8462,30 +8632,30 @@ class GateData:
         considered single qubit gates.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> stim.gate_data('H').is_single_qubit_gate
+            >>> lestim.gate_data('H').is_single_qubit_gate
             True
-            >>> stim.gate_data('R').is_single_qubit_gate
+            >>> lestim.gate_data('R').is_single_qubit_gate
             True
-            >>> stim.gate_data('M').is_single_qubit_gate
+            >>> lestim.gate_data('M').is_single_qubit_gate
             True
-            >>> stim.gate_data('X_ERROR').is_single_qubit_gate
+            >>> lestim.gate_data('X_ERROR').is_single_qubit_gate
             True
 
-            >>> stim.gate_data('CX').is_single_qubit_gate
+            >>> lestim.gate_data('CX').is_single_qubit_gate
             False
-            >>> stim.gate_data('MXX').is_single_qubit_gate
+            >>> lestim.gate_data('MXX').is_single_qubit_gate
             False
-            >>> stim.gate_data('CORRELATED_ERROR').is_single_qubit_gate
+            >>> lestim.gate_data('CORRELATED_ERROR').is_single_qubit_gate
             False
-            >>> stim.gate_data('MPP').is_single_qubit_gate
+            >>> lestim.gate_data('MPP').is_single_qubit_gate
             False
-            >>> stim.gate_data('DETECTOR').is_single_qubit_gate
+            >>> lestim.gate_data('DETECTOR').is_single_qubit_gate
             False
-            >>> stim.gate_data('TICK').is_single_qubit_gate
+            >>> lestim.gate_data('TICK').is_single_qubit_gate
             False
-            >>> stim.gate_data('REPEAT').is_single_qubit_gate
+            >>> lestim.gate_data('REPEAT').is_single_qubit_gate
             False
         """
     @property
@@ -8553,26 +8723,26 @@ class GateData:
             False if the gate isn't a two qubit gate.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> stim.gate_data('CX').is_two_qubit_gate
+            >>> lestim.gate_data('CX').is_two_qubit_gate
             True
-            >>> stim.gate_data('MXX').is_two_qubit_gate
+            >>> lestim.gate_data('MXX').is_two_qubit_gate
             True
 
-            >>> stim.gate_data('H').is_two_qubit_gate
+            >>> lestim.gate_data('H').is_two_qubit_gate
             False
-            >>> stim.gate_data('R').is_two_qubit_gate
+            >>> lestim.gate_data('R').is_two_qubit_gate
             False
-            >>> stim.gate_data('M').is_two_qubit_gate
+            >>> lestim.gate_data('M').is_two_qubit_gate
             False
-            >>> stim.gate_data('X_ERROR').is_two_qubit_gate
+            >>> lestim.gate_data('X_ERROR').is_two_qubit_gate
             False
-            >>> stim.gate_data('CORRELATED_ERROR').is_two_qubit_gate
+            >>> lestim.gate_data('CORRELATED_ERROR').is_two_qubit_gate
             False
-            >>> stim.gate_data('MPP').is_two_qubit_gate
+            >>> lestim.gate_data('MPP').is_two_qubit_gate
             False
-            >>> stim.gate_data('DETECTOR').is_two_qubit_gate
+            >>> lestim.gate_data('DETECTOR').is_two_qubit_gate
             False
         """
     @property
@@ -8582,26 +8752,26 @@ class GateData:
         """Returns whether or not the gate is a unitary gate.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> stim.gate_data('H').is_unitary
+            >>> lestim.gate_data('H').is_unitary
             True
-            >>> stim.gate_data('CX').is_unitary
+            >>> lestim.gate_data('CX').is_unitary
             True
 
-            >>> stim.gate_data('R').is_unitary
+            >>> lestim.gate_data('R').is_unitary
             False
-            >>> stim.gate_data('M').is_unitary
+            >>> lestim.gate_data('M').is_unitary
             False
-            >>> stim.gate_data('MXX').is_unitary
+            >>> lestim.gate_data('MXX').is_unitary
             False
-            >>> stim.gate_data('X_ERROR').is_unitary
+            >>> lestim.gate_data('X_ERROR').is_unitary
             False
-            >>> stim.gate_data('CORRELATED_ERROR').is_unitary
+            >>> lestim.gate_data('CORRELATED_ERROR').is_unitary
             False
-            >>> stim.gate_data('MPP').is_unitary
+            >>> lestim.gate_data('MPP').is_unitary
             False
-            >>> stim.gate_data('DETECTOR').is_unitary
+            >>> lestim.gate_data('DETECTOR').is_unitary
             False
         """
     @property
@@ -8611,10 +8781,10 @@ class GateData:
         """Returns the canonical name of the gate.
 
         Examples:
-            >>> import stim
-            >>> stim.gate_data('H').name
+            >>> import lestim
+            >>> lestim.gate_data('H').name
             'H'
-            >>> stim.gate_data('cnot').name
+            >>> lestim.gate_data('cnot').name
             'CX'
         """
     @property
@@ -8624,25 +8794,25 @@ class GateData:
         """Returns the min/max parens arguments taken by the gate, as a python range.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> stim.gate_data('M').num_parens_arguments_range
+            >>> lestim.gate_data('M').num_parens_arguments_range
             range(0, 2)
-            >>> list(stim.gate_data('M').num_parens_arguments_range)
+            >>> list(lestim.gate_data('M').num_parens_arguments_range)
             [0, 1]
-            >>> list(stim.gate_data('R').num_parens_arguments_range)
+            >>> list(lestim.gate_data('R').num_parens_arguments_range)
             [0]
-            >>> list(stim.gate_data('H').num_parens_arguments_range)
+            >>> list(lestim.gate_data('H').num_parens_arguments_range)
             [0]
-            >>> list(stim.gate_data('X_ERROR').num_parens_arguments_range)
+            >>> list(lestim.gate_data('X_ERROR').num_parens_arguments_range)
             [1]
-            >>> list(stim.gate_data('PAULI_CHANNEL_1').num_parens_arguments_range)
+            >>> list(lestim.gate_data('PAULI_CHANNEL_1').num_parens_arguments_range)
             [3]
-            >>> list(stim.gate_data('PAULI_CHANNEL_2').num_parens_arguments_range)
+            >>> list(lestim.gate_data('PAULI_CHANNEL_2').num_parens_arguments_range)
             [15]
-            >>> stim.gate_data('DETECTOR').num_parens_arguments_range
+            >>> lestim.gate_data('DETECTOR').num_parens_arguments_range
             range(0, 256)
-            >>> list(stim.gate_data('OBSERVABLE_INCLUDE').num_parens_arguments_range)
+            >>> list(lestim.gate_data('OBSERVABLE_INCLUDE').num_parens_arguments_range)
             [1]
         """
     @property
@@ -8652,60 +8822,60 @@ class GateData:
         """Returns whether or not the gate produces measurement results.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> stim.gate_data('M').produces_measurements
+            >>> lestim.gate_data('M').produces_measurements
             True
-            >>> stim.gate_data('MRY').produces_measurements
+            >>> lestim.gate_data('MRY').produces_measurements
             True
-            >>> stim.gate_data('MXX').produces_measurements
+            >>> lestim.gate_data('MXX').produces_measurements
             True
-            >>> stim.gate_data('MPP').produces_measurements
+            >>> lestim.gate_data('MPP').produces_measurements
             True
-            >>> stim.gate_data('HERALDED_ERASE').produces_measurements
+            >>> lestim.gate_data('HERALDED_ERASE').produces_measurements
             True
 
-            >>> stim.gate_data('H').produces_measurements
+            >>> lestim.gate_data('H').produces_measurements
             False
-            >>> stim.gate_data('CX').produces_measurements
+            >>> lestim.gate_data('CX').produces_measurements
             False
-            >>> stim.gate_data('R').produces_measurements
+            >>> lestim.gate_data('R').produces_measurements
             False
-            >>> stim.gate_data('X_ERROR').produces_measurements
+            >>> lestim.gate_data('X_ERROR').produces_measurements
             False
-            >>> stim.gate_data('CORRELATED_ERROR').produces_measurements
+            >>> lestim.gate_data('CORRELATED_ERROR').produces_measurements
             False
-            >>> stim.gate_data('DETECTOR').produces_measurements
+            >>> lestim.gate_data('DETECTOR').produces_measurements
             False
         """
     @property
     def tableau(
         self,
-    ) -> Optional[stim.Tableau]:
+    ) -> Optional[lestim.Tableau]:
         """Returns the gate's tableau, or None if the gate has no tableau.
 
         Examples:
-            >>> import stim
-            >>> print(stim.gate_data('M').tableau)
+            >>> import lestim
+            >>> print(lestim.gate_data('M').tableau)
             None
-            >>> stim.gate_data('H').tableau
-            stim.Tableau.from_conjugated_generators(
+            >>> lestim.gate_data('H').tableau
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    stim.PauliString("+Z"),
+                    lestim.PauliString("+Z"),
                 ],
                 zs=[
-                    stim.PauliString("+X"),
+                    lestim.PauliString("+X"),
                 ],
             )
-            >>> stim.gate_data('ISWAP').tableau
-            stim.Tableau.from_conjugated_generators(
+            >>> lestim.gate_data('ISWAP').tableau
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    stim.PauliString("+ZY"),
-                    stim.PauliString("+YZ"),
+                    lestim.PauliString("+ZY"),
+                    lestim.PauliString("+YZ"),
                 ],
                 zs=[
-                    stim.PauliString("+_Z"),
-                    stim.PauliString("+Z_"),
+                    lestim.PauliString("+_Z"),
+                    lestim.PauliString("+Z_"),
                 ],
             )
         """
@@ -8719,30 +8889,30 @@ class GateData:
         like `CX rec[-1] 1`.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> stim.gate_data('CX').takes_measurement_record_targets
+            >>> lestim.gate_data('CX').takes_measurement_record_targets
             True
-            >>> stim.gate_data('DETECTOR').takes_measurement_record_targets
+            >>> lestim.gate_data('DETECTOR').takes_measurement_record_targets
             True
 
-            >>> stim.gate_data('H').takes_measurement_record_targets
+            >>> lestim.gate_data('H').takes_measurement_record_targets
             False
-            >>> stim.gate_data('SWAP').takes_measurement_record_targets
+            >>> lestim.gate_data('SWAP').takes_measurement_record_targets
             False
-            >>> stim.gate_data('R').takes_measurement_record_targets
+            >>> lestim.gate_data('R').takes_measurement_record_targets
             False
-            >>> stim.gate_data('M').takes_measurement_record_targets
+            >>> lestim.gate_data('M').takes_measurement_record_targets
             False
-            >>> stim.gate_data('MRY').takes_measurement_record_targets
+            >>> lestim.gate_data('MRY').takes_measurement_record_targets
             False
-            >>> stim.gate_data('MXX').takes_measurement_record_targets
+            >>> lestim.gate_data('MXX').takes_measurement_record_targets
             False
-            >>> stim.gate_data('X_ERROR').takes_measurement_record_targets
+            >>> lestim.gate_data('X_ERROR').takes_measurement_record_targets
             False
-            >>> stim.gate_data('CORRELATED_ERROR').takes_measurement_record_targets
+            >>> lestim.gate_data('CORRELATED_ERROR').takes_measurement_record_targets
             False
-            >>> stim.gate_data('MPP').takes_measurement_record_targets
+            >>> lestim.gate_data('MPP').takes_measurement_record_targets
             False
         """
     @property
@@ -8755,28 +8925,28 @@ class GateData:
         instead of `0` or `1`.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> stim.gate_data('CORRELATED_ERROR').takes_pauli_targets
+            >>> lestim.gate_data('CORRELATED_ERROR').takes_pauli_targets
             True
-            >>> stim.gate_data('MPP').takes_pauli_targets
+            >>> lestim.gate_data('MPP').takes_pauli_targets
             True
 
-            >>> stim.gate_data('H').takes_pauli_targets
+            >>> lestim.gate_data('H').takes_pauli_targets
             False
-            >>> stim.gate_data('CX').takes_pauli_targets
+            >>> lestim.gate_data('CX').takes_pauli_targets
             False
-            >>> stim.gate_data('R').takes_pauli_targets
+            >>> lestim.gate_data('R').takes_pauli_targets
             False
-            >>> stim.gate_data('M').takes_pauli_targets
+            >>> lestim.gate_data('M').takes_pauli_targets
             False
-            >>> stim.gate_data('MRY').takes_pauli_targets
+            >>> lestim.gate_data('MRY').takes_pauli_targets
             False
-            >>> stim.gate_data('MXX').takes_pauli_targets
+            >>> lestim.gate_data('MXX').takes_pauli_targets
             False
-            >>> stim.gate_data('X_ERROR').takes_pauli_targets
+            >>> lestim.gate_data('X_ERROR').takes_pauli_targets
             False
-            >>> stim.gate_data('DETECTOR').takes_pauli_targets
+            >>> lestim.gate_data('DETECTOR').takes_pauli_targets
             False
         """
     @property
@@ -8786,16 +8956,16 @@ class GateData:
         """Returns the gate's unitary matrix, or None if the gate isn't unitary.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> print(stim.gate_data('M').unitary_matrix)
+            >>> print(lestim.gate_data('M').unitary_matrix)
             None
 
-            >>> stim.gate_data('X').unitary_matrix
+            >>> lestim.gate_data('X').unitary_matrix
             array([[0.+0.j, 1.+0.j],
                    [1.+0.j, 0.+0.j]], dtype=complex64)
 
-            >>> stim.gate_data('ISWAP').unitary_matrix
+            >>> lestim.gate_data('ISWAP').unitary_matrix
             array([[1.+0.j, 0.+0.j, 0.+0.j, 0.+0.j],
                    [0.+0.j, 0.+0.j, 0.+1.j, 0.+0.j],
                    [0.+0.j, 0.+1.j, 0.+0.j, 0.+0.j],
@@ -8805,28 +8975,33 @@ class GateTarget:
     """Represents a gate target, like `0` or `rec[-1]`, from a circuit.
 
     Examples:
-        >>> import stim
-        >>> circuit = stim.Circuit('''
+        >>> import lestim
+        >>> circuit = lestim.Circuit('''
         ...     M 0 !1
         ... ''')
         >>> circuit[0].targets_copy()[0]
-        stim.GateTarget(0)
+        lestim.GateTarget(0)
         >>> circuit[0].targets_copy()[1]
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
         stim.target_inv(1)
+=======
+        lestim.GateTarget(lestim.target_inv(1))
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
     """
     def __eq__(
         self,
-        arg0: stim.GateTarget,
+        arg0: lestim.GateTarget,
     ) -> bool:
-        """Determines if two `stim.GateTarget`s are identical.
+        """Determines if two `lestim.GateTarget`s are identical.
         """
     def __init__(
         self,
         value: object,
     ) -> None:
-        """Initializes a `stim.GateTarget`.
+        """Initializes a `lestim.GateTarget`.
 
         Args:
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
             value: A value to convert into a gate target, like an integer
                 to interpret as a qubit target or a string to parse.
 
@@ -8842,17 +9017,20 @@ class GateTarget:
             stim.target_z(7, invert=True)
             >>> stim.GateTarget("*")
             stim.GateTarget.combiner()
+=======
+            value: A target like `5` or `lestim.target_rec(-1)`.
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
         """
     def __ne__(
         self,
-        arg0: stim.GateTarget,
+        arg0: lestim.GateTarget,
     ) -> bool:
-        """Determines if two `stim.GateTarget`s are different.
+        """Determines if two `lestim.GateTarget`s are different.
         """
     def __repr__(
         self,
     ) -> str:
-        """Returns text that is a valid python expression evaluating to an equivalent `stim.GateTarget`.
+        """Returns text that is a valid python expression evaluating to an equivalent `lestim.GateTarget`.
         """
     @property
     def is_combiner(
@@ -8861,22 +9039,22 @@ class GateTarget:
         """Returns whether or not this is a combiner target like `*`.
 
         Examples:
-            >>> import stim
-            >>> stim.GateTarget(6).is_combiner
+            >>> import lestim
+            >>> lestim.GateTarget(6).is_combiner
             False
-            >>> stim.target_inv(7).is_combiner
+            >>> lestim.target_inv(7).is_combiner
             False
-            >>> stim.target_x(8).is_combiner
+            >>> lestim.target_x(8).is_combiner
             False
-            >>> stim.target_y(2).is_combiner
+            >>> lestim.target_y(2).is_combiner
             False
-            >>> stim.target_z(3).is_combiner
+            >>> lestim.target_z(3).is_combiner
             False
-            >>> stim.target_sweep_bit(9).is_combiner
+            >>> lestim.target_sweep_bit(9).is_combiner
             False
-            >>> stim.target_rec(-5).is_combiner
+            >>> lestim.target_rec(-5).is_combiner
             False
-            >>> stim.target_combiner().is_combiner
+            >>> lestim.target_combiner().is_combiner
             True
         """
     @property
@@ -8886,22 +9064,22 @@ class GateTarget:
         """Returns whether or not this is an inverted target like `!5` or `!X4`.
 
         Examples:
-            >>> import stim
-            >>> stim.GateTarget(6).is_inverted_result_target
+            >>> import lestim
+            >>> lestim.GateTarget(6).is_inverted_result_target
             False
-            >>> stim.target_inv(7).is_inverted_result_target
+            >>> lestim.target_inv(7).is_inverted_result_target
             True
-            >>> stim.target_x(8).is_inverted_result_target
+            >>> lestim.target_x(8).is_inverted_result_target
             False
-            >>> stim.target_x(8, invert=True).is_inverted_result_target
+            >>> lestim.target_x(8, invert=True).is_inverted_result_target
             True
-            >>> stim.target_y(2).is_inverted_result_target
+            >>> lestim.target_y(2).is_inverted_result_target
             False
-            >>> stim.target_z(3).is_inverted_result_target
+            >>> lestim.target_z(3).is_inverted_result_target
             False
-            >>> stim.target_sweep_bit(9).is_inverted_result_target
+            >>> lestim.target_sweep_bit(9).is_inverted_result_target
             False
-            >>> stim.target_rec(-5).is_inverted_result_target
+            >>> lestim.target_rec(-5).is_inverted_result_target
             False
         """
     @property
@@ -8911,20 +9089,20 @@ class GateTarget:
         """Returns whether or not this is a measurement record target like `rec[-5]`.
 
         Examples:
-            >>> import stim
-            >>> stim.GateTarget(6).is_measurement_record_target
+            >>> import lestim
+            >>> lestim.GateTarget(6).is_measurement_record_target
             False
-            >>> stim.target_inv(7).is_measurement_record_target
+            >>> lestim.target_inv(7).is_measurement_record_target
             False
-            >>> stim.target_x(8).is_measurement_record_target
+            >>> lestim.target_x(8).is_measurement_record_target
             False
-            >>> stim.target_y(2).is_measurement_record_target
+            >>> lestim.target_y(2).is_measurement_record_target
             False
-            >>> stim.target_z(3).is_measurement_record_target
+            >>> lestim.target_z(3).is_measurement_record_target
             False
-            >>> stim.target_sweep_bit(9).is_measurement_record_target
+            >>> lestim.target_sweep_bit(9).is_measurement_record_target
             False
-            >>> stim.target_rec(-5).is_measurement_record_target
+            >>> lestim.target_rec(-5).is_measurement_record_target
             True
         """
     @property
@@ -8934,20 +9112,20 @@ class GateTarget:
         """Returns whether or not this is a qubit target like `5` or `!6`.
 
         Examples:
-            >>> import stim
-            >>> stim.GateTarget(6).is_qubit_target
+            >>> import lestim
+            >>> lestim.GateTarget(6).is_qubit_target
             True
-            >>> stim.target_inv(7).is_qubit_target
+            >>> lestim.target_inv(7).is_qubit_target
             True
-            >>> stim.target_x(8).is_qubit_target
+            >>> lestim.target_x(8).is_qubit_target
             False
-            >>> stim.target_y(2).is_qubit_target
+            >>> lestim.target_y(2).is_qubit_target
             False
-            >>> stim.target_z(3).is_qubit_target
+            >>> lestim.target_z(3).is_qubit_target
             False
-            >>> stim.target_sweep_bit(9).is_qubit_target
+            >>> lestim.target_sweep_bit(9).is_qubit_target
             False
-            >>> stim.target_rec(-5).is_qubit_target
+            >>> lestim.target_rec(-5).is_qubit_target
             False
         """
     @property
@@ -8957,20 +9135,20 @@ class GateTarget:
         """Returns whether or not this is a sweep bit target like `sweep[4]`.
 
         Examples:
-            >>> import stim
-            >>> stim.GateTarget(6).is_sweep_bit_target
+            >>> import lestim
+            >>> lestim.GateTarget(6).is_sweep_bit_target
             False
-            >>> stim.target_inv(7).is_sweep_bit_target
+            >>> lestim.target_inv(7).is_sweep_bit_target
             False
-            >>> stim.target_x(8).is_sweep_bit_target
+            >>> lestim.target_x(8).is_sweep_bit_target
             False
-            >>> stim.target_y(2).is_sweep_bit_target
+            >>> lestim.target_y(2).is_sweep_bit_target
             False
-            >>> stim.target_z(3).is_sweep_bit_target
+            >>> lestim.target_z(3).is_sweep_bit_target
             False
-            >>> stim.target_sweep_bit(9).is_sweep_bit_target
+            >>> lestim.target_sweep_bit(9).is_sweep_bit_target
             True
-            >>> stim.target_rec(-5).is_sweep_bit_target
+            >>> lestim.target_rec(-5).is_sweep_bit_target
             False
         """
     @property
@@ -8980,20 +9158,20 @@ class GateTarget:
         """Returns whether or not this is an X pauli target like `X2` or `!X7`.
 
         Examples:
-            >>> import stim
-            >>> stim.GateTarget(6).is_x_target
+            >>> import lestim
+            >>> lestim.GateTarget(6).is_x_target
             False
-            >>> stim.target_inv(7).is_x_target
+            >>> lestim.target_inv(7).is_x_target
             False
-            >>> stim.target_x(8).is_x_target
+            >>> lestim.target_x(8).is_x_target
             True
-            >>> stim.target_y(2).is_x_target
+            >>> lestim.target_y(2).is_x_target
             False
-            >>> stim.target_z(3).is_x_target
+            >>> lestim.target_z(3).is_x_target
             False
-            >>> stim.target_sweep_bit(9).is_x_target
+            >>> lestim.target_sweep_bit(9).is_x_target
             False
-            >>> stim.target_rec(-5).is_x_target
+            >>> lestim.target_rec(-5).is_x_target
             False
         """
     @property
@@ -9003,20 +9181,20 @@ class GateTarget:
         """Returns whether or not this is a Y pauli target like `Y2` or `!Y7`.
 
         Examples:
-            >>> import stim
-            >>> stim.GateTarget(6).is_y_target
+            >>> import lestim
+            >>> lestim.GateTarget(6).is_y_target
             False
-            >>> stim.target_inv(7).is_y_target
+            >>> lestim.target_inv(7).is_y_target
             False
-            >>> stim.target_x(8).is_y_target
+            >>> lestim.target_x(8).is_y_target
             False
-            >>> stim.target_y(2).is_y_target
+            >>> lestim.target_y(2).is_y_target
             True
-            >>> stim.target_z(3).is_y_target
+            >>> lestim.target_z(3).is_y_target
             False
-            >>> stim.target_sweep_bit(9).is_y_target
+            >>> lestim.target_sweep_bit(9).is_y_target
             False
-            >>> stim.target_rec(-5).is_y_target
+            >>> lestim.target_rec(-5).is_y_target
             False
         """
     @property
@@ -9026,20 +9204,20 @@ class GateTarget:
         """Returns whether or not this is a Z pauli target like `Z2` or `!Z7`.
 
         Examples:
-            >>> import stim
-            >>> stim.GateTarget(6).is_z_target
+            >>> import lestim
+            >>> lestim.GateTarget(6).is_z_target
             False
-            >>> stim.target_inv(7).is_z_target
+            >>> lestim.target_inv(7).is_z_target
             False
-            >>> stim.target_x(8).is_z_target
+            >>> lestim.target_x(8).is_z_target
             False
-            >>> stim.target_y(2).is_z_target
+            >>> lestim.target_y(2).is_z_target
             False
-            >>> stim.target_z(3).is_z_target
+            >>> lestim.target_z(3).is_z_target
             True
-            >>> stim.target_sweep_bit(9).is_z_target
+            >>> lestim.target_sweep_bit(9).is_z_target
             False
-            >>> stim.target_rec(-5).is_z_target
+            >>> lestim.target_rec(-5).is_z_target
             False
         """
     @property
@@ -9051,20 +9229,20 @@ class GateTarget:
         For non-pauli targets, this property evaluates to 'I'.
 
         Examples:
-            >>> import stim
-            >>> stim.GateTarget(6).pauli_type
+            >>> import lestim
+            >>> lestim.GateTarget(6).pauli_type
             'I'
-            >>> stim.target_inv(7).pauli_type
+            >>> lestim.target_inv(7).pauli_type
             'I'
-            >>> stim.target_x(8).pauli_type
+            >>> lestim.target_x(8).pauli_type
             'X'
-            >>> stim.target_y(2).pauli_type
+            >>> lestim.target_y(2).pauli_type
             'Y'
-            >>> stim.target_z(3).pauli_type
+            >>> lestim.target_z(3).pauli_type
             'Z'
-            >>> stim.target_sweep_bit(9).pauli_type
+            >>> lestim.target_sweep_bit(9).pauli_type
             'I'
-            >>> stim.target_rec(-5).pauli_type
+            >>> lestim.target_rec(-5).pauli_type
             'I'
         """
     @property
@@ -9074,20 +9252,20 @@ class GateTarget:
         """Returns the integer value of the targeted qubit, or else None.
 
         Examples:
-            >>> import stim
-            >>> stim.GateTarget(6).qubit_value
+            >>> import lestim
+            >>> lestim.GateTarget(6).qubit_value
             6
-            >>> stim.target_inv(7).qubit_value
+            >>> lestim.target_inv(7).qubit_value
             7
-            >>> stim.target_x(8).qubit_value
+            >>> lestim.target_x(8).qubit_value
             8
-            >>> stim.target_y(2).qubit_value
+            >>> lestim.target_y(2).qubit_value
             2
-            >>> stim.target_z(3).qubit_value
+            >>> lestim.target_z(3).qubit_value
             3
-            >>> print(stim.target_sweep_bit(9).qubit_value)
+            >>> print(lestim.target_sweep_bit(9).qubit_value)
             None
-            >>> print(stim.target_rec(-5).qubit_value)
+            >>> print(lestim.target_rec(-5).qubit_value)
             None
         """
     @property
@@ -9100,20 +9278,20 @@ class GateTarget:
         measurement record targets.
 
         Examples:
-            >>> import stim
-            >>> stim.GateTarget(6).value
+            >>> import lestim
+            >>> lestim.GateTarget(6).value
             6
-            >>> stim.target_inv(7).value
+            >>> lestim.target_inv(7).value
             7
-            >>> stim.target_x(8).value
+            >>> lestim.target_x(8).value
             8
-            >>> stim.target_y(2).value
+            >>> lestim.target_y(2).value
             2
-            >>> stim.target_z(3).value
+            >>> lestim.target_z(3).value
             3
-            >>> stim.target_sweep_bit(9).value
+            >>> lestim.target_sweep_bit(9).value
             9
-            >>> stim.target_rec(-5).value
+            >>> lestim.target_rec(-5).value
             -5
         """
 class GateTargetWithCoords:
@@ -9141,6 +9319,7 @@ class GateTargetWithCoords:
         gate_target: object,
         coords: List[float],
     ) -> None:
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
         """Creates a stim.GateTargetWithCoords.
 
         Examples:
@@ -9150,6 +9329,9 @@ class GateTargetWithCoords:
             stim.GateTarget(0)
             >>> t.coords
             [1.5, 2.0]
+=======
+        """Creates a lestim.GateTargetWithCoords.
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
         """
     @property
     def coords(
@@ -9168,6 +9350,7 @@ class GateTargetWithCoords:
     @property
     def gate_target(
         self,
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
     ) -> stim.GateTarget:
         """Returns the actual gate target as a `stim.GateTarget`.
 
@@ -9176,6 +9359,10 @@ class GateTargetWithCoords:
             >>> t = stim.GateTargetWithCoords(0, [1.5, 2.0])
             >>> t.gate_target
             stim.GateTarget(0)
+=======
+    ) -> lestim.GateTarget:
+        """Returns the actual gate target as a `lestim.GateTarget`.
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
         """
 class PauliString:
     """A signed Pauli tensor product (e.g. "+X \u2297 X \u2297 X" or "-Y \u2297 Z".
@@ -9184,38 +9371,38 @@ class PauliString:
     collection of qubits.
 
     Examples:
-        >>> import stim
-        >>> stim.PauliString("XX") * stim.PauliString("YY")
-        stim.PauliString("-ZZ")
-        >>> print(stim.PauliString(5))
+        >>> import lestim
+        >>> lestim.PauliString("XX") * lestim.PauliString("YY")
+        lestim.PauliString("-ZZ")
+        >>> print(lestim.PauliString(5))
         +_____
     """
     def __add__(
         self,
-        rhs: stim.PauliString,
-    ) -> stim.PauliString:
+        rhs: lestim.PauliString,
+    ) -> lestim.PauliString:
         """Returns the tensor product of two Pauli strings.
 
         Concatenates the Pauli strings and multiplies their signs.
 
         Args:
-            rhs: A second stim.PauliString.
+            rhs: A second lestim.PauliString.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> stim.PauliString("X") + stim.PauliString("YZ")
-            stim.PauliString("+XYZ")
+            >>> lestim.PauliString("X") + lestim.PauliString("YZ")
+            lestim.PauliString("+XYZ")
 
-            >>> stim.PauliString("iX") + stim.PauliString("-X")
-            stim.PauliString("-iXX")
+            >>> lestim.PauliString("iX") + lestim.PauliString("-X")
+            lestim.PauliString("-iXX")
 
         Returns:
             The tensor product.
         """
     def __eq__(
         self,
-        arg0: stim.PauliString,
+        arg0: lestim.PauliString,
     ) -> bool:
         """Determines if two Pauli strings have identical contents.
         """
@@ -9229,7 +9416,7 @@ class PauliString:
     def __getitem__(
         self,
         index_or_slice: slice,
-    ) -> stim.PauliString:
+    ) -> lestim.PauliString:
         pass
     def __getitem__(
         self,
@@ -9238,19 +9425,19 @@ class PauliString:
         """Returns an individual Pauli or Pauli string slice from the pauli string.
 
         Individual Paulis are returned as an int using the encoding 0=I, 1=X, 2=Y, 3=Z.
-        Slices are returned as a stim.PauliString (always with positive sign).
+        Slices are returned as a lestim.PauliString (always with positive sign).
 
         Examples:
-            >>> import stim
-            >>> p = stim.PauliString("_XYZ")
+            >>> import lestim
+            >>> p = lestim.PauliString("_XYZ")
             >>> p[2]
             2
             >>> p[-1]
             3
             >>> p[:2]
-            stim.PauliString("+_X")
+            lestim.PauliString("+_X")
             >>> p[::-1]
-            stim.PauliString("+ZYX_")
+            lestim.PauliString("+ZYX_")
 
         Args:
             index_or_slice: The index of the pauli to return, or the slice of paulis to
@@ -9264,24 +9451,24 @@ class PauliString:
         """
     def __iadd__(
         self,
-        rhs: stim.PauliString,
-    ) -> stim.PauliString:
+        rhs: lestim.PauliString,
+    ) -> lestim.PauliString:
         """Performs an inplace tensor product.
 
         Concatenates the given Pauli string onto the receiving string and multiplies
         their signs.
 
         Args:
-            rhs: A second stim.PauliString.
+            rhs: A second lestim.PauliString.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> p = stim.PauliString("iX")
+            >>> p = lestim.PauliString("iX")
             >>> alias = p
-            >>> p += stim.PauliString("-YY")
+            >>> p += lestim.PauliString("-YY")
             >>> p
-            stim.PauliString("-iXYY")
+            lestim.PauliString("-iXYY")
             >>> alias is p
             True
 
@@ -9291,14 +9478,14 @@ class PauliString:
     def __imul__(
         self,
         rhs: object,
-    ) -> stim.PauliString:
+    ) -> lestim.PauliString:
         """Inplace right-multiplies the Pauli string.
 
         Can multiply by another Pauli string, a complex unit, or a tensor power.
 
         Args:
             rhs: The right hand side of the multiplication. This can be:
-                - A stim.PauliString to right-multiply term-by-term into the paulis of
+                - A lestim.PauliString to right-multiply term-by-term into the paulis of
                     the pauli string.
                 - A complex unit (1, -1, 1j, -1j) to multiply into the sign of the pauli
                     string.
@@ -9306,38 +9493,42 @@ class PauliString:
                     string to (how many times to repeat it).
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> p = stim.PauliString("X")
+            >>> p = lestim.PauliString("X")
             >>> p *= 1j
             >>> p
-            stim.PauliString("+iX")
+            lestim.PauliString("+iX")
 
-            >>> p = stim.PauliString("iXY_")
+            >>> p = lestim.PauliString("iXY_")
             >>> p *= 3
             >>> p
-            stim.PauliString("-iXY_XY_XY_")
+            lestim.PauliString("-iXY_XY_XY_")
 
-            >>> p = stim.PauliString("X")
+            >>> p = lestim.PauliString("X")
             >>> alias = p
-            >>> p *= stim.PauliString("Y")
+            >>> p *= lestim.PauliString("Y")
             >>> alias
-            stim.PauliString("+iZ")
+            lestim.PauliString("+iZ")
 
-            >>> p = stim.PauliString("X")
-            >>> p *= stim.PauliString("_YY")
+            >>> p = lestim.PauliString("X")
+            >>> p *= lestim.PauliString("_YY")
             >>> p
-            stim.PauliString("+XYY")
+            lestim.PauliString("+XYY")
 
         Returns:
             The mutated Pauli string.
         """
     def __init__(
         self,
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
         arg: Union[None, int, str, stim.PauliString, Iterable[Union[int, Literal["_", "I", "X", "Y", "Z"]]]] = None,
+=======
+        arg: Union[None, int, str, lestim.PauliString, Iterable[Union[int, 'Literal["_", "I", "X", "Y", "Z"]']]] = None,
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
         /,
     ) -> None:
-        """Initializes a stim.PauliString from the given argument.
+        """Initializes a lestim.PauliString from the given argument.
 
         When given a string, the string is parsed as a pauli string. The string can
         optionally start with a sign ('+', '-', 'i', '+i', or '-i'). The rest of the
@@ -9352,7 +9543,7 @@ class PauliString:
                 None (default): initializes an empty Pauli string.
                 int: initializes an identity Pauli string of the given length.
                 str: initializes by parsing the given text.
-                stim.PauliString: initializes a copy of the given Pauli string.
+                lestim.PauliString: initializes a copy of the given Pauli string.
                 Iterable: initializes by interpreting each item as a Pauli.
                     Each item can be a single-qubit Pauli string (like "X"),
                     or an integer. Integers use the convention 0=I, 1=X, 2=Y, 3=Z.
@@ -9366,29 +9557,30 @@ class PauliString:
                     or an integer. Integers use the convention 0=I, 1=X, 2=Y, 3=Z.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> stim.PauliString("-XYZ")
-            stim.PauliString("-XYZ")
+            >>> lestim.PauliString("-XYZ")
+            lestim.PauliString("-XYZ")
 
-            >>> stim.PauliString()
-            stim.PauliString("+")
+            >>> lestim.PauliString()
+            lestim.PauliString("+")
 
-            >>> stim.PauliString(5)
-            stim.PauliString("+_____")
+            >>> lestim.PauliString(5)
+            lestim.PauliString("+_____")
 
-            >>> stim.PauliString(stim.PauliString("XX"))
-            stim.PauliString("+XX")
+            >>> lestim.PauliString(lestim.PauliString("XX"))
+            lestim.PauliString("+XX")
 
-            >>> stim.PauliString([0, 1, 3, 2])
-            stim.PauliString("+_XZY")
+            >>> lestim.PauliString([0, 1, 3, 2])
+            lestim.PauliString("+_XZY")
 
-            >>> stim.PauliString("X" for _ in range(4))
-            stim.PauliString("+XXXX")
+            >>> lestim.PauliString("X" for _ in range(4))
+            lestim.PauliString("+XXXX")
 
-            >>> stim.PauliString("-X2*Y6")
-            stim.PauliString("-__X___Y")
+            >>> lestim.PauliString("-X2*Y6")
+            lestim.PauliString("-__X___Y")
 
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
             >>> stim.PauliString("X6*Y6")
             stim.PauliString("+i______Z")
 
@@ -9400,23 +9592,27 @@ class PauliString:
 
             >>> stim.PauliString({"X": [1], 2: [4], "Z": [0, 3]})
             stim.PauliString("+ZX_ZY")
+=======
+            >>> lestim.PauliString("X6*Y6")
+            lestim.PauliString("+i______Z")
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
         """
     def __itruediv__(
         self,
         rhs: complex,
-    ) -> stim.PauliString:
+    ) -> lestim.PauliString:
         """Inplace divides the Pauli string by a complex unit.
 
         Args:
             rhs: The divisor. Can be 1, -1, 1j, or -1j.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> p = stim.PauliString("X")
+            >>> p = lestim.PauliString("X")
             >>> p /= 1j
             >>> p
-            stim.PauliString("-iX")
+            lestim.PauliString("-iX")
 
         Returns:
             The mutated Pauli string.
@@ -9439,14 +9635,14 @@ class PauliString:
     def __mul__(
         self,
         rhs: object,
-    ) -> stim.PauliString:
+    ) -> lestim.PauliString:
         """Right-multiplies the Pauli string.
 
         Can multiply by another Pauli string, a complex unit, or a tensor power.
 
         Args:
             rhs: The right hand side of the multiplication. This can be:
-                - A stim.PauliString to right-multiply term-by-term with the paulis of
+                - A lestim.PauliString to right-multiply term-by-term with the paulis of
                     the pauli string.
                 - A complex unit (1, -1, 1j, -1j) to multiply with the sign of the pauli
                     string.
@@ -9454,90 +9650,90 @@ class PauliString:
                     string to (how many times to repeat it).
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> stim.PauliString("X") * 1
-            stim.PauliString("+X")
-            >>> stim.PauliString("X") * -1
-            stim.PauliString("-X")
-            >>> stim.PauliString("X") * 1j
-            stim.PauliString("+iX")
+            >>> lestim.PauliString("X") * 1
+            lestim.PauliString("+X")
+            >>> lestim.PauliString("X") * -1
+            lestim.PauliString("-X")
+            >>> lestim.PauliString("X") * 1j
+            lestim.PauliString("+iX")
 
-            >>> stim.PauliString("X") * 2
-            stim.PauliString("+XX")
-            >>> stim.PauliString("-X") * 2
-            stim.PauliString("+XX")
-            >>> stim.PauliString("iX") * 2
-            stim.PauliString("-XX")
-            >>> stim.PauliString("X") * 3
-            stim.PauliString("+XXX")
-            >>> stim.PauliString("iX") * 3
-            stim.PauliString("-iXXX")
+            >>> lestim.PauliString("X") * 2
+            lestim.PauliString("+XX")
+            >>> lestim.PauliString("-X") * 2
+            lestim.PauliString("+XX")
+            >>> lestim.PauliString("iX") * 2
+            lestim.PauliString("-XX")
+            >>> lestim.PauliString("X") * 3
+            lestim.PauliString("+XXX")
+            >>> lestim.PauliString("iX") * 3
+            lestim.PauliString("-iXXX")
 
-            >>> stim.PauliString("X") * stim.PauliString("Y")
-            stim.PauliString("+iZ")
-            >>> stim.PauliString("X") * stim.PauliString("XX_")
-            stim.PauliString("+_X_")
-            >>> stim.PauliString("XXXX") * stim.PauliString("_XYZ")
-            stim.PauliString("+X_ZY")
+            >>> lestim.PauliString("X") * lestim.PauliString("Y")
+            lestim.PauliString("+iZ")
+            >>> lestim.PauliString("X") * lestim.PauliString("XX_")
+            lestim.PauliString("+_X_")
+            >>> lestim.PauliString("XXXX") * lestim.PauliString("_XYZ")
+            lestim.PauliString("+X_ZY")
 
         Returns:
             The product or tensor power.
 
         Raises:
-            TypeError: The right hand side isn't a stim.PauliString, a non-negative
+            TypeError: The right hand side isn't a lestim.PauliString, a non-negative
                 integer, or a complex unit (1, -1, 1j, or -1j).
         """
     def __ne__(
         self,
-        arg0: stim.PauliString,
+        arg0: lestim.PauliString,
     ) -> bool:
         """Determines if two Pauli strings have non-identical contents.
         """
     def __neg__(
         self,
-    ) -> stim.PauliString:
+    ) -> lestim.PauliString:
         """Returns the negation of the pauli string.
 
         Examples:
-            >>> import stim
-            >>> -stim.PauliString("X")
-            stim.PauliString("-X")
-            >>> -stim.PauliString("-Y")
-            stim.PauliString("+Y")
-            >>> -stim.PauliString("iZZZ")
-            stim.PauliString("-iZZZ")
+            >>> import lestim
+            >>> -lestim.PauliString("X")
+            lestim.PauliString("-X")
+            >>> -lestim.PauliString("-Y")
+            lestim.PauliString("+Y")
+            >>> -lestim.PauliString("iZZZ")
+            lestim.PauliString("-iZZZ")
         """
     def __pos__(
         self,
-    ) -> stim.PauliString:
+    ) -> lestim.PauliString:
         """Returns a pauli string with the same contents.
 
         Examples:
-            >>> import stim
-            >>> +stim.PauliString("+X")
-            stim.PauliString("+X")
-            >>> +stim.PauliString("-YY")
-            stim.PauliString("-YY")
-            >>> +stim.PauliString("iZZZ")
-            stim.PauliString("+iZZZ")
+            >>> import lestim
+            >>> +lestim.PauliString("+X")
+            lestim.PauliString("+X")
+            >>> +lestim.PauliString("-YY")
+            lestim.PauliString("-YY")
+            >>> +lestim.PauliString("iZZZ")
+            lestim.PauliString("+iZZZ")
         """
     def __repr__(
         self,
     ) -> str:
-        """Returns valid python code evaluating to an equivalent `stim.PauliString`.
+        """Returns valid python code evaluating to an equivalent `lestim.PauliString`.
         """
     def __rmul__(
         self,
         lhs: object,
-    ) -> stim.PauliString:
+    ) -> lestim.PauliString:
         """Left-multiplies the Pauli string.
 
         Can multiply by another Pauli string, a complex unit, or a tensor power.
 
         Args:
             lhs: The left hand side of the multiplication. This can be:
-                - A stim.PauliString to right-multiply term-by-term with the paulis of
+                - A lestim.PauliString to right-multiply term-by-term with the paulis of
                     the pauli string.
                 - A complex unit (1, -1, 1j, -1j) to multiply with the sign of the pauli
                     string.
@@ -9545,32 +9741,32 @@ class PauliString:
                     string to (how many times to repeat it).
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> 1 * stim.PauliString("X")
-            stim.PauliString("+X")
-            >>> -1 * stim.PauliString("X")
-            stim.PauliString("-X")
-            >>> 1j * stim.PauliString("X")
-            stim.PauliString("+iX")
+            >>> 1 * lestim.PauliString("X")
+            lestim.PauliString("+X")
+            >>> -1 * lestim.PauliString("X")
+            lestim.PauliString("-X")
+            >>> 1j * lestim.PauliString("X")
+            lestim.PauliString("+iX")
 
-            >>> 2 * stim.PauliString("X")
-            stim.PauliString("+XX")
-            >>> 2 * stim.PauliString("-X")
-            stim.PauliString("+XX")
-            >>> 2 * stim.PauliString("iX")
-            stim.PauliString("-XX")
-            >>> 3 * stim.PauliString("X")
-            stim.PauliString("+XXX")
-            >>> 3 * stim.PauliString("iX")
-            stim.PauliString("-iXXX")
+            >>> 2 * lestim.PauliString("X")
+            lestim.PauliString("+XX")
+            >>> 2 * lestim.PauliString("-X")
+            lestim.PauliString("+XX")
+            >>> 2 * lestim.PauliString("iX")
+            lestim.PauliString("-XX")
+            >>> 3 * lestim.PauliString("X")
+            lestim.PauliString("+XXX")
+            >>> 3 * lestim.PauliString("iX")
+            lestim.PauliString("-iXXX")
 
-            >>> stim.PauliString("X") * stim.PauliString("Y")
-            stim.PauliString("+iZ")
-            >>> stim.PauliString("X") * stim.PauliString("XX_")
-            stim.PauliString("+_X_")
-            >>> stim.PauliString("XXXX") * stim.PauliString("_XYZ")
-            stim.PauliString("+X_ZY")
+            >>> lestim.PauliString("X") * lestim.PauliString("Y")
+            lestim.PauliString("+iZ")
+            >>> lestim.PauliString("X") * lestim.PauliString("XX_")
+            lestim.PauliString("+_X_")
+            >>> lestim.PauliString("XXXX") * lestim.PauliString("_XYZ")
+            lestim.PauliString("+X_ZY")
 
         Returns:
             The product.
@@ -9590,8 +9786,8 @@ class PauliString:
             new_pauli: Either a character from '_IXYZ' or an integer from range(4).
 
         Examples:
-            >>> import stim
-            >>> p = stim.PauliString(4)
+            >>> import lestim
+            >>> p = lestim.PauliString(4)
             >>> p[2] = 1
             >>> print(p)
             +__X_
@@ -9618,17 +9814,17 @@ class PauliString:
     def __truediv__(
         self,
         rhs: complex,
-    ) -> stim.PauliString:
+    ) -> lestim.PauliString:
         """Divides the Pauli string by a complex unit.
 
         Args:
             rhs: The divisor. Can be 1, -1, 1j, or -1j.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> stim.PauliString("X") / 1j
-            stim.PauliString("-iX")
+            >>> lestim.PauliString("X") / 1j
+            lestim.PauliString("-iX")
 
         Returns:
             The quotient.
@@ -9639,21 +9835,21 @@ class PauliString:
     @overload
     def after(
         self,
-        operation: Union[stim.Circuit, stim.CircuitInstruction],
-    ) -> stim.PauliString:
+        operation: Union[lestim.Circuit, lestim.CircuitInstruction],
+    ) -> lestim.PauliString:
         pass
     @overload
     def after(
         self,
-        operation: stim.Tableau,
+        operation: lestim.Tableau,
         targets: Iterable[int],
-    ) -> stim.PauliString:
+    ) -> lestim.PauliString:
         pass
     def after(
         self,
-        operation: Union[stim.Circuit, stim.Tableau, stim.CircuitInstruction],
+        operation: Union[lestim.Circuit, lestim.Tableau, lestim.CircuitInstruction],
         targets: Optional[Iterable[int]] = None,
-    ) -> stim.PauliString:
+    ) -> lestim.PauliString:
         """Returns the result of conjugating the Pauli string by an operation.
 
         Args:
@@ -9665,19 +9861,19 @@ class PauliString:
                 Specifies which qubits to target.
 
         Examples:
-            >>> import stim
-            >>> p = stim.PauliString("_XYZ")
+            >>> import lestim
+            >>> p = lestim.PauliString("_XYZ")
 
-            >>> p.after(stim.CircuitInstruction("H", [1]))
-            stim.PauliString("+_ZYZ")
+            >>> p.after(lestim.CircuitInstruction("H", [1]))
+            lestim.PauliString("+_ZYZ")
 
-            >>> p.after(stim.Circuit('''
+            >>> p.after(lestim.Circuit('''
             ...     C_XYZ 1 2 3
             ... '''))
-            stim.PauliString("+_YZX")
+            lestim.PauliString("+_YZX")
 
-            >>> p.after(stim.Tableau.from_named_gate('CZ'), targets=[0, 1])
-            stim.PauliString("+ZXYZ")
+            >>> p.after(lestim.Tableau.from_named_gate('CZ'), targets=[0, 1])
+            lestim.PauliString("+ZXYZ")
 
         Returns:
             The conjugated Pauli string. The Pauli string after the
@@ -9687,21 +9883,21 @@ class PauliString:
     @overload
     def before(
         self,
-        operation: Union[stim.Circuit, stim.CircuitInstruction],
-    ) -> stim.PauliString:
+        operation: Union[lestim.Circuit, lestim.CircuitInstruction],
+    ) -> lestim.PauliString:
         pass
     @overload
     def before(
         self,
-        operation: stim.Tableau,
+        operation: lestim.Tableau,
         targets: Iterable[int],
-    ) -> stim.PauliString:
+    ) -> lestim.PauliString:
         pass
     def before(
         self,
-        operation: Union[stim.Circuit, stim.Tableau, stim.CircuitInstruction],
+        operation: Union[lestim.Circuit, lestim.Tableau, lestim.CircuitInstruction],
         targets: Optional[Iterable[int]] = None,
-    ) -> stim.PauliString:
+    ) -> lestim.PauliString:
         """Returns the result of conjugating the Pauli string by an operation.
 
         Args:
@@ -9713,19 +9909,19 @@ class PauliString:
                 Specifies which qubits to target.
 
         Examples:
-            >>> import stim
-            >>> p = stim.PauliString("_XYZ")
+            >>> import lestim
+            >>> p = lestim.PauliString("_XYZ")
 
-            >>> p.before(stim.CircuitInstruction("H", [1]))
-            stim.PauliString("+_ZYZ")
+            >>> p.before(lestim.CircuitInstruction("H", [1]))
+            lestim.PauliString("+_ZYZ")
 
-            >>> p.before(stim.Circuit('''
+            >>> p.before(lestim.Circuit('''
             ...     C_XYZ 1 2 3
             ... '''))
-            stim.PauliString("+_ZXY")
+            lestim.PauliString("+_ZXY")
 
-            >>> p.before(stim.Tableau.from_named_gate('CZ'), targets=[0, 1])
-            stim.PauliString("+ZXYZ")
+            >>> p.before(lestim.Tableau.from_named_gate('CZ'), targets=[0, 1])
+            lestim.PauliString("+ZXYZ")
 
         Returns:
             The conjugated Pauli string. The Pauli string before the
@@ -9734,7 +9930,7 @@ class PauliString:
         """
     def commutes(
         self,
-        other: stim.PauliString,
+        other: lestim.PauliString,
     ) -> bool:
         """Determines if two Pauli strings commute or not.
 
@@ -9745,21 +9941,21 @@ class PauliString:
             other: The other Pauli string.
 
         Examples:
-            >>> import stim
-            >>> xx = stim.PauliString("XX")
-            >>> xx.commutes(stim.PauliString("X_"))
+            >>> import lestim
+            >>> xx = lestim.PauliString("XX")
+            >>> xx.commutes(lestim.PauliString("X_"))
             True
-            >>> xx.commutes(stim.PauliString("XX"))
+            >>> xx.commutes(lestim.PauliString("XX"))
             True
-            >>> xx.commutes(stim.PauliString("XY"))
+            >>> xx.commutes(lestim.PauliString("XY"))
             False
-            >>> xx.commutes(stim.PauliString("XZ"))
+            >>> xx.commutes(lestim.PauliString("XZ"))
             False
-            >>> xx.commutes(stim.PauliString("ZZ"))
+            >>> xx.commutes(lestim.PauliString("ZZ"))
             True
-            >>> xx.commutes(stim.PauliString("X_Y__"))
+            >>> xx.commutes(lestim.PauliString("X_Y__"))
             True
-            >>> xx.commutes(stim.PauliString(""))
+            >>> xx.commutes(lestim.PauliString(""))
             True
 
         Returns:
@@ -9767,14 +9963,14 @@ class PauliString:
         """
     def copy(
         self,
-    ) -> stim.PauliString:
+    ) -> lestim.PauliString:
         """Returns a copy of the pauli string.
 
         The copy is an independent pauli string with the same contents.
 
         Examples:
-            >>> import stim
-            >>> p1 = stim.PauliString.random(2)
+            >>> import lestim
+            >>> p1 = lestim.PauliString.random(2)
             >>> p2 = p1.copy()
             >>> p2 is p1
             False
@@ -9783,8 +9979,8 @@ class PauliString:
         """
     def extended_product(
         self,
-        other: stim.PauliString,
-    ) -> Tuple[complex, stim.PauliString]:
+        other: lestim.PauliString,
+    ) -> Tuple[complex, lestim.PauliString]:
         """[DEPRECATED] Use multiplication (__mul__ or *) instead.
         """
     @staticmethod
@@ -9794,7 +9990,7 @@ class PauliString:
         zs: np.ndarray,
         sign: Union[int, float, complex] = +1,
         num_qubits: Optional[int] = None,
-    ) -> stim.PauliString:
+    ) -> lestim.PauliString:
         """Creates a pauli string from X bit and Z bit numpy arrays, using the encoding:
 
             x=0 and z=0 -> P=I
@@ -9824,18 +10020,18 @@ class PauliString:
             The created pauli string.
 
         Examples:
-            >>> import stim
+            >>> import lestim
             >>> import numpy as np
 
             >>> xs = np.array([1, 1, 1, 1, 1, 1, 1, 0, 0], dtype=np.bool_)
             >>> zs = np.array([0, 0, 0, 0, 1, 1, 1, 1, 1], dtype=np.bool_)
-            >>> stim.PauliString.from_numpy(xs=xs, zs=zs, sign=-1)
-            stim.PauliString("-XXXXYYYZZ")
+            >>> lestim.PauliString.from_numpy(xs=xs, zs=zs, sign=-1)
+            lestim.PauliString("-XXXXYYYZZ")
 
             >>> xs = np.array([127, 0], dtype=np.uint8)
             >>> zs = np.array([240, 1], dtype=np.uint8)
-            >>> stim.PauliString.from_numpy(xs=xs, zs=zs, num_qubits=9)
-            stim.PauliString("+XXXXYYYZZ")
+            >>> lestim.PauliString.from_numpy(xs=xs, zs=zs, num_qubits=9)
+            lestim.PauliString("+XXXXYYYZZ")
         """
     @staticmethod
     def from_unitary_matrix(
@@ -9843,8 +10039,8 @@ class PauliString:
         *,
         endian: Literal["little", "big"] = 'little',
         unsigned: bool = False,
-    ) -> stim.PauliString:
-        """Creates a stim.PauliString from the unitary matrix of a Pauli group member.
+    ) -> lestim.PauliString:
+        """Creates a lestim.PauliString from the unitary matrix of a Pauli group member.
 
         Args:
             matrix: A unitary matrix specified as an iterable of rows, with each row is
@@ -9869,26 +10065,26 @@ class PauliString:
             ValueError: The given matrix isn't the unitary matrix of a Pauli string.
 
         Examples:
-            >>> import stim
-            >>> stim.PauliString.from_unitary_matrix([
+            >>> import lestim
+            >>> lestim.PauliString.from_unitary_matrix([
             ...     [1j, 0],
             ...     [0, -1j],
             ... ], endian='little')
-            stim.PauliString("+iZ")
+            lestim.PauliString("+iZ")
 
-            >>> stim.PauliString.from_unitary_matrix([
+            >>> lestim.PauliString.from_unitary_matrix([
             ...     [1j**0.1, 0],
             ...     [0, -(1j**0.1)],
             ... ], endian='little', unsigned=True)
-            stim.PauliString("+Z")
+            lestim.PauliString("+Z")
 
-            >>> stim.PauliString.from_unitary_matrix([
+            >>> lestim.PauliString.from_unitary_matrix([
             ...     [0, 1, 0, 0],
             ...     [1, 0, 0, 0],
             ...     [0, 0, 0, -1],
             ...     [0, 0, -1, 0],
             ... ], endian='little')
-            stim.PauliString("+XZ")
+            lestim.PauliString("+XZ")
         """
     @staticmethod
     def iter_all(
@@ -9897,7 +10093,7 @@ class PauliString:
         min_weight: int = 0,
         max_weight: object = None,
         allowed_paulis: str = 'XYZ',
-    ) -> stim.PauliStringIterator:
+    ) -> lestim.PauliStringIterator:
         """Returns an iterator that iterates over all matching pauli strings.
 
         Args:
@@ -9914,11 +10110,11 @@ class PauliString:
                 allowed.
 
         Returns:
-            An Iterable[stim.PauliString] that yields the requested pauli strings.
+            An Iterable[lestim.PauliString] that yields the requested pauli strings.
 
         Examples:
-            >>> import stim
-            >>> pauli_string_iterator = stim.PauliString.iter_all(
+            >>> import lestim
+            >>> pauli_string_iterator = lestim.PauliString.iter_all(
             ...     num_qubits=3,
             ...     min_weight=1,
             ...     max_weight=2,
@@ -9963,23 +10159,23 @@ class PauliString:
             A list containing the ascending indices of matching Pauli terms.
 
         Examples:
-            >>> import stim
-            >>> stim.PauliString("_____X___Y____Z___").pauli_indices()
+            >>> import lestim
+            >>> lestim.PauliString("_____X___Y____Z___").pauli_indices()
             [5, 9, 14]
 
-            >>> stim.PauliString("_____X___Y____Z___").pauli_indices("XZ")
+            >>> lestim.PauliString("_____X___Y____Z___").pauli_indices("XZ")
             [5, 14]
 
-            >>> stim.PauliString("_____X___Y____Z___").pauli_indices("X")
+            >>> lestim.PauliString("_____X___Y____Z___").pauli_indices("X")
             [5]
 
-            >>> stim.PauliString("_____X___Y____Z___").pauli_indices("Y")
+            >>> lestim.PauliString("_____X___Y____Z___").pauli_indices("Y")
             [9]
 
-            >>> stim.PauliString("_____X___Y____Z___").pauli_indices("IY")
+            >>> lestim.PauliString("_____X___Y____Z___").pauli_indices("IY")
             [0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17]
 
-            >>> stim.PauliString("-X103*Y100").pauli_indices()
+            >>> lestim.PauliString("-X103*Y100").pauli_indices()
             [100, 103]
         """
     @staticmethod
@@ -9987,7 +10183,7 @@ class PauliString:
         num_qubits: int,
         *,
         allow_imaginary: bool = False,
-    ) -> stim.PauliString:
+    ) -> lestim.PauliString:
         """Samples a uniformly random Hermitian Pauli string.
 
         Args:
@@ -9997,14 +10193,14 @@ class PauliString:
                 allows the result to be non-Hermitian.
 
         Examples:
-            >>> import stim
-            >>> p = stim.PauliString.random(5)
+            >>> import lestim
+            >>> p = lestim.PauliString.random(5)
             >>> len(p)
             5
             >>> p.sign in [-1, +1]
             True
 
-            >>> p2 = stim.PauliString.random(3, allow_imaginary=True)
+            >>> p2 = lestim.PauliString.random(3, allow_imaginary=True)
             >>> len(p2)
             3
             >>> p2.sign in [-1, +1, 1j, -1j]
@@ -10020,14 +10216,14 @@ class PauliString:
         """The sign of the Pauli string. Can be +1, -1, 1j, or -1j.
 
         Examples:
-            >>> import stim
-            >>> stim.PauliString("X").sign
+            >>> import lestim
+            >>> lestim.PauliString("X").sign
             (1+0j)
-            >>> stim.PauliString("-X").sign
+            >>> lestim.PauliString("-X").sign
             (-1+0j)
-            >>> stim.PauliString("iX").sign
+            >>> lestim.PauliString("iX").sign
             1j
-            >>> stim.PauliString("-iX").sign
+            >>> lestim.PauliString("-iX").sign
             (-0-1j)
         """
     @sign.setter
@@ -10071,15 +10267,15 @@ class PauliString:
                 zs_k = (zs[k // 8] >> (k % 8)) & 1
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> xs, zs = stim.PauliString("XXXXYYYZZ").to_numpy()
+            >>> xs, zs = lestim.PauliString("XXXXYYYZZ").to_numpy()
             >>> xs
             array([ True,  True,  True,  True,  True,  True,  True, False, False])
             >>> zs
             array([False, False, False, False,  True,  True,  True,  True,  True])
 
-            >>> xs, zs = stim.PauliString("XXXXYYYZZ").to_numpy(bit_packed=True)
+            >>> xs, zs = lestim.PauliString("XXXXYYYZZ").to_numpy(bit_packed=True)
             >>> xs
             array([127,   0], dtype=uint8)
             >>> zs
@@ -10087,7 +10283,7 @@ class PauliString:
         """
     def to_tableau(
         self,
-    ) -> stim.Tableau:
+    ) -> lestim.Tableau:
         """Creates a Tableau equivalent to this Pauli string.
 
         The tableau represents a Clifford operation that multiplies qubits
@@ -10098,33 +10294,33 @@ class PauliString:
             The created tableau.
 
         Examples:
-            >>> import stim
-            >>> p = stim.PauliString("ZZ")
+            >>> import lestim
+            >>> p = lestim.PauliString("ZZ")
             >>> p.to_tableau()
-            stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    stim.PauliString("-X_"),
-                    stim.PauliString("-_X"),
+                    lestim.PauliString("-X_"),
+                    lestim.PauliString("-_X"),
                 ],
                 zs=[
-                    stim.PauliString("+Z_"),
-                    stim.PauliString("+_Z"),
+                    lestim.PauliString("+Z_"),
+                    lestim.PauliString("+_Z"),
                 ],
             )
-            >>> q = stim.PauliString("YX_Z")
+            >>> q = lestim.PauliString("YX_Z")
             >>> q.to_tableau()
-            stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    stim.PauliString("-X___"),
-                    stim.PauliString("+_X__"),
-                    stim.PauliString("+__X_"),
-                    stim.PauliString("-___X"),
+                    lestim.PauliString("-X___"),
+                    lestim.PauliString("+_X__"),
+                    lestim.PauliString("+__X_"),
+                    lestim.PauliString("-___X"),
                 ],
                 zs=[
-                    stim.PauliString("-Z___"),
-                    stim.PauliString("-_Z__"),
-                    stim.PauliString("+__Z_"),
-                    stim.PauliString("+___Z"),
+                    lestim.PauliString("-Z___"),
+                    lestim.PauliString("-_Z__"),
+                    lestim.PauliString("+__Z_"),
+                    lestim.PauliString("+___Z"),
                 ],
             )
         """
@@ -10147,8 +10343,8 @@ class PauliString:
             shape=(1 << len(pauli_string), 1 << len(pauli_string)).
 
         Example:
-            >>> import stim
-            >>> stim.PauliString("-YZ").to_unitary_matrix(endian="little")
+            >>> import lestim
+            >>> lestim.PauliString("-YZ").to_unitary_matrix(endian="little")
             array([[0.+0.j, 0.+1.j, 0.+0.j, 0.+0.j],
                    [0.-1.j, 0.+0.j, 0.+0.j, 0.+0.j],
                    [0.+0.j, 0.+0.j, 0.+0.j, 0.-1.j],
@@ -10161,22 +10357,22 @@ class PauliString:
         """Returns the number of non-identity pauli terms in the pauli string.
 
         Examples:
-            >>> import stim
-            >>> stim.PauliString("+___").weight
+            >>> import lestim
+            >>> lestim.PauliString("+___").weight
             0
-            >>> stim.PauliString("+__X").weight
+            >>> lestim.PauliString("+__X").weight
             1
-            >>> stim.PauliString("+XYZ").weight
+            >>> lestim.PauliString("+XYZ").weight
             3
-            >>> stim.PauliString("-XXX___XXYZ").weight
+            >>> lestim.PauliString("-XXX___XXYZ").weight
             7
         """
 class PauliStringIterator:
     """Iterates over all pauli strings matching specified patterns.
 
     Examples:
-        >>> import stim
-        >>> pauli_string_iterator = stim.PauliString.iter_all(
+        >>> import lestim
+        >>> pauli_string_iterator = lestim.PauliString.iter_all(
         ...     2,
         ...     min_weight=1,
         ...     max_weight=1,
@@ -10191,7 +10387,7 @@ class PauliStringIterator:
     """
     def __iter__(
         self,
-    ) -> stim.PauliStringIterator:
+    ) -> lestim.PauliStringIterator:
         """Returns an independent copy of the pauli string iterator.
 
         Since for-loops and loop-comprehensions call `iter` on things they
@@ -10200,7 +10396,7 @@ class PauliStringIterator:
         """
     def __next__(
         self,
-    ) -> stim.PauliString:
+    ) -> lestim.PauliString:
         """Returns the next iterated pauli string.
         """
 class Tableau:
@@ -10210,18 +10406,18 @@ class Tableau:
     conjugates a list of Pauli group generators into composite Pauli products.
 
     Examples:
-        >>> import stim
-        >>> stim.Tableau.from_named_gate("H")
-        stim.Tableau.from_conjugated_generators(
+        >>> import lestim
+        >>> lestim.Tableau.from_named_gate("H")
+        lestim.Tableau.from_conjugated_generators(
             xs=[
-                stim.PauliString("+Z"),
+                lestim.PauliString("+Z"),
             ],
             zs=[
-                stim.PauliString("+X"),
+                lestim.PauliString("+X"),
             ],
         )
 
-        >>> t = stim.Tableau.random(5)
+        >>> t = lestim.Tableau.random(5)
         >>> t_inv = t**-1
         >>> print(t * t_inv)
         +-xz-xz-xz-xz-xz-
@@ -10234,22 +10430,22 @@ class Tableau:
 
         >>> x2z3 = t.x_output(2) * t.z_output(3)
         >>> t_inv(x2z3)
-        stim.PauliString("+__XZ_")
+        lestim.PauliString("+__XZ_")
     """
     def __add__(
         self,
-        rhs: stim.Tableau,
-    ) -> stim.Tableau:
+        rhs: lestim.Tableau,
+    ) -> lestim.Tableau:
         """Returns the direct sum (diagonal concatenation) of two Tableaus.
 
         Args:
-            rhs: A second stim.Tableau.
+            rhs: A second lestim.Tableau.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> s = stim.Tableau.from_named_gate("S")
-            >>> cz = stim.Tableau.from_named_gate("CZ")
+            >>> s = lestim.Tableau.from_named_gate("S")
+            >>> cz = lestim.Tableau.from_named_gate("CZ")
             >>> print(s + cz)
             +-xz-xz-xz-
             | ++ ++ ++
@@ -10262,9 +10458,15 @@ class Tableau:
         """
     def __call__(
         self,
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
         pauli_string: stim.PauliString,
     ) -> stim.PauliString:
         """Returns the equivalent PauliString after the Tableau's Clifford operation.
+=======
+        pauli_string: lestim.PauliString,
+    ) -> lestim.PauliString:
+        """Returns the conjugation of a PauliString by the Tableau's Clifford operation.
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
 
         If P is a Pauli product before a Clifford operation C, then this method returns
         Q = C * P * C**-1 (the conjugation of P by C). Q is the equivalent Pauli product
@@ -10285,33 +10487,33 @@ class Tableau:
             The new conjugated pauli string.
 
         Examples:
-            >>> import stim
-            >>> t = stim.Tableau.from_named_gate("CNOT")
-            >>> p = stim.PauliString("XX")
+            >>> import lestim
+            >>> t = lestim.Tableau.from_named_gate("CNOT")
+            >>> p = lestim.PauliString("XX")
             >>> result = t(p)
             >>> print(result)
             +X_
         """
     def __eq__(
         self,
-        arg0: stim.Tableau,
+        arg0: lestim.Tableau,
     ) -> bool:
         """Determines if two tableaus have identical contents.
         """
     def __iadd__(
         self,
-        rhs: stim.Tableau,
-    ) -> stim.Tableau:
+        rhs: lestim.Tableau,
+    ) -> lestim.Tableau:
         """Performs an inplace direct sum (diagonal concatenation).
 
         Args:
-            rhs: A second stim.Tableau.
+            rhs: A second lestim.Tableau.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> s = stim.Tableau.from_named_gate("S")
-            >>> cz = stim.Tableau.from_named_gate("CZ")
+            >>> s = lestim.Tableau.from_named_gate("S")
+            >>> cz = lestim.Tableau.from_named_gate("CZ")
             >>> alias = s
             >>> s += cz
             >>> alias is s
@@ -10333,8 +10535,8 @@ class Tableau:
         """Creates an identity tableau over the given number of qubits.
 
         Examples:
-            >>> import stim
-            >>> t = stim.Tableau(3)
+            >>> import lestim
+            >>> t = lestim.Tableau(3)
             >>> print(t)
             +-xz-xz-xz-
             | ++ ++ ++
@@ -10358,8 +10560,8 @@ class Tableau:
         """
     def __mul__(
         self,
-        rhs: stim.Tableau,
-    ) -> stim.Tableau:
+        rhs: lestim.Tableau,
+    ) -> lestim.Tableau:
         """Returns the product of two tableaus.
 
         If the tableau T1 represents the Clifford operation with unitary C1,
@@ -10370,24 +10572,24 @@ class Tableau:
             rhs: The tableau  on the right hand side of the multiplication.
 
         Examples:
-            >>> import stim
-            >>> t1 = stim.Tableau.random(4)
-            >>> t2 = stim.Tableau.random(4)
+            >>> import lestim
+            >>> t1 = lestim.Tableau.random(4)
+            >>> t2 = lestim.Tableau.random(4)
             >>> t3 = t2 * t1
-            >>> p = stim.PauliString.random(4)
+            >>> p = lestim.PauliString.random(4)
             >>> t3(p) == t2(t1(p))
             True
         """
     def __ne__(
         self,
-        arg0: stim.Tableau,
+        arg0: lestim.Tableau,
     ) -> bool:
         """Determines if two tableaus have non-identical contents.
         """
     def __pow__(
         self,
         exponent: int,
-    ) -> stim.Tableau:
+    ) -> lestim.Tableau:
         """Raises the tableau to an integer power.
 
         Large powers are reached efficiently using repeated squaring.
@@ -10397,15 +10599,15 @@ class Tableau:
             exponent: The power to raise to. Can be negative, zero, or positive.
 
         Examples:
-            >>> import stim
-            >>> s = stim.Tableau.from_named_gate("S")
-            >>> s**0 == stim.Tableau(1)
+            >>> import lestim
+            >>> s = lestim.Tableau.from_named_gate("S")
+            >>> s**0 == lestim.Tableau(1)
             True
             >>> s**1 == s
             True
-            >>> s**2 == stim.Tableau.from_named_gate("Z")
+            >>> s**2 == lestim.Tableau.from_named_gate("Z")
             True
-            >>> s**-1 == s**3 == stim.Tableau.from_named_gate("S_DAG")
+            >>> s**-1 == s**3 == lestim.Tableau.from_named_gate("S_DAG")
             True
             >>> s**5 == s
             True
@@ -10417,7 +10619,7 @@ class Tableau:
     def __repr__(
         self,
     ) -> str:
-        """Returns valid python code evaluating to an equal `stim.Tableau`.
+        """Returns valid python code evaluating to an equal `lestim.Tableau`.
         """
     def __str__(
         self,
@@ -10426,7 +10628,7 @@ class Tableau:
         """
     def append(
         self,
-        gate: stim.Tableau,
+        gate: lestim.Tableau,
         targets: Sequence[int],
     ) -> None:
         """Appends an operation's effect into this tableau, mutating this tableau.
@@ -10438,23 +10640,23 @@ class Tableau:
             targets: The qubits being targeted by the gate.
 
         Examples:
-            >>> import stim
-            >>> cnot = stim.Tableau.from_named_gate("CNOT")
-            >>> t = stim.Tableau(2)
+            >>> import lestim
+            >>> cnot = lestim.Tableau.from_named_gate("CNOT")
+            >>> t = lestim.Tableau(2)
             >>> t.append(cnot, [0, 1])
             >>> t.append(cnot, [1, 0])
             >>> t.append(cnot, [0, 1])
-            >>> t == stim.Tableau.from_named_gate("SWAP")
+            >>> t == lestim.Tableau.from_named_gate("SWAP")
             True
         """
     def copy(
         self,
-    ) -> stim.Tableau:
+    ) -> lestim.Tableau:
         """Returns a copy of the tableau. An independent tableau with the same contents.
 
         Examples:
-            >>> import stim
-            >>> t1 = stim.Tableau.random(2)
+            >>> import lestim
+            >>> t1 = lestim.Tableau.random(2)
             >>> t2 = t1.copy()
             >>> t2 is t1
             False
@@ -10463,12 +10665,12 @@ class Tableau:
         """
     @staticmethod
     def from_circuit(
-        circuit: stim.Circuit,
+        circuit: lestim.Circuit,
         *,
         ignore_noise: bool = False,
         ignore_measurement: bool = False,
         ignore_reset: bool = False,
-    ) -> stim.Tableau:
+    ) -> lestim.Tableau:
         """Converts a circuit into an equivalent stabilizer tableau.
 
         Args:
@@ -10499,35 +10701,35 @@ class Tableau:
                 The circuit contains reset operations but ignore_reset=False.
 
         Examples:
-            >>> import stim
-            >>> stim.Tableau.from_circuit(stim.Circuit('''
+            >>> import lestim
+            >>> lestim.Tableau.from_circuit(lestim.Circuit('''
             ...     H 0
             ...     CNOT 0 1
             ... '''))
-            stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    stim.PauliString("+Z_"),
-                    stim.PauliString("+_X"),
+                    lestim.PauliString("+Z_"),
+                    lestim.PauliString("+_X"),
                 ],
                 zs=[
-                    stim.PauliString("+XX"),
-                    stim.PauliString("+ZZ"),
+                    lestim.PauliString("+XX"),
+                    lestim.PauliString("+ZZ"),
                 ],
             )
         """
     @staticmethod
     def from_conjugated_generators(
         *,
-        xs: List[stim.PauliString],
-        zs: List[stim.PauliString],
-    ) -> stim.Tableau:
+        xs: List[lestim.PauliString],
+        zs: List[lestim.PauliString],
+    ) -> lestim.Tableau:
         """Creates a tableau from the given outputs for each generator.
 
         Verifies that the tableau is well formed.
 
         Args:
-            xs: A List[stim.PauliString] with the results of conjugating X0, X1, etc.
-            zs: A List[stim.PauliString] with the results of conjugating Z0, Z1, etc.
+            xs: A List[lestim.PauliString] with the results of conjugating X0, X1, etc.
+            zs: A List[lestim.PauliString] with the results of conjugating Z0, Z1, etc.
 
         Returns:
             The created tableau.
@@ -10537,26 +10739,26 @@ class Tableau:
                 or they don't satisfy the required commutation relationships.
 
         Examples:
-            >>> import stim
-            >>> identity3 = stim.Tableau.from_conjugated_generators(
+            >>> import lestim
+            >>> identity3 = lestim.Tableau.from_conjugated_generators(
             ...     xs=[
-            ...         stim.PauliString("X__"),
-            ...         stim.PauliString("_X_"),
-            ...         stim.PauliString("__X"),
+            ...         lestim.PauliString("X__"),
+            ...         lestim.PauliString("_X_"),
+            ...         lestim.PauliString("__X"),
             ...     ],
             ...     zs=[
-            ...         stim.PauliString("Z__"),
-            ...         stim.PauliString("_Z_"),
-            ...         stim.PauliString("__Z"),
+            ...         lestim.PauliString("Z__"),
+            ...         lestim.PauliString("_Z_"),
+            ...         lestim.PauliString("__Z"),
             ...     ],
             ... )
-            >>> identity3 == stim.Tableau(3)
+            >>> identity3 == lestim.Tableau(3)
             True
         """
     @staticmethod
     def from_named_gate(
         name: str,
-    ) -> stim.Tableau:
+    ) -> lestim.Tableau:
         """Returns the tableau of a named Clifford gate.
 
         Args:
@@ -10566,17 +10768,17 @@ class Tableau:
             The gate's tableau.
 
         Examples:
-            >>> import stim
-            >>> print(stim.Tableau.from_named_gate("H"))
+            >>> import lestim
+            >>> print(lestim.Tableau.from_named_gate("H"))
             +-xz-
             | ++
             | ZX
-            >>> print(stim.Tableau.from_named_gate("CNOT"))
+            >>> print(lestim.Tableau.from_named_gate("CNOT"))
             +-xz-xz-
             | ++ ++
             | XZ _Z
             | X_ XZ
-            >>> print(stim.Tableau.from_named_gate("S"))
+            >>> print(lestim.Tableau.from_named_gate("S"))
             +-xz-
             | ++
             | YZ
@@ -10590,7 +10792,7 @@ class Tableau:
         z2z: np.ndarray,
         x_signs: Optional[np.ndarray] = None,
         z_signs: Optional[np.ndarray] = None,
-    ) -> stim.Tableau:
+    ) -> lestim.Tableau:
         """Creates a tableau from numpy arrays x2x, x2z, z2x, z2z, x_signs, and z_signs.
 
         The x2x, x2z, z2x, z2z arrays are the four quadrants of the table defined in
@@ -10633,30 +10835,30 @@ class Tableau:
             The tableau created from the numpy data.
 
         Examples:
-            >>> import stim
+            >>> import lestim
             >>> import numpy as np
 
-            >>> tableau = stim.Tableau.from_numpy(
+            >>> tableau = lestim.Tableau.from_numpy(
             ...     x2x=np.array([[1, 1], [0, 1]], dtype=np.bool_),
             ...     z2x=np.array([[0, 0], [0, 0]], dtype=np.bool_),
             ...     x2z=np.array([[0, 0], [0, 0]], dtype=np.bool_),
             ...     z2z=np.array([[1, 0], [1, 1]], dtype=np.bool_),
             ... )
             >>> tableau
-            stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    stim.PauliString("+XX"),
-                    stim.PauliString("+_X"),
+                    lestim.PauliString("+XX"),
+                    lestim.PauliString("+_X"),
                 ],
                 zs=[
-                    stim.PauliString("+Z_"),
-                    stim.PauliString("+ZZ"),
+                    lestim.PauliString("+Z_"),
+                    lestim.PauliString("+ZZ"),
                 ],
             )
-            >>> tableau == stim.Tableau.from_named_gate("CNOT")
+            >>> tableau == lestim.Tableau.from_named_gate("CNOT")
             True
 
-            >>> stim.Tableau.from_numpy(
+            >>> lestim.Tableau.from_numpy(
             ...     x2x=np.array([[9], [5], [7], [6]], dtype=np.uint8),
             ...     x2z=np.array([[13], [13], [0], [3]], dtype=np.uint8),
             ...     z2x=np.array([[8], [5], [9], [15]], dtype=np.uint8),
@@ -10664,32 +10866,32 @@ class Tableau:
             ...     x_signs=np.array([7], dtype=np.uint8),
             ...     z_signs=np.array([9], dtype=np.uint8),
             ... )
-            stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    stim.PauliString("-Y_ZY"),
-                    stim.PauliString("-Y_YZ"),
-                    stim.PauliString("-XXX_"),
-                    stim.PauliString("+ZYX_"),
+                    lestim.PauliString("-Y_ZY"),
+                    lestim.PauliString("-Y_YZ"),
+                    lestim.PauliString("-XXX_"),
+                    lestim.PauliString("+ZYX_"),
                 ],
                 zs=[
-                    stim.PauliString("-_ZZX"),
-                    stim.PauliString("+YZXZ"),
-                    stim.PauliString("+XZ_X"),
-                    stim.PauliString("-YYXX"),
+                    lestim.PauliString("-_ZZX"),
+                    lestim.PauliString("+YZXZ"),
+                    lestim.PauliString("+XZ_X"),
+                    lestim.PauliString("-YYXX"),
                 ],
             )
         """
     @staticmethod
     def from_stabilizers(
-        stabilizers: Iterable[stim.PauliString],
+        stabilizers: Iterable[lestim.PauliString],
         *,
         allow_redundant: bool = False,
         allow_underconstrained: bool = False,
-    ) -> stim.Tableau:
+    ) -> lestim.Tableau:
         """Creates a tableau representing a state with the given stabilizers.
 
         Args:
-            stabilizers: A list of `stim.PauliString`s specifying the stabilizers that
+            stabilizers: A list of `lestim.PauliString`s specifying the stabilizers that
                 the state must have. It is permitted for stabilizers to have different
                 lengths. All stabilizers are padded up to the length of the longest
                 stabilizer by appending identity terms.
@@ -10727,38 +10929,38 @@ class Tableau:
 
         Examples:
 
-            >>> import stim
-            >>> stim.Tableau.from_stabilizers([
-            ...     stim.PauliString("XX"),
-            ...     stim.PauliString("ZZ"),
+            >>> import lestim
+            >>> lestim.Tableau.from_stabilizers([
+            ...     lestim.PauliString("XX"),
+            ...     lestim.PauliString("ZZ"),
             ... ])
-            stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    stim.PauliString("+Z_"),
-                    stim.PauliString("+_X"),
+                    lestim.PauliString("+Z_"),
+                    lestim.PauliString("+_X"),
                 ],
                 zs=[
-                    stim.PauliString("+XX"),
-                    stim.PauliString("+ZZ"),
+                    lestim.PauliString("+XX"),
+                    lestim.PauliString("+ZZ"),
                 ],
             )
 
-            >>> stim.Tableau.from_stabilizers([
-            ...     stim.PauliString("XX_"),
-            ...     stim.PauliString("ZZ_"),
-            ...     stim.PauliString("-YY_"),
-            ...     stim.PauliString(""),
+            >>> lestim.Tableau.from_stabilizers([
+            ...     lestim.PauliString("XX_"),
+            ...     lestim.PauliString("ZZ_"),
+            ...     lestim.PauliString("-YY_"),
+            ...     lestim.PauliString(""),
             ... ], allow_underconstrained=True, allow_redundant=True)
-            stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    stim.PauliString("+Z__"),
-                    stim.PauliString("+_X_"),
-                    stim.PauliString("+__X"),
+                    lestim.PauliString("+Z__"),
+                    lestim.PauliString("+_X_"),
+                    lestim.PauliString("+__X"),
                 ],
                 zs=[
-                    stim.PauliString("+XX_"),
-                    stim.PauliString("+ZZ_"),
-                    stim.PauliString("+__Z"),
+                    lestim.PauliString("+XX_"),
+                    lestim.PauliString("+ZZ_"),
+                    lestim.PauliString("+__Z"),
                 ],
             )
         """
@@ -10766,8 +10968,13 @@ class Tableau:
     def from_state_vector(
         state_vector: Iterable[float],
         *,
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
         endian: Literal["little", "big"],
     ) -> stim.Tableau:
+=======
+        endian: str,
+    ) -> lestim.Tableau:
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
         """Creates a tableau representing the stabilizer state of the given state vector.
 
         Args:
@@ -10793,33 +11000,33 @@ class Tableau:
 
         Examples:
 
-            >>> import stim
-            >>> stim.Tableau.from_state_vector([
+            >>> import lestim
+            >>> lestim.Tableau.from_state_vector([
             ...     0.5**0.5,
             ...     0.5**0.5 * 1j,
             ... ], endian='little')
-            stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    stim.PauliString("+Z"),
+                    lestim.PauliString("+Z"),
                 ],
                 zs=[
-                    stim.PauliString("+Y"),
+                    lestim.PauliString("+Y"),
                 ],
             )
-            >>> stim.Tableau.from_state_vector([
+            >>> lestim.Tableau.from_state_vector([
             ...     0.5**0.5,
             ...     0,
             ...     0,
             ...     0.5**0.5,
             ... ], endian='little')
-            stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    stim.PauliString("+Z_"),
-                    stim.PauliString("+_X"),
+                    lestim.PauliString("+Z_"),
+                    lestim.PauliString("+_X"),
                 ],
                 zs=[
-                    stim.PauliString("+XX"),
-                    stim.PauliString("+ZZ"),
+                    lestim.PauliString("+XX"),
+                    lestim.PauliString("+ZZ"),
                 ],
             )
         """
@@ -10827,8 +11034,13 @@ class Tableau:
     def from_unitary_matrix(
         matrix: Iterable[Iterable[float]],
         *,
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
         endian: Literal["little", "big"] = 'little',
     ) -> stim.Tableau:
+=======
+        endian: str = 'little',
+    ) -> lestim.Tableau:
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
         """Creates a tableau from the unitary matrix of a Clifford operation.
 
         Args:
@@ -10848,34 +11060,34 @@ class Tableau:
                 operation.
 
         Examples:
-            >>> import stim
-            >>> stim.Tableau.from_unitary_matrix([
+            >>> import lestim
+            >>> lestim.Tableau.from_unitary_matrix([
             ...     [1, 0],
             ...     [0, 1j],
             ... ], endian='little')
-            stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    stim.PauliString("+Y"),
+                    lestim.PauliString("+Y"),
                 ],
                 zs=[
-                    stim.PauliString("+Z"),
+                    lestim.PauliString("+Z"),
                 ],
             )
 
-            >>> stim.Tableau.from_unitary_matrix([
+            >>> lestim.Tableau.from_unitary_matrix([
             ...     [1, 0, 0, 0],
             ...     [0, 1, 0, 0],
             ...     [0, 0, 0, -1j],
             ...     [0, 0, 1j, 0],
             ... ], endian='little')
-            stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    stim.PauliString("+XZ"),
-                    stim.PauliString("+YX"),
+                    lestim.PauliString("+XZ"),
+                    lestim.PauliString("+YX"),
                 ],
                 zs=[
-                    stim.PauliString("+ZZ"),
-                    stim.PauliString("+_Z"),
+                    lestim.PauliString("+ZZ"),
+                    lestim.PauliString("+_Z"),
                 ],
             )
         """
@@ -10883,7 +11095,7 @@ class Tableau:
         self,
         *,
         unsigned: bool = False,
-    ) -> stim.Tableau:
+    ) -> lestim.Tableau:
         """Computes the inverse of the tableau.
 
         The inverse T^-1 of a tableau T is the unique tableau with the property that
@@ -10901,35 +11113,35 @@ class Tableau:
             The inverse tableau.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
             >>> # Check that the inverse agrees with hard-coded tableaus.
-            >>> s = stim.Tableau.from_named_gate("S")
-            >>> s_dag = stim.Tableau.from_named_gate("S_DAG")
+            >>> s = lestim.Tableau.from_named_gate("S")
+            >>> s_dag = lestim.Tableau.from_named_gate("S_DAG")
             >>> s.inverse() == s_dag
             True
-            >>> z = stim.Tableau.from_named_gate("Z")
+            >>> z = lestim.Tableau.from_named_gate("Z")
             >>> z.inverse() == z
             True
 
             >>> # Check that multiplying by the inverse produces the identity.
-            >>> t = stim.Tableau.random(10)
+            >>> t = lestim.Tableau.random(10)
             >>> t_inv = t.inverse()
-            >>> identity = stim.Tableau(10)
+            >>> identity = lestim.Tableau(10)
             >>> t * t_inv == t_inv * t == identity
             True
 
             >>> # Check a manual case.
-            >>> t = stim.Tableau.from_conjugated_generators(
+            >>> t = lestim.Tableau.from_conjugated_generators(
             ...     xs=[
-            ...         stim.PauliString("-__Z"),
-            ...         stim.PauliString("+XZ_"),
-            ...         stim.PauliString("+_ZZ"),
+            ...         lestim.PauliString("-__Z"),
+            ...         lestim.PauliString("+XZ_"),
+            ...         lestim.PauliString("+_ZZ"),
             ...     ],
             ...     zs=[
-            ...         stim.PauliString("-YYY"),
-            ...         stim.PauliString("+Z_Z"),
-            ...         stim.PauliString("-ZYZ")
+            ...         lestim.PauliString("-YYY"),
+            ...         lestim.PauliString("+Z_Z"),
+            ...         lestim.PauliString("-ZYZ")
             ...     ],
             ... )
             >>> print(t.inverse())
@@ -10950,7 +11162,7 @@ class Tableau:
         input_index: int,
         *,
         unsigned: bool = False,
-    ) -> stim.PauliString:
+    ) -> lestim.PauliString:
         """Conjugates a single-qubit X Pauli generator by the inverse of the tableau.
 
         A faster version of `tableau.inverse(unsigned).x_output(input_index)`.
@@ -10968,10 +11180,10 @@ class Tableau:
             The result of conjugating an X generator by the inverse of the tableau.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
             # Check equivalence with the inverse's x_output.
-            >>> t = stim.Tableau.random(4)
+            >>> t = lestim.Tableau.random(4)
             >>> expected = t.inverse().x_output(0)
             >>> t.inverse_x_output(0) == expected
             True
@@ -11000,11 +11212,11 @@ class Tableau:
                 3: Z
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> t_inv = stim.Tableau.from_conjugated_generators(
-            ...     xs=[stim.PauliString("-Y_"), stim.PauliString("+YZ")],
-            ...     zs=[stim.PauliString("-ZY"), stim.PauliString("+YX")],
+            >>> t_inv = lestim.Tableau.from_conjugated_generators(
+            ...     xs=[lestim.PauliString("-Y_"), lestim.PauliString("+YZ")],
+            ...     zs=[lestim.PauliString("-ZY"), lestim.PauliString("+YX")],
             ... ).inverse()
             >>> t_inv.inverse_x_output_pauli(0, 0)
             2
@@ -11020,7 +11232,7 @@ class Tableau:
         input_index: int,
         *,
         unsigned: bool = False,
-    ) -> stim.PauliString:
+    ) -> lestim.PauliString:
         """Conjugates a single-qubit Y Pauli generator by the inverse of the tableau.
 
         A faster version of `tableau.inverse(unsigned).y_output(input_index)`.
@@ -11038,10 +11250,10 @@ class Tableau:
             The result of conjugating a Y generator by the inverse of the tableau.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
             # Check equivalence with the inverse's y_output.
-            >>> t = stim.Tableau.random(4)
+            >>> t = lestim.Tableau.random(4)
             >>> expected = t.inverse().y_output(0)
             >>> t.inverse_y_output(0) == expected
             True
@@ -11070,11 +11282,11 @@ class Tableau:
                 3: Z
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> t_inv = stim.Tableau.from_conjugated_generators(
-            ...     xs=[stim.PauliString("-Y_"), stim.PauliString("+YZ")],
-            ...     zs=[stim.PauliString("-ZY"), stim.PauliString("+YX")],
+            >>> t_inv = lestim.Tableau.from_conjugated_generators(
+            ...     xs=[lestim.PauliString("-Y_"), lestim.PauliString("+YZ")],
+            ...     zs=[lestim.PauliString("-ZY"), lestim.PauliString("+YX")],
             ... ).inverse()
             >>> t_inv.inverse_y_output_pauli(0, 0)
             1
@@ -11090,7 +11302,7 @@ class Tableau:
         input_index: int,
         *,
         unsigned: bool = False,
-    ) -> stim.PauliString:
+    ) -> lestim.PauliString:
         """Conjugates a single-qubit Z Pauli generator by the inverse of the tableau.
 
         A faster version of `tableau.inverse(unsigned).z_output(input_index)`.
@@ -11108,12 +11320,12 @@ class Tableau:
             The result of conjugating a Z generator by the inverse of the tableau.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> import stim
+            >>> import lestim
 
             # Check equivalence with the inverse's z_output.
-            >>> t = stim.Tableau.random(4)
+            >>> t = lestim.Tableau.random(4)
             >>> expected = t.inverse().z_output(0)
             >>> t.inverse_z_output(0) == expected
             True
@@ -11142,11 +11354,11 @@ class Tableau:
                 3: Z
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> t_inv = stim.Tableau.from_conjugated_generators(
-            ...     xs=[stim.PauliString("-Y_"), stim.PauliString("+YZ")],
-            ...     zs=[stim.PauliString("-ZY"), stim.PauliString("+YX")],
+            >>> t_inv = lestim.Tableau.from_conjugated_generators(
+            ...     xs=[lestim.PauliString("-Y_"), lestim.PauliString("+YZ")],
+            ...     zs=[lestim.PauliString("-ZY"), lestim.PauliString("+YX")],
             ... ).inverse()
             >>> t_inv.inverse_z_output_pauli(0, 0)
             3
@@ -11162,7 +11374,7 @@ class Tableau:
         num_qubits: int,
         *,
         unsigned: bool = False,
-    ) -> stim.TableauIterator:
+    ) -> lestim.TableauIterator:
         """Returns an iterator that iterates over all Tableaus of a given size.
 
         Args:
@@ -11173,25 +11385,25 @@ class Tableau:
                 iterate over.
 
         Returns:
-            An Iterable[stim.Tableau] that yields the requested tableaus.
+            An Iterable[lestim.Tableau] that yields the requested tableaus.
 
         Examples:
-            >>> import stim
+            >>> import lestim
             >>> single_qubit_gate_reprs = set()
-            >>> for t in stim.Tableau.iter_all(1):
+            >>> for t in lestim.Tableau.iter_all(1):
             ...     single_qubit_gate_reprs.add(repr(t))
             >>> len(single_qubit_gate_reprs)
             24
 
             >>> num_2q_gates_mod_paulis = 0
-            >>> for _ in stim.Tableau.iter_all(2, unsigned=True):
+            >>> for _ in lestim.Tableau.iter_all(2, unsigned=True):
             ...     num_2q_gates_mod_paulis += 1
             >>> num_2q_gates_mod_paulis
             720
         """
     def prepend(
         self,
-        gate: stim.Tableau,
+        gate: lestim.Tableau,
         targets: Sequence[int],
     ) -> None:
         """Prepends an operation's effect into this tableau, mutating this tableau.
@@ -11203,16 +11415,16 @@ class Tableau:
             targets: The qubits being targeted by the gate.
 
         Examples:
-            >>> import stim
-            >>> t = stim.Tableau.from_named_gate("H")
-            >>> t.prepend(stim.Tableau.from_named_gate("X"), [0])
-            >>> t == stim.Tableau.from_named_gate("SQRT_Y_DAG")
+            >>> import lestim
+            >>> t = lestim.Tableau.from_named_gate("H")
+            >>> t.prepend(lestim.Tableau.from_named_gate("X"), [0])
+            >>> t == lestim.Tableau.from_named_gate("SQRT_Y_DAG")
             True
         """
     @staticmethod
     def random(
         num_qubits: int,
-    ) -> stim.Tableau:
+    ) -> lestim.Tableau:
         """Samples a uniformly random Clifford operation and returns its tableau.
 
         Args:
@@ -11222,8 +11434,8 @@ class Tableau:
             The sampled tableau.
 
         Examples:
-            >>> import stim
-            >>> t = stim.Tableau.random(42)
+            >>> import lestim
+            >>> t = lestim.Tableau.random(42)
 
         References:
             "Hadamard-free circuits expose the structure of the Clifford group"
@@ -11232,8 +11444,8 @@ class Tableau:
         """
     def then(
         self,
-        second: stim.Tableau,
-    ) -> stim.Tableau:
+        second: lestim.Tableau,
+    ) -> lestim.Tableau:
         """Returns the result of composing two tableaus.
 
         If the tableau T1 represents the Clifford operation with unitary C1,
@@ -11246,18 +11458,23 @@ class Tableau:
                 the receiving tableau.
 
         Examples:
-            >>> import stim
-            >>> t1 = stim.Tableau.random(4)
-            >>> t2 = stim.Tableau.random(4)
+            >>> import lestim
+            >>> t1 = lestim.Tableau.random(4)
+            >>> t2 = lestim.Tableau.random(4)
             >>> t3 = t1.then(t2)
-            >>> p = stim.PauliString.random(4)
+            >>> p = lestim.PauliString.random(4)
             >>> t3(p) == t2(t1(p))
             True
         """
     def to_circuit(
         self,
+<<<<<<< HEAD:glue/python/src/stim/__init__.pyi
         method: Literal["elimination", "graph_state"] = 'elimination',
     ) -> stim.Circuit:
+=======
+        method: 'Literal["elimination", "graph_state"]' = 'elimination',
+    ) -> lestim.Circuit:
+>>>>>>> 27aecd12 (Introducing release infra on default branch (#12)):glue/python/src/lestim/__init__.pyi
         """Synthesizes a circuit that implements the tableau's Clifford operation.
 
         The circuits returned by this method are not guaranteed to be stable
@@ -11315,24 +11532,24 @@ class Tableau:
             The synthesized circuit.
 
         Example:
-            >>> import stim
-            >>> tableau = stim.Tableau.from_conjugated_generators(
+            >>> import lestim
+            >>> tableau = lestim.Tableau.from_conjugated_generators(
             ...     xs=[
-            ...         stim.PauliString("+YZ__"),
-            ...         stim.PauliString("-Y_XY"),
-            ...         stim.PauliString("+___Y"),
-            ...         stim.PauliString("+YZX_"),
+            ...         lestim.PauliString("+YZ__"),
+            ...         lestim.PauliString("-Y_XY"),
+            ...         lestim.PauliString("+___Y"),
+            ...         lestim.PauliString("+YZX_"),
             ...     ],
             ...     zs=[
-            ...         stim.PauliString("+XZYY"),
-            ...         stim.PauliString("-XYX_"),
-            ...         stim.PauliString("-ZXXZ"),
-            ...         stim.PauliString("+XXZ_"),
+            ...         lestim.PauliString("+XZYY"),
+            ...         lestim.PauliString("-XYX_"),
+            ...         lestim.PauliString("-ZXXZ"),
+            ...         lestim.PauliString("+XXZ_"),
             ...     ],
             ... )
 
             >>> tableau.to_circuit()
-            stim.Circuit('''
+            lestim.Circuit('''
                 S 0
                 H 0 1 3
                 CX 0 1 0 2 0 3
@@ -11354,7 +11571,7 @@ class Tableau:
             ''')
 
             >>> tableau.to_circuit("graph_state")
-            stim.Circuit('''
+            lestim.Circuit('''
                 RX 0 1 2 3
                 TICK
                 CZ 0 3 1 2 1 3
@@ -11367,12 +11584,12 @@ class Tableau:
             ''')
 
             >>> tableau.to_circuit("mpp_state_unsigned")
-            stim.Circuit('''
+            lestim.Circuit('''
                 MPP X0*Z1*Y2*Y3 !X0*Y1*X2 !Z0*X1*X2*Z3 X0*X1*Z2
             ''')
 
             >>> tableau.to_circuit("mpp_state")
-            stim.Circuit('''
+            lestim.Circuit('''
                 MPP X0*Z1*Y2*Y3 !X0*Y1*X2 !Z0*X1*X2*Z3 X0*X1*Z2
                 CX rec[-3] 2 rec[-1] 2
                 CY rec[-4] 0 rec[-3] 0 rec[-3] 3 rec[-2] 3 rec[-1] 0
@@ -11443,17 +11660,17 @@ class Tableau:
                 (z2z[i, j // 8] >> (j % 8)) & 1 = tableau.z_output_pauli(i, j) in [2, 3]
 
         Examples:
-            >>> import stim
-            >>> cnot = stim.Tableau.from_named_gate("CNOT")
+            >>> import lestim
+            >>> cnot = lestim.Tableau.from_named_gate("CNOT")
             >>> print(repr(cnot))
-            stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    stim.PauliString("+XX"),
-                    stim.PauliString("+_X"),
+                    lestim.PauliString("+XX"),
+                    lestim.PauliString("+_X"),
                 ],
                 zs=[
-                    stim.PauliString("+Z_"),
-                    stim.PauliString("+ZZ"),
+                    lestim.PauliString("+Z_"),
+                    lestim.PauliString("+ZZ"),
                 ],
             )
             >>> x2x, x2z, z2x, z2z, x_signs, z_signs = cnot.to_numpy()
@@ -11474,18 +11691,18 @@ class Tableau:
             >>> z_signs
             array([False, False])
 
-            >>> t = stim.Tableau.from_conjugated_generators(
+            >>> t = lestim.Tableau.from_conjugated_generators(
             ...     xs=[
-            ...         stim.PauliString("-Y_ZY"),
-            ...         stim.PauliString("-Y_YZ"),
-            ...         stim.PauliString("-XXX_"),
-            ...         stim.PauliString("+ZYX_"),
+            ...         lestim.PauliString("-Y_ZY"),
+            ...         lestim.PauliString("-Y_YZ"),
+            ...         lestim.PauliString("-XXX_"),
+            ...         lestim.PauliString("+ZYX_"),
             ...     ],
             ...     zs=[
-            ...         stim.PauliString("-_ZZX"),
-            ...         stim.PauliString("+YZXZ"),
-            ...         stim.PauliString("+XZ_X"),
-            ...         stim.PauliString("-YYXX"),
+            ...         lestim.PauliString("-_ZZX"),
+            ...         lestim.PauliString("+YZXZ"),
+            ...         lestim.PauliString("+XZ_X"),
+            ...         lestim.PauliString("-YYXX"),
             ...     ],
             ... )
 
@@ -11543,7 +11760,7 @@ class Tableau:
         """
     def to_pauli_string(
         self,
-    ) -> stim.PauliString:
+    ) -> lestim.PauliString:
         """Return a Pauli string equivalent to the tableau.
 
         If the tableau is equivalent to a pauli product, creates
@@ -11556,11 +11773,11 @@ class Tableau:
             ValueError: The Tableau isn't equivalent to a Pauli product.
 
         Example:
-            >>> import stim
-            >>> t = (stim.Tableau.from_named_gate("Z") +
-            ...      stim.Tableau.from_named_gate("Y") +
-            ...      stim.Tableau.from_named_gate("I") +
-            ...      stim.Tableau.from_named_gate("X"))
+            >>> import lestim
+            >>> t = (lestim.Tableau.from_named_gate("Z") +
+            ...      lestim.Tableau.from_named_gate("Y") +
+            ...      lestim.Tableau.from_named_gate("I") +
+            ...      lestim.Tableau.from_named_gate("X"))
             >>> print(t)
             +-xz-xz-xz-xz-
             | -+ -- ++ +-
@@ -11575,7 +11792,7 @@ class Tableau:
         self,
         *,
         canonicalize: bool = False,
-    ) -> List[stim.PauliString]:
+    ) -> List[lestim.PauliString]:
         """Returns the stabilizer generators of the tableau, optionally canonicalized.
 
         The stabilizer generators of the tableau are its Z outputs. Canonicalizing
@@ -11602,23 +11819,23 @@ class Tableau:
                 form if and only if they describe equivalent quantum states.
 
         Returns:
-            A List[stim.PauliString] of the tableau's stabilizer generators.
+            A List[lestim.PauliString] of the tableau's stabilizer generators.
 
         Examples:
-            >>> import stim
-            >>> t = stim.Tableau.from_named_gate("CNOT")
+            >>> import lestim
+            >>> t = lestim.Tableau.from_named_gate("CNOT")
 
             >>> raw_stabilizers = t.to_stabilizers()
             >>> for e in raw_stabilizers:
             ...     print(repr(e))
-            stim.PauliString("+Z_")
-            stim.PauliString("+ZZ")
+            lestim.PauliString("+Z_")
+            lestim.PauliString("+ZZ")
 
             >>> canonical_stabilizers = t.to_stabilizers(canonicalize=True)
             >>> for e in canonical_stabilizers:
             ...     print(repr(e))
-            stim.PauliString("+Z_")
-            stim.PauliString("+_Z")
+            lestim.PauliString("+Z_")
+            lestim.PauliString("+_Z")
         """
     def to_state_vector(
         self,
@@ -11654,11 +11871,11 @@ class Tableau:
             b_{n-1}, the qubit with index 1 is storing the bit b_{n-2}, etc.
 
         Examples:
-            >>> import stim
+            >>> import lestim
             >>> import numpy as np
-            >>> i2 = stim.Tableau.from_named_gate('I')
-            >>> x = stim.Tableau.from_named_gate('X')
-            >>> h = stim.Tableau.from_named_gate('H')
+            >>> i2 = lestim.Tableau.from_named_gate('I')
+            >>> x = lestim.Tableau.from_named_gate('X')
+            >>> h = lestim.Tableau.from_named_gate('H')
 
             >>> (x + i2).to_state_vector(endian='little')
             array([0.+0.j, 1.+0.j, 0.+0.j, 0.+0.j], dtype=complex64)
@@ -11700,15 +11917,15 @@ class Tableau:
             shape=(1 << len(tableau), 1 << len(tableau)).
 
         Example:
-            >>> import stim
-            >>> cnot = stim.Tableau.from_conjugated_generators(
+            >>> import lestim
+            >>> cnot = lestim.Tableau.from_conjugated_generators(
             ...     xs=[
-            ...         stim.PauliString("XX"),
-            ...         stim.PauliString("_X"),
+            ...         lestim.PauliString("XX"),
+            ...         lestim.PauliString("_X"),
             ...     ],
             ...     zs=[
-            ...         stim.PauliString("Z_"),
-            ...         stim.PauliString("ZZ"),
+            ...         lestim.PauliString("Z_"),
+            ...         lestim.PauliString("ZZ"),
             ...     ],
             ... )
             >>> cnot.to_unitary_matrix(endian='big')
@@ -11720,23 +11937,23 @@ class Tableau:
     def x_output(
         self,
         target: int,
-    ) -> stim.PauliString:
+    ) -> lestim.PauliString:
         """Returns the result of conjugating a Pauli X by the tableau's Clifford operation.
 
         Args:
             target: The qubit targeted by the Pauli X operation.
 
         Examples:
-            >>> import stim
-            >>> h = stim.Tableau.from_named_gate("H")
+            >>> import lestim
+            >>> h = lestim.Tableau.from_named_gate("H")
             >>> h.x_output(0)
-            stim.PauliString("+Z")
+            lestim.PauliString("+Z")
 
-            >>> cnot = stim.Tableau.from_named_gate("CNOT")
+            >>> cnot = lestim.Tableau.from_named_gate("CNOT")
             >>> cnot.x_output(0)
-            stim.PauliString("+XX")
+            lestim.PauliString("+XX")
             >>> cnot.x_output(1)
-            stim.PauliString("+_X")
+            lestim.PauliString("+_X")
         """
     def x_output_pauli(
         self,
@@ -11759,11 +11976,11 @@ class Tableau:
                 3: Z
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> t = stim.Tableau.from_conjugated_generators(
-            ...     xs=[stim.PauliString("-Y_"), stim.PauliString("+YZ")],
-            ...     zs=[stim.PauliString("-ZY"), stim.PauliString("+YX")],
+            >>> t = lestim.Tableau.from_conjugated_generators(
+            ...     xs=[lestim.PauliString("-Y_"), lestim.PauliString("+YZ")],
+            ...     zs=[lestim.PauliString("-ZY"), lestim.PauliString("+YX")],
             ... )
             >>> t.x_output_pauli(0, 0)
             2
@@ -11786,32 +12003,32 @@ class Tableau:
             target: The qubit the X generator applies to.
 
         Examples:
-            >>> import stim
-            >>> stim.Tableau.from_named_gate("S_DAG").x_sign(0)
+            >>> import lestim
+            >>> lestim.Tableau.from_named_gate("S_DAG").x_sign(0)
             -1
-            >>> stim.Tableau.from_named_gate("S").x_sign(0)
+            >>> lestim.Tableau.from_named_gate("S").x_sign(0)
             1
         """
     def y_output(
         self,
         target: int,
-    ) -> stim.PauliString:
+    ) -> lestim.PauliString:
         """Returns the result of conjugating a Pauli Y by the tableau's Clifford operation.
 
         Args:
             target: The qubit targeted by the Pauli Y operation.
 
         Examples:
-            >>> import stim
-            >>> h = stim.Tableau.from_named_gate("H")
+            >>> import lestim
+            >>> h = lestim.Tableau.from_named_gate("H")
             >>> h.y_output(0)
-            stim.PauliString("-Y")
+            lestim.PauliString("-Y")
 
-            >>> cnot = stim.Tableau.from_named_gate("CNOT")
+            >>> cnot = lestim.Tableau.from_named_gate("CNOT")
             >>> cnot.y_output(0)
-            stim.PauliString("+YX")
+            lestim.PauliString("+YX")
             >>> cnot.y_output(1)
-            stim.PauliString("+ZY")
+            lestim.PauliString("+ZY")
         """
     def y_output_pauli(
         self,
@@ -11834,11 +12051,11 @@ class Tableau:
                 3: Z
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> t = stim.Tableau.from_conjugated_generators(
-            ...     xs=[stim.PauliString("-Y_"), stim.PauliString("+YZ")],
-            ...     zs=[stim.PauliString("-ZY"), stim.PauliString("+YX")],
+            >>> t = lestim.Tableau.from_conjugated_generators(
+            ...     xs=[lestim.PauliString("-Y_"), lestim.PauliString("+YZ")],
+            ...     zs=[lestim.PauliString("-ZY"), lestim.PauliString("+YX")],
             ... )
             >>> t.y_output_pauli(0, 0)
             1
@@ -11863,32 +12080,32 @@ class Tableau:
             target: The qubit the Y generator applies to.
 
         Examples:
-            >>> import stim
-            >>> stim.Tableau.from_named_gate("S_DAG").y_sign(0)
+            >>> import lestim
+            >>> lestim.Tableau.from_named_gate("S_DAG").y_sign(0)
             1
-            >>> stim.Tableau.from_named_gate("S").y_sign(0)
+            >>> lestim.Tableau.from_named_gate("S").y_sign(0)
             -1
         """
     def z_output(
         self,
         target: int,
-    ) -> stim.PauliString:
+    ) -> lestim.PauliString:
         """Returns the result of conjugating a Pauli Z by the tableau's Clifford operation.
 
         Args:
             target: The qubit targeted by the Pauli Z operation.
 
         Examples:
-            >>> import stim
-            >>> h = stim.Tableau.from_named_gate("H")
+            >>> import lestim
+            >>> h = lestim.Tableau.from_named_gate("H")
             >>> h.z_output(0)
-            stim.PauliString("+X")
+            lestim.PauliString("+X")
 
-            >>> cnot = stim.Tableau.from_named_gate("CNOT")
+            >>> cnot = lestim.Tableau.from_named_gate("CNOT")
             >>> cnot.z_output(0)
-            stim.PauliString("+Z_")
+            lestim.PauliString("+Z_")
             >>> cnot.z_output(1)
-            stim.PauliString("+ZZ")
+            lestim.PauliString("+ZZ")
         """
     def z_output_pauli(
         self,
@@ -11911,11 +12128,11 @@ class Tableau:
                 3: Z
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> t = stim.Tableau.from_conjugated_generators(
-            ...     xs=[stim.PauliString("-Y_"), stim.PauliString("+YZ")],
-            ...     zs=[stim.PauliString("-ZY"), stim.PauliString("+YX")],
+            >>> t = lestim.Tableau.from_conjugated_generators(
+            ...     xs=[lestim.PauliString("-Y_"), lestim.PauliString("+YZ")],
+            ...     zs=[lestim.PauliString("-ZY"), lestim.PauliString("+YX")],
             ... )
             >>> t.z_output_pauli(0, 0)
             3
@@ -11938,18 +12155,18 @@ class Tableau:
             target: The qubit the Z generator applies to.
 
         Examples:
-            >>> import stim
-            >>> stim.Tableau.from_named_gate("SQRT_X_DAG").z_sign(0)
+            >>> import lestim
+            >>> lestim.Tableau.from_named_gate("SQRT_X_DAG").z_sign(0)
             1
-            >>> stim.Tableau.from_named_gate("SQRT_X").z_sign(0)
+            >>> lestim.Tableau.from_named_gate("SQRT_X").z_sign(0)
             -1
         """
 class TableauIterator:
     """Iterates over all stabilizer tableaus of a specified size.
 
     Examples:
-        >>> import stim
-        >>> tableau_iterator = stim.Tableau.iter_all(1)
+        >>> import lestim
+        >>> tableau_iterator = lestim.Tableau.iter_all(1)
         >>> n = 0
         >>> for single_qubit_clifford in tableau_iterator:
         ...     n += 1
@@ -11958,7 +12175,7 @@ class TableauIterator:
     """
     def __iter__(
         self,
-    ) -> stim.TableauIterator:
+    ) -> lestim.TableauIterator:
         """Returns an independent copy of the tableau iterator.
 
         Since for-loops and loop-comprehensions call `iter` on things they
@@ -11967,7 +12184,7 @@ class TableauIterator:
         """
     def __next__(
         self,
-    ) -> stim.Tableau:
+    ) -> lestim.Tableau:
         """Returns the next iterated tableau.
         """
 class TableauSimulator:
@@ -11976,8 +12193,8 @@ class TableauSimulator:
     Supports interactive usage, where gates and measurements are applied on demand.
 
     Examples:
-        >>> import stim
-        >>> s = stim.TableauSimulator()
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
         >>> s.h(0)
         >>> if s.measure(0):
         ...     s.h(1)
@@ -11985,18 +12202,18 @@ class TableauSimulator:
         >>> s.measure(1) == s.measure(2)
         True
 
-        >>> s = stim.TableauSimulator()
+        >>> s = lestim.TableauSimulator()
         >>> s.h(0)
         >>> s.cnot(0, 1)
         >>> s.current_inverse_tableau()
-        stim.Tableau.from_conjugated_generators(
+        lestim.Tableau.from_conjugated_generators(
             xs=[
-                stim.PauliString("+ZX"),
-                stim.PauliString("+_X"),
+                lestim.PauliString("+ZX"),
+                lestim.PauliString("+_X"),
             ],
             zs=[
-                stim.PauliString("+X_"),
-                stim.PauliString("+XZ"),
+                lestim.PauliString("+X_"),
+                lestim.PauliString("+XZ"),
             ],
         )
     """
@@ -12005,7 +12222,7 @@ class TableauSimulator:
         *,
         seed: Optional[int] = None,
     ) -> None:
-        """Initializes a stim.TableauSimulator.
+        """Initializes a lestim.TableauSimulator.
 
         Args:
             seed: PARTIALLY determines simulation results by deterministically seeding
@@ -12020,7 +12237,7 @@ class TableauSimulator:
                 same simulation results.
 
                 CAUTION: simulation results *WILL NOT* be consistent between versions of
-                Stim. This restriction is present to make it possible to have future
+                lestim. This restriction is present to make it possible to have future
                 optimizations to the random sampling, and is enforced by introducing
                 intentional differences in the seeding strategy from version to version.
 
@@ -12036,12 +12253,12 @@ class TableauSimulator:
                 seed.
 
         Returns:
-            An initialized stim.TableauSimulator.
+            An initialized lestim.TableauSimulator.
 
         Examples:
-            >>> import stim
-            >>> s = stim.TableauSimulator(seed=0)
-            >>> s2 = stim.TableauSimulator(seed=0)
+            >>> import lestim
+            >>> s = lestim.TableauSimulator(seed=0)
+            >>> s2 = lestim.TableauSimulator(seed=0)
             >>> s.h(0)
             >>> s2.h(0)
             >>> s.measure(0) == s2.measure(0)
@@ -12091,7 +12308,7 @@ class TableauSimulator:
         """
     def canonical_stabilizers(
         self,
-    ) -> List[stim.PauliString]:
+    ) -> List[lestim.PauliString]:
         """Returns a standardized list of the simulator's current stabilizer generators.
 
         Two simulators have the same canonical stabilizers if and only if their current
@@ -12111,19 +12328,19 @@ class TableauSimulator:
                     then increment `next_output`.
 
         Returns:
-            A List[stim.PauliString] of the simulator's state's stabilizers.
+            A List[lestim.PauliString] of the simulator's state's stabilizers.
 
         Examples:
-            >>> import stim
-            >>> s = stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.h(0)
             >>> s.cnot(0, 1)
             >>> s.x(2)
             >>> for e in s.canonical_stabilizers():
             ...     print(repr(e))
-            stim.PauliString("+XX_")
-            stim.PauliString("+ZZ_")
-            stim.PauliString("-__Z")
+            lestim.PauliString("+XX_")
+            lestim.PauliString("+ZZ_")
+            lestim.PauliString("-__Z")
 
             >>> # Scramble the stabilizers then check the canonical form is unchanged.
             >>> s.set_inverse_tableau(s.current_inverse_tableau()**-1)
@@ -12134,9 +12351,9 @@ class TableauSimulator:
             >>> s.set_inverse_tableau(s.current_inverse_tableau()**-1)
             >>> for e in s.canonical_stabilizers():
             ...     print(repr(e))
-            stim.PauliString("+XX_")
-            stim.PauliString("+ZZ_")
-            stim.PauliString("-__Z")
+            lestim.PauliString("+XX_")
+            lestim.PauliString("+ZZ_")
+            lestim.PauliString("-__Z")
         """
     def cnot(
         self,
@@ -12166,7 +12383,7 @@ class TableauSimulator:
         *,
         copy_rng: bool = False,
         seed: Optional[int] = None,
-    ) -> stim.TableauSimulator:
+    ) -> lestim.TableauSimulator:
         """Returns a simulator with the same internal state, except perhaps its prng.
 
         Args:
@@ -12190,7 +12407,7 @@ class TableauSimulator:
                 same simulation results.
 
                 CAUTION: simulation results *WILL NOT* be consistent between versions of
-                Stim. This restriction is present to make it possible to have future
+                lestim. This restriction is present to make it possible to have future
                 optimizations to the random sampling, and is enforced by introducing
                 intentional differences in the seeding strategy from version to version.
 
@@ -12206,23 +12423,23 @@ class TableauSimulator:
                 seed.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> s1 = stim.TableauSimulator()
-            >>> s1.set_inverse_tableau(stim.Tableau.random(1))
+            >>> s1 = lestim.TableauSimulator()
+            >>> s1.set_inverse_tableau(lestim.Tableau.random(1))
             >>> s2 = s1.copy()
             >>> s2 is s1
             False
             >>> s2.current_inverse_tableau() == s1.current_inverse_tableau()
             True
 
-            >>> s1 = stim.TableauSimulator()
+            >>> s1 = lestim.TableauSimulator()
             >>> s2 = s1.copy(copy_rng=True)
             >>> s1.h(0)
             >>> s2.h(0)
             >>> assert s1.measure(0) == s2.measure(0)
 
-            >>> s = stim.TableauSimulator()
+            >>> s = lestim.TableauSimulator()
             >>> def brute_force_post_select(qubit, desired_result):
             ...     global s
             ...     while True:
@@ -12237,35 +12454,35 @@ class TableauSimulator:
         """
     def current_inverse_tableau(
         self,
-    ) -> stim.Tableau:
-        """Returns a copy of the internal state of the simulator as a stim.Tableau.
+    ) -> lestim.Tableau:
+        """Returns a copy of the internal state of the simulator as a lestim.Tableau.
 
         Returns:
-            A stim.Tableau copy of the simulator's state.
+            A lestim.Tableau copy of the simulator's state.
 
         Examples:
-            >>> import stim
-            >>> s = stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.h(0)
             >>> s.current_inverse_tableau()
-            stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    stim.PauliString("+Z"),
+                    lestim.PauliString("+Z"),
                 ],
                 zs=[
-                    stim.PauliString("+X"),
+                    lestim.PauliString("+X"),
                 ],
             )
             >>> s.cnot(0, 1)
             >>> s.current_inverse_tableau()
-            stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    stim.PauliString("+ZX"),
-                    stim.PauliString("+_X"),
+                    lestim.PauliString("+ZX"),
+                    lestim.PauliString("+_X"),
                 ],
                 zs=[
-                    stim.PauliString("+X_"),
-                    stim.PauliString("+XZ"),
+                    lestim.PauliString("+X_"),
+                    lestim.PauliString("+XZ"),
                 ],
             )
         """
@@ -12275,8 +12492,8 @@ class TableauSimulator:
         """Returns a copy of the record of all measurements performed by the simulator.
 
         Examples:
-            >>> import stim
-            >>> s = stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.current_measurement_record()
             []
             >>> s.measure(0)
@@ -12286,7 +12503,7 @@ class TableauSimulator:
             True
             >>> s.current_measurement_record()
             [False, True]
-            >>> s.do(stim.Circuit("M 0"))
+            >>> s.do(lestim.Circuit("M 0"))
             >>> s.current_measurement_record()
             [False, True, True]
 
@@ -12401,43 +12618,43 @@ class TableauSimulator:
         """
     def do(
         self,
-        circuit_or_pauli_string: Union[stim.Circuit, stim.PauliString, stim.CircuitInstruction, stim.CircuitRepeatBlock],
+        circuit_or_pauli_string: Union[lestim.Circuit, lestim.PauliString, lestim.CircuitInstruction, lestim.CircuitRepeatBlock],
     ) -> None:
         """Applies a circuit or pauli string to the simulator's state.
 
         Args:
-            circuit_or_pauli_string: A stim.Circuit, stim.PauliString,
-                stim.CircuitInstruction, or stim.CircuitRepeatBlock
+            circuit_or_pauli_string: A lestim.Circuit, lestim.PauliString,
+                lestim.CircuitInstruction, or lestim.CircuitRepeatBlock
                 with operations to apply to the simulator's state.
 
         Examples:
-            >>> import stim
-            >>> s = stim.TableauSimulator()
-            >>> s.do(stim.Circuit('''
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
+            >>> s.do(lestim.Circuit('''
             ...     X 0
             ...     M 0
             ... '''))
             >>> s.current_measurement_record()
             [True]
 
-            >>> s = stim.TableauSimulator()
-            >>> s.do(stim.PauliString("IXYZ"))
+            >>> s = lestim.TableauSimulator()
+            >>> s.do(lestim.PauliString("IXYZ"))
             >>> s.measure_many(0, 1, 2, 3)
             [False, True, True, False]
         """
     def do_circuit(
         self,
-        circuit: stim.Circuit,
+        circuit: lestim.Circuit,
     ) -> None:
         """Applies a circuit to the simulator's state.
 
         Args:
-            circuit: A stim.Circuit containing operations to apply.
+            circuit: A lestim.Circuit containing operations to apply.
 
         Examples:
-            >>> import stim
-            >>> s = stim.TableauSimulator()
-            >>> s.do_circuit(stim.Circuit('''
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
+            >>> s.do_circuit(lestim.Circuit('''
             ...     X 0
             ...     M 0
             ... '''))
@@ -12446,23 +12663,23 @@ class TableauSimulator:
         """
     def do_pauli_string(
         self,
-        pauli_string: stim.PauliString,
+        pauli_string: lestim.PauliString,
     ) -> None:
         """Applies the paulis from a pauli string to the simulator's state.
 
         Args:
-            pauli_string: A stim.PauliString containing Paulis to apply.
+            pauli_string: A lestim.PauliString containing Paulis to apply.
 
         Examples:
-            >>> import stim
-            >>> s = stim.TableauSimulator()
-            >>> s.do_pauli_string(stim.PauliString("IXYZ"))
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
+            >>> s.do_pauli_string(lestim.PauliString("IXYZ"))
             >>> s.measure_many(0, 1, 2, 3)
             [False, True, True, False]
         """
     def do_tableau(
         self,
-        tableau: stim.Tableau,
+        tableau: lestim.Tableau,
         targets: List[int],
     ) -> None:
         """Applies a custom tableau operation to qubits in the simulator.
@@ -12471,26 +12688,26 @@ class TableauSimulator:
         simulator's internal state is an inverse tableau.
 
         Args:
-            tableau: A stim.Tableau representing the Clifford operation to apply.
+            tableau: A lestim.Tableau representing the Clifford operation to apply.
             targets: The indices of the qubits to operate on.
 
         Examples:
-            >>> import stim
-            >>> sim = stim.TableauSimulator()
+            >>> import lestim
+            >>> sim = lestim.TableauSimulator()
             >>> sim.h(1)
             >>> sim.h_yz(2)
             >>> [str(sim.peek_bloch(k)) for k in range(4)]
             ['+Z', '+X', '+Y', '+Z']
-            >>> rot3 = stim.Tableau.from_conjugated_generators(
+            >>> rot3 = lestim.Tableau.from_conjugated_generators(
             ...     xs=[
-            ...         stim.PauliString("_X_"),
-            ...         stim.PauliString("__X"),
-            ...         stim.PauliString("X__"),
+            ...         lestim.PauliString("_X_"),
+            ...         lestim.PauliString("__X"),
+            ...         lestim.PauliString("X__"),
             ...     ],
             ...     zs=[
-            ...         stim.PauliString("_Z_"),
-            ...         stim.PauliString("__Z"),
-            ...         stim.PauliString("Z__"),
+            ...         lestim.PauliString("_Z_"),
+            ...         lestim.PauliString("__Z"),
+            ...         lestim.PauliString("Z__"),
             ...     ],
             ... )
 
@@ -12672,10 +12889,10 @@ class TableauSimulator:
         system projects into the state |00>. If the measurement result is True, then the
         system projects into the state |11>. Applying a Pauli X operation to both qubits
         flips between |00> and |11>. Therefore the Pauli kickback of the measurement is
-        `stim.PauliString("XX")`. Note that there are often many possible equivalent
+        `lestim.PauliString("XX")`. Note that there are often many possible equivalent
         Pauli kickbacks. For example, if in the previous example there was a third qubit
-        in the |0> state, then both `stim.PauliString("XX_")` and
-        `stim.PauliString("XXZ")` are valid kickbacks.
+        in the |0> state, then both `lestim.PauliString("XX_")` and
+        `lestim.PauliString("XXZ")` are valid kickbacks.
 
         Measurements with deterministic results don't have a Pauli kickback.
 
@@ -12686,19 +12903,19 @@ class TableauSimulator:
             A (result, kickback) tuple.
             The result is a bool containing the measurement's output.
             The kickback is either None (meaning the measurement was deterministic) or a
-            stim.PauliString (meaning the measurement was random, and the operations in
+            lestim.PauliString (meaning the measurement was random, and the operations in
             the Pauli string flip between the two possible post-measurement states).
 
         Examples:
-            >>> import stim
-            >>> s = stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
 
             >>> s.measure_kickback(0)
             (False, None)
 
             >>> s.h(0)
             >>> s.measure_kickback(0)[1]
-            stim.PauliString("+X")
+            lestim.PauliString("+X")
 
             >>> def pseudo_post_select(qubit, desired_result):
             ...     m, kick = s.measure_kickback(qubit)
@@ -12706,7 +12923,7 @@ class TableauSimulator:
             ...         if kick is None:
             ...             raise ValueError("Post-selected the impossible!")
             ...         s.do(kick)
-            >>> s = stim.TableauSimulator()
+            >>> s = lestim.TableauSimulator()
             >>> s.h(0)
             >>> s.cnot(0, 1)
             >>> s.cnot(0, 2)
@@ -12735,14 +12952,14 @@ class TableauSimulator:
         """
     def measure_observable(
         self,
-        observable: stim.PauliString,
+        observable: lestim.PauliString,
         *,
         flip_probability: float = 0.0,
     ) -> bool:
         """Measures an pauli string observable, as if by an MPP instruction.
 
         Args:
-            observable: The observable to measure, specified as a stim.PauliString.
+            observable: The observable to measure, specified as a lestim.PauliString.
             flip_probability: Probability of the recorded measurement result being
                 flipped.
 
@@ -12756,18 +12973,18 @@ class TableauSimulator:
                 isn't a valid probability.
 
         Examples:
-            >>> import stim
-            >>> s = stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.h(0)
             >>> s.cnot(0, 1)
 
-            >>> s.measure_observable(stim.PauliString("XX"))
+            >>> s.measure_observable(lestim.PauliString("XX"))
             False
 
-            >>> s.measure_observable(stim.PauliString("YY"))
+            >>> s.measure_observable(lestim.PauliString("YY"))
             True
 
-            >>> s.measure_observable(stim.PauliString("-ZZ"))
+            >>> s.measure_observable(lestim.PauliString("-ZZ"))
             True
         """
     @property
@@ -12781,8 +12998,8 @@ class TableauSimulator:
         in the |0> state.
 
         Examples:
-            >>> import stim
-            >>> s = stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.num_qubits
             0
             >>> s.h(2)
@@ -12792,8 +13009,8 @@ class TableauSimulator:
     def peek_bloch(
         self,
         target: int,
-    ) -> stim.PauliString:
-        """Returns the state of the qubit as a single-qubit stim.PauliString stabilizer.
+    ) -> lestim.PauliString:
+        """Returns the state of the qubit as a single-qubit lestim.PauliString stabilizer.
 
         This is a non-physical operation. It reports information about the qubit without
         disturbing it.
@@ -12802,42 +13019,42 @@ class TableauSimulator:
             target: The qubit to peek at.
 
         Returns:
-            stim.PauliString("I"):
+            lestim.PauliString("I"):
                 The qubit is entangled. Its bloch vector is x=y=z=0.
-            stim.PauliString("+Z"):
+            lestim.PauliString("+Z"):
                 The qubit is in the |0> state. Its bloch vector is z=+1, x=y=0.
-            stim.PauliString("-Z"):
+            lestim.PauliString("-Z"):
                 The qubit is in the |1> state. Its bloch vector is z=-1, x=y=0.
-            stim.PauliString("+Y"):
+            lestim.PauliString("+Y"):
                 The qubit is in the |i> state. Its bloch vector is y=+1, x=z=0.
-            stim.PauliString("-Y"):
+            lestim.PauliString("-Y"):
                 The qubit is in the |-i> state. Its bloch vector is y=-1, x=z=0.
-            stim.PauliString("+X"):
+            lestim.PauliString("+X"):
                 The qubit is in the |+> state. Its bloch vector is x=+1, y=z=0.
-            stim.PauliString("-X"):
+            lestim.PauliString("-X"):
                 The qubit is in the |-> state. Its bloch vector is x=-1, y=z=0.
 
         Examples:
-            >>> import stim
-            >>> s = stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.peek_bloch(0)
-            stim.PauliString("+Z")
+            lestim.PauliString("+Z")
             >>> s.x(0)
             >>> s.peek_bloch(0)
-            stim.PauliString("-Z")
+            lestim.PauliString("-Z")
             >>> s.h(0)
             >>> s.peek_bloch(0)
-            stim.PauliString("-X")
+            lestim.PauliString("-X")
             >>> s.sqrt_x(1)
             >>> s.peek_bloch(1)
-            stim.PauliString("-Y")
+            lestim.PauliString("-Y")
             >>> s.cz(0, 1)
             >>> s.peek_bloch(0)
-            stim.PauliString("+_")
+            lestim.PauliString("+_")
         """
     def peek_observable_expectation(
         self,
-        observable: stim.PauliString,
+        observable: lestim.PauliString,
     ) -> int:
         """Determines the expected value of an observable.
 
@@ -12857,22 +13074,22 @@ class TableauSimulator:
             0: Observable will be random when measured.
 
         Examples:
-            >>> import stim
-            >>> s = stim.TableauSimulator()
-            >>> s.peek_observable_expectation(stim.PauliString("+Z"))
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
+            >>> s.peek_observable_expectation(lestim.PauliString("+Z"))
             1
-            >>> s.peek_observable_expectation(stim.PauliString("+X"))
+            >>> s.peek_observable_expectation(lestim.PauliString("+X"))
             0
-            >>> s.peek_observable_expectation(stim.PauliString("-Z"))
+            >>> s.peek_observable_expectation(lestim.PauliString("-Z"))
             -1
 
-            >>> s.do(stim.Circuit('''
+            >>> s.do(lestim.Circuit('''
             ...     H 0
             ...     CNOT 0 1
             ... '''))
             >>> queries = ['XX', 'YY', 'ZZ', '-ZZ', 'ZI', 'II', 'IIZ']
             >>> for q in queries:
-            ...     print(q, s.peek_observable_expectation(stim.PauliString(q)))
+            ...     print(q, s.peek_observable_expectation(lestim.PauliString(q)))
             XX 1
             YY -1
             ZZ 1
@@ -12902,8 +13119,8 @@ class TableauSimulator:
             0: Qubit is in some other state.
 
         Example:
-            >>> import stim
-            >>> s = stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.reset_z(0)
             >>> s.peek_x(0)
             0
@@ -12935,8 +13152,8 @@ class TableauSimulator:
             0: Qubit is in some other state.
 
         Example:
-            >>> import stim
-            >>> s = stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.reset_z(0)
             >>> s.peek_y(0)
             0
@@ -12968,8 +13185,8 @@ class TableauSimulator:
             0: Qubit is in some other state.
 
         Example:
-            >>> import stim
-            >>> s = stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.reset_x(0)
             >>> s.peek_z(0)
             0
@@ -12982,7 +13199,7 @@ class TableauSimulator:
         """
     def postselect_observable(
         self,
-        observable: stim.PauliString,
+        observable: lestim.PauliString,
         *,
         desired_value: bool = False,
     ) -> None:
@@ -13006,11 +13223,11 @@ class TableauSimulator:
                 eigenstate, so measuring it would never ever return the desired result.
 
         Examples:
-            >>> import stim
-            >>> s = stim.TableauSimulator()
-            >>> s.postselect_observable(stim.PauliString("+XX"))
-            >>> s.postselect_observable(stim.PauliString("+ZZ"))
-            >>> s.peek_observable_expectation(stim.PauliString("+YY"))
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
+            >>> s.postselect_observable(lestim.PauliString("+XX"))
+            >>> s.postselect_observable(lestim.PauliString("+ZZ"))
+            >>> s.peek_observable_expectation(lestim.PauliString("+YY"))
             -1
         """
     def postselect_x(
@@ -13038,8 +13255,8 @@ class TableauSimulator:
                 desired result.
 
         Examples:
-            >>> import stim
-            >>> s = stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.peek_x(0)
             0
             >>> s.postselect_x(0, desired_value=False)
@@ -13077,8 +13294,8 @@ class TableauSimulator:
                 desired result.
 
         Examples:
-            >>> import stim
-            >>> s = stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.peek_y(0)
             0
             >>> s.postselect_y(0, desired_value=False)
@@ -13116,8 +13333,8 @@ class TableauSimulator:
                 desired result.
 
         Examples:
-            >>> import stim
-            >>> s = stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.h(0)
             >>> s.peek_z(0)
             0
@@ -13141,12 +13358,12 @@ class TableauSimulator:
             *targets: The indices of the qubits to reset.
 
         Example:
-            >>> import stim
-            >>> s = stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.x(0)
             >>> s.reset(0)
             >>> s.peek_bloch(0)
-            stim.PauliString("+Z")
+            lestim.PauliString("+Z")
         """
     def reset_x(
         self,
@@ -13158,11 +13375,11 @@ class TableauSimulator:
             *targets: The indices of the qubits to reset.
 
         Example:
-            >>> import stim
-            >>> s = stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.reset_x(0)
             >>> s.peek_bloch(0)
-            stim.PauliString("+X")
+            lestim.PauliString("+X")
         """
     def reset_y(
         self,
@@ -13174,11 +13391,11 @@ class TableauSimulator:
             *targets: The indices of the qubits to reset.
 
         Example:
-            >>> import stim
-            >>> s = stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.reset_y(0)
             >>> s.peek_bloch(0)
-            stim.PauliString("+Y")
+            lestim.PauliString("+Y")
         """
     def reset_z(
         self,
@@ -13190,12 +13407,12 @@ class TableauSimulator:
             *targets: The indices of the qubits to reset.
 
         Example:
-            >>> import stim
-            >>> s = stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.h(0)
             >>> s.reset_z(0)
             >>> s.peek_bloch(0)
-            stim.PauliString("+Z")
+            lestim.PauliString("+Z")
         """
     def s(
         self,
@@ -13241,7 +13458,7 @@ class TableauSimulator:
         """
     def set_inverse_tableau(
         self,
-        new_inverse_tableau: stim.Tableau,
+        new_inverse_tableau: lestim.Tableau,
     ) -> None:
         """Overwrites the simulator's internal state with the given inverse tableau.
 
@@ -13259,9 +13476,9 @@ class TableauSimulator:
             new_inverse_tableau: The tableau to overwrite the internal state with.
 
         Examples:
-            >>> import stim
-            >>> s = stim.TableauSimulator()
-            >>> t = stim.Tableau.random(4)
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
+            >>> t = lestim.Tableau.random(4)
             >>> s.set_inverse_tableau(t)
             >>> s.current_inverse_tableau() == t
             True
@@ -13289,8 +13506,8 @@ class TableauSimulator:
                 should be tracking.
 
         Examples:
-            >>> import stim
-            >>> s = stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> len(s.current_inverse_tableau())
             0
 
@@ -13305,7 +13522,7 @@ class TableauSimulator:
         """
     def set_state_from_stabilizers(
         self,
-        stabilizers: Iterable[stim.PauliString],
+        stabilizers: Iterable[lestim.PauliString],
         *,
         allow_redundant: bool = False,
         allow_underconstrained: bool = False,
@@ -13317,7 +13534,7 @@ class TableauSimulator:
         exactly match the number of qubits in the longest given stabilizer.
 
         Args:
-            stabilizers: A list of `stim.PauliString`s specifying the stabilizers that
+            stabilizers: A list of `lestim.PauliString`s specifying the stabilizers that
                 the new state must have. It is permitted for stabilizers to have
                 different lengths. All stabilizers are padded up to the length of the
                 longest stabilizer by appending identity terms.
@@ -13355,41 +13572,41 @@ class TableauSimulator:
 
         Examples:
 
-            >>> import stim
-            >>> tab_sim = stim.TableauSimulator()
+            >>> import lestim
+            >>> tab_sim = lestim.TableauSimulator()
             >>> tab_sim.set_state_from_stabilizers([
-            ...     stim.PauliString("XX"),
-            ...     stim.PauliString("ZZ"),
+            ...     lestim.PauliString("XX"),
+            ...     lestim.PauliString("ZZ"),
             ... ])
             >>> tab_sim.current_inverse_tableau().inverse()
-            stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    stim.PauliString("+Z_"),
-                    stim.PauliString("+_X"),
+                    lestim.PauliString("+Z_"),
+                    lestim.PauliString("+_X"),
                 ],
                 zs=[
-                    stim.PauliString("+XX"),
-                    stim.PauliString("+ZZ"),
+                    lestim.PauliString("+XX"),
+                    lestim.PauliString("+ZZ"),
                 ],
             )
 
             >>> tab_sim.set_state_from_stabilizers([
-            ...     stim.PauliString("XX_"),
-            ...     stim.PauliString("ZZ_"),
-            ...     stim.PauliString("-YY_"),
-            ...     stim.PauliString(""),
+            ...     lestim.PauliString("XX_"),
+            ...     lestim.PauliString("ZZ_"),
+            ...     lestim.PauliString("-YY_"),
+            ...     lestim.PauliString(""),
             ... ], allow_underconstrained=True, allow_redundant=True)
             >>> tab_sim.current_inverse_tableau().inverse()
-            stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    stim.PauliString("+Z__"),
-                    stim.PauliString("+_X_"),
-                    stim.PauliString("+__X"),
+                    lestim.PauliString("+Z__"),
+                    lestim.PauliString("+_X_"),
+                    lestim.PauliString("+__X"),
                 ],
                 zs=[
-                    stim.PauliString("+XX_"),
-                    stim.PauliString("+ZZ_"),
-                    stim.PauliString("+__Z"),
+                    lestim.PauliString("+XX_"),
+                    lestim.PauliString("+ZZ_"),
+                    lestim.PauliString("+__Z"),
                 ],
             )
         """
@@ -13423,19 +13640,19 @@ class TableauSimulator:
 
         Examples:
 
-            >>> import stim
-            >>> tab_sim = stim.TableauSimulator()
+            >>> import lestim
+            >>> tab_sim = lestim.TableauSimulator()
             >>> tab_sim.set_state_from_state_vector([
             ...     0.5**0.5,
             ...     0.5**0.5 * 1j,
             ... ], endian='little')
             >>> tab_sim.current_inverse_tableau().inverse()
-            stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    stim.PauliString("+Z"),
+                    lestim.PauliString("+Z"),
                 ],
                 zs=[
-                    stim.PauliString("+Y"),
+                    lestim.PauliString("+Y"),
                 ],
             )
             >>> tab_sim.set_state_from_state_vector([
@@ -13445,14 +13662,14 @@ class TableauSimulator:
             ...     0.5**0.5,
             ... ], endian='little')
             >>> tab_sim.current_inverse_tableau().inverse()
-            stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    stim.PauliString("+Z_"),
-                    stim.PauliString("+_X"),
+                    lestim.PauliString("+Z_"),
+                    lestim.PauliString("+_X"),
                 ],
                 zs=[
-                    stim.PauliString("+XX"),
-                    stim.PauliString("+ZZ"),
+                    lestim.PauliString("+XX"),
+                    lestim.PauliString("+ZZ"),
                 ],
             )
         """
@@ -13574,9 +13791,9 @@ class TableauSimulator:
             b_{n-1}, the qubit with index 1 is storing the bit b_{n-2}, etc.
 
         Examples:
-            >>> import stim
+            >>> import lestim
             >>> import numpy as np
-            >>> s = stim.TableauSimulator()
+            >>> s = lestim.TableauSimulator()
             >>> s.x(2)
             >>> s.state_vector(endian='little')
             array([0.+0.j, 0.+0.j, 0.+0.j, 0.+0.j, 1.+0.j, 0.+0.j, 0.+0.j, 0.+0.j],
@@ -13938,24 +14155,24 @@ class TableauSimulator:
 @overload
 def gate_data(
     name: str,
-) -> stim.GateData:
+) -> lestim.GateData:
     pass
 @overload
 def gate_data(
-) -> Dict[str, stim.GateData]:
+) -> Dict[str, lestim.GateData]:
     pass
 def gate_data(
     name: Optional[str] = None,
-) -> Union[str, Dict[str, stim.GateData]]:
+) -> Union[str, Dict[str, lestim.GateData]]:
     """Returns gate data for the given named gate, or all gates.
 
     Examples:
-        >>> import stim
-        >>> stim.gate_data('cnot').aliases
+        >>> import lestim
+        >>> lestim.gate_data('cnot').aliases
         ['CNOT', 'CX', 'ZCX']
-        >>> stim.gate_data('cnot').is_two_qubit_gate
+        >>> lestim.gate_data('cnot').is_two_qubit_gate
         True
-        >>> gate_dict = stim.gate_data()
+        >>> gate_dict = lestim.gate_data()
         >>> len(gate_dict) > 50
         True
         >>> gate_dict['MX'].produces_measurements
@@ -13982,11 +14199,11 @@ def main(
         that something went wrong being the return code.
 
     Example:
-        >>> import stim
+        >>> import lestim
         >>> import tempfile
         >>> with tempfile.TemporaryDirectory() as d:
         ...     path = f'{d}/tmp.out'
-        ...     return_code = stim.main(command_line_args=[
+        ...     return_code = lestim.main(command_line_args=[
         ...         "gen",
         ...         "--code=repetition_code",
         ...         "--task=memory",
@@ -14120,7 +14337,7 @@ def read_shot_data_file(
                 bit b from shot s is at result[s, b // 8] & (1 << (b % 8))
 
     Examples:
-        >>> import stim
+        >>> import lestim
         >>> import pathlib
         >>> import tempfile
         >>> with tempfile.TemporaryDirectory() as d:
@@ -14129,7 +14346,7 @@ def read_shot_data_file(
         ...         print("0000", file=f)
         ...         print("0101", file=f)
         ...
-        ...     read = stim.read_shot_data_file(
+        ...     read = lestim.read_shot_data_file(
         ...         path=str(path),
         ...         format='01',
         ...         num_measurements=4)
@@ -14138,54 +14355,54 @@ def read_shot_data_file(
                [False,  True, False,  True]])
     """
 def target_combined_paulis(
-    paulis: Union[stim.PauliString, List[stim.GateTarget]],
+    paulis: Union[lestim.PauliString, List[lestim.GateTarget]],
     invert: bool = False,
-) -> stim.GateTarget:
+) -> lestim.GateTarget:
     """Returns a list of targets encoding a pauli product for instructions like MPP.
 
     Args:
         paulis: The paulis to encode into the targets. This can be a
-            `stim.PauliString` or a list of pauli targets from `stim.target_x`,
-            `stim.target_pauli`, etc.
+            `lestim.PauliString` or a list of pauli targets from `lestim.target_x`,
+            `lestim.target_pauli`, etc.
         invert: Defaults to False. If True, the product is inverted (like "!X2*Y3").
             Note that this is in addition to any inversions specified by the
             `paulis` argument.
 
     Examples:
-        >>> import stim
-        >>> circuit = stim.Circuit()
+        >>> import lestim
+        >>> circuit = lestim.Circuit()
         >>> circuit.append("MPP", [
-        ...     *stim.target_combined_paulis(stim.PauliString("-XYZ")),
-        ...     *stim.target_combined_paulis([stim.target_x(2), stim.target_y(5)]),
-        ...     *stim.target_combined_paulis([stim.target_z(9)], invert=True),
+        ...     *lestim.target_combined_paulis(lestim.PauliString("-XYZ")),
+        ...     *lestim.target_combined_paulis([lestim.target_x(2), lestim.target_y(5)]),
+        ...     *lestim.target_combined_paulis([lestim.target_z(9)], invert=True),
         ... ])
         >>> circuit
-        stim.Circuit('''
+        lestim.Circuit('''
             MPP !X0*Y1*Z2 X2*Y5 !Z9
         ''')
     """
 def target_combiner(
-) -> stim.GateTarget:
+) -> lestim.GateTarget:
     """Returns a target combiner that can be used to build Pauli products.
 
     Examples:
-        >>> import stim
-        >>> circuit = stim.Circuit()
+        >>> import lestim
+        >>> circuit = lestim.Circuit()
         >>> circuit.append("MPP", [
-        ...     stim.target_x(2),
-        ...     stim.target_combiner(),
-        ...     stim.target_y(3),
-        ...     stim.target_combiner(),
-        ...     stim.target_z(5),
+        ...     lestim.target_x(2),
+        ...     lestim.target_combiner(),
+        ...     lestim.target_y(3),
+        ...     lestim.target_combiner(),
+        ...     lestim.target_z(5),
         ... ])
         >>> circuit
-        stim.Circuit('''
+        lestim.Circuit('''
             MPP X2*Y3*Z5
         ''')
     """
 def target_inv(
-    qubit_index: Union[int, stim.GateTarget],
-) -> stim.GateTarget:
+    qubit_index: Union[int, lestim.GateTarget],
+) -> lestim.GateTarget:
     """Returns a target flagged as inverted.
 
     Inverted targets are used to indicate measurement results should be flipped.
@@ -14194,11 +14411,11 @@ def target_inv(
         qubit_index: The underlying qubit index of the inverted target.
 
     Examples:
-        >>> import stim
-        >>> circuit = stim.Circuit()
-        >>> circuit.append("M", [2, stim.target_inv(3)])
+        >>> import lestim
+        >>> circuit = lestim.Circuit()
+        >>> circuit.append("M", [2, lestim.target_inv(3)])
         >>> circuit
-        stim.Circuit('''
+        lestim.Circuit('''
             M 2 !3
         ''')
 
@@ -14207,7 +14424,7 @@ def target_inv(
     """
 def target_logical_observable_id(
     index: int,
-) -> stim.DemTarget:
+) -> lestim.DemTarget:
     """Returns a logical observable id identifying a frame change.
 
     Args:
@@ -14217,13 +14434,13 @@ def target_logical_observable_id(
         The logical observable target.
 
     Examples:
-        >>> import stim
-        >>> m = stim.DetectorErrorModel()
+        >>> import lestim
+        >>> m = lestim.DetectorErrorModel()
         >>> m.append("error", 0.25, [
-        ...     stim.target_logical_observable_id(13)
+        ...     lestim.target_logical_observable_id(13)
         ... ])
         >>> print(repr(m))
-        stim.DetectorErrorModel('''
+        lestim.DetectorErrorModel('''
             error(0.25) L13
         ''')
     """
@@ -14231,8 +14448,8 @@ def target_pauli(
     qubit_index: int,
     pauli: Union[str, int],
     invert: bool = False,
-) -> stim.GateTarget:
-    """Returns a pauli target that can be passed into `stim.Circuit.append`.
+) -> lestim.GateTarget:
+    """Returns a pauli target that can be passed into `lestim.Circuit.append`.
 
     Args:
         qubit_index: The qubit that the Pauli applies to.
@@ -14244,38 +14461,38 @@ def target_pauli(
             indicating that, for example, measurement results should be inverted).
 
     Examples:
-        >>> import stim
-        >>> circuit = stim.Circuit()
+        >>> import lestim
+        >>> circuit = lestim.Circuit()
         >>> circuit.append("MPP", [
-        ...     stim.target_pauli(2, "X"),
-        ...     stim.target_combiner(),
-        ...     stim.target_pauli(3, "y", invert=True),
-        ...     stim.target_pauli(5, 3),
+        ...     lestim.target_pauli(2, "X"),
+        ...     lestim.target_combiner(),
+        ...     lestim.target_pauli(3, "y", invert=True),
+        ...     lestim.target_pauli(5, 3),
         ... ])
         >>> circuit
-        stim.Circuit('''
+        lestim.Circuit('''
             MPP X2*!Y3 Z5
         ''')
 
         >>> circuit.append("M", [
-        ...     stim.target_pauli(7, "I"),
+        ...     lestim.target_pauli(7, "I"),
         ... ])
         >>> circuit
-        stim.Circuit('''
+        lestim.Circuit('''
             MPP X2*!Y3 Z5
             M 7
         ''')
     """
 def target_rec(
     lookback_index: int,
-) -> stim.GateTarget:
+) -> lestim.GateTarget:
     """Returns a measurement record target with the given lookback.
 
     Measurement record targets are used to refer back to the measurement record;
     the list of measurements that have been performed so far. Measurement record
     targets always specify an index relative to the *end* of the measurement record.
-    The latest measurement is `stim.target_rec(-1)`, the next most recent
-    measurement is `stim.target_rec(-2)`, and so forth. Indexing is done this way
+    The latest measurement is `lestim.target_rec(-1)`, the next most recent
+    measurement is `lestim.target_rec(-2)`, and so forth. Indexing is done this way
     in order to make it possible to write loops.
 
     Args:
@@ -14283,19 +14500,19 @@ def target_rec(
             to the end of the measurement record.
 
     Examples:
-        >>> import stim
-        >>> circuit = stim.Circuit()
+        >>> import lestim
+        >>> circuit = lestim.Circuit()
         >>> circuit.append("M", [5, 7, 11])
-        >>> circuit.append("CX", [stim.target_rec(-2), 3])
+        >>> circuit.append("CX", [lestim.target_rec(-2), 3])
         >>> circuit
-        stim.Circuit('''
+        lestim.Circuit('''
             M 5 7 11
             CX rec[-2] 3
         ''')
     """
 def target_relative_detector_id(
     index: int,
-) -> stim.DemTarget:
+) -> lestim.DemTarget:
     """Returns a relative detector id (e.g. "D5" in a .dem file).
 
     Args:
@@ -14305,55 +14522,55 @@ def target_relative_detector_id(
         The relative detector target.
 
     Examples:
-        >>> import stim
-        >>> m = stim.DetectorErrorModel()
+        >>> import lestim
+        >>> m = lestim.DetectorErrorModel()
         >>> m.append("error", 0.25, [
-        ...     stim.target_relative_detector_id(13)
+        ...     lestim.target_relative_detector_id(13)
         ... ])
         >>> print(repr(m))
-        stim.DetectorErrorModel('''
+        lestim.DetectorErrorModel('''
             error(0.25) D13
         ''')
     """
 def target_separator(
-) -> stim.DemTarget:
+) -> lestim.DemTarget:
     """Returns a target separator (e.g. "^" in a .dem file).
 
     Examples:
-        >>> import stim
-        >>> m = stim.DetectorErrorModel()
+        >>> import lestim
+        >>> m = lestim.DetectorErrorModel()
         >>> m.append("error", 0.25, [
-        ...     stim.target_relative_detector_id(1),
-        ...     stim.target_separator(),
-        ...     stim.target_relative_detector_id(2),
+        ...     lestim.target_relative_detector_id(1),
+        ...     lestim.target_separator(),
+        ...     lestim.target_relative_detector_id(2),
         ... ])
         >>> print(repr(m))
-        stim.DetectorErrorModel('''
+        lestim.DetectorErrorModel('''
             error(0.25) D1 ^ D2
         ''')
     """
 def target_sweep_bit(
     sweep_bit_index: int,
-) -> stim.GateTarget:
-    """Returns a sweep bit target that can be passed into `stim.Circuit.append`.
+) -> lestim.GateTarget:
+    """Returns a sweep bit target that can be passed into `lestim.Circuit.append`.
 
     Args:
         sweep_bit_index: The index of the sweep bit to target.
 
     Examples:
-        >>> import stim
-        >>> circuit = stim.Circuit()
-        >>> circuit.append("CX", [stim.target_sweep_bit(2), 5])
+        >>> import lestim
+        >>> circuit = lestim.Circuit()
+        >>> circuit.append("CX", [lestim.target_sweep_bit(2), 5])
         >>> circuit
-        stim.Circuit('''
+        lestim.Circuit('''
             CX sweep[2] 5
         ''')
     """
 def target_x(
-    qubit_index: Union[int, stim.GateTarget],
+    qubit_index: Union[int, lestim.GateTarget],
     invert: bool = False,
-) -> stim.GateTarget:
-    """Returns a Pauli X target that can be passed into `stim.Circuit.append`.
+) -> lestim.GateTarget:
+    """Returns a Pauli X target that can be passed into `lestim.Circuit.append`.
 
     Args:
         qubit_index: The qubit that the Pauli applies to.
@@ -14361,25 +14578,25 @@ def target_x(
             that, for example, measurement results should be inverted).
 
     Examples:
-        >>> import stim
-        >>> circuit = stim.Circuit()
+        >>> import lestim
+        >>> circuit = lestim.Circuit()
         >>> circuit.append("MPP", [
-        ...     stim.target_x(2),
-        ...     stim.target_combiner(),
-        ...     stim.target_y(3, invert=True),
-        ...     stim.target_combiner(),
-        ...     stim.target_z(5),
+        ...     lestim.target_x(2),
+        ...     lestim.target_combiner(),
+        ...     lestim.target_y(3, invert=True),
+        ...     lestim.target_combiner(),
+        ...     lestim.target_z(5),
         ... ])
         >>> circuit
-        stim.Circuit('''
+        lestim.Circuit('''
             MPP X2*!Y3*Z5
         ''')
     """
 def target_y(
-    qubit_index: Union[int, stim.GateTarget],
+    qubit_index: Union[int, lestim.GateTarget],
     invert: bool = False,
-) -> stim.GateTarget:
-    """Returns a Pauli Y target that can be passed into `stim.Circuit.append`.
+) -> lestim.GateTarget:
+    """Returns a Pauli Y target that can be passed into `lestim.Circuit.append`.
 
     Args:
         qubit_index: The qubit that the Pauli applies to.
@@ -14387,25 +14604,25 @@ def target_y(
             that, for example, measurement results should be inverted).
 
     Examples:
-        >>> import stim
-        >>> circuit = stim.Circuit()
+        >>> import lestim
+        >>> circuit = lestim.Circuit()
         >>> circuit.append("MPP", [
-        ...     stim.target_x(2),
-        ...     stim.target_combiner(),
-        ...     stim.target_y(3, invert=True),
-        ...     stim.target_combiner(),
-        ...     stim.target_z(5),
+        ...     lestim.target_x(2),
+        ...     lestim.target_combiner(),
+        ...     lestim.target_y(3, invert=True),
+        ...     lestim.target_combiner(),
+        ...     lestim.target_z(5),
         ... ])
         >>> circuit
-        stim.Circuit('''
+        lestim.Circuit('''
             MPP X2*!Y3*Z5
         ''')
     """
 def target_z(
-    qubit_index: Union[int, stim.GateTarget],
+    qubit_index: Union[int, lestim.GateTarget],
     invert: bool = False,
-) -> stim.GateTarget:
-    """Returns a Pauli Z target that can be passed into `stim.Circuit.append`.
+) -> lestim.GateTarget:
+    """Returns a Pauli Z target that can be passed into `lestim.Circuit.append`.
 
     Args:
         qubit_index: The qubit that the Pauli applies to.
@@ -14413,17 +14630,17 @@ def target_z(
             that, for example, measurement results should be inverted).
 
     Examples:
-        >>> import stim
-        >>> circuit = stim.Circuit()
+        >>> import lestim
+        >>> circuit = lestim.Circuit()
         >>> circuit.append("MPP", [
-        ...     stim.target_x(2),
-        ...     stim.target_combiner(),
-        ...     stim.target_y(3, invert=True),
-        ...     stim.target_combiner(),
-        ...     stim.target_z(5),
+        ...     lestim.target_x(2),
+        ...     lestim.target_combiner(),
+        ...     lestim.target_y(3, invert=True),
+        ...     lestim.target_combiner(),
+        ...     lestim.target_z(5),
         ... ])
         >>> circuit
-        stim.Circuit('''
+        lestim.Circuit('''
             MPP X2*!Y3*Z5
         ''')
     """
@@ -14458,7 +14675,7 @@ def write_shot_data_file(
             to observables from the original circuit that was sampled.
 
     Examples:
-        >>> import stim
+        >>> import lestim
         >>> import pathlib
         >>> import tempfile
         >>> import numpy as np
@@ -14469,7 +14686,7 @@ def write_shot_data_file(
         ...         [0, 1, 1],
         ...     ], dtype=np.bool_)
         ...
-        ...     stim.write_shot_data_file(
+        ...     lestim.write_shot_data_file(
         ...         path=str(path),
         ...         data=shot_data,
         ...         format='01',

@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import platform
+import sys
 
 from setuptools import setup, Extension
 import glob
@@ -27,7 +27,7 @@ RELEVANT_SOURCE_FILES = sorted(set(ALL_SOURCE_FILES) - set(TEST_FILES + PERF_FIL
 
 __version__ = '1.16.0'
 
-if platform.system().startswith('Win'):
+if sys.platform.startswith('win'):
     common_compile_args = [
         '/std:c++20',
         '/O2',
@@ -49,7 +49,7 @@ else:
     arch_basic = []
 
 stim_detect_machine_architecture = Extension(
-    'stim._detect_machine_architecture',
+    'lestim._detect_machine_architecture',
     sources=MUX_SOURCE_FILES,
     include_dirs=[pybind11.get_include(), "src"],
     language='c++',
@@ -59,7 +59,7 @@ stim_detect_machine_architecture = Extension(
     ],
 )
 stim_polyfill = Extension(
-    'stim._stim_polyfill',
+    'lestim._stim_polyfill',
     sources=RELEVANT_SOURCE_FILES,
     include_dirs=[pybind11.get_include(), "src"],
     language='c++',
@@ -70,7 +70,7 @@ stim_polyfill = Extension(
     ],
 )
 stim_sse2 = Extension(
-    'stim._stim_sse2',
+    'lestim._stim_sse2',
     sources=RELEVANT_SOURCE_FILES,
     include_dirs=[pybind11.get_include(), "src"],
     language='c++',
@@ -97,19 +97,8 @@ stim_sse2 = Extension(
 with open('glue/python/README.md', encoding='UTF-8') as f:
     long_description = f.read()
 
-def _get_extensions():
-    archs=["x86", "i686", "i386", "amd64"]
-    if any(_ext in platform.processor().lower() for _ext in archs):
-        # NOTE: disabled until https://github.com/quantumlib/Stim/issues/432 is fixed
-        # stim_avx2,
-        return [stim_detect_machine_architecture, stim_polyfill,
-                # stim_avx2,
-                stim_sse2]
-    else:
-        return [stim_detect_machine_architecture, stim_polyfill]
-
 setup(
-    name='stim',
+    name='lestim',
     version=__version__,
     author='Craig Gidney',
     author_email='craig.gidney@gmail.com',
@@ -118,11 +107,17 @@ setup(
     description='A fast library for analyzing with quantum stabilizer circuits.',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    ext_modules=_get_extensions(),
-    python_requires='>=3.6.0',
-    packages=['stim'],
-    package_dir={'stim': 'glue/python/src/stim'},
-    package_data={'': [*HEADER_FILES, 'glue/python/src/stim/__init__.pyi', 'glue/python/README.md', 'pyproject.toml']},
+    ext_modules=[
+        stim_detect_machine_architecture,
+        stim_polyfill,
+        stim_sse2,
+        # NOTE: disabled until https://github.com/quantumlib/Stim/issues/432 is fixed
+        # stim_avx2,
+    ],
+    python_requires='>=3.8.0',
+    packages=['deltakit_stim'],
+    package_dir={'deltakit_stim': 'glue/python/src/deltakit_stim'},
+    package_data={'': [*HEADER_FILES, 'glue/python/src/deltakit_stim/__init__.pyi', 'glue/python/README.md', 'pyproject.toml']},
     include_package_data=True,
     install_requires=['numpy'],
     entry_points={

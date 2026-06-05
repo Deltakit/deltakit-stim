@@ -127,6 +127,7 @@ pybind11::class_<PyCircuitInstruction> stim_pybind::pybind_circuit_instruction(p
     return pybind11::class_<PyCircuitInstruction>(
         m,
         "CircuitInstruction",
+        pybind11::module_local(),
         clean_doc_string(R"DOC(
             An instruction, like `H 0 1` or `CNOT rec[-1] 5`, from a circuit.
 

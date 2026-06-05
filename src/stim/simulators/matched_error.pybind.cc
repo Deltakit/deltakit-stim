@@ -144,6 +144,7 @@ pybind11::class_<CircuitErrorLocationStackFrame> stim_pybind::pybind_circuit_err
     return pybind11::class_<CircuitErrorLocationStackFrame>(
         m,
         "CircuitErrorLocationStackFrame",
+        pybind11::module_local(),
         clean_doc_string(R"DOC(
             Describes the location of an instruction being executed within a
             circuit or loop, distinguishing between separate loop iterations.
@@ -299,6 +300,7 @@ pybind11::class_<GateTargetWithCoords> stim_pybind::pybind_gate_target_with_coor
     return pybind11::class_<GateTargetWithCoords>(
         m,
         "GateTargetWithCoords",
+        pybind11::module_local(),
         clean_doc_string(R"DOC(
             A gate target with associated coordinate information.
 
@@ -386,6 +388,7 @@ pybind11::class_<DemTargetWithCoords> stim_pybind::pybind_dem_target_with_coords
     return pybind11::class_<DemTargetWithCoords>(
         m,
         "DemTargetWithCoords",
+        pybind11::module_local(),
         clean_doc_string(R"DOC(
             A detector error model instruction target with associated coords.
 
@@ -496,6 +499,7 @@ pybind11::class_<FlippedMeasurement> stim_pybind::pybind_flipped_measurement(pyb
     return pybind11::class_<FlippedMeasurement>(
         m,
         "FlippedMeasurement",
+        pybind11::module_local(),
         clean_doc_string(R"DOC(
             Describes a measurement that was flipped.
 
@@ -607,6 +611,7 @@ pybind11::class_<CircuitTargetsInsideInstruction> stim_pybind::pybind_circuit_ta
     return pybind11::class_<CircuitTargetsInsideInstruction>(
         m,
         "CircuitTargetsInsideInstruction",
+        pybind11::module_local(),
         clean_doc_string(R"DOC(
             Describes a range of targets within a circuit instruction.
         )DOC")
@@ -808,6 +813,7 @@ pybind11::class_<CircuitErrorLocation> stim_pybind::pybind_circuit_error_locatio
     return pybind11::class_<CircuitErrorLocation>(
         m,
         "CircuitErrorLocation",
+        pybind11::module_local(),
         clean_doc_string(R"DOC(
             Describes the location of an error mechanism from a stim circuit.
 
@@ -1076,6 +1082,7 @@ pybind11::class_<ExplainedError> stim_pybind::pybind_explained_error(pybind11::m
     return pybind11::class_<ExplainedError>(
         m,
         "ExplainedError",
+        pybind11::module_local(),
         clean_doc_string(R"DOC(
             Describes the location of an error mechanism from a stim circuit.
 

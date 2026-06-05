@@ -24,6 +24,7 @@ pybind11::class_<Flow<MAX_BITWORD_WIDTH>> stim_pybind::pybind_flow(pybind11::mod
     return pybind11::class_<Flow<MAX_BITWORD_WIDTH>>(
         m,
         "Flow",
+        pybind11::module_local(),
         clean_doc_string(R"DOC(
             A stabilizer flow (e.g. "XI -> XX xor rec[-1]").
 

@@ -23,6 +23,7 @@ pybind11::class_<TableauIterator<MAX_BITWORD_WIDTH>> stim_pybind::pybind_tableau
     auto c = pybind11::class_<TableauIterator<MAX_BITWORD_WIDTH>>(
         m,
         "TableauIterator",
+        pybind11::module_local(),
         clean_doc_string(R"DOC(
             Iterates over all stabilizer tableaus of a specified size.
 

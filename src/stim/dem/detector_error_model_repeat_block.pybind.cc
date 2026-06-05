@@ -25,6 +25,7 @@ pybind11::class_<ExposedDemRepeatBlock> stim_pybind::pybind_detector_error_model
     return pybind11::class_<ExposedDemRepeatBlock>(
         m,
         "DemRepeatBlock",
+        pybind11::module_local(),
         clean_doc_string(R"DOC(
             A repeat block from a detector error model.
 

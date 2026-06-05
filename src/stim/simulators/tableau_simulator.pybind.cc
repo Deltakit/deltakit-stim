@@ -115,6 +115,7 @@ pybind11::class_<TableauSimulator<MAX_BITWORD_WIDTH>> stim_pybind::pybind_tablea
     return pybind11::class_<TableauSimulator<MAX_BITWORD_WIDTH>>(
         m,
         "TableauSimulator",
+        pybind11::module_local(),
         clean_doc_string(R"DOC(
             A stabilizer circuit simulator that tracks an inverse stabilizer tableau.
 

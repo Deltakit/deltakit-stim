@@ -120,6 +120,7 @@ pybind11::class_<Tableau<MAX_BITWORD_WIDTH>> stim_pybind::pybind_tableau(pybind1
     return pybind11::class_<Tableau<MAX_BITWORD_WIDTH>>(
         m,
         "Tableau",
+        pybind11::module_local(),
         clean_doc_string(R"DOC(
             A stabilizer tableau.
 

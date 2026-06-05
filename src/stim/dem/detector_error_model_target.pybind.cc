@@ -23,7 +23,7 @@ using namespace stim_pybind;
 
 pybind11::class_<ExposedDemTarget> stim_pybind::pybind_detector_error_model_target(pybind11::module &m) {
     return pybind11::class_<ExposedDemTarget>(
-        m, "DemTarget", "An instruction target from a detector error model (.dem) file.");
+        m, "DemTarget", pybind11::module_local(),"An instruction target from a detector error model (.dem) file.");
 }
 
 void stim_pybind::pybind_detector_error_model_target_methods(
