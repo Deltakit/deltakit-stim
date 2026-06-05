@@ -13,6 +13,8 @@
 # limitations under the License.
 import pathlib
 
+import subprocess
+import sys
 import tempfile
 
 import doctest
@@ -299,3 +301,14 @@ def test_target_combined_paulis():
         deltakit_stim.target_combined_paulis(deltakit_stim.PauliString(10))
     with pytest.raises(ValueError, match="Imaginary"):
         deltakit_stim.target_combined_paulis(deltakit_stim.PauliString("iX"))
+
+
+def test_deltakit_stim_stim_compatibility():
+    """Show that deltakit-stim can be imported after stim without their python bindings conflicting"""
+    code = "import stim, deltakit_stim"
+    subprocess.run(
+        [sys.executable, "-c", code],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
