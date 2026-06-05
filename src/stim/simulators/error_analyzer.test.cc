@@ -3780,4 +3780,147 @@ TEST(ErrorAnalyzer, tagged_noise) {
         detector[test-tag-3] D0
         logical_observable[test-tag-4] L0
     )DEM"));
+
+TEST(ErrorAnalyzer, heralded_leakage_errors_to_dem_transformation) {
+
+    // without_herald leakage leaves nothing in DEM
+    ASSERT_TRUE(ErrorAnalyzer::circuit_to_detector_error_model(
+        Circuit(R"CIRCUIT(
+            RZ 0 1 2
+            LEAKAGE(0.1) 1
+            CX 1 2
+            DEPOLARIZE2(0.1) 1 2
+            CX 0 1
+            DEPOLARIZE2(0.1) 0 1
+            MZ 1
+            DETECTOR rec[-1]
+        )CIRCUIT"), true, false, false, 1, false, false).approx_equals(
+            DetectorErrorModel(R"DEM(
+                error(0.1009777) D0
+        )DEM"), 1e-6));
+
+    // Leakage reset wipes leakage state, meaning there are no heralded errors in DEM
+    ASSERT_TRUE(ErrorAnalyzer::circuit_to_detector_error_model(
+        Circuit(R"CIRCUIT(
+            LEAKAGE(0.1) 1
+            RL 1
+            HERALD_LEAKAGE_EVENT 1
+            DETECTOR rec[-1]
+        )CIRCUIT"), true, false, false, 1, false, false).approx_equals(
+            DetectorErrorModel(R"DEM(
+            detector D0
+        )DEM"), 1e-6));
+
+    // Leaked qubit emits an error resulting from a heralded random measurement
+    ASSERT_TRUE(ErrorAnalyzer::circuit_to_detector_error_model(
+        Circuit(R"CIRCUIT(
+            LEAKAGE(0.1) 1
+            HERALD_LEAKAGE_EVENT 1
+            MZ 1
+            DETECTOR rec[-1]
+            DETECTOR rec[-2]
+        )CIRCUIT"), true, false, false, 1, false, false).approx_equals(
+            DetectorErrorModel(R"DEM(
+                error(0.5) D0 ^ D1
+        )DEM"), 1e-6));
+
+    // Computational and noncomputational errors are distinguished by association with a herald
+    ASSERT_TRUE(ErrorAnalyzer::circuit_to_detector_error_model(
+        Circuit(R"CIRCUIT(
+            RZ 0 1 2
+            LEAKAGE(0.1) 1
+            CX 1 2
+            DEPOLARIZE2(0.1) 1 2
+            CX 0 1
+            DEPOLARIZE2(0.1) 0 1
+            HERALD_LEAKAGE_EVENT 1
+            MZ 1
+            DETECTOR rec[-1]
+            DETECTOR rec[-2]
+        )CIRCUIT"), true, false, false, 1, false, false).approx_equals(
+            DetectorErrorModel(R"DEM(
+                error(0.1009777) D0
+                error(0.5) D0 ^ D1
+        )DEM"), 1e-6));
+
+    // Reset wipes leakage state, meaning there are no heralded errors in DEM
+    ASSERT_TRUE(ErrorAnalyzer::circuit_to_detector_error_model(
+        Circuit(R"CIRCUIT(
+            LEAKAGE(0.1) 1
+            RZ 1
+            HERALD_LEAKAGE_EVENT 1
+            MZ 1
+            DETECTOR rec[-1]
+            DETECTOR rec[-2]
+        )CIRCUIT"), true, false, false, 1, false, false).approx_equals(
+            DetectorErrorModel(R"DEM(
+            detector D0
+            detector D1
+        )DEM"), 1e-6));
+
+    // Leakage never reaches D0 D1;
+    // Same for D2 D3;
+    // D4 randomised by a leakage event heralded on D5
+    ASSERT_TRUE(ErrorAnalyzer::circuit_to_detector_error_model(
+        Circuit(R"CIRCUIT(
+            LEAKAGE(0.1) 1
+            RZ 1
+            HERALD_LEAKAGE_EVENT 1
+            MZ 1
+            DETECTOR rec[-1]
+            DETECTOR rec[-2]
+            HERALD_LEAKAGE_EVENT 1
+            MZ 1
+            DETECTOR rec[-1]
+            DETECTOR rec[-2]
+            LEAKAGE(0.1) 1
+            HERALD_LEAKAGE_EVENT 1
+            MZ 1
+            DETECTOR rec[-1]
+            DETECTOR rec[-2]
+         )CIRCUIT"), true, false, false, 1, false, false).approx_equals(
+            DetectorErrorModel(R"DEM(
+            error(0.5) D4 ^ D5
+            detector D0
+            detector D1
+            detector D2
+            detector D3
+        )DEM"), 1e-6));
+
+    // Longer worked example with both computational and noncomputation
+    // errors. Note: D3, D4, D5 are herald detectors with D4 being the
+    // only herald that fires (since the circuit only specifies leakage
+    // on qubit 1)
+    ASSERT_TRUE(ErrorAnalyzer::circuit_to_detector_error_model(
+        Circuit(R"CIRCUIT(
+            RZ 0 1 2
+            LEAKAGE(0.1) 1
+            CX 1 2
+            LEAKAGE(0.1) 1
+            DEPOLARIZE2(0.1) 1 2
+            CX 1 0
+            LEAKAGE(0.1) 1
+            DEPOLARIZE2(0.1) 0 1
+            HERALD_LEAKAGE_EVENT 0 1 2
+            MZ 0 1 2
+            DETECTOR rec[-1]
+            DETECTOR rec[-2]
+            DETECTOR rec[-3]
+            DETECTOR rec[-4]
+            DETECTOR rec[-5]
+            DETECTOR rec[-6]
+         )CIRCUIT"), true, false, false, 1, false, false).approx_equals(
+            DetectorErrorModel(R"DEM(
+            error(0.0274184) D0
+            error(0.1666666) D0 ^ D4
+            error(0.0274184) D1
+            error(0.0274184) D1 D2
+            error(0.0274184) D1 D2 ^ D0
+            error(0.5) D1 ^ D4
+            error(0.0274184) D2
+            error(0.0274184) D2 ^ D1
+            error(0.3333333) D2 ^ D4
+            detector D3
+            detector D5
+        )DEM"), 1e-6));
 }

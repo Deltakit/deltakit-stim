@@ -77,6 +77,7 @@ src/stim/search/hyper/node.cc
 src/stim/search/hyper/search_state.cc
 src/stim/search/sat/wcnf.cc
 src/stim/simulators/error_analyzer.cc
+src/stim/simulators/error_analyzer_pl_data.cc
 src/stim/simulators/error_matcher.cc
 src/stim/simulators/force_streaming.cc
 src/stim/simulators/graph_simulator.cc

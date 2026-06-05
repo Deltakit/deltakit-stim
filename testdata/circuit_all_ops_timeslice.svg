@@ -522,6 +522,8 @@
 <text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="26" x="1844.4" y="465.6" fill="white">R<tspan baseline-shift="sub" font-size="16">Y</tspan></text>
 <rect x="1892.4" y="449.6" width="32" height="32" stroke="black" fill="black"/>
 <text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="30" x="1908.4" y="465.6" fill="white">R</text>
+<rect x="1490.4" y="641.6" width="32" height="32" stroke="black" fill="green"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="16" x="1506.4" y="657.6">RL<tspan baseline-shift="sub" font-size="10">1</tspan></text>
 <path d="M2780.8,625.6 C2796.8 571.2,2739.2 465.6,2684.8 449.6 " fill="none" stroke="black" stroke-width="5"/>
 <rect x="2764.8" y="609.6" width="32" height="32" stroke="black" fill="black"/>
 <text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="18" x="2780.8" y="619.6" fill="white">M<tspan baseline-shift="sub" font-size="18">XX</tspan></text>

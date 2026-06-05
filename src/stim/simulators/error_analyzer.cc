@@ -13,8 +13,10 @@
 // limitations under the License.
 
 #include "stim/simulators/error_analyzer.h"
+#include "stim/simulators/error_analyzer_pl_data.h"
 
 #include <algorithm>
+#include <ranges>
 #include <queue>
 #include <sstream>
 
@@ -25,6 +27,14 @@
 using namespace stim;
 
 void ErrorAnalyzer::undo_gate(const CircuitInstruction &inst) {
+
+    if (stim::GATE_DATA[inst.gate_type].flags & stim::GateFlags::GATE_TRANSPORTS_LEAKAGE) {
+        undo_TWO_QUBIT_GATE_LEAKAGE_ERROR(inst);
+    }
+    if (stim::GATE_DATA[inst.gate_type].flags & stim::GateFlags::GATE_IS_RESET) {
+        undo_LEAKAGE_ON_RESET(inst);
+    }
+
     switch (inst.gate_type) {
         case GateType::DETECTOR:
             undo_DETECTOR(inst);
@@ -67,6 +77,9 @@ void ErrorAnalyzer::undo_gate(const CircuitInstruction &inst) {
             break;
         case GateType::HERALDED_PAULI_CHANNEL_1:
             undo_HERALDED_PAULI_CHANNEL_1(inst);
+            break;
+        case GateType::RL:
+            undo_I(inst);  // no-op as leakage component of resets are handled before the switch
             break;
         case GateType::RX:
             undo_RX(inst);
@@ -327,6 +340,46 @@ void ErrorAnalyzer::undo_MZ_with_context(const CircuitInstruction &inst, const c
     }
 }
 
+void ErrorAnalyzer::undo_TWO_QUBIT_GATE_LEAKAGE_ERROR(const CircuitInstruction &dat) {
+    static constexpr double MAXIMALLY_MIXED_P = 0.75;
+
+    if (!accumulate_errors) {
+        return;
+    }
+
+    for (size_t k = dat.targets.size() - 2; k + 2 != 0; k -= 2) {
+        auto c = dat.targets[k];
+        auto t = dat.targets[k + 1];
+
+        auto cd = c.data;
+        auto td = t.data;
+        cd &= ~TARGET_INVERTED_BIT;
+        td &= ~TARGET_INVERTED_BIT;
+        if (!((cd | td) & (TARGET_RECORD_BIT | TARGET_SWEEP_BIT))) {
+            for (const auto tar : {cd, td}) {
+                if (!tracker.l_data[tar].lh_rec_bits.empty() && tracker.l_data[tar].total_pL > 0) {
+                    const auto &[l_her_bits, tot_pL, rev_dec] = tracker.l_data[tar];
+                    double pL = depolarize1_probability_to_independent_per_channel_probability(
+                        MAXIMALLY_MIXED_P * (rev_dec / tot_pL));
+                    if (pL > MAXIMALLY_MIXED_P) {
+                        throw std::invalid_argument("Can't analyze over-mixing DEPOLARIZE1 errors (probability > 3/4).");
+                    }
+                    const uint32_t depol_candidate = tar == cd ? td : cd;
+                    add_error_combinations<3>(
+                        {0, 0, 0, 0, 0, pL, pL, pL},
+                        {
+                            tracker.xs[depol_candidate].range(),
+                            tracker.zs[depol_candidate].range(),
+                            l_her_bits.range()
+                        },
+                        false,
+                        true);
+                }
+            }
+        }
+    }
+}
+
 void ErrorAnalyzer::undo_HERALDED_ERASE(const CircuitInstruction &inst) {
     check_can_approximate_disjoint("HERALDED_ERASE", inst.args, false);
     double p = inst.args[0] * 0.25;
@@ -573,7 +626,44 @@ void ErrorAnalyzer::undo_MRZ(const CircuitInstruction &dat) {
     }
 }
 
+void ErrorAnalyzer::undo_LEAKAGE_ON_RESET(const CircuitInstruction &dat) {
+    for (size_t k = dat.targets.size(); k-- > 0;) {
+        auto q = dat.targets[k].qubit_value();
+        tracker.l_data[q].lh_rec_bits.clear();
+        tracker.l_data[q].total_pL = 0;
+        tracker.l_data[q].rev_pL_decrementer = 0;
+    }
+}
+
 void ErrorAnalyzer::undo_HERALD_LEAKAGE_EVENT(const CircuitInstruction &dat) {
+    for (size_t k = dat.targets.size(); k-- > 0;) {
+        auto q = dat.targets[k].qubit_value();
+        tracker.num_measurements_in_past--;
+
+        SparseXorVec<DemTarget> &d = tracker.rec_bits[tracker.num_measurements_in_past];
+        xor_sorted_measurement_error(d.range(), dat);
+
+        const auto &tot_pL = num_meas_before_her_to_pl.at(tracker.num_measurements_in_past);
+
+        tracker.l_data[q].lh_rec_bits = d;
+        tracker.l_data[q].total_pL = tot_pL;
+        tracker.l_data[q].rev_pL_decrementer = tot_pL;
+
+        tracker.rec_bits.erase(tracker.num_measurements_in_past);
+
+        if (!tracker.l_data[q].lh_rec_bits.empty() && tot_pL > 0) {
+            const auto pL = depolarize1_probability_to_independent_per_channel_probability(0.75);
+            add_error_combinations<3>(
+                {0, 0, 0, 0, 0, pL, pL, pL},
+                {
+                    tracker.xs[q].range(),
+                    tracker.zs[q].range(),
+                    tracker.l_data[q].lh_rec_bits.range(),
+                },
+                false,
+                true);
+        }
+    }
 }
 
 void ErrorAnalyzer::undo_H_XZ(const CircuitInstruction &dat) {
@@ -869,7 +959,13 @@ void ErrorAnalyzer::undo_DEPOLARIZE2(const CircuitInstruction &inst) {
 }
 
 void ErrorAnalyzer::undo_LEAKAGE(const CircuitInstruction &dat) {
-    // so far, a no-op
+    if (!accumulate_errors) {
+        return;
+    }
+
+    for (auto q : dat.targets) {
+        tracker.l_data[q.data].rev_pL_decrementer -= dat.args[0];
+    }
 }
 
 void ErrorAnalyzer::undo_RELAX(const CircuitInstruction &dat) {
@@ -1040,8 +1136,9 @@ DetectorErrorModel ErrorAnalyzer::circuit_to_detector_error_model(
     double approximate_disjoint_errors_threshold,
     bool ignore_decomposition_failures,
     bool block_decomposition_from_introducing_remnant_edges) {
+    uint64_t num_measurements = circuit.count_measurements();
     ErrorAnalyzer analyzer(
-        circuit.count_measurements(),
+        num_measurements,
         circuit.count_detectors(),
         circuit.count_qubits(),
         circuit.count_ticks(),
@@ -1051,6 +1148,7 @@ DetectorErrorModel ErrorAnalyzer::circuit_to_detector_error_model(
         approximate_disjoint_errors_threshold,
         ignore_decomposition_failures,
         block_decomposition_from_introducing_remnant_edges);
+    analyzer.num_meas_before_her_to_pl = get_num_meas_before_her_to_pl(circuit, num_measurements);
     analyzer.current_circuit_being_analyzed = &circuit;
     analyzer.undo_circuit(circuit);
     analyzer.post_check_initialization();
@@ -1604,7 +1702,8 @@ void ErrorAnalyzer::add_error_combinations(
     std::array<double, 1 << s> probabilities,
     std::array<SpanRef<const DemTarget>, s> basis_errors,
     bool probabilities_are_disjoint,
-    std::string_view tag) {
+    std::string_view tag,
+    bool exclude_errors_solely_made_up_of_final_basis_error) {
     std::array<uint64_t, 1 << s> detector_masks{};
     FixedCapVector<DemTarget, 16> involved_detectors{};
     std::array<SpanRef<const DemTarget>, 1 << s> stored_ids;
@@ -1677,7 +1776,21 @@ void ErrorAnalyzer::add_error_combinations(
 
     // Include errors in the record.
     for (size_t k = 1; k < 1 << s; k++) {
-        add_error(probabilities[k], stored_ids[k], tag);
+        if (exclude_errors_solely_made_up_of_final_basis_error) { 
+            const auto& targets = basis_errors[s - 1];
+            auto is_in_targets = [targets](const stim::DemTarget& t) {
+                return std::ranges::any_of(targets, [targets, &t](const auto& t_base) {
+                    return t_base == t;
+                });
+            };
+            // Exclude errors that are solely made up of herald detectors (assumed to
+            // be speficied in basis_errors[s-1]). Include everthing else.
+            if (!std::ranges::all_of(stored_ids[k], is_in_targets)) {
+	      add_error(probabilities[k], stored_ids[k], tag);
+            }
+        } else {
+	  add_error(probabilities[k], stored_ids[k], tag);
+        }
     }
 }
 

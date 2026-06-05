@@ -20,6 +20,10 @@
 #include <algorithm>
 #include <map>
 #include <memory>
+#include <queue>
+#include <set>
+#include <stack>
+#include <stim/stabilizers/pauli_string.h>
 #include <vector>
 
 #include "sparse_rev_frame_tracker.h"
@@ -136,6 +140,8 @@ struct ErrorAnalyzer {
     /// Used for producing debug information when errors occur.
     const Circuit *current_circuit_being_analyzed = nullptr;
 
+    std::map<uint32_t, float> num_meas_before_her_to_pl;
+
     /// Creates an instance ready to start processing instructions from a circuit of known size.
     ErrorAnalyzer(
         uint64_t num_measurements,
@@ -183,6 +189,7 @@ struct ErrorAnalyzer {
     ErrorAnalyzer &operator=(const ErrorAnalyzer &analyzer) = delete;
 
     void undo_SHIFT_COORDS(const CircuitInstruction &inst);
+    void undo_RL(const CircuitInstruction &inst);
     void undo_RX(const CircuitInstruction &inst);
     void undo_RY(const CircuitInstruction &inst);
     void undo_RZ(const CircuitInstruction &inst);
@@ -230,6 +237,8 @@ struct ErrorAnalyzer {
     void undo_DEPOLARIZE1(const CircuitInstruction &inst);
     void undo_DEPOLARIZE2(const CircuitInstruction &inst);
     void undo_LEAKAGE(const CircuitInstruction &inst);
+    void undo_TWO_QUBIT_GATE_LEAKAGE_ERROR(const CircuitInstruction &inst);
+    void undo_LEAKAGE_ON_RESET(const CircuitInstruction &inst);
     void undo_RELAX(const CircuitInstruction &inst);
     void undo_ELSE_CORRELATED_ERROR(const CircuitInstruction &inst);
     void undo_PAULI_CHANNEL_1(const CircuitInstruction &inst);
@@ -322,12 +331,16 @@ struct ErrorAnalyzer {
     ///     independent_probabilities: Probability of each error combination (including but ignoring the empty
     ///         combination) occurring, independent of whether or not the others occurred.
     ///     basis_errors: Building blocks for the error combinations.
+    ///     exclude_errors_solely_made_up_of_final_basis_error: sometimes we pass herald detectors as the final element
+    ///          in basis_errors. With this flag set to true, we block any error combinations being added to the record if
+    ///          they are composed SOLELY of these herald detectors.
     template <size_t s>
     void add_error_combinations(
         std::array<double, 1 << s> probabilities,
         std::array<SpanRef<const DemTarget>, s> basis_errors,
         bool probabilities_are_disjoint,
-        std::string_view tag);
+        std::string_view tag,
+        bool exclude_errors_solely_made_up_of_final_basis_error = false);
 
     /// Handles local decomposition of errors.
     /// When an error has multiple channels, eg. a DEPOLARIZE2 error, this method attempts to express the more complex

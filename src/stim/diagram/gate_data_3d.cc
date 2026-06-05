@@ -450,6 +450,7 @@ std::map<std::string_view, std::shared_ptr<GltfMesh>> stim_draw_internal::make_g
         f("RX", 5, 6),
         f("RY", 5, 7),
         f("R", 5, 8),
+        f("RL", 5, 8),
 
         f("MRX", 6, 6),
         f("MRY", 6, 7),
@@ -506,6 +507,7 @@ std::map<std::string_view, std::shared_ptr<GltfMesh>> stim_draw_internal::make_g
         f("DEPOLARIZE2", 4, 9),
         f("LEAKAGE", 2, 8),
         f("RELAX", 3, 6),
+        f("RL", 3, 6),
         f("ISWAP", 5, 9),
         f("ISWAP_DAG", 6, 9),
         f("SWAP", 7, 9),

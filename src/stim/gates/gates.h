@@ -142,6 +142,7 @@ enum class GateType : uint8_t {
     DEPOLARIZE2,
     LEAKAGE,
     RELAX,
+    RL,
     HERALD_LEAKAGE_EVENT,
     X_ERROR,
     Y_ERROR,

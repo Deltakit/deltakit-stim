@@ -299,9 +299,10 @@ TEST(export_qasm, export_qasm_all_operations_v3) {
     Circuit c = generate_test_circuit_with_all_operations();
     c = c.without_noise();
 
-    // hack: delete this gate as its not handled at the moment
+    // hack: delete these gates as they do not export to QASM
     std::string circ_string = c.str();
     circ_string.erase(circ_string.find("HERALD_LEAKAGE_EVENT"), 26);
+    circ_string.erase(circ_string.find("RL"), 4);
     c = Circuit(circ_string);
 
     std::stringstream out;
@@ -536,9 +537,10 @@ TEST(export_qasm, export_qasm_all_operations_v2) {
     Circuit c = generate_test_circuit_with_all_operations();
     c = c.without_noise();
 
-    // hack: delete this gate as its not handled at the moment
+    // hack: delete these gates as they do not export to QASM
     std::string circ_string = c.str();
     circ_string.erase(circ_string.find("HERALD_LEAKAGE_EVENT"), 26);
+    circ_string.erase(circ_string.find("RL"), 4);
     c = Circuit(circ_string);
 
     std::stringstream out;

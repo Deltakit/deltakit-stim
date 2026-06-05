@@ -212,6 +212,14 @@ void FrameSimulator<W>::do_MZ(const CircuitInstruction &inst) {
 }
 
 template <size_t W>
+void FrameSimulator<W>::do_RL(const CircuitInstruction &inst) {
+    for (auto t : inst.targets) {
+        // Move qubit out of the leaked state across all shots - i.e. back into the computational basis
+        leakage_table[t.data].clear();
+    }
+}
+
+template <size_t W>
 void FrameSimulator<W>::do_RX(const CircuitInstruction &inst) {
     for (auto t : inst.targets) {
         auto q = t.data;
@@ -674,12 +682,29 @@ void FrameSimulator<W>::do_SWAPCX(const CircuitInstruction &target_data) {
 
 template <size_t W>
 void FrameSimulator<W>::do_SQRT_XX(const CircuitInstruction &target_data) {
-    for_each_target_pair(
-        *this, target_data, [](simd_word<W> &x1, simd_word<W> &z1, simd_word<W> &x2, simd_word<W> &z2) {
-            auto dz = z1 ^ z2;
-            x1 ^= dz;
-            x2 ^= dz;
-        });
+    const auto &targets = target_data.targets;
+    assert((targets.size() & 1) == 0);
+    const float p_spread_cont_tar = target_data.args.empty() ? 0 : target_data.args[0];
+    const float p_spread_tar_cont = target_data.args.empty() ? 0 : target_data.args[1];
+    const float p_mobility_cont_tar = target_data.args.empty() ? 0 : target_data.args[2];
+    const float p_mobility_tar_cont = target_data.args.empty() ? 0 : target_data.args[3];
+    for (size_t k = 0; k < targets.size(); k += 2) {
+        size_t q1 = targets[k].data;
+        size_t q2 = targets[k+1].data;
+
+        x_table[q1].for_each_word(
+            z_table[q1],
+            x_table[q2],
+            z_table[q2],
+            [](simd_word<W> &x1, simd_word<W> &z1, simd_word<W> &x2, simd_word<W> &z2) {
+                auto dz = z1 ^ z2;
+                x1 ^= dz;
+                x2 ^= dz;
+            });
+        if (targets[k].is_qubit_target() && targets[k + 1].is_qubit_target()) {
+            propagate_leakage(targets[k].value(), targets[k + 1].value(), p_spread_cont_tar, p_spread_tar_cont, p_mobility_cont_tar, p_mobility_tar_cont);
+        }
+    }
 }
 
 template <size_t W>
@@ -1121,6 +1146,9 @@ void FrameSimulator<W>::do_gate(const CircuitInstruction &inst) {
             break;
         case GateType::MR:
             do_MRZ(inst);
+            break;
+        case GateType::RL:
+            do_RL(inst);
             break;
         case GateType::RX:
             do_RX(inst);

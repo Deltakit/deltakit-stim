@@ -21,7 +21,23 @@
 #include "stim/mem/simd_word.test.h"
 #include "stim/util_bot/test_util.test.h"
 
+#include <array>
+#include <string>
+#include <vector>
+#include "stim/gates/gates.h"
+
 using namespace stim;
+
+// two-qubit gates that transport leakage from gate metadata.
+static inline std::vector<std::string> leakage_transporting_gate_names() {
+    std::vector<std::string> names;
+    for (const auto &g : GATE_DATA.items) {
+        if ((g.flags & GATE_TRANSPORTS_LEAKAGE) && (g.flags & GATE_TARGETS_PAIRS)) {
+            names.emplace_back(g.name);
+        }
+    }
+    return names;
+}
 
 TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, configuration_with_leakage, {
     auto circuit = Circuit(R"CIRCUIT(
@@ -48,6 +64,18 @@ TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, leakage_table_is_cleared_at_the_sta
     frame_sim.reset_all();
     frame_sim.do_circuit(circuit);
     ASSERT_EQ(frame_sim.leakage_table, simd_bit_table<W>(circuit_stats.num_qubits, 10));
+})
+
+TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, leakage_reset, {
+    auto circuit = Circuit(R"CIRCUIT(
+        LEAKAGE(1) 0 1 2 3 4 5 6 7 8 9 10 11
+        RL 0 1 2 3 4 5 6 7 8 9 10 11
+    )CIRCUIT");
+    auto circuit_stats = circuit.compute_stats();
+    FrameSimulator<W> frame_sim(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, 0, INDEPENDENT_TEST_RNG());
+    const size_t batch_size = 500;
+    frame_sim.configure_for(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, batch_size);
+    ASSERT_EQ(frame_sim.leakage_table, simd_bit_table<W>(circuit_stats.num_qubits, batch_size));
 })
 
 TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, leakage_state_manipulated_via_leakage_channel, {
@@ -185,16 +213,22 @@ Circuit generate_leakage_circuit_with_two_qubit_gate(const std::string &two_qubi
 }
 
 TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, leaked_qubits_depolarise_qubits_when_they_interact, {
-    for (const auto gate : {"CX", "CZ", "CY"}) {
+    for (const auto &gate : leakage_transporting_gate_names()) {
+        SCOPED_TRACE(std::string("gate=") + gate);
         const auto circuit = generate_leakage_circuit_with_two_qubit_gate(gate);
         const auto circuit_stats = circuit.compute_stats();
         FrameSimulator<W> frame_sim(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, 0, INDEPENDENT_TEST_RNG());
         const size_t n = 10'000;
         frame_sim.configure_for(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, n);
         frame_sim.do_LEAKAGE(circuit.operations[0]);
+
+        frame_sim.x_table.clear();
+        frame_sim.z_table.clear();
+
         auto x_table = frame_sim.x_table;
         auto z_table = frame_sim.z_table;
-        frame_sim.do_ZCX(circuit.operations[1]);
+
+        frame_sim.do_gate(circuit.operations[1]);
 
         for (size_t q = 0; q < circuit_stats.num_qubits; ++q) {
             size_t x_flips_given_gate = 0;
@@ -209,76 +243,84 @@ TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, leaked_qubits_depolarise_qubits_whe
     }
 })
 
+
 TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, control_will_leak_target_if_leakage_spreading_is_certain_and_control_is_already_leaked, {
-    auto circuit = Circuit(R"CIRCUIT(
-        LEAKAGE(1.0) 0
-        CX(1.0, 0.0, 0.0, 0.0) 0 1
-    )CIRCUIT");
-    auto circuit_stats = circuit.compute_stats();
-    FrameSimulator<W> frame_sim(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, 0, INDEPENDENT_TEST_RNG());
-    frame_sim.configure_for(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, 1);
-    frame_sim.do_circuit(circuit);
-    ASSERT_TRUE(frame_sim.leakage_table[1][0]);
+    for (const auto &gate : leakage_transporting_gate_names()) {
+        SCOPED_TRACE(std::string("gate=") + gate);
+        const std::string circuit_str = std::string("LEAKAGE(1.0) 0\n") + gate + "(1.0, 0.0, 0.0, 0.0) 0 1\n";
+        auto circuit = Circuit(circuit_str.c_str());
+        auto circuit_stats = circuit.compute_stats();
+        FrameSimulator<W> frame_sim(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, 0, INDEPENDENT_TEST_RNG());
+        frame_sim.configure_for(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, 1);
+        frame_sim.do_circuit(circuit);
+        ASSERT_TRUE(frame_sim.leakage_table[1][0]);
+    }
 })
 
 TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, target_will_leak_control_if_leakage_spreading_is_certain_and_target_is_already_leaked, {
-    auto circuit = Circuit(R"CIRCUIT(
-        LEAKAGE(1.0) 1
-        CX(0.0, 1.0, 0.0, 0.0) 0 1
-    )CIRCUIT");
-    auto circuit_stats = circuit.compute_stats();
-    FrameSimulator<W> frame_sim(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, 0, INDEPENDENT_TEST_RNG());
-    frame_sim.configure_for(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, 1);
-    frame_sim.do_circuit(circuit);
-    ASSERT_TRUE(frame_sim.leakage_table[0][0]);
+    for (const auto &gate : leakage_transporting_gate_names()) {
+        SCOPED_TRACE(std::string("gate=") + gate);
+        const std::string circuit_str = std::string("LEAKAGE(1.0) 1\n") + gate + "(0.0, 1.0, 0.0, 0.0) 0 1\n";
+        auto circuit = Circuit(circuit_str.c_str());
+        auto circuit_stats = circuit.compute_stats();
+        FrameSimulator<W> frame_sim(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, 0, INDEPENDENT_TEST_RNG());
+        frame_sim.configure_for(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, 1);
+        frame_sim.do_circuit(circuit);
+        ASSERT_TRUE(frame_sim.leakage_table[0][0]);
+    }
 })
 
 TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, leakage_spreading_statistical_test, {
-    const auto circuit = Circuit(R"CIRCUIT(
-        LEAKAGE(0.03) 0 1 2 3 4 5 6 7 8 9 10 11
-        CX(0.4, 0.4, 0.0, 0.0) 0 1 2 3 4 5 6 7 8 9 10 11
-    )CIRCUIT");
-    const auto circuit_stats = circuit.compute_stats();
-    std::mt19937_64 rng(0);
-    FrameSimulator<W> frame_sim(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, 0, std::move(rng));
-    const size_t n = 10'000;
-    frame_sim.configure_for(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, n);
-    frame_sim.do_circuit(circuit);
+    for (const auto &gate : leakage_transporting_gate_names()) {
+        SCOPED_TRACE(std::string("gate=") + gate);
+        const std::string circuit_str =
+            std::string("LEAKAGE(0.03) 0 1 2 3 4 5 6 7 8 9 10 11\n") +
+            gate + "(0.4, 0.4, 0.0, 0.0) 0 1 2 3 4 5 6 7 8 9 10 11\n";
+        const auto circuit = Circuit(circuit_str.c_str());
+        const auto circuit_stats = circuit.compute_stats();
+        std::mt19937_64 rng(0);
+        FrameSimulator<W> frame_sim(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, 0, std::move(rng));
+        const size_t n = 10'000;
+        frame_sim.configure_for(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, n);
+        frame_sim.do_circuit(circuit);
 
-    for (size_t q = 0; q < circuit_stats.num_qubits; ++q) {
-        size_t num_leaked = 0;
-        for (size_t shot = 0; shot < n; ++shot) {
-            num_leaked += frame_sim.leakage_table[q][shot];
+        for (size_t q = 0; q < circuit_stats.num_qubits; ++q) {
+            size_t num_leaked = 0;
+            for (size_t shot = 0; shot < n; ++shot) {
+                num_leaked += frame_sim.leakage_table[q][shot];
+            }
+            size_t expected_num_leaked = n * 0.03 + n * 0.03 * 0.4;
+            EXPECT_NEAR(expected_num_leaked, num_leaked, expected_num_leaked * 0.2);
         }
-        size_t expected_num_leaked = n * 0.03 + n * 0.03 * 0.4;
-        EXPECT_NEAR(expected_num_leaked, num_leaked, expected_num_leaked * 0.2);
     }
 })
 
 TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, control_will_be_relaxed_and_target_leaked_if_leakage_mobility_is_certain_and_control_is_already_leaked, {
-    auto circuit = Circuit(R"CIRCUIT(
-        LEAKAGE(1.0) 0
-        CX(0.0, 0.0, 1.0, 0.0) 0 1
-    )CIRCUIT");
-    auto circuit_stats = circuit.compute_stats();
-    FrameSimulator<W> frame_sim(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, 0, INDEPENDENT_TEST_RNG());
-    frame_sim.configure_for(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, 1);
-    frame_sim.do_circuit(circuit);
-    ASSERT_TRUE(frame_sim.leakage_table[1][0]);
-    ASSERT_FALSE(frame_sim.leakage_table[0][0]);
+    for (const auto &gate : leakage_transporting_gate_names()) {
+        SCOPED_TRACE(std::string("gate=") + gate);
+        const std::string circuit_str = std::string("LEAKAGE(1.0) 0\n") + gate + "(0.0, 0.0, 1.0, 0.0) 0 1\n";
+        auto circuit = Circuit(circuit_str.c_str());
+        auto circuit_stats = circuit.compute_stats();
+        FrameSimulator<W> frame_sim(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, 0, INDEPENDENT_TEST_RNG());
+        frame_sim.configure_for(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, 1);
+        frame_sim.do_circuit(circuit);
+        ASSERT_TRUE(frame_sim.leakage_table[1][0]);
+        ASSERT_FALSE(frame_sim.leakage_table[0][0]);
+    }
 })
 
 TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, target_will_be_relaxed_and_control_leaked_if_leakage_mobility_is_certain_and_target_is_already_leaked, {
-    auto circuit = Circuit(R"CIRCUIT(
-        LEAKAGE(1.0) 1
-        CX(0.0, 0.0, 0.0, 1.0) 0 1
-    )CIRCUIT");
-    auto circuit_stats = circuit.compute_stats();
-    FrameSimulator<W> frame_sim(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, 0, INDEPENDENT_TEST_RNG());
-    frame_sim.configure_for(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, 1);
-    frame_sim.do_circuit(circuit);
-    ASSERT_TRUE(frame_sim.leakage_table[0][0]);
-    ASSERT_FALSE(frame_sim.leakage_table[1][0]);
+    for (const auto &gate : leakage_transporting_gate_names()) {
+        SCOPED_TRACE(std::string("gate=") + gate);
+        const std::string circuit_str = std::string("LEAKAGE(1.0) 1\n") + gate + "(0.0, 0.0, 0.0, 1.0) 0 1\n";
+        auto circuit = Circuit(circuit_str.c_str());
+        auto circuit_stats = circuit.compute_stats();
+        FrameSimulator<W> frame_sim(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, 0, INDEPENDENT_TEST_RNG());
+        frame_sim.configure_for(circuit_stats, FrameSimulatorMode::STORE_DETECTIONS_TO_MEMORY, 1);
+        frame_sim.do_circuit(circuit);
+        ASSERT_TRUE(frame_sim.leakage_table[0][0]);
+        ASSERT_FALSE(frame_sim.leakage_table[1][0]);
+    }
 })
 
 TEST_EACH_WORD_SIZE_W(FrameSimulatorLeakage, test_relaxation_channel, {

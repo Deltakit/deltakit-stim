@@ -473,6 +473,10 @@ void TableauSimulator<W>::noisify_new_measurements(const CircuitInstruction &ins
 }
 
 template <size_t W>
+void TableauSimulator<W>::do_RL(const CircuitInstruction &target_data) {
+}
+
+template <size_t W>
 void TableauSimulator<W>::do_RX(const CircuitInstruction &target_data) {
     // Collapse the qubits to be reset.
     collapse_x(target_data.targets);
@@ -1618,6 +1622,9 @@ void TableauSimulator<W>::do_gate(const CircuitInstruction &inst) {
             break;
         case GateType::MR:
             do_MRZ(inst);
+            break;
+        case GateType::RL:
+            do_RL(inst);
             break;
         case GateType::RX:
             do_RX(inst);

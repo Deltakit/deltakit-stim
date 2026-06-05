@@ -25,6 +25,12 @@
 
 namespace stim {
 
+struct LeakageData {
+    SparseXorVec<DemTarget> lh_rec_bits;
+    float total_pL = 0;
+    float rev_pL_decrementer = 0;
+};
+
 /// Tracks pauli frames through the circuit, assuming few frames depend on any one qubit.
 struct SparseUnsignedRevFrameTracker {
     /// Per qubit, what terms have X basis dependence on this qubit.
@@ -42,6 +48,8 @@ struct SparseUnsignedRevFrameTracker {
     bool fail_on_anticommute;
     /// Where anticommuting dets and obs are stored.
     std::set<std::pair<DemTarget, GateTarget>> anticommutations;
+    /// Per qubit, metadata for the qubit's current leakage related state
+    std::vector<LeakageData> l_data;
 
     SparseUnsignedRevFrameTracker(
         uint64_t num_qubits,

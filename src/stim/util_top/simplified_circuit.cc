@@ -269,6 +269,9 @@ struct Simplifier {
             case GateType::R:
                 yield({GateType::R, {}, ts, inst.tag});
                 break;
+            case GateType::RL:
+                yield({GateType::RL, {}, ts});
+                break;
 
             default:
                 throw std::invalid_argument("Unhandled in Simplifier::simplify_disjoint_1q_instruction: " + inst.str());

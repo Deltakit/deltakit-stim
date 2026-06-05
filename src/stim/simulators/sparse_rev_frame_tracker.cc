@@ -184,6 +184,7 @@ void SparseUnsignedRevFrameTracker::undo_gate(const CircuitInstruction &inst) {
         case GateType::II_ERROR:
         case GateType::LEAKAGE:
         case GateType::RELAX:
+        case GateType::RL:
             undo_I(inst);
             break;
 
@@ -208,7 +209,8 @@ SparseUnsignedRevFrameTracker::SparseUnsignedRevFrameTracker(
       num_measurements_in_past(num_measurements_in_past),
       num_detectors_in_past(num_detectors_in_past),
       fail_on_anticommute(fail_on_anticommute),
-      anticommutations() {
+      anticommutations(),
+      l_data(num_qubits) {
 }
 
 void SparseUnsignedRevFrameTracker::fail_due_to_anticommutation(const CircuitInstruction &inst) {
@@ -1046,6 +1048,11 @@ std::ostream &stim::operator<<(std::ostream &out, const SparseUnsignedRevFrameTr
     }
     for (const auto &t : tracker.rec_bits) {
         out << "    rec_bits[" << t.first << "]=" << t.second << "\n";
+    }
+    for (size_t q = 0; q < tracker.l_data.size(); q++) {
+        out << "    l_data[" << q << "]=" << tracker.l_data[q].lh_rec_bits
+            << ": (total_pl=" << tracker.l_data[q].total_pL << ", rev_pl_dec="
+            << tracker.l_data[q].rev_pL_decrementer << ")\n";
     }
     out << "}";
     return out;

@@ -93,6 +93,7 @@ struct FrameSimulator {
     void do_MX(const CircuitInstruction &inst);
     void do_MY(const CircuitInstruction &inst);
     void do_MZ(const CircuitInstruction &inst);
+    void do_RL(const CircuitInstruction &inst);
     void do_RX(const CircuitInstruction &inst);
     void do_RY(const CircuitInstruction &inst);
     void do_RZ(const CircuitInstruction &inst);

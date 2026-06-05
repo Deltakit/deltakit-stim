@@ -63,8 +63,8 @@ Examples:
             .name = "SQRT_XX",
             .id = GateType::SQRT_XX,
             .best_candidate_inverse_id = GateType::SQRT_XX_DAG,
-            .arg_count = 0,
-            .flags = (GateFlags)(GATE_IS_UNITARY | GATE_TARGETS_PAIRS),
+            .arg_count = ARG_COUNT_SYGIL_ZERO_OR_FOUR,
+            .flags = (GateFlags)(GATE_IS_UNITARY | GATE_TARGETS_PAIRS | GATE_IS_NOISY | GATE_TRANSPORTS_LEAKAGE),
             .category = "C_Two Qubit Clifford Gates",
             .help = R"MARKDOWN(
 Phases the -1 eigenspace of the XX observable by i.
@@ -76,6 +76,29 @@ Parens Arguments:
 Targets:
 
     Qubit pairs to operate on.
+
+Example:
+
+    # Perform SQRT_XX 2 5 with:
+    #  * 1% probability of spreading leakage from control to target. That is, the gate
+    #    will cause qubit 5 to leak with 1% probability if qubit 2 is leaked
+    #  * 2% probability of spreading leakage from target to control. That is, the gate
+    #    will cause qubit 5 to leak with 1% probability if qubit 2 is leaked
+    #  * 3% probability of leakage mobility from control to target. That is, if the
+    #    target is unleaked and the control is leaked, leak the target and relax the
+    #    control with 5% probability if the control is leaked.
+    #  * 4% probability of leakage mobility from target to control. That is, if the
+    #    target is leaked and the control is unleaked, leak the control and relax the
+    #    target with 4% probability if the target is leaked.
+    # Note: leakage spreading is applied before leakage mobility, meaning spreading will
+    #   dominate if both probabilities are set very high
+    # Note: transport from control to target is handled before transport from target to
+    #   control. This last point means that mobility in direction control -> target could
+    #   (but is unlikely to) be overridden by spreading in the direction of
+    #   target -> control, meaning our control would be "re-leaked".
+    # Note: leakage can be introduced into a circuit via the LEAKAGE channel.
+    SQRT_XX(0.01, 0.02, 0.03, 0.04) 2 5
+
 )MARKDOWN",
             .unitary_data =
                 {{0.5f + 0.5f * i, 0, 0, 0.5f - 0.5f * i},
@@ -99,8 +122,8 @@ H 1
             .name = "SQRT_XX_DAG",
             .id = GateType::SQRT_XX_DAG,
             .best_candidate_inverse_id = GateType::SQRT_XX,
-            .arg_count = 0,
-            .flags = (GateFlags)(GATE_IS_UNITARY | GATE_TARGETS_PAIRS),
+            .arg_count = ARG_COUNT_SYGIL_ZERO_OR_FOUR,
+            .flags = (GateFlags)(GATE_IS_UNITARY | GATE_TARGETS_PAIRS | GATE_IS_NOISY | GATE_TRANSPORTS_LEAKAGE),
             .category = "C_Two Qubit Clifford Gates",
             .help = R"MARKDOWN(
 Phases the -1 eigenspace of the XX observable by -i.
@@ -112,6 +135,27 @@ Parens Arguments:
 Targets:
 
     Qubit pairs to operate on.
+
+    # Perform SQRT_XX_DAG 2 5 with:
+    #  * 1% probability of spreading leakage from control to target. That is, the gate
+    #    will cause qubit 5 to leak with 1% probability if qubit 2 is leaked
+    #  * 2% probability of spreading leakage from target to control. That is, the gate
+    #    will cause qubit 5 to leak with 1% probability if qubit 2 is leaked
+    #  * 3% probability of leakage mobility from control to target. That is, if the
+    #    target is unleaked and the control is leaked, leak the target and relax the
+    #    control with 5% probability if the control is leaked.
+    #  * 4% probability of leakage mobility from target to control. That is, if the
+    #    target is leaked and the control is unleaked, leak the control and relax the
+    #    target with 4% probability if the target is leaked.
+    # Note: leakage spreading is applied before leakage mobility, meaning spreading will
+    #   dominate if both probabilities are set very high
+    # Note: transport from control to target is handled before transport from target to
+    #   control. This last point means that mobility in direction control -> target could
+    #   (but is unlikely to) be overridden by spreading in the direction of
+    #   target -> control, meaning our control would be "re-leaked".
+    # Note: leakage can be introduced into a circuit via the LEAKAGE channel.
+    SQRT_XX_DAG(0.01, 0.02, 0.03, 0.04) 2 5
+
 )MARKDOWN",
             .unitary_data =
                 {{0.5f - 0.5f * i, 0, 0, 0.5f + 0.5f * i},

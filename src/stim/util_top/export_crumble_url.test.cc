@@ -93,6 +93,7 @@ TEST(export_crumble, all_operations) {
         "RX_7;"
         "RY_8;"
         "R_9;"
+        "RL_0;"
         "TICK;"
         "MXX_0_1_2_3;"
         "MYY_4_5;"

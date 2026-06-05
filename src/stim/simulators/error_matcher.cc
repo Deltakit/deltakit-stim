@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "stim/simulators/error_matcher.h"
+#include "stim/simulators/error_analyzer_pl_data.h"
 
 #include <queue>
 #include <sstream>
@@ -41,6 +42,7 @@ ErrorMatcher::ErrorMatcher(
       cur_coord_offset(circuit.final_coord_shift()),
       total_measurements_in_circuit(error_analyzer.tracker.num_measurements_in_past),
       total_ticks_in_circuit(error_analyzer.num_ticks_in_past) {
+    error_analyzer.num_meas_before_her_to_pl = get_num_meas_before_her_to_pl(circuit, circuit.count_measurements());
     // If filtering, get the filter errors into the output map immediately.
     if (!allow_adding_new_dem_errors_to_output_map) {
         SparseXorVec<DemTarget> buf;

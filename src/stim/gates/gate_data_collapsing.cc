@@ -465,6 +465,40 @@ R 0
     add_gate(
         failed,
         Gate{
+            .name = "RL",
+            .id = GateType::RL,
+            .best_candidate_inverse_id = GateType::RL,
+            .arg_count = 0,
+            .flags = (GateFlags)(GATE_IS_SINGLE_QUBIT_GATE | GATE_IS_RESET),
+            .category = "L_Collapsing Gates",
+            .help = R"MARKDOWN(
+Leakage reset.
+Forces each target qubit into the computational subspace by marking the qubit as unleaked in the classical register that tracks leakage.
+
+Parens Arguments:
+
+    This instruction takes no parens arguments.
+
+Targets:
+
+    The qubits to return to the computation subspace.
+
+Examples:
+
+    # Returns qubit 5 into the sealed state
+    RL 5
+
+    # Returns multiple qubits into the sealed state
+    RL 2 3 5
+)MARKDOWN",
+            .unitary_data = {},
+            .flow_data = {},
+            .h_s_cx_m_r_decomposition = nullptr,
+        });
+
+    add_gate(
+        failed,
+        Gate{
             .name = "HERALD_LEAKAGE_EVENT",
             .id = GateType::HERALD_LEAKAGE_EVENT,
             .best_candidate_inverse_id = GateType::HERALD_LEAKAGE_EVENT,
