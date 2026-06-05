@@ -12,37 +12,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import lestim
+import deltakit_stim
 import pytest
 
 
 def test_init_and_equality():
-    r = lestim.CircuitRepeatBlock(500, lestim.Circuit("X 0"))
+    r = deltakit_stim.CircuitRepeatBlock(500, deltakit_stim.Circuit("X 0"))
     assert r.repeat_count == 500
-    assert r.body_copy() == lestim.Circuit("X 0")
-    assert lestim.CircuitRepeatBlock(500, lestim.Circuit("X 0")) == lestim.CircuitRepeatBlock(500, lestim.Circuit("X 0"))
-    assert lestim.CircuitRepeatBlock(500, lestim.Circuit("X 0")) != lestim.CircuitRepeatBlock(500, lestim.Circuit())
-    assert lestim.CircuitRepeatBlock(500, lestim.Circuit("X 0")) != lestim.CircuitRepeatBlock(101, lestim.Circuit("X 0"))
-    assert not (lestim.CircuitRepeatBlock(500, lestim.Circuit("X 0")) == lestim.CircuitRepeatBlock(500, lestim.Circuit()))
-    assert not (lestim.CircuitRepeatBlock(500, lestim.Circuit("X 0")) != lestim.CircuitRepeatBlock(500, lestim.Circuit("X 0")))
-    r2 = lestim.CircuitRepeatBlock(repeat_count=500, body=lestim.Circuit("X 0"))
+    assert r.body_copy() == deltakit_stim.Circuit("X 0")
+    assert deltakit_stim.CircuitRepeatBlock(500, deltakit_stim.Circuit("X 0")) == deltakit_stim.CircuitRepeatBlock(500, deltakit_stim.Circuit("X 0"))
+    assert deltakit_stim.CircuitRepeatBlock(500, deltakit_stim.Circuit("X 0")) != deltakit_stim.CircuitRepeatBlock(500, deltakit_stim.Circuit())
+    assert deltakit_stim.CircuitRepeatBlock(500, deltakit_stim.Circuit("X 0")) != deltakit_stim.CircuitRepeatBlock(101, deltakit_stim.Circuit("X 0"))
+    assert not (deltakit_stim.CircuitRepeatBlock(500, deltakit_stim.Circuit("X 0")) == deltakit_stim.CircuitRepeatBlock(500, deltakit_stim.Circuit()))
+    assert not (deltakit_stim.CircuitRepeatBlock(500, deltakit_stim.Circuit("X 0")) != deltakit_stim.CircuitRepeatBlock(500, deltakit_stim.Circuit("X 0")))
+    r2 = deltakit_stim.CircuitRepeatBlock(repeat_count=500, body=deltakit_stim.Circuit("X 0"))
     assert r == r2
 
     with pytest.raises(ValueError, match="repeat 0"):
-        lestim.CircuitRepeatBlock(0, lestim.Circuit())
+        deltakit_stim.CircuitRepeatBlock(0, deltakit_stim.Circuit())
 
 
 @pytest.mark.parametrize("value", [
-    lestim.CircuitRepeatBlock(500, lestim.Circuit("X 0")),
-    lestim.CircuitRepeatBlock(1, lestim.Circuit("X 0\nREPEAT 100 {\nH 1\n}\n")),
+    deltakit_stim.CircuitRepeatBlock(500, deltakit_stim.Circuit("X 0")),
+    deltakit_stim.CircuitRepeatBlock(1, deltakit_stim.Circuit("X 0\nREPEAT 100 {\nH 1\n}\n")),
 ])
 def test_repr(value):
-    assert eval(repr(value), {'stim': lestim}) == value
-    assert repr(eval(repr(value), {'stim': lestim})) == repr(value)
+    assert eval(repr(value), {'deltakit_stim': deltakit_stim}) == value
+    assert repr(eval(repr(value), {'deltakit_stim': deltakit_stim})) == repr(value)
 
 
 def test_name():
-    assert [e.name for e in lestim.Circuit('''
+    assert [e.name for e in deltakit_stim.Circuit('''
         H 0
         REPEAT 5 {
             CX 1 2

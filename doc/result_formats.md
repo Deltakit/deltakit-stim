@@ -40,14 +40,14 @@ False) or a '1' (indicating True) corresponding to a measurement result (or a de
 
 This is the default format used by Stim, because it's the easiest to understand.
 
-*Example of producing 01 format data using stim's python API:*
+*Example of producing 01 format data using deltakit_stim's python API:*
 
     >>> import pathlib
-    >>> import lestim
+    >>> import deltakit_stim
     >>> import tempfile
     >>> with tempfile.TemporaryDirectory() as d:
     ...     path = str(pathlib.Path(d) / "tmp.dat")
-    ...     lestim.Circuit("""
+    ...     deltakit_stim.Circuit("""
     ...         X 1
     ...         M 0 0 0 0 1 1 1 1 0 0 1 1 0 1
     ...     """).compile_sampler().sample_write(shots=10, filepath=path, format="01")
@@ -104,14 +104,14 @@ until the 128s bit which is the eighth bit).
 
 This format requires the reader to know the number of bits in each shot.
 
-*Example of producing b8 format data using stim's python API:*
+*Example of producing b8 format data using deltakit_stim's python API:*
 
     >>> import pathlib
-    >>> import lestim
+    >>> import deltakit_stim
     >>> import tempfile
     >>> with tempfile.TemporaryDirectory() as d:
     ...     path = str(pathlib.Path(d) / "tmp.dat")
-    ...     lestim.Circuit("""
+    ...     deltakit_stim.Circuit("""
     ...         X 1
     ...         M 0 0 0 0 1 1 1 1 0 0 1 1 0 1
     ...     """).compile_sampler().sample_write(shots=10, filepath=path, format="b8")
@@ -166,14 +166,14 @@ value. For example, "D1 D3 L0" indicates detectors 1 and 3 fired, and logical ob
 This format requires the reader to know the number of measurements/detectors/observables in each shot, if the reader
 wants to produce vectors of bits instead of sets.
 
-*Example of producing dets format data using stim's python API:*
+*Example of producing dets format data using deltakit_stim's python API:*
 
     >>> import pathlib
-    >>> import lestim
+    >>> import deltakit_stim
     >>> import tempfile
     >>> with tempfile.TemporaryDirectory() as d:
     ...     path = str(pathlib.Path(d) / "tmp.dat")
-    ...     lestim.Circuit("""
+    ...     deltakit_stim.Circuit("""
     ...         X 1
     ...         M 0 0 0 0 1 1 1 1 0 0 1 1 0 1 0 1
     ...     """).compile_sampler().sample_write(shots=3, filepath=path, format="dets")
@@ -185,7 +185,7 @@ wants to produce vectors of bits instead of sets.
 
     >>> with tempfile.TemporaryDirectory() as d:
     ...     path = str(pathlib.Path(d) / "tmp.dat")
-    ...     lestim.Circuit("""
+    ...     deltakit_stim.Circuit("""
     ...         X_ERROR(1) 1
     ...         M 0 1 2
     ...         DETECTOR rec[-1]
@@ -263,14 +263,14 @@ the text data.
 This format is useful in contexts where the number of set bits is expected to be low, e.g. when sampling detection
 events.
 
-*Example of producing hits format data using stim's python API:*
+*Example of producing hits format data using deltakit_stim's python API:*
 
     >>> import pathlib
-    >>> import lestim
+    >>> import deltakit_stim
     >>> import tempfile
     >>> with tempfile.TemporaryDirectory() as d:
     ...     path = str(pathlib.Path(d) / "tmp.dat")
-    ...     lestim.Circuit("""
+    ...     deltakit_stim.Circuit("""
     ...         X 1
     ...         M 0 0 0 0 1 1 1 1 0 0 1 1 0 1
     ...     """).compile_sampler().sample_write(shots=10, filepath=path, format="hits")
@@ -332,14 +332,14 @@ This format requires the reader to know the number of shots that were taken.
 This format is generally more tedious to work with, but useful for achieving good performance on data processing tasks
 where it is possible to parallelize across shots using SIMD instructions.
 
-*Example of producing ptb64 format data using stim's python API:*
+*Example of producing ptb64 format data using deltakit_stim's python API:*
 
     >>> import pathlib
-    >>> import lestim
+    >>> import deltakit_stim
     >>> import tempfile
     >>> with tempfile.TemporaryDirectory() as d:
     ...     path = str(pathlib.Path(d) / "tmp.dat")
-    ...     lestim.Circuit("""
+    ...     deltakit_stim.Circuit("""
     ...         X 1
     ...         M 0 1
     ...     """).compile_sampler().sample_write(shots=64, filepath=path, format="ptb64")
@@ -402,14 +402,14 @@ This format requires the reader to know the number of bits in each shot.
 This format is useful in contexts where the number of set bits is expected to be low, e.g. when sampling detection
 events.
 
-*Example of producing r8 format data using stim's python API:*
+*Example of producing r8 format data using deltakit_stim's python API:*
 
     >>> import pathlib
-    >>> import lestim
+    >>> import deltakit_stim
     >>> import tempfile
     >>> with tempfile.TemporaryDirectory() as d:
     ...     path = str(pathlib.Path(d) / "tmp.dat")
-    ...     lestim.Circuit("""
+    ...     deltakit_stim.Circuit("""
     ...         X 1
     ...         M 0 0 0 0 1 1 1 1 0 0 1 1 0 1
     ...     """).compile_sampler().sample_write(shots=10, filepath=path, format="r8")
@@ -419,7 +419,7 @@ events.
 
     >>> with tempfile.TemporaryDirectory() as d:
     ...     path = str(pathlib.Path(d) / "tmp.dat")
-    ...     lestim.Circuit("""
+    ...     deltakit_stim.Circuit("""
     ...         X 1
     ...         M 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
     ...     """).compile_sampler().sample_write(shots=10, filepath=path, format="r8")

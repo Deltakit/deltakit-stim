@@ -1,17 +1,9 @@
 import pytest
-<<<<<<< HEAD
-import lestim
+import deltakit_stim
 
 
 def test_detecting_regions_fails_on_anticommutations_at_start_of_circuit():
-    c = lestim.Circuit("""
-=======
-import stim
-
-
-def test_detecting_regions_fails_on_anticommutations_at_start_of_circuit():
-    c = stim.Circuit("""
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
+    c = deltakit_stim.Circuit("""
         TICK
         R 0
         TICK
@@ -22,11 +14,7 @@ def test_detecting_regions_fails_on_anticommutations_at_start_of_circuit():
     with pytest.raises(ValueError, match="anticommutation"):
         c.detecting_regions()
 
-<<<<<<< HEAD
-    c = lestim.Circuit("""
-=======
-    c = stim.Circuit("""
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
+    c = deltakit_stim.Circuit("""
         R 0
         TICK
         MX 0
@@ -36,11 +24,7 @@ def test_detecting_regions_fails_on_anticommutations_at_start_of_circuit():
     with pytest.raises(ValueError, match="anticommutation"):
         c.detecting_regions()
 
-<<<<<<< HEAD
-    c = lestim.Circuit("""
-=======
-    c = stim.Circuit("""
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
+    c = deltakit_stim.Circuit("""
         MX 0
         DETECTOR rec[-1]
     """)

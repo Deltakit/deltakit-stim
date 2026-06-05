@@ -16,15 +16,11 @@ import tempfile
 import numpy as np
 import pytest
 import pickle
-<<<<<<< HEAD
-import lestim
-=======
-import stim
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
+import deltakit_stim
 
 
 def test_convert_file_without_sweep_bits():
-    converter = lestim.Circuit('''
+    converter = deltakit_stim.Circuit('''
         X_ERROR(0.1) 0
         X 0
         CNOT sweep[0] 0
@@ -90,7 +86,7 @@ def test_convert_file_without_sweep_bits():
 
 
 def test_convert():
-    converter = lestim.Circuit('''
+    converter = deltakit_stim.Circuit('''
        X_ERROR(0.1) 0
        X 0
        CNOT sweep[0] 0
@@ -126,7 +122,7 @@ def test_convert():
 
 
 def test_convert_bit_packed():
-    converter = lestim.Circuit('''
+    converter = deltakit_stim.Circuit('''
        REPEAT 100 {
            X_ERROR(0.1) 0
            X 0
@@ -170,7 +166,7 @@ def test_convert_bit_packed():
 
 
 def test_convert_bit_packed_swept():
-    converter = lestim.Circuit('''
+    converter = deltakit_stim.Circuit('''
        REPEAT 100 {
            CNOT sweep[0] 0
            X_ERROR(0.1) 0
@@ -211,7 +207,7 @@ def test_convert_bit_packed_swept():
 
 
 def test_convert_bit_packed_separate_observables():
-    converter = lestim.Circuit('''
+    converter = deltakit_stim.Circuit('''
        REPEAT 100 {
            X_ERROR(0.1) 0
            X 0
@@ -254,7 +250,7 @@ def test_convert_bit_packed_separate_observables():
 
 
 def test_noiseless_conversion():
-    converter = lestim.Circuit('''
+    converter = deltakit_stim.Circuit('''
        MR 0
        DETECTOR rec[-1]
        X 0
@@ -279,7 +275,7 @@ def test_noiseless_conversion():
 
 
 def test_needs_append_or_separate():
-    converter = lestim.Circuit().compile_m2d_converter()
+    converter = deltakit_stim.Circuit().compile_m2d_converter()
     ms = np.zeros(shape=(50, 0), dtype=np.bool_)
     with pytest.raises(ValueError, match="explicitly specify either separate"):
         converter.convert(measurements=ms)
@@ -293,7 +289,7 @@ def test_needs_append_or_separate():
 
 
 def test_anticommuting_pieces_combining_into_deterministic_observable():
-    c = lestim.Circuit('''
+    c = deltakit_stim.Circuit('''
         MX 0
         OBSERVABLE_INCLUDE(0) rec[-1]
         MX 0
@@ -305,11 +301,7 @@ def test_anticommuting_pieces_combining_into_deterministic_observable():
 
 
 def test_converter_pickle():
-<<<<<<< HEAD
-    converter = lestim.Circuit('''
-=======
-    converter = stim.Circuit('''
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
+    converter = deltakit_stim.Circuit('''
        X_ERROR(0.1) 0
        X 0
        CNOT sweep[0] 0

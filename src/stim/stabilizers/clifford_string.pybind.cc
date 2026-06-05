@@ -28,10 +28,7 @@ pybind11::class_<CliffordString<MAX_BITWORD_WIDTH>> stim_pybind::pybind_clifford
     return pybind11::class_<CliffordString<MAX_BITWORD_WIDTH>>(
         m,
         "CliffordString",
-<<<<<<< HEAD
-        pybind11::module_local(),
-=======
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
+	pybind11::module_local(),
         clean_doc_string(R"DOC(
             A tensor product of single qubit Clifford gates (e.g. "H \u2297 X \u2297 S").
 

@@ -12,33 +12,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import lestim
+import deltakit_stim
 
 
 def test_init_vs_properties():
-    v = lestim.DemRepeatBlock(5, lestim.DetectorErrorModel('error(0.125) D1 L2'))
+    v = deltakit_stim.DemRepeatBlock(5, deltakit_stim.DetectorErrorModel('error(0.125) D1 L2'))
     assert v.repeat_count == 5
-    assert v.body_copy() == lestim.DetectorErrorModel('error(0.125) D1 L2')
+    assert v.body_copy() == deltakit_stim.DetectorErrorModel('error(0.125) D1 L2')
     assert v.body_copy() is not v.body_copy()
 
 
 def test_equality():
-    m0 = lestim.DetectorErrorModel()
-    m1 = lestim.DetectorErrorModel('error(0.125) D1 L2')
-    assert lestim.DemRepeatBlock(5, m0) == lestim.DemRepeatBlock(5, m0)
-    assert not (lestim.DemRepeatBlock(5, m0) != lestim.DemRepeatBlock(5, m0))
-    assert lestim.DemRepeatBlock(5, m0) != lestim.DemRepeatBlock(5, m1)
-    assert not (lestim.DemRepeatBlock(5, m0) == lestim.DemRepeatBlock(5, m1))
-    assert lestim.DemRepeatBlock(5, m0) != lestim.DemRepeatBlock(6, m0)
+    m0 = deltakit_stim.DetectorErrorModel()
+    m1 = deltakit_stim.DetectorErrorModel('error(0.125) D1 L2')
+    assert deltakit_stim.DemRepeatBlock(5, m0) == deltakit_stim.DemRepeatBlock(5, m0)
+    assert not (deltakit_stim.DemRepeatBlock(5, m0) != deltakit_stim.DemRepeatBlock(5, m0))
+    assert deltakit_stim.DemRepeatBlock(5, m0) != deltakit_stim.DemRepeatBlock(5, m1)
+    assert not (deltakit_stim.DemRepeatBlock(5, m0) == deltakit_stim.DemRepeatBlock(5, m1))
+    assert deltakit_stim.DemRepeatBlock(5, m0) != deltakit_stim.DemRepeatBlock(6, m0)
 
 
 def test_repr():
-    v = lestim.DemRepeatBlock(5, lestim.DetectorErrorModel('error(0.125) D1 L2'))
-    assert eval(repr(v), {"stim": lestim}) == v
+    v = deltakit_stim.DemRepeatBlock(5, deltakit_stim.DetectorErrorModel('error(0.125) D1 L2'))
+    assert eval(repr(v), {"deltakit_stim": deltakit_stim}) == v
 
 
 def test_type():
-    assert [e.type for e in lestim.DetectorErrorModel('''
+    assert [e.type for e in deltakit_stim.DetectorErrorModel('''
         detector D0
         REPEAT 5 {
             error(0.1) D0

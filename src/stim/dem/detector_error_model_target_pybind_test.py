@@ -13,105 +13,85 @@
 # limitations under the License.
 
 import pytest
-import lestim
+import deltakit_stim
 
 
 def test_equality():
-    assert lestim.target_relative_detector_id(5) == lestim.target_relative_detector_id(5)
-    assert not (lestim.target_relative_detector_id(5) != lestim.target_relative_detector_id(5))
-    assert lestim.target_relative_detector_id(4) != lestim.target_relative_detector_id(5)
-    assert not (lestim.target_relative_detector_id(4) == lestim.target_relative_detector_id(5))
+    assert deltakit_stim.target_relative_detector_id(5) == deltakit_stim.target_relative_detector_id(5)
+    assert not (deltakit_stim.target_relative_detector_id(5) != deltakit_stim.target_relative_detector_id(5))
+    assert deltakit_stim.target_relative_detector_id(4) != deltakit_stim.target_relative_detector_id(5)
+    assert not (deltakit_stim.target_relative_detector_id(4) == deltakit_stim.target_relative_detector_id(5))
 
-    assert lestim.target_relative_detector_id(5) != lestim.target_logical_observable_id(5)
-    assert lestim.target_logical_observable_id(5) == lestim.target_logical_observable_id(5)
-    assert lestim.target_relative_detector_id(5) != lestim.target_separator()
-    assert lestim.target_separator() == lestim.target_separator()
+    assert deltakit_stim.target_relative_detector_id(5) != deltakit_stim.target_logical_observable_id(5)
+    assert deltakit_stim.target_logical_observable_id(5) == deltakit_stim.target_logical_observable_id(5)
+    assert deltakit_stim.target_relative_detector_id(5) != deltakit_stim.target_separator()
+    assert deltakit_stim.target_separator() == deltakit_stim.target_separator()
 
 
 def test_str():
-    assert str(lestim.target_relative_detector_id(5)) == "D5"
-    assert str(lestim.target_logical_observable_id(6)) == "L6"
-    assert str(lestim.target_separator()) == "^"
+    assert str(deltakit_stim.target_relative_detector_id(5)) == "D5"
+    assert str(deltakit_stim.target_logical_observable_id(6)) == "L6"
+    assert str(deltakit_stim.target_separator()) == "^"
 
 
 def test_properties():
-    assert lestim.target_relative_detector_id(6).val == 6
-    assert lestim.target_relative_detector_id(5).val == 5
-    assert lestim.target_relative_detector_id(5).is_relative_detector_id()
-    assert not lestim.target_relative_detector_id(5).is_logical_observable_id()
-    assert not lestim.target_relative_detector_id(5).is_separator()
+    assert deltakit_stim.target_relative_detector_id(6).val == 6
+    assert deltakit_stim.target_relative_detector_id(5).val == 5
+    assert deltakit_stim.target_relative_detector_id(5).is_relative_detector_id()
+    assert not deltakit_stim.target_relative_detector_id(5).is_logical_observable_id()
+    assert not deltakit_stim.target_relative_detector_id(5).is_separator()
 
-    assert lestim.target_logical_observable_id(6).val == 6
-    assert lestim.target_logical_observable_id(5).val == 5
-    assert not lestim.target_logical_observable_id(5).is_relative_detector_id()
-    assert lestim.target_logical_observable_id(5).is_logical_observable_id()
-    assert not lestim.target_logical_observable_id(5).is_separator()
+    assert deltakit_stim.target_logical_observable_id(6).val == 6
+    assert deltakit_stim.target_logical_observable_id(5).val == 5
+    assert not deltakit_stim.target_logical_observable_id(5).is_relative_detector_id()
+    assert deltakit_stim.target_logical_observable_id(5).is_logical_observable_id()
+    assert not deltakit_stim.target_logical_observable_id(5).is_separator()
 
-    assert not lestim.target_separator().is_relative_detector_id()
-    assert not lestim.target_separator().is_logical_observable_id()
-    assert lestim.target_separator().is_separator()
+    assert not deltakit_stim.target_separator().is_relative_detector_id()
+    assert not deltakit_stim.target_separator().is_logical_observable_id()
+    assert deltakit_stim.target_separator().is_separator()
     with pytest.raises(ValueError, match="Separator"):
-        _ = lestim.target_separator().val
+        _ = deltakit_stim.target_separator().val
 
 
 def test_repr():
-    v = lestim.target_relative_detector_id(5)
-    assert eval(repr(v), {"stim": lestim}) == v
-    v = lestim.target_logical_observable_id(6)
-    assert eval(repr(v), {"stim": lestim}) == v
-    v = lestim.target_separator()
-    assert eval(repr(v), {"stim": lestim}) == v
+    v = deltakit_stim.target_relative_detector_id(5)
+    assert eval(repr(v), {"deltakit_stim": deltakit_stim}) == v
+    v = deltakit_stim.target_logical_observable_id(6)
+    assert eval(repr(v), {"deltakit_stim": deltakit_stim}) == v
+    v = deltakit_stim.target_separator()
+    assert eval(repr(v), {"deltakit_stim": deltakit_stim}) == v
 
 
 def test_static_constructors():
-    assert lestim.DemTarget.relative_detector_id(5) == lestim.target_relative_detector_id(5)
-    assert lestim.DemTarget.logical_observable_id(5) == lestim.target_logical_observable_id(5)
-    assert lestim.DemTarget.separator() == lestim.target_separator()
+    assert deltakit_stim.DemTarget.relative_detector_id(5) == deltakit_stim.target_relative_detector_id(5)
+    assert deltakit_stim.DemTarget.logical_observable_id(5) == deltakit_stim.target_logical_observable_id(5)
+    assert deltakit_stim.DemTarget.separator() == deltakit_stim.target_separator()
 
 
 def test_hashable():
-    a = lestim.DemTarget.relative_detector_id(3)
-    b = lestim.DemTarget.logical_observable_id(5)
-    c = lestim.DemTarget.relative_detector_id(3)
+    a = deltakit_stim.DemTarget.relative_detector_id(3)
+    b = deltakit_stim.DemTarget.logical_observable_id(5)
+    c = deltakit_stim.DemTarget.relative_detector_id(3)
     assert hash(a) == hash(c)
     assert len({a, b, c}) == 2
 
 
 def test_init():
-<<<<<<< HEAD
-    assert lestim.DemTarget("D0") == lestim.target_relative_detector_id(0)
-    assert lestim.DemTarget("D5") == lestim.target_relative_detector_id(5)
-    assert lestim.DemTarget("L0") == lestim.target_logical_observable_id(0)
-    assert lestim.DemTarget("L5") == lestim.target_logical_observable_id(5)
-    assert lestim.DemTarget("^") == lestim.target_separator()
-    assert lestim.DemTarget(f"D{2**62 - 1}") == lestim.target_relative_detector_id(2**62 - 1)
-    assert lestim.DemTarget(f"L{0xFFFFFFFF}") == lestim.target_logical_observable_id(0xFFFFFFFF)
+    assert deltakit_stim.DemTarget("D0") == deltakit_stim.target_relative_detector_id(0)
+    assert deltakit_stim.DemTarget("D5") == deltakit_stim.target_relative_detector_id(5)
+    assert deltakit_stim.DemTarget("L0") == deltakit_stim.target_logical_observable_id(0)
+    assert deltakit_stim.DemTarget("L5") == deltakit_stim.target_logical_observable_id(5)
+    assert deltakit_stim.DemTarget("^") == deltakit_stim.target_separator()
+    assert deltakit_stim.DemTarget(f"D{2**62 - 1}") == deltakit_stim.target_relative_detector_id(2**62 - 1)
+    assert deltakit_stim.DemTarget(f"L{0xFFFFFFFF}") == deltakit_stim.target_logical_observable_id(0xFFFFFFFF)
     with pytest.raises(ValueError, match="Failed to parse"):
-        _ = lestim.DemTarget(f"D{2**62}")
+        _ = deltakit_stim.DemTarget(f"D{2**62}")
     with pytest.raises(ValueError, match="Failed to parse"):
-        _ = lestim.DemTarget(f"L{0x100000000}")
+        _ = deltakit_stim.DemTarget(f"L{0x100000000}")
     with pytest.raises(ValueError, match="Failed to parse"):
-        _ = lestim.DemTarget(f"L-1")
+        _ = deltakit_stim.DemTarget(f"L-1")
     with pytest.raises(ValueError, match="Failed to parse"):
-        _ = lestim.DemTarget(f"X5")
+        _ = deltakit_stim.DemTarget(f"X5")
     with pytest.raises(ValueError, match="Failed to parse"):
-        _ = lestim.DemTarget(f"5")
-=======
-    assert stim.DemTarget("D0") == stim.target_relative_detector_id(0)
-    assert stim.DemTarget("D5") == stim.target_relative_detector_id(5)
-    assert stim.DemTarget("L0") == stim.target_logical_observable_id(0)
-    assert stim.DemTarget("L5") == stim.target_logical_observable_id(5)
-    assert stim.DemTarget("^") == stim.target_separator()
-    assert stim.DemTarget(f"D{2**62 - 1}") == stim.target_relative_detector_id(2**62 - 1)
-    assert stim.DemTarget(f"L{0xFFFFFFFF}") == stim.target_logical_observable_id(0xFFFFFFFF)
-    with pytest.raises(ValueError, match="Failed to parse"):
-        _ = stim.DemTarget(f"D{2**62}")
-    with pytest.raises(ValueError, match="Failed to parse"):
-        _ = stim.DemTarget(f"L{0x100000000}")
-    with pytest.raises(ValueError, match="Failed to parse"):
-        _ = stim.DemTarget(f"L-1")
-    with pytest.raises(ValueError, match="Failed to parse"):
-        _ = stim.DemTarget(f"X5")
-    with pytest.raises(ValueError, match="Failed to parse"):
-        _ = stim.DemTarget(f"5")
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
+        _ = deltakit_stim.DemTarget(f"5")

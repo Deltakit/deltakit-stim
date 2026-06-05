@@ -1,8 +1,8 @@
-import lestim
+import deltakit_stim
 
 
 def test_to_quirk_url_simple():
-    c = lestim.Circuit("""
+    c = deltakit_stim.Circuit("""
         QUBIT_COORDS(2, 1) 0
         QUBIT_COORDS(2, 2) 1
         H 0
@@ -18,5 +18,5 @@ def test_to_quirk_url_simple():
 
 
 def test_to_quirk_url_complex():
-    c = lestim.Circuit.generated('surface_code:rotated_memory_x', distance=2, rounds=2, after_clifford_depolarization=0.001)
+    c = deltakit_stim.Circuit.generated('surface_code:rotated_memory_x', distance=2, rounds=2, after_clifford_depolarization=0.001)
     assert '"H"' in c.to_quirk_url()

@@ -23,49 +23,45 @@ import numpy as np
 import pytest
 import types
 
-import lestim
+import deltakit_stim
 import re
 
 def test_version():
-    assert re.match(r"^\d\.\d+", lestim.__version__)
+    assert re.match(r"^\d\.\d+", deltakit_stim.__version__)
 
 
 def test_targets():
-    t = lestim.target_x(5)
-    assert isinstance(t, lestim.GateTarget)
+    t = deltakit_stim.target_x(5)
+    assert isinstance(t, deltakit_stim.GateTarget)
     assert t.is_x_target and t.value == 5
     assert not t.is_y_target
 
-    t = lestim.target_y(6)
-    assert isinstance(t, lestim.GateTarget)
+    t = deltakit_stim.target_y(6)
+    assert isinstance(t, deltakit_stim.GateTarget)
     assert t.is_y_target and t.value == 6
 
-    t = lestim.target_z(5)
-    assert isinstance(t, lestim.GateTarget)
+    t = deltakit_stim.target_z(5)
+    assert isinstance(t, deltakit_stim.GateTarget)
     assert t.is_z_target and t.value == 5
 
-    t = lestim.target_inv(5)
-    assert isinstance(t, lestim.GateTarget)
+    t = deltakit_stim.target_inv(5)
+    assert isinstance(t, deltakit_stim.GateTarget)
     assert t.is_inverted_result_target and t.value == 5
 
-    t = lestim.target_rec(-5)
-    assert isinstance(t, lestim.GateTarget)
+    t = deltakit_stim.target_rec(-5)
+    assert isinstance(t, deltakit_stim.GateTarget)
     assert t.is_measurement_record_target and not t.is_inverted_result_target and t.value == -5
 
-    t = lestim.target_sweep_bit(4)
-    assert isinstance(t, lestim.GateTarget)
+    t = deltakit_stim.target_sweep_bit(4)
+    assert isinstance(t, deltakit_stim.GateTarget)
     assert t.is_sweep_bit_target and not t.is_inverted_result_target and t.value == 4
 
-    t = lestim.target_combiner()
-    assert isinstance(t, lestim.GateTarget)
+    t = deltakit_stim.target_combiner()
+    assert isinstance(t, deltakit_stim.GateTarget)
 
 
 def test_gate_data():
-<<<<<<< HEAD
-    data = lestim.gate_data()
-=======
-    data = stim.gate_data()
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
+    data = deltakit_stim.gate_data()
     assert len(data) == 85
     assert data["CX"].name == "CX"
     assert data["CX"].aliases == ["CNOT", "CX", "ZCX"]
@@ -74,7 +70,7 @@ def test_gate_data():
 
 
 def test_format_data():
-    format_data = lestim._UNSTABLE_raw_format_data()
+    format_data = deltakit_stim._UNSTABLE_raw_format_data()
     assert len(format_data) >= 6
 
     # Check that example code has needed imports.
@@ -120,7 +116,7 @@ def test_format_data():
 
     # Check that python examples in help strings are correct.
     for k, v in format_data.items():
-        mod = types.ModuleType('stim_test_fake')
+        mod = types.ModuleType('deltakit_stim_test_fake')
         mod.f = lambda: 5
         mod.__test__ = {"f": mod.f}
         mod.f.__doc__ = v["help"]
@@ -130,7 +126,7 @@ def test_format_data():
 def test_main_write_to_file():
     with tempfile.TemporaryDirectory() as d:
         p = pathlib.Path(d) / 'tmp'
-        assert lestim.main(command_line_args=[
+        assert deltakit_stim.main(command_line_args=[
             "gen",
             "--code=repetition_code",
             "--task=memory",
@@ -143,18 +139,14 @@ def test_main_write_to_file():
 
 
 def test_main_help(capsys):
-<<<<<<< HEAD
-    assert lestim.main(command_line_args=["help"]) == 0
-=======
-    assert stim.main(command_line_args=["help"]) == 0
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
+    assert deltakit_stim.main(command_line_args=["help"]) == 0
     captured = capsys.readouterr()
     assert captured.err == ""
-    assert 'Available stim commands' in captured.out
+    assert 'Available deltakit_stim commands' in captured.out
 
 
 def test_main_redirects_stdout(capsys):
-    assert lestim.main(command_line_args=[
+    assert deltakit_stim.main(command_line_args=[
         "gen",
         "--code=repetition_code",
         "--task=memory",
@@ -167,7 +159,7 @@ def test_main_redirects_stdout(capsys):
 
 
 def test_main_redirects_stderr(capsys):
-    assert lestim.main(command_line_args=[
+    assert deltakit_stim.main(command_line_args=[
         "gen",
         "--code=XXXXX",
         "--task=memory",
@@ -180,140 +172,140 @@ def test_main_redirects_stderr(capsys):
 
 
 def test_target_methods_accept_gate_targets():
-    assert lestim.target_inv(lestim.GateTarget(5)) == lestim.target_inv(5)
-    assert lestim.target_inv(lestim.target_inv(5)) == lestim.GateTarget(5)
-    assert lestim.target_inv(lestim.target_x(5)) == lestim.target_x(5, invert=True)
-    assert lestim.target_inv(lestim.target_y(5)) == lestim.target_y(5, invert=True)
-    assert lestim.target_inv(lestim.target_z(5)) == lestim.target_z(5, invert=True)
+    assert deltakit_stim.target_inv(deltakit_stim.GateTarget(5)) == deltakit_stim.target_inv(5)
+    assert deltakit_stim.target_inv(deltakit_stim.target_inv(5)) == deltakit_stim.GateTarget(5)
+    assert deltakit_stim.target_inv(deltakit_stim.target_x(5)) == deltakit_stim.target_x(5, invert=True)
+    assert deltakit_stim.target_inv(deltakit_stim.target_y(5)) == deltakit_stim.target_y(5, invert=True)
+    assert deltakit_stim.target_inv(deltakit_stim.target_z(5)) == deltakit_stim.target_z(5, invert=True)
 
-    assert lestim.target_x(lestim.GateTarget(5)) == lestim.target_x(5)
-    assert lestim.target_x(lestim.target_inv(lestim.GateTarget(5))) == lestim.target_x(5, invert=True)
-    assert lestim.target_x(lestim.GateTarget(5), invert=True) == lestim.target_x(5, invert=True)
-    assert lestim.target_x(lestim.target_inv(lestim.GateTarget(5)), invert=True) == lestim.target_x(5)
+    assert deltakit_stim.target_x(deltakit_stim.GateTarget(5)) == deltakit_stim.target_x(5)
+    assert deltakit_stim.target_x(deltakit_stim.target_inv(deltakit_stim.GateTarget(5))) == deltakit_stim.target_x(5, invert=True)
+    assert deltakit_stim.target_x(deltakit_stim.GateTarget(5), invert=True) == deltakit_stim.target_x(5, invert=True)
+    assert deltakit_stim.target_x(deltakit_stim.target_inv(deltakit_stim.GateTarget(5)), invert=True) == deltakit_stim.target_x(5)
 
-    assert lestim.target_y(lestim.GateTarget(5)) == lestim.target_y(5)
-    assert lestim.target_y(lestim.target_inv(lestim.GateTarget(5))) == lestim.target_y(5, invert=True)
-    assert lestim.target_y(lestim.GateTarget(5), invert=True) == lestim.target_y(5, invert=True)
-    assert lestim.target_y(lestim.target_inv(lestim.GateTarget(5)), invert=True) == lestim.target_y(5)
+    assert deltakit_stim.target_y(deltakit_stim.GateTarget(5)) == deltakit_stim.target_y(5)
+    assert deltakit_stim.target_y(deltakit_stim.target_inv(deltakit_stim.GateTarget(5))) == deltakit_stim.target_y(5, invert=True)
+    assert deltakit_stim.target_y(deltakit_stim.GateTarget(5), invert=True) == deltakit_stim.target_y(5, invert=True)
+    assert deltakit_stim.target_y(deltakit_stim.target_inv(deltakit_stim.GateTarget(5)), invert=True) == deltakit_stim.target_y(5)
 
-    assert lestim.target_z(lestim.GateTarget(5)) == lestim.target_z(5)
-    assert lestim.target_z(lestim.target_inv(lestim.GateTarget(5))) == lestim.target_z(5, invert=True)
-    assert lestim.target_z(lestim.GateTarget(5), invert=True) == lestim.target_z(5, invert=True)
-    assert lestim.target_z(lestim.target_inv(lestim.GateTarget(5)), invert=True) == lestim.target_z(5)
-
-    with pytest.raises(ValueError):
-        lestim.target_inv(lestim.target_sweep_bit(4))
+    assert deltakit_stim.target_z(deltakit_stim.GateTarget(5)) == deltakit_stim.target_z(5)
+    assert deltakit_stim.target_z(deltakit_stim.target_inv(deltakit_stim.GateTarget(5))) == deltakit_stim.target_z(5, invert=True)
+    assert deltakit_stim.target_z(deltakit_stim.GateTarget(5), invert=True) == deltakit_stim.target_z(5, invert=True)
+    assert deltakit_stim.target_z(deltakit_stim.target_inv(deltakit_stim.GateTarget(5)), invert=True) == deltakit_stim.target_z(5)
 
     with pytest.raises(ValueError):
-        lestim.target_inv(lestim.target_rec(-4))
+        deltakit_stim.target_inv(deltakit_stim.target_sweep_bit(4))
 
     with pytest.raises(ValueError):
-        lestim.target_x(lestim.target_sweep_bit(4))
+        deltakit_stim.target_inv(deltakit_stim.target_rec(-4))
 
     with pytest.raises(ValueError):
-        lestim.target_y(lestim.target_sweep_bit(4))
+        deltakit_stim.target_x(deltakit_stim.target_sweep_bit(4))
 
     with pytest.raises(ValueError):
-        lestim.target_z(lestim.target_sweep_bit(4))
+        deltakit_stim.target_y(deltakit_stim.target_sweep_bit(4))
+
+    with pytest.raises(ValueError):
+        deltakit_stim.target_z(deltakit_stim.target_sweep_bit(4))
 
 
 def test_target_pauli():
-    assert lestim.target_pauli(2, "I") == lestim.GateTarget(2)
-    assert lestim.target_pauli(2, "X") == lestim.target_x(2)
-    assert lestim.target_pauli(2, "Y") == lestim.target_y(2)
-    assert lestim.target_pauli(2, "Z") == lestim.target_z(2)
-    assert lestim.target_pauli(5, "x") == lestim.target_x(5)
-    assert lestim.target_pauli(2, "y") == lestim.target_y(2)
-    assert lestim.target_pauli(2, "z") == lestim.target_z(2)
-    assert lestim.target_pauli(2, 0) == lestim.GateTarget(2)
-    assert lestim.target_pauli(2, 1) == lestim.target_x(2)
-    assert lestim.target_pauli(2, 2) == lestim.target_y(2)
-    assert lestim.target_pauli(2, 3) == lestim.target_z(2)
-    assert lestim.target_pauli(2, 3, True) == lestim.target_z(2, True)
-    assert lestim.target_pauli(qubit_index=2, pauli=3, invert=True) == lestim.target_z(2, True)
-    assert lestim.target_pauli(5, np.array([2], dtype=np.uint8)[0]) == lestim.target_y(5)
-    assert lestim.target_pauli(5, np.array([2], dtype=np.uint32)[0]) == lestim.target_y(5)
-    assert lestim.target_pauli(5, np.array([2], dtype=np.int16)[0]) == lestim.target_y(5)
+    assert deltakit_stim.target_pauli(2, "I") == deltakit_stim.GateTarget(2)
+    assert deltakit_stim.target_pauli(2, "X") == deltakit_stim.target_x(2)
+    assert deltakit_stim.target_pauli(2, "Y") == deltakit_stim.target_y(2)
+    assert deltakit_stim.target_pauli(2, "Z") == deltakit_stim.target_z(2)
+    assert deltakit_stim.target_pauli(5, "x") == deltakit_stim.target_x(5)
+    assert deltakit_stim.target_pauli(2, "y") == deltakit_stim.target_y(2)
+    assert deltakit_stim.target_pauli(2, "z") == deltakit_stim.target_z(2)
+    assert deltakit_stim.target_pauli(2, 0) == deltakit_stim.GateTarget(2)
+    assert deltakit_stim.target_pauli(2, 1) == deltakit_stim.target_x(2)
+    assert deltakit_stim.target_pauli(2, 2) == deltakit_stim.target_y(2)
+    assert deltakit_stim.target_pauli(2, 3) == deltakit_stim.target_z(2)
+    assert deltakit_stim.target_pauli(2, 3, True) == deltakit_stim.target_z(2, True)
+    assert deltakit_stim.target_pauli(qubit_index=2, pauli=3, invert=True) == deltakit_stim.target_z(2, True)
+    assert deltakit_stim.target_pauli(5, np.array([2], dtype=np.uint8)[0]) == deltakit_stim.target_y(5)
+    assert deltakit_stim.target_pauli(5, np.array([2], dtype=np.uint32)[0]) == deltakit_stim.target_y(5)
+    assert deltakit_stim.target_pauli(5, np.array([2], dtype=np.int16)[0]) == deltakit_stim.target_y(5)
 
     with pytest.raises(ValueError, match="too large"):
-        lestim.target_pauli(2**31, 'X')
+        deltakit_stim.target_pauli(2**31, 'X')
     with pytest.raises(ValueError, match="Expected pauli"):
-        lestim.target_pauli(5, 'F')
+        deltakit_stim.target_pauli(5, 'F')
     with pytest.raises(ValueError, match="Expected pauli"):
-        lestim.target_pauli(5, np.array([257], dtype=np.uint32)[0])
+        deltakit_stim.target_pauli(5, np.array([257], dtype=np.uint32)[0])
 
 
 def test_target_combined_paulis():
-    assert lestim.target_combined_paulis(lestim.PauliString("XYZ")) == [
-        lestim.target_x(0),
-        lestim.target_combiner(),
-        lestim.target_y(1),
-        lestim.target_combiner(),
-        lestim.target_z(2),
+    assert deltakit_stim.target_combined_paulis(deltakit_stim.PauliString("XYZ")) == [
+        deltakit_stim.target_x(0),
+        deltakit_stim.target_combiner(),
+        deltakit_stim.target_y(1),
+        deltakit_stim.target_combiner(),
+        deltakit_stim.target_z(2),
     ]
 
-    assert lestim.target_combined_paulis(lestim.PauliString("X"), True) == [
-        lestim.target_x(0, True),
+    assert deltakit_stim.target_combined_paulis(deltakit_stim.PauliString("X"), True) == [
+        deltakit_stim.target_x(0, True),
     ]
 
-    assert lestim.target_combined_paulis(lestim.PauliString("-XYIZ")) == [
-        lestim.target_x(0, invert=True),
-        lestim.target_combiner(),
-        lestim.target_y(1),
-        lestim.target_combiner(),
-        lestim.target_z(3),
+    assert deltakit_stim.target_combined_paulis(deltakit_stim.PauliString("-XYIZ")) == [
+        deltakit_stim.target_x(0, invert=True),
+        deltakit_stim.target_combiner(),
+        deltakit_stim.target_y(1),
+        deltakit_stim.target_combiner(),
+        deltakit_stim.target_z(3),
     ]
 
-    assert lestim.target_combined_paulis(lestim.PauliString("-XYIZ"), True) == [
-        lestim.target_x(0),
-        lestim.target_combiner(),
-        lestim.target_y(1),
-        lestim.target_combiner(),
-        lestim.target_z(3),
+    assert deltakit_stim.target_combined_paulis(deltakit_stim.PauliString("-XYIZ"), True) == [
+        deltakit_stim.target_x(0),
+        deltakit_stim.target_combiner(),
+        deltakit_stim.target_y(1),
+        deltakit_stim.target_combiner(),
+        deltakit_stim.target_z(3),
     ]
 
-    assert lestim.target_combined_paulis([lestim.target_x(5), lestim.target_z(9)]) == [
-        lestim.target_x(5),
-        lestim.target_combiner(),
-        lestim.target_z(9),
+    assert deltakit_stim.target_combined_paulis([deltakit_stim.target_x(5), deltakit_stim.target_z(9)]) == [
+        deltakit_stim.target_x(5),
+        deltakit_stim.target_combiner(),
+        deltakit_stim.target_z(9),
     ]
 
-    assert lestim.target_combined_paulis([lestim.target_x(5, True), lestim.target_z(9)]) == [
-        lestim.target_x(5, True),
-        lestim.target_combiner(),
-        lestim.target_z(9),
+    assert deltakit_stim.target_combined_paulis([deltakit_stim.target_x(5, True), deltakit_stim.target_z(9)]) == [
+        deltakit_stim.target_x(5, True),
+        deltakit_stim.target_combiner(),
+        deltakit_stim.target_z(9),
     ]
-    assert lestim.target_combined_paulis([lestim.target_x(5), lestim.target_z(9, True)]) == [
-        lestim.target_x(5, True),
-        lestim.target_combiner(),
-        lestim.target_z(9),
+    assert deltakit_stim.target_combined_paulis([deltakit_stim.target_x(5), deltakit_stim.target_z(9, True)]) == [
+        deltakit_stim.target_x(5, True),
+        deltakit_stim.target_combiner(),
+        deltakit_stim.target_z(9),
     ]
-    assert lestim.target_combined_paulis([lestim.target_x(5), lestim.target_z(9)], True) == [
-        lestim.target_x(5, True),
-        lestim.target_combiner(),
-        lestim.target_z(9),
+    assert deltakit_stim.target_combined_paulis([deltakit_stim.target_x(5), deltakit_stim.target_z(9)], True) == [
+        deltakit_stim.target_x(5, True),
+        deltakit_stim.target_combiner(),
+        deltakit_stim.target_z(9),
     ]
-    assert lestim.target_combined_paulis([lestim.target_y(4)]) == [
-        lestim.target_y(4),
+    assert deltakit_stim.target_combined_paulis([deltakit_stim.target_y(4)]) == [
+        deltakit_stim.target_y(4),
     ]
 
     with pytest.raises(ValueError, match="Expected a pauli string"):
-        lestim.target_combined_paulis([lestim.target_rec(-2)])
+        deltakit_stim.target_combined_paulis([deltakit_stim.target_rec(-2)])
     with pytest.raises(ValueError, match="Expected a pauli string"):
-        lestim.target_combined_paulis([object()])
+        deltakit_stim.target_combined_paulis([object()])
     with pytest.raises(ValueError, match="Identity pauli product"):
-        lestim.target_combined_paulis([])
+        deltakit_stim.target_combined_paulis([])
     with pytest.raises(ValueError, match="Identity pauli product"):
-        lestim.target_combined_paulis(lestim.PauliString(0))
+        deltakit_stim.target_combined_paulis(deltakit_stim.PauliString(0))
     with pytest.raises(ValueError, match="Identity pauli product"):
-        lestim.target_combined_paulis(lestim.PauliString(10))
+        deltakit_stim.target_combined_paulis(deltakit_stim.PauliString(10))
     with pytest.raises(ValueError, match="Imaginary"):
-        lestim.target_combined_paulis(lestim.PauliString("iX"))
+        deltakit_stim.target_combined_paulis(deltakit_stim.PauliString("iX"))
 
 
-def test_lestim_stim_compatibility():
-    """Show that lestim can be imported after stim without their python bindings conflicting"""
-    code = "import stim, lestim"
+def test_deltakit_stim_stim_compatibility():
+    """Show that deltakit-stim can be imported after stim without their python bindings conflicting"""
+    code = "import stim, deltakit_stim"
     subprocess.run(
         [sys.executable, "-c", code],
         capture_output=True,
