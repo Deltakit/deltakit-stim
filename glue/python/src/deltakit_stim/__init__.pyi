@@ -5673,6 +5673,26 @@ class DemTarget:
             >>> deltakit_stim.DemTarget("^") == deltakit_stim.target_separator()
             True
         """
+    def __init__(
+        self,
+        arg: object,
+        /,
+    ) -> None:
+        """Creates a lestim.DemTarge from the given object.
+
+        Args:
+            arg: A string to parse as a lestim.DemTarget, or some other object to
+                convert into a lestim.DemTarget.
+
+        Examples:
+            >>> import lestim
+            >>> lestim.DemTarget("D5") == lestim.target_relative_detector_id(5)
+            True
+            >>> lestim.DemTarget("L2") == lestim.target_logical_observable_id(2)
+            True
+            >>> lestim.DemTarget("^") == lestim.target_separator()
+            True
+        """
     def __ne__(
         self,
         arg0: deltakit_stim.DemTarget,
@@ -7090,6 +7110,79 @@ class FlipSimulator:
                    [ True, False,  True, False,  True, False,  True, False,  True],
                    [False,  True, False,  True, False,  True, False,  True, False]])
         """
+    def append_measurement_flips(
+        self,
+        measurement_flip_data: np.ndarray,
+    ) -> None:
+        """Appends measurement flip data to the simulator's measurement record.
+
+        Args:
+            measurement_flip_data: The flip data to append. The following shape/dtype
+                combinations are supported.
+
+                Single measurement without bit packing:
+                    shape=(self.batch_size,)
+                    dtype=np.bool_
+
+                Single measurement with bit packing:
+                    shape=(math.ceil(self.batch_size / 8),)
+                    dtype=np.uint8
+
+                Multiple measurements without bit packing:
+                    shape=(num_measurements, self.batch_size)
+                    dtype=np.bool_
+
+                Multiple measurements with bit packing:
+                    shape=(num_measurements, math.ceil(self.batch_size / 8))
+                    dtype=np.uint8
+
+        Examples:
+            >>> import stim
+            >>> import numpy as np
+            >>> sim = stim.FlipSimulator(batch_size=9)
+            >>> sim.append_measurement_flips(np.array(
+            ...     [0, 1, 0, 0, 1, 0, 0, 1, 1],
+            ...     dtype=np.bool_,
+            ... ))
+
+            >>> sim.get_measurement_flips()
+            array([[False,  True, False, False,  True, False, False,  True,  True]])
+
+            >>> sim.append_measurement_flips(np.array(
+            ...     [0b11001001, 0],
+            ...     dtype=np.uint8,
+            ... ))
+
+            >>> sim.get_measurement_flips()
+            array([[False,  True, False, False,  True, False, False,  True,  True],
+                   [ True, False, False,  True, False, False,  True,  True, False]])
+
+            >>> sim.append_measurement_flips(np.array(
+            ...     [[0b11111111, 0b1], [0b00000000, 0b0], [0b11111111, 0b1]],
+            ...     dtype=np.uint8,
+            ... ))
+
+            >>> sim.get_measurement_flips()
+            array([[False,  True, False, False,  True, False, False,  True,  True],
+                   [ True, False, False,  True, False, False,  True,  True, False],
+                   [ True,  True,  True,  True,  True,  True,  True,  True,  True],
+                   [False, False, False, False, False, False, False, False, False],
+                   [ True,  True,  True,  True,  True,  True,  True,  True,  True]])
+
+            >>> sim.append_measurement_flips(np.array(
+            ...     [[1, 0, 1, 0, 1, 0, 1, 0, 1], [0, 1, 0, 1, 0, 1, 0, 1, 0]],
+            ...     dtype=np.bool_,
+            ... ))
+
+            >>> sim.get_measurement_flips()
+            array([[False,  True, False, False,  True, False, False,  True,  True],
+                   [ True, False, False,  True, False, False,  True,  True, False],
+                   [ True,  True,  True,  True,  True,  True,  True,  True,  True],
+                   [False, False, False, False, False, False, False, False, False],
+                   [ True,  True,  True,  True,  True,  True,  True,  True,  True],
+                   [ True, False,  True, False,  True, False,  True, False,  True],
+                   [False,  True, False,  True, False,  True, False,  True, False]])
+        """
     @property
     def batch_size(
         self,
@@ -7256,6 +7349,105 @@ class FlipSimulator:
             >>> np.array_equal(s1.get_measurement_flips(), s2.get_measurement_flips())
             True
         """
+    def clear(
+        self,
+    ) -> None:
+        """Clears the simulator's state, so it can be reused for another simulation.
+
+        This clears the measurement flip history, clears the detector flip history,
+        and zeroes the observable flip state. It also resets all qubits to |0>. If
+        stabilizer randomization is disabled, this zeros all pauli flip data. Otherwise
+        it randomizes all pauli flips to be I or Z with equal probability.
+
+        Behind the scenes, this doesn't free memory or resize the simulator. So,
+        repeating the same simulation with calls to `clear` in between will be faster
+        than allocating a new simulator each time (by avoiding re-allocations).
+
+        Examples:
+            >>> import stim
+            >>> sim = stim.FlipSimulator(batch_size=256)
+            >>> sim.do(stim.Circuit("M(0.1) 9"))
+            >>> sim.num_qubits
+            10
+            >>> sim.get_measurement_flips().shape
+            (1, 256)
+
+            >>> sim.clear()
+            >>> sim.num_qubits
+            10
+            >>> sim.get_measurement_flips().shape
+            (0, 256)
+        """
+    def copy(
+        self,
+        *,
+        copy_rng: bool = False,
+        seed: Optional[int] = None,
+    ) -> stim.FlipSimulator:
+        """Returns a simulator with the same internal state, except perhaps its prng.
+
+        Args:
+            copy_rng: Defaults to False. When False, the copy's pseudo random number
+                generator is reinitialized with a random seed instead of being a copy
+                of the original simulator's pseudo random number generator. This
+                causes the copy and the original to sample independent randomness,
+                instead of identical randomness, for future random operations. When set
+                to true, the copy will have the exact same pseudo random number
+                generator state as the original, and so will produce identical results
+                if told to do the same noisy operations. This argument is incompatible
+                with the `seed` argument.
+
+            seed: PARTIALLY determines simulation results by deterministically seeding
+                the random number generator.
+
+                Must be None or an integer in range(2**64).
+
+                Defaults to None. When None, the prng state is either copied from the
+                original simulator or reseeded from system entropy, depending on the
+                copy_rng argument.
+
+                When set to an integer, making the exact same series calls on the exact
+                same machine with the exact same version of Stim will produce the exact
+                same simulation results.
+
+                CAUTION: simulation results *WILL NOT* be consistent between versions of
+                Stim. This restriction is present to make it possible to have future
+                optimizations to the random sampling, and is enforced by introducing
+                intentional differences in the seeding strategy from version to version.
+
+                CAUTION: simulation results *MAY NOT* be consistent across machines that
+                differ in the width of supported SIMD instructions. For example, using
+                the same seed on a machine that supports AVX instructions and one that
+                only supports SSE instructions may produce different simulation results.
+
+                CAUTION: simulation results *MAY NOT* be consistent if you vary how the
+                circuit is executed. For example, reordering whether a reset on one
+                qubit happens before or after a reset on another qubit can result in
+                different measurement results being observed starting from the same
+                seed.
+
+        Returns:
+            The copy of the simulator.
+
+        Examples:
+            >>> import stim
+            >>> import numpy as np
+
+            >>> s1 = stim.FlipSimulator(batch_size=256)
+            >>> s1.set_pauli_flip('X', qubit_index=2, instance_index=3)
+            >>> s2 = s1.copy()
+            >>> s2 is s1
+            False
+            >>> s2.peek_pauli_flips() == s1.peek_pauli_flips()
+            True
+
+            >>> s1 = stim.FlipSimulator(batch_size=256)
+            >>> s2 = s1.copy(copy_rng=True)
+            >>> s1.do(stim.Circuit("X_ERROR(0.25) 0 \n M 0"))
+            >>> s2.do(stim.Circuit("X_ERROR(0.25) 0 \n M 0"))
+            >>> np.array_equal(s1.get_measurement_flips(), s2.get_measurement_flips())
+            True
+        """
     def do(
         self,
         obj: Union[deltakit_stim.Circuit, deltakit_stim.CircuitInstruction, deltakit_stim.CircuitRepeatBlock],
@@ -7338,6 +7530,69 @@ class FlipSimulator:
         Examples:
             >>> import deltakit_stim
             >>> sim = deltakit_stim.FlipSimulator(batch_size=256)
+            >>> r = sim.generate_bernoulli_samples(1001, p=0.25)
+            >>> r.dtype
+            dtype('bool')
+            >>> r.shape
+            (1001,)
+
+            >>> r = sim.generate_bernoulli_samples(53, p=0.1, bit_packed=True)
+            >>> r.dtype
+            dtype('uint8')
+            >>> r.shape
+            (7,)
+            >>> r[6] & 0b1110_0000  # zero'd padding bits
+            np.uint8(0)
+
+            >>> r2 = sim.generate_bernoulli_samples(53, p=0.2, bit_packed=True, out=r)
+            >>> r is r2  # Check request to reuse r worked.
+            True
+        """
+    def generate_bernoulli_samples(
+        self,
+        num_samples: int,
+        *,
+        p: float,
+        bit_packed: bool = False,
+        out: Optional[np.ndarray] = None,
+    ) -> np.ndarray:
+        """Uses the simulator's random number generator to produce biased coin flips.
+
+        This method has best performance when specifying `bit_packed=True` and
+        when specifying an `out=` parameter pointing to a numpy array that has
+        contiguous data aligned to a 64 bit boundary. (If `out` isn't specified,
+        the returned numpy array will have this property.)
+
+        Args:
+            num_samples: The number of samples to produce.
+            p: The probability of each sample being True instead of False.
+            bit_packed: Defaults to False (no bit packing). When True, the result
+                has type np.uint8 instead of np.bool_ and 8 samples are packed into
+                each byte as if by np.packbits(bitorder='little'). (The bit order
+                is relevant when producing a number of samples that isn't a multiple
+                of 8.)
+            out: Defaults to None (allocate new). A numpy array to write the samples
+                into. Must have the correct size and dtype.
+
+        Returns:
+            A numpy array containing the samples. The shape and dtype depends on
+            the bit_packed argument:
+
+                if not bit_packed:
+                    shape = (num_samples,)
+                    dtype = np.bool_
+                elif not transpose and bit_packed:
+                    shape = (math.ceil(num_samples / 8),)
+                    dtype = np.uint8
+
+        Raises:
+            ValueError:
+                The given `out` argument had a shape or dtype inconsistent with the
+                requested data.
+
+        Examples:
+            >>> import stim
+            >>> sim = stim.FlipSimulator(batch_size=256)
             >>> r = sim.generate_bernoulli_samples(1001, p=0.25)
             >>> r.dtype
             dtype('bool')
@@ -7873,6 +8128,158 @@ class FlipSimulator:
             >>> ds
             >>> os
         """
+    def to_numpy(
+        self,
+        *,
+        bit_packed: bool = False,
+        transpose: bool = False,
+        output_xs: Union[bool, np.ndarray] = False,
+        output_zs: Union[bool, np.ndarray] = False,
+        output_measure_flips: Union[bool, np.ndarray] = False,
+        output_detector_flips: Union[bool, np.ndarray] = False,
+        output_observable_flips: Union[bool, np.ndarray] = False,
+    ) -> Optional[Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]]:
+        """Writes the simulator state into numpy arrays.
+
+        Args:
+            bit_packed: Whether or not the result is bit packed, storing 8 bits per
+                byte instead of 1 bit per byte. Bit packing always applies to
+                the second index of the result. Bits are packed in little endian
+                order (as if by `np.packbits(X, axis=1, order='little')`).
+            transpose: Defaults to False. When set to False, the second index of the
+                returned array (the index affected by bit packing) is the shot index
+                (meaning the first index is the qubit index or measurement index or
+                etc). When set to True, results are transposed so that the first
+                index is the shot index.
+            output_xs: Defaults to False. When set to False, the X flip data is not
+                generated and the corresponding array in the result tuple is set to
+                None. When set to True, a new array is allocated to hold the X flip
+                data and this array is returned via the result tuple. When set to
+                a numpy array, the results are written into that array (the shape and
+                dtype of the array must be exactly correct).
+            output_zs: Defaults to False. When set to False, the Z flip data is not
+                generated and the corresponding array in the result tuple is set to
+                None. When set to True, a new array is allocated to hold the Z flip
+                data and this array is returned via the result tuple. When set to
+                a numpy array, the results are written into that array (the shape and
+                dtype of the array must be exactly correct).
+            output_measure_flips: Defaults to False. When set to False, the measure
+                flip data is not generated and the corresponding array in the result
+                tuple is set to None. When set to True, a new array is allocated to
+                hold the measure flip data and this array is returned via the result
+                tuple. When set to a numpy array, the results are written into that
+                array (the shape and dtype of the array must be exactly correct).
+            output_detector_flips: Defaults to False. When set to False, the detector
+                flip data is not generated and the corresponding array in the result
+                tuple is set to None. When set to True, a new array is allocated to
+                hold the detector flip data and this array is returned via the result
+                tuple. When set to a numpy array, the results are written into that
+                array (the shape and dtype of the array must be exactly correct).
+            output_observable_flips: Defaults to False. When set to False, the obs
+                flip data is not generated and the corresponding array in the result
+                tuple is set to None. When set to True, a new array is allocated to
+                hold the obs flip data and this array is returned via the result
+                tuple. When set to a numpy array, the results are written into that
+                array (the shape and dtype of the array must be exactly correct).
+
+        Returns:
+            A tuple (xs, zs, ms, ds, os) of numpy arrays. The xs and zs arrays are
+            the pauli flip data specified using XZ encoding (00=I, 10=X, 11=Y, 01=Z).
+            The ms array is the measure flip data, the ds array is the detector flip
+            data, and the os array is the obs flip data. The arrays default to
+            `None` when the corresponding `output_*` argument was left False.
+
+            The shape and dtype of the data depends on arguments given to the function.
+            The following specifies each array's shape and dtype for each case:
+
+                if not transpose and not bit_packed:
+                    xs.shape = (sim.batch_size, sim.num_qubits)
+                    zs.shape = (sim.batch_size, sim.num_qubits)
+                    ms.shape = (sim.batch_size, sim.num_measurements)
+                    ds.shape = (sim.batch_size, sim.num_detectors)
+                    os.shape = (sim.batch_size, sim.num_observables)
+                    xs.dtype = np.bool_
+                    zs.dtype = np.bool_
+                    ms.dtype = np.bool_
+                    ds.dtype = np.bool_
+                    os.dtype = np.bool_
+                elif not transpose and bit_packed:
+                    xs.shape = (sim.batch_size, math.ceil(sim.num_qubits / 8))
+                    zs.shape = (sim.batch_size, math.ceil(sim.num_qubits / 8))
+                    ms.shape = (sim.batch_size, math.ceil(sim.num_measurements / 8))
+                    ds.shape = (sim.batch_size, math.ceil(sim.num_detectors / 8))
+                    os.shape = (sim.batch_size, math.ceil(sim.num_observables / 8))
+                    xs.dtype = np.uint8
+                    zs.dtype = np.uint8
+                    ms.dtype = np.uint8
+                    ds.dtype = np.uint8
+                    os.dtype = np.uint8
+                elif transpose and not bit_packed:
+                    xs.shape = (sim.num_qubits, sim.batch_size)
+                    zs.shape = (sim.num_qubits, sim.batch_size)
+                    ms.shape = (sim.num_measurements, sim.batch_size)
+                    ds.shape = (sim.num_detectors, sim.batch_size)
+                    os.shape = (sim.num_observables, sim.batch_size)
+                    xs.dtype = np.bool_
+                    zs.dtype = np.bool_
+                    ms.dtype = np.bool_
+                    ds.dtype = np.bool_
+                    os.dtype = np.bool_
+                elif transpose and bit_packed:
+                    xs.shape = (sim.num_qubits, math.ceil(sim.batch_size / 8))
+                    zs.shape = (sim.num_qubits, math.ceil(sim.batch_size / 8))
+                    ms.shape = (sim.num_measurements, math.ceil(sim.batch_size / 8))
+                    ds.shape = (sim.num_detectors, math.ceil(sim.batch_size / 8))
+                    os.shape = (sim.num_observables, math.ceil(sim.batch_size / 8))
+                    xs.dtype = np.uint8
+                    zs.dtype = np.uint8
+                    ms.dtype = np.uint8
+                    ds.dtype = np.uint8
+                    os.dtype = np.uint8
+
+        Raises:
+            ValueError:
+                All the `output_*` arguments were False, or an `output_*` argument
+                had a shape or dtype inconsistent with the requested data.
+
+        Examples:
+            >>> import stim
+            >>> import numpy as np
+            >>> sim = stim.FlipSimulator(batch_size=9)
+            >>> sim.do(stim.Circuit('M(1) 0 1 2'))
+
+            >>> ms_buf = np.empty(shape=(9, 1), dtype=np.uint8)
+            >>> xs, zs, ms, ds, os = sim.to_numpy(
+            ...     transpose=True,
+            ...     bit_packed=True,
+            ...     output_xs=True,
+            ...     output_measure_flips=ms_buf,
+            ... )
+            >>> assert ms is ms_buf
+            >>> xs
+            array([[0],
+                   [0],
+                   [0],
+                   [0],
+                   [0],
+                   [0],
+                   [0],
+                   [0],
+                   [0]], dtype=uint8)
+            >>> zs
+            >>> ms
+            array([[7],
+                   [7],
+                   [7],
+                   [7],
+                   [7],
+                   [7],
+                   [7],
+                   [7],
+                   [7]], dtype=uint8)
+            >>> ds
+            >>> os
+        """
 class FlippedMeasurement:
     """Describes a measurement that was flipped.
 
@@ -8363,6 +8770,60 @@ class GateData:
             >>> deltakit_stim.gate_data('DETECTOR').hadamard_conjugated(unsigned=True)
             deltakit_stim.gate_data('DETECTOR')
         """
+    def hadamard_conjugated(
+        self,
+        *,
+        unsigned: bool = False,
+    ) -> Optional[lestim.GateData]:
+        """Returns a lestim gate equivalent to this gate conjugated by Hadamard gates.
+
+        The Hadamard conjugate can be thought of as the XZ dual of the gate; the gate
+        you get by exchanging the X and Z bases. For example, a SQRT_X will become a
+        SQRT_Z and a CX gate will switch directions into an XCZ.
+
+        If lestim doesn't define a gate equivalent to conjugating this gate by Hadamards,
+        the value `None` is returned.
+
+        Args:
+            unsigned: Defaults to False. When False, the returned gate must be *exactly*
+                the Hadamard conjugation of this gate. When True, the returned gate must
+                have the same flows but the sign of the flows can be different (i.e.
+                the returned gate must be the Hadamard conjugate up to Pauli gate
+                differences).
+
+        Returns:
+            A lestim.GateData instance of the Hadamard conjugate, if it exists in lestim.
+
+            None, if lestim doesn't define a gate equal to the Hadamard conjugate.
+
+        Examples:
+            >>> import lestim
+
+            >>> lestim.gate_data('X').hadamard_conjugated()
+            lestim.gate_data('Z')
+            >>> lestim.gate_data('CX').hadamard_conjugated()
+            lestim.gate_data('XCZ')
+            >>> lestim.gate_data('RY').hadamard_conjugated() is None
+            True
+            >>> lestim.gate_data('RY').hadamard_conjugated(unsigned=True)
+            lestim.gate_data('RY')
+            >>> lestim.gate_data('ISWAP').hadamard_conjugated(unsigned=True) is None
+            True
+            >>> lestim.gate_data('SWAP').hadamard_conjugated()
+            lestim.gate_data('SWAP')
+            >>> lestim.gate_data('CXSWAP').hadamard_conjugated()
+            lestim.gate_data('SWAPCX')
+            >>> lestim.gate_data('MXX').hadamard_conjugated()
+            lestim.gate_data('MZZ')
+            >>> lestim.gate_data('DEPOLARIZE1').hadamard_conjugated()
+            lestim.gate_data('DEPOLARIZE1')
+            >>> lestim.gate_data('X_ERROR').hadamard_conjugated()
+            lestim.gate_data('Z_ERROR')
+            >>> lestim.gate_data('H_XY').hadamard_conjugated()
+            lestim.gate_data('H_NYZ')
+            >>> lestim.gate_data('DETECTOR').hadamard_conjugated(unsigned=True)
+            lestim.gate_data('DETECTOR')
+        """
     @property
     def inverse(
         self,
@@ -8558,6 +9019,55 @@ class GateData:
             >>> deltakit_stim.gate_data('MPP').is_symmetric_gate
             False
             >>> deltakit_stim.gate_data('DETECTOR').is_symmetric_gate
+            False
+        """
+    @property
+    def is_symmetric_gate(
+        self,
+    ) -> bool:
+        """Returns whether or not the gate is the same when its targets are swapped.
+
+        A two qubit gate is symmetric if it doesn't matter if you swap its targets. It
+        is unaffected when conjugated by the SWAP gate.
+
+        Single qubit gates are vacuously symmetric. A multi-qubit gate is symmetric if
+        swapping any two of its targets has no effect.
+
+        Note that this method is for symmetry *without broadcasting*. For example, SWAP
+        is symmetric even though SWAP 1 2 3 4 isn't equal to SWAP 1 3 2 4.
+
+        Returns:
+            True if the gate is symmetric.
+            False if the gate isn't symmetric.
+
+        Examples:
+            >>> import lestim
+
+            >>> lestim.gate_data('CX').is_symmetric_gate
+            False
+            >>> lestim.gate_data('CZ').is_symmetric_gate
+            True
+            >>> lestim.gate_data('ISWAP').is_symmetric_gate
+            True
+            >>> lestim.gate_data('CXSWAP').is_symmetric_gate
+            False
+            >>> lestim.gate_data('MXX').is_symmetric_gate
+            True
+            >>> lestim.gate_data('DEPOLARIZE2').is_symmetric_gate
+            True
+            >>> lestim.gate_data('PAULI_CHANNEL_2').is_symmetric_gate
+            False
+            >>> lestim.gate_data('H').is_symmetric_gate
+            True
+            >>> lestim.gate_data('R').is_symmetric_gate
+            True
+            >>> lestim.gate_data('X_ERROR').is_symmetric_gate
+            True
+            >>> lestim.gate_data('CORRELATED_ERROR').is_symmetric_gate
+            False
+            >>> lestim.gate_data('MPP').is_symmetric_gate
+            False
+            >>> lestim.gate_data('DETECTOR').is_symmetric_gate
             False
         """
     @property

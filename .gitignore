@@ -47,6 +47,8 @@ MODULE.bazel.lock
 # Project specific
 # Ignore Emacs backup files.
 *~
+MODULE.bazel.lock
+.ninja_lock
 
 # Sphinx documentation
 docs/_build/

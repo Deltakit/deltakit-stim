@@ -3780,6 +3780,7 @@ TEST(ErrorAnalyzer, tagged_noise) {
         detector[test-tag-3] D0
         logical_observable[test-tag-4] L0
     )DEM"));
+}
 
 TEST(ErrorAnalyzer, heralded_leakage_errors_to_dem_transformation) {
 

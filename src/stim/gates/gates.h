@@ -94,10 +94,10 @@ constexpr inline uint16_t gate_name_to_hash(std::string_view text) {
         auto c5 = v[5] | 0x20;
         result ^= c5 * const7;
     }
-    return result & 0x1FF;
+    return result & 0x1FFF;
 }
 
-constexpr const size_t NUM_DEFINED_GATES = 82;
+constexpr const size_t NUM_DEFINED_GATES = 86;
 
 enum class GateType : uint8_t {
     NOT_A_GATE = 0,
@@ -391,7 +391,7 @@ struct GateDataMap {
     void add_gate_data_pauli_product(bool &failed);
 
    public:
-    std::array<GateDataMapHashEntry, 512> hashed_name_to_gate_type_table;
+    std::array<GateDataMapHashEntry, 8192> hashed_name_to_gate_type_table;
     std::array<Gate, NUM_DEFINED_GATES> items;
     GateDataMap();
 

@@ -466,6 +466,15 @@
 <rect x="4557.2" y="368" width="224" height="32" stroke="black" fill="#800000"/>
 <text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="14" x="4669.2" y="384" fill="white">HERALDED_PAULI_CHANNEL_1</text>
 <text dominant-baseline="hanging" text-anchor="middle" font-family="monospace" font-size="10" stroke="red" x="4669.2" y="404">0.01,0.02,0.03,0.04</text>
+<rect x="4621.2" y="368" width="32" height="32" stroke="black" fill="white"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="12" x="4637.2" y="384">ERR<tspan baseline-shift="sub" font-size="10">I</tspan></text>
+<text dominant-baseline="hanging" text-anchor="middle" font-family="monospace" font-size="10" stroke="red" x="4637.2" y="404">0.06</text>
+<path d="M4701.2,384 L4765.2,384 " fill="none" stroke="black" stroke-width="5"/>
+<rect x="4685.2" y="368" width="32" height="32" stroke="black" fill="white"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="10" x="4701.2" y="384">ERR<tspan baseline-shift="sub" font-size="10">II</tspan></text>
+<rect x="4749.2" y="368" width="32" height="32" stroke="black" fill="white"/>
+<text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="10" x="4765.2" y="384">ERR<tspan baseline-shift="sub" font-size="10">II</tspan></text>
+<text dominant-baseline="hanging" text-anchor="middle" font-family="monospace" font-size="10" stroke="red" x="4765.2" y="404">0.07</text>
 <path d="M176,625.6 C192 571.2,134.4 465.6,80 449.6 L144,449.6 " fill="none" stroke="black" stroke-width="5"/>
 <rect x="160" y="609.6" width="32" height="32" stroke="black" fill="black"/>
 <text dominant-baseline="central" text-anchor="middle" font-family="monospace" font-size="12" x="176" y="625.6" fill="white">MPP<tspan baseline-shift="sub" font-size="10">X</tspan></text>

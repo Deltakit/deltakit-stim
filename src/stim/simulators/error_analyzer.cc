@@ -19,6 +19,7 @@
 #include <ranges>
 #include <queue>
 #include <sstream>
+#include <type_traits>
 
 #include "stim/circuit/gate_decomposition.h"
 #include "stim/stabilizers/pauli_string.h"
@@ -340,16 +341,16 @@ void ErrorAnalyzer::undo_MZ_with_context(const CircuitInstruction &inst, const c
     }
 }
 
-void ErrorAnalyzer::undo_TWO_QUBIT_GATE_LEAKAGE_ERROR(const CircuitInstruction &dat) {
+void ErrorAnalyzer::undo_TWO_QUBIT_GATE_LEAKAGE_ERROR(const CircuitInstruction &inst) {
     static constexpr double MAXIMALLY_MIXED_P = 0.75;
 
     if (!accumulate_errors) {
         return;
     }
 
-    for (size_t k = dat.targets.size() - 2; k + 2 != 0; k -= 2) {
-        auto c = dat.targets[k];
-        auto t = dat.targets[k + 1];
+    for (size_t k = inst.targets.size() - 2; k + 2 != 0; k -= 2) {
+        auto c = inst.targets[k];
+        auto t = inst.targets[k + 1];
 
         auto cd = c.data;
         auto td = t.data;
@@ -367,13 +368,10 @@ void ErrorAnalyzer::undo_TWO_QUBIT_GATE_LEAKAGE_ERROR(const CircuitInstruction &
                     const uint32_t depol_candidate = tar == cd ? td : cd;
                     add_error_combinations<3>(
                         {0, 0, 0, 0, 0, pL, pL, pL},
-                        {
-                            tracker.xs[depol_candidate].range(),
-                            tracker.zs[depol_candidate].range(),
-                            l_her_bits.range()
-                        },
+                        {tracker.xs[depol_candidate].range(), tracker.zs[depol_candidate].range(), l_her_bits.range()},
                         false,
-                        true);
+                        inst.tag,
+			true);
                 }
             }
         }
@@ -635,13 +633,13 @@ void ErrorAnalyzer::undo_LEAKAGE_ON_RESET(const CircuitInstruction &dat) {
     }
 }
 
-void ErrorAnalyzer::undo_HERALD_LEAKAGE_EVENT(const CircuitInstruction &dat) {
-    for (size_t k = dat.targets.size(); k-- > 0;) {
-        auto q = dat.targets[k].qubit_value();
+void ErrorAnalyzer::undo_HERALD_LEAKAGE_EVENT(const CircuitInstruction &inst) {
+    for (size_t k = inst.targets.size(); k-- > 0;) {
+        auto q = inst.targets[k].qubit_value();
         tracker.num_measurements_in_past--;
 
         SparseXorVec<DemTarget> &d = tracker.rec_bits[tracker.num_measurements_in_past];
-        xor_sorted_measurement_error(d.range(), dat);
+        xor_sorted_measurement_error(d.range(), inst);
 
         const auto &tot_pL = num_meas_before_her_to_pl.at(tracker.num_measurements_in_past);
 
@@ -661,7 +659,8 @@ void ErrorAnalyzer::undo_HERALD_LEAKAGE_EVENT(const CircuitInstruction &dat) {
                     tracker.l_data[q].lh_rec_bits.range(),
                 },
                 false,
-                true);
+                inst.tag,
+		true);
         }
     }
 }

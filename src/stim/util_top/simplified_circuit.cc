@@ -270,7 +270,7 @@ struct Simplifier {
                 yield({GateType::R, {}, ts, inst.tag});
                 break;
             case GateType::RL:
-                yield({GateType::RL, {}, ts});
+	      yield({GateType::RL, {}, ts, inst.tag});
                 break;
 
             default:

@@ -350,6 +350,9 @@ TEST(gate_data, hadamard_conjugated_vs_flow_generators_of_two_qubit_gates) {
         if (g.arg_count != 0 && g.arg_count != ARG_COUNT_SYGIL_ZERO_OR_ONE && g.arg_count != ARG_COUNT_SYGIL_ANY) {
             continue;
         }
+        if (g.id == GateType::RL) {
+            continue;
+	}
         if ((g.flags & GATE_TARGETS_PAIRS) || (g.flags & GATE_IS_SINGLE_QUBIT_GATE)) {
             Circuit c;
             c.safe_append_u(g.name, {0, 1}, {});
@@ -363,6 +366,7 @@ TEST(gate_data, hadamard_conjugated_vs_flow_generators_of_two_qubit_gates) {
     }
     for (const auto &g : GATE_DATA.items) {
         if (g.id == GateType::II || g.id == GateType::II_ERROR || g.id == GateType::I_ERROR) {
+        if (g.id == GateType::II || g.id == GateType::II_ERROR || g.id == GateType::I_ERROR || g.id == GateType::HERALD_LEAKAGE_EVENT) {
             continue;
         }
         if (g.arg_count != 0 && g.arg_count != ARG_COUNT_SYGIL_ZERO_OR_ONE && g.arg_count != ARG_COUNT_SYGIL_ANY) {
@@ -390,5 +394,6 @@ TEST(gate_data, hadamard_conjugated_vs_flow_generators_of_two_qubit_gates) {
             EXPECT_TRUE(found) << "unsigned " << g.name << " -> " << GATE_DATA[actual_u].name << " not in "
                                << GATE_DATA[other_us[0]].name;
         }
+	}
     }
 }

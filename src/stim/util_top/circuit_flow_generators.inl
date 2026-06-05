@@ -261,11 +261,15 @@ void CircuitFlowGeneratorSolver<W>::undo_instruction(CircuitInstruction inst) {
         case GateType::PAULI_CHANNEL_2:
         case GateType::E:
         case GateType::ELSE_CORRELATED_ERROR:
+	case GateType::RL:
+        case GateType::RELAX:
+        case GateType::LEAKAGE:
             // Ignored.
             break;
 
         case GateType::HERALDED_ERASE:
         case GateType::HERALDED_PAULI_CHANNEL_1:
+	case GateType::HERALD_LEAKAGE_EVENT:
             // Heralds.
             for (auto t : inst.targets) {
                 num_measurements_in_past--;

@@ -16,6 +16,17 @@ def _forward_single_str_tag(op: cirq.CircuitOperation) -> str:
         return tags[0]
     return ""
 
+from ._i_error_gate import IErrorGate
+from ._ii_error_gate import IIErrorGate
+from ._ii_gate import IIGate
+
+
+def _forward_single_str_tag(op: cirq.CircuitOperation) -> str:
+    tags = [tag for tag in op.tags if isinstance(tag, str)]
+    if len(tags) == 1:
+        return tags[0]
+    return ""
+
 
 def cirq_circuit_to_stim_circuit(
     circuit: cirq.AbstractCircuit,

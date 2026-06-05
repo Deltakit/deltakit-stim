@@ -20,10 +20,6 @@
 #include <algorithm>
 #include <map>
 #include <memory>
-#include <queue>
-#include <set>
-#include <stack>
-#include <stim/stabilizers/pauli_string.h>
 #include <vector>
 
 #include "sparse_rev_frame_tracker.h"

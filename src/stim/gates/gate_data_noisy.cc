@@ -245,10 +245,13 @@ Examples:
     add_gate(
         failed,
         Gate{
-    .name = "II_ERROR", .id = GateType::II_ERROR, .best_candidate_inverse_id = GateType::II_ERROR,
-    .arg_count = ARG_COUNT_SYGIL_ANY,
-    .flags = (GateFlags)(GATE_TARGETS_PAIRS | GATE_IS_NOISY | GATE_ARGS_ARE_DISJOINT_PROBABILITIES),
-    .category = "F_Noise Channels", .help = R"MARKDOWN(
+            .name = "II_ERROR",
+            .id = GateType::II_ERROR,
+            .best_candidate_inverse_id = GateType::II_ERROR,
+            .arg_count = ARG_COUNT_SYGIL_ANY,
+            .flags = (GateFlags)(GATE_TARGETS_PAIRS | GATE_IS_NOISY | GATE_ARGS_ARE_DISJOINT_PROBABILITIES),
+            .category = "F_Noise Channels",
+            .help = R"MARKDOWN(
 Applies a two-qubit identity with a given probability.
 
 This gate has no effect. It only exists because it can be useful as a
