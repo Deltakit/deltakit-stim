@@ -1,16 +1,16 @@
-"""Deltakit_stim (Development Version): a fast quantum stabilizer circuit library."""
-# (This is a stubs file describing the classes and methods in deltakit_stim.)
+"""Lestim (Development Version): a fast quantum stabilizer circuit library."""
+# (This is a stubs file describing the classes and methods in lestim.)
 from __future__ import annotations
-from typing import overload, TYPE_CHECKING, List, Dict, Tuple, Any, Union, Iterable, Optional, Sequence, Literal
+from typing import overload, TYPE_CHECKING, List, Dict, Tuple, Any, Union, Iterable, Optional
 if TYPE_CHECKING:
     import io
     import pathlib
     import numpy as np
-    import deltakit_stim
+    import lestim
 class Circuit:
     """A mutable stabilizer circuit.
 
-    The deltakit_stim.Circuit class is arguably the most important object in the
+    The lestim.Circuit class is arguably the most important object in the
     entire library. It is the interface through which you explain a
     noisy quantum computation to Stim, in order to do fast bulk sampling
     or fast error analysis.
@@ -19,21 +19,21 @@ class Circuit:
     new quantum error correction construction. Stim can help you do this
     but the very first step is to create a circuit implementing the
     construction. Once you have the circuit you can then use methods like
-    deltakit_stim.Circuit.detector_error_model() to create an object that can be
+    lestim.Circuit.detector_error_model() to create an object that can be
     used to configure the decoder, or like
-    deltakit_stim.Circuit.compile_detector_sampler() to produce problems for the
-    decoder to solve, or like deltakit_stim.Circuit.shortest_graphlike_error() to
+    lestim.Circuit.compile_detector_sampler() to produce problems for the
+    decoder to solve, or like lestim.Circuit.shortest_graphlike_error() to
     check for mistakes in the implementation of the code.
 
     Examples:
-        >>> import deltakit_stim
-        >>> c = deltakit_stim.Circuit()
+        >>> import lestim
+        >>> c = lestim.Circuit()
         >>> c.append("X", 0)
         >>> c.append("M", 0)
         >>> c.compile_sampler().sample(shots=1)
         array([[ True]])
 
-        >>> deltakit_stim.Circuit('''
+        >>> lestim.Circuit('''
         ...    H 0
         ...    CNOT 0 1
         ...    M 0 1
@@ -43,21 +43,21 @@ class Circuit:
     """
     def __add__(
         self,
-        second: deltakit_stim.Circuit,
-    ) -> deltakit_stim.Circuit:
+        second: lestim.Circuit,
+    ) -> lestim.Circuit:
         """Creates a circuit by appending two circuits.
 
         Examples:
-            >>> import deltakit_stim
-            >>> c1 = deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> c1 = lestim.Circuit('''
             ...    X 0
             ...    Y 1 2
             ... ''')
-            >>> c2 = deltakit_stim.Circuit('''
+            >>> c2 = lestim.Circuit('''
             ...    M 0 1 2
             ... ''')
             >>> c1 + c2
-            deltakit_stim.Circuit('''
+            lestim.Circuit('''
                 X 0
                 Y 1 2
                 M 0 1 2
@@ -65,7 +65,7 @@ class Circuit:
         """
     def __eq__(
         self,
-        arg0: deltakit_stim.Circuit,
+        arg0: lestim.Circuit,
     ) -> bool:
         """Determines if two circuits have identical contents.
         """
@@ -73,13 +73,13 @@ class Circuit:
     def __getitem__(
         self,
         index_or_slice: int,
-    ) -> Union[deltakit_stim.CircuitInstruction, deltakit_stim.CircuitRepeatBlock]:
+    ) -> Union[lestim.CircuitInstruction, lestim.CircuitRepeatBlock]:
         pass
     @overload
     def __getitem__(
         self,
         index_or_slice: slice,
-    ) -> deltakit_stim.Circuit:
+    ) -> lestim.Circuit:
         pass
     def __getitem__(
         self,
@@ -97,8 +97,8 @@ class Circuit:
             slice.
 
         Examples:
-            >>> import deltakit_stim
-            >>> circuit = deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> circuit = lestim.Circuit('''
             ...    X 0
             ...    X_ERROR(0.5) 2
             ...    REPEAT 100 {
@@ -110,14 +110,14 @@ class Circuit:
             ...    DETECTOR rec[-1]
             ... ''')
             >>> circuit[1]
-            deltakit_stim.CircuitInstruction('X_ERROR', [deltakit_stim.GateTarget(2)], [0.5])
+            lestim.CircuitInstruction('X_ERROR', [lestim.GateTarget(2)], [0.5])
             >>> circuit[2]
-            deltakit_stim.CircuitRepeatBlock(100, deltakit_stim.Circuit('''
+            lestim.CircuitRepeatBlock(100, lestim.Circuit('''
                 X 0
                 Y 1 2
             '''))
             >>> circuit[1::2]
-            deltakit_stim.Circuit('''
+            lestim.Circuit('''
                 X_ERROR(0.5) 2
                 TICK
                 DETECTOR rec[-1]
@@ -125,22 +125,22 @@ class Circuit:
         """
     def __iadd__(
         self,
-        second: deltakit_stim.Circuit,
-    ) -> deltakit_stim.Circuit:
+        second: lestim.Circuit,
+    ) -> lestim.Circuit:
         """Appends a circuit into the receiving circuit (mutating it).
 
         Examples:
-            >>> import deltakit_stim
-            >>> c1 = deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> c1 = lestim.Circuit('''
             ...    X 0
             ...    Y 1 2
             ... ''')
-            >>> c2 = deltakit_stim.Circuit('''
+            >>> c2 = lestim.Circuit('''
             ...    M 0 1 2
             ... ''')
             >>> c1 += c2
             >>> print(repr(c1))
-            deltakit_stim.Circuit('''
+            lestim.Circuit('''
                 X 0
                 Y 1 2
                 M 0 1 2
@@ -149,7 +149,7 @@ class Circuit:
     def __imul__(
         self,
         repetitions: int,
-    ) -> deltakit_stim.Circuit:
+    ) -> lestim.Circuit:
         """Mutates the circuit by putting its contents into a REPEAT block.
 
         Special case: if the repetition count is 0, the circuit is cleared.
@@ -159,14 +159,14 @@ class Circuit:
             repetitions: The number of times the REPEAT block should repeat.
 
         Examples:
-            >>> import deltakit_stim
-            >>> c = deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> c = lestim.Circuit('''
             ...    X 0
             ...    Y 1 2
             ... ''')
             >>> c *= 3
             >>> print(repr(c))
-            deltakit_stim.Circuit('''
+            lestim.Circuit('''
                 REPEAT 3 {
                     X 0
                     Y 1 2
@@ -175,18 +175,18 @@ class Circuit:
         """
     def __init__(
         self,
-        deltakit_stim_program_text: str = '',
+        lestim_program_text: str = '',
     ) -> None:
-        """Creates a deltakit_stim.Circuit.
+        """Creates a lestim.Circuit.
 
         Args:
-            deltakit_stim_program_text: Defaults to empty. Describes operations to append into
+            lestim_program_text: Defaults to empty. Describes operations to append into
                 the circuit.
 
         Examples:
-            >>> import deltakit_stim
-            >>> empty = deltakit_stim.Circuit()
-            >>> not_empty = deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> empty = lestim.Circuit()
+            >>> not_empty = lestim.Circuit('''
             ...    X 0
             ...    CNOT 0 1
             ...    M 1
@@ -200,10 +200,10 @@ class Circuit:
         Instructions inside of blocks are not included in this count.
 
         Examples:
-            >>> import deltakit_stim
-            >>> len(deltakit_stim.Circuit())
+            >>> import lestim
+            >>> len(lestim.Circuit())
             0
-            >>> len(deltakit_stim.Circuit('''
+            >>> len(lestim.Circuit('''
             ...    X 0
             ...    X_ERROR(0.5) 1 2
             ...    TICK
@@ -211,7 +211,7 @@ class Circuit:
             ...    DETECTOR rec[-1]
             ... '''))
             5
-            >>> len(deltakit_stim.Circuit('''
+            >>> len(lestim.Circuit('''
             ...    REPEAT 100 {
             ...        X 0
             ...        Y 1 2
@@ -222,7 +222,7 @@ class Circuit:
     def __mul__(
         self,
         repetitions: int,
-    ) -> deltakit_stim.Circuit:
+    ) -> lestim.Circuit:
         """Repeats the circuit using a REPEAT block.
 
         Has special cases for 0 repetitions and 1 repetitions.
@@ -237,13 +237,13 @@ class Circuit:
                 that repeat block are this circuit.
 
         Examples:
-            >>> import deltakit_stim
-            >>> c = deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> c = lestim.Circuit('''
             ...    X 0
             ...    Y 1 2
             ... ''')
             >>> c * 3
-            deltakit_stim.Circuit('''
+            lestim.Circuit('''
                 REPEAT 3 {
                     X 0
                     Y 1 2
@@ -252,19 +252,19 @@ class Circuit:
         """
     def __ne__(
         self,
-        arg0: deltakit_stim.Circuit,
+        arg0: lestim.Circuit,
     ) -> bool:
         """Determines if two circuits have non-identical contents.
         """
     def __repr__(
         self,
     ) -> str:
-        """Returns text that is a valid python expression evaluating to an equivalent `deltakit_stim.Circuit`.
+        """Returns text that is a valid python expression evaluating to an equivalent `lestim.Circuit`.
         """
     def __rmul__(
         self,
         repetitions: int,
-    ) -> deltakit_stim.Circuit:
+    ) -> lestim.Circuit:
         """Repeats the circuit using a REPEAT block.
 
         Has special cases for 0 repetitions and 1 repetitions.
@@ -279,13 +279,13 @@ class Circuit:
                 that repeat block are this circuit.
 
         Examples:
-            >>> import deltakit_stim
-            >>> c = deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> c = lestim.Circuit('''
             ...    X 0
             ...    Y 1 2
             ... ''')
             >>> 3 * c
-            deltakit_stim.Circuit('''
+            lestim.Circuit('''
                 REPEAT 3 {
                     X 0
                     Y 1 2
@@ -295,22 +295,20 @@ class Circuit:
     def __str__(
         self,
     ) -> str:
-        """Returns deltakit_stim instructions (that can be saved to a file and parsed by deltakit_stim) for the current circuit.
+        """Returns lestim instructions (that can be saved to a file and parsed by lestim) for the current circuit.
         """
     @overload
     def append(
         self,
         name: str,
-        targets: Union[int, deltakit_stim.GateTarget, deltakit_stim.PauliString, Iterable[Union[int, deltakit_stim.GateTarget, deltakit_stim.PauliString]]],
-        arg: Union[float, Iterable[float], None] = None,
-        *,
-        tag: str = "",
+        targets: Union[int, lestim.GateTarget, Iterable[Union[int, lestim.GateTarget]]],
+        arg: Union[float, Iterable[float]],
     ) -> None:
         pass
     @overload
     def append(
         self,
-        name: Union[deltakit_stim.CircuitInstruction, deltakit_stim.CircuitRepeatBlock, deltakit_stim.Circuit],
+        name: Union[lestim.CircuitOperation, lestim.CircuitRepeatBlock],
     ) -> None:
         pass
     def append(
@@ -318,24 +316,22 @@ class Circuit:
         name: object,
         targets: object = (),
         arg: object = None,
-        *,
-        tag: str = '',
     ) -> None:
         """Appends an operation into the circuit.
 
-        Note: `deltakit_stim.Circuit.append_operation` is an alias of `deltakit_stim.Circuit.append`.
+        Note: `lestim.Circuit.append_operation` is an alias of `lestim.Circuit.append`.
 
         Examples:
-            >>> import deltakit_stim
-            >>> c = deltakit_stim.Circuit()
+            >>> import lestim
+            >>> c = lestim.Circuit()
             >>> c.append("X", 0)
             >>> c.append("H", [0, 1])
-            >>> c.append("M", [0, deltakit_stim.target_inv(1)])
-            >>> c.append("CNOT", [deltakit_stim.target_rec(-1), 0])
+            >>> c.append("M", [0, lestim.target_inv(1)])
+            >>> c.append("CNOT", [lestim.target_rec(-1), 0])
             >>> c.append("X_ERROR", [0], 0.125)
-            >>> c.append("CORRELATED_ERROR", [deltakit_stim.target_x(0), deltakit_stim.target_y(2)], 0.25)
+            >>> c.append("CORRELATED_ERROR", [lestim.target_x(0), lestim.target_y(2)], 0.25)
             >>> print(repr(c))
-            deltakit_stim.Circuit('''
+            lestim.Circuit('''
                 X 0
                 H 0 1
                 M 0 !1
@@ -347,23 +343,19 @@ class Circuit:
         Args:
             name: The name of the operation's gate (e.g. "H" or "M" or "CNOT").
 
-                This argument can also be set to a `deltakit_stim.CircuitInstruction` or
-                `deltakit_stim.CircuitInstructionBlock`, which results in the instruction or
+                This argument can also be set to a `lestim.CircuitInstruction` or
+                `lestim.CircuitInstructionBlock`, which results in the instruction or
                 block being appended to the circuit. The other arguments (targets
                 and arg) can't be specified when doing so.
 
                 (The argument being called `name` is no longer quite right, but
                 is being kept for backwards compatibility.)
             targets: The objects operated on by the gate. This can be either a
-                single target or an iterable of multiple targets.
-
-                Each target can be:
-                    An int: The index of a targeted qubit.
-                    A `deltakit_stim.GateTarget`: Could be a variety of things. Methods like
-                        `deltakit_stim.target_rec`, `deltakit_stim.target_sweet`, `deltakit_stim.target_x`, and
-                        `deltakit_stim.CircuitInstruction.__getitem__` all return this type.
-                    A `deltakit_stim.PauliString`: This will automatically be expanded into
-                        a product of pauli targets like `X1*Y2*Z3`.
+                single target or an iterable of multiple targets to broadcast the
+                gate over. Each target can be an integer (a qubit), a
+                lestim.GateTarget, or a special target from one of the `lestim.target_*`
+                methods (such as a measurement record target like `rec[-1]` from
+                `lestim.target_rec(-1)`).
             arg: The "parens arguments" for the gate, such as the probability for a
                 noise operation. A double or list of doubles parameterizing the
                 gate. Different gates take different parens arguments. For example,
@@ -374,39 +366,17 @@ class Circuit:
                 compatibility reasons, `cirq.append_operation` (but not
                 `cirq.append`) will default to a single 0.0 argument for gates that
                 take exactly one argument.
-            tag: A customizable string attached to the instruction.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> c = deltakit_stim.Circuit()
-            >>> c.append("X", 0)
-            >>> c.append("H", [0, 1])
-            >>> c.append("M", [0, deltakit_stim.target_inv(1)])
-            >>> c.append("CNOT", [deltakit_stim.target_rec(-1), 0])
-            >>> c.append("X_ERROR", [0], 0.125)
-            >>> c.append("CORRELATED_ERROR", [deltakit_stim.target_x(0), deltakit_stim.target_y(2)], 0.25)
-            >>> c.append("MPP", [deltakit_stim.PauliString("X1*Y2"), deltakit_stim.GateTarget("Z3")])
-            >>> print(repr(c))
-            deltakit_stim.Circuit('''
-                X 0
-                H 0 1
-                M 0 !1
-                CX rec[-1] 0
-                X_ERROR(0.125) 0
-                E(0.25) X0 Y2
-                MPP X1*Y2 Z3
-            ''')
         """
-    def append_from_deltakit_stim_program_text(
+    def append_from_stim_program_text(
         self,
-        deltakit_stim_program_text: str,
+        lestim_program_text: str,
     ) -> None:
         """Appends operations described by a STIM format program into the circuit.
 
         Examples:
-            >>> import deltakit_stim
-            >>> c = deltakit_stim.Circuit()
-            >>> c.append_from_deltakit_stim_program_text('''
+            >>> import lestim
+            >>> c = lestim.Circuit()
+            >>> c.append_from_lestim_program_text('''
             ...    H 0  # comment
             ...    CNOT 0 2
             ...
@@ -420,7 +390,7 @@ class Circuit:
             CX rec[-1] 1
 
         Args:
-            deltakit_stim_program_text: The STIM program text containing the circuit operations
+            lestim_program_text: The STIM program text containing the circuit operations
                 to append.
         """
     def append_operation(
@@ -428,10 +398,8 @@ class Circuit:
         name: object,
         targets: object = (),
         arg: object = None,
-        *,
-        tag: str = '',
     ) -> None:
-        """[DEPRECATED] use deltakit_stim.Circuit.append instead
+        """[DEPRECATED] use lestim.Circuit.append instead
         """
     def approx_equals(
         self,
@@ -457,8 +425,8 @@ class Circuit:
             receiving circuit up to the given tolerance, otherwise False.
 
         Examples:
-            >>> import deltakit_stim
-            >>> base = deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> base = lestim.Circuit('''
             ...    X_ERROR(0.099) 0 1 2
             ...    M 0 1 2
             ... ''')
@@ -466,25 +434,25 @@ class Circuit:
             >>> base.approx_equals(base, atol=0)
             True
 
-            >>> base.approx_equals(deltakit_stim.Circuit('''
+            >>> base.approx_equals(lestim.Circuit('''
             ...    X_ERROR(0.101) 0 1 2
             ...    M 0 1 2
             ... '''), atol=0)
             False
 
-            >>> base.approx_equals(deltakit_stim.Circuit('''
+            >>> base.approx_equals(lestim.Circuit('''
             ...    X_ERROR(0.101) 0 1 2
             ...    M 0 1 2
             ... '''), atol=0.0001)
             False
 
-            >>> base.approx_equals(deltakit_stim.Circuit('''
+            >>> base.approx_equals(lestim.Circuit('''
             ...    X_ERROR(0.101) 0 1 2
             ...    M 0 1 2
             ... '''), atol=0.01)
             True
 
-            >>> base.approx_equals(deltakit_stim.Circuit('''
+            >>> base.approx_equals(lestim.Circuit('''
             ...    DEPOLARIZE1(0.099) 0 1 2
             ...    MRX 0 1 2
             ... '''), atol=9999)
@@ -496,20 +464,20 @@ class Circuit:
         """Clears the contents of the circuit.
 
         Examples:
-            >>> import deltakit_stim
-            >>> c = deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> c = lestim.Circuit('''
             ...    X 0
             ...    Y 1 2
             ... ''')
             >>> c.clear()
             >>> c
-            deltakit_stim.Circuit()
+            lestim.Circuit()
         """
     def compile_detector_sampler(
         self,
         *,
         seed: object = None,
-    ) -> deltakit_stim.CompiledDetectorSampler:
+    ) -> lestim.CompiledDetectorSampler:
         """Returns an object that can batch sample detection events from the circuit.
 
         Args:
@@ -521,11 +489,11 @@ class Circuit:
                 Defaults to None. When None, the prng is seeded from system entropy.
 
                 When set to an integer, making the exact same series calls on the exact
-                same machine with the exact same version of deltakit_stim will produce the exact
+                same machine with the exact same version of Lestim will produce the exact
                 same simulation results.
 
                 CAUTION: simulation results *WILL NOT* be consistent between versions of
-                deltakit_stim. This restriction is present to make it possible to have future
+                Lestim. This restriction is present to make it possible to have future
                 optimizations to the random sampling, and is enforced by introducing
                 intentional differences in the seeding strategy from version to version.
 
@@ -539,8 +507,8 @@ class Circuit:
                 give different results from taking 100 shots in one call.
 
         Examples:
-            >>> import deltakit_stim
-            >>> c = deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> c = lestim.Circuit('''
             ...    H 0
             ...    CNOT 0 1
             ...    M 0 1
@@ -554,19 +522,16 @@ class Circuit:
         self,
         *,
         skip_reference_sample: bool = False,
-    ) -> deltakit_stim.CompiledMeasurementsToDetectionEventsConverter:
+    ) -> lestim.CompiledMeasurementsToDetectionEventsConverter:
         """Creates a measurement-to-detection-event converter for the given circuit.
 
-        The converter can efficiently compute detection events and observable flips
-        from raw measurement data.
-
         The converter uses a noiseless reference sample, collected from the circuit
-        using deltakit_stim's Tableau simulator during initialization of the converter, as a
+        using lestim's Tableau simulator during initialization of the converter, as a
         baseline for determining what the expected value of a detector is.
 
         Note that the expected behavior of gauge detectors (detectors that are not
         actually deterministic under noiseless execution) can vary depending on the
-        reference sample. deltakit_stim mitigates this by always generating the same reference
+        reference sample. Lestim mitigates this by always generating the same reference
         sample for a given circuit.
 
         Args:
@@ -577,12 +542,12 @@ class Circuit:
                 circuit (under noiseless execution).
 
         Returns:
-            An initialized deltakit_stim.CompiledMeasurementsToDetectionEventsConverter.
+            An initialized lestim.CompiledMeasurementsToDetectionEventsConverter.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
             >>> import numpy as np
-            >>> converter = deltakit_stim.Circuit('''
+            >>> converter = lestim.Circuit('''
             ...    X 0
             ...    M 0
             ...    DETECTOR rec[-1]
@@ -600,7 +565,7 @@ class Circuit:
         skip_reference_sample: bool = False,
         seed: Optional[int] = None,
         reference_sample: Optional[np.ndarray] = None,
-    ) -> deltakit_stim.CompiledMeasurementSampler:
+    ) -> lestim.CompiledMeasurementSampler:
         """Returns an object that can quickly batch sample measurements from the circuit.
 
         Args:
@@ -627,11 +592,11 @@ class Circuit:
                 Defaults to None. When None, the prng is seeded from system entropy.
 
                 When set to an integer, making the exact same series calls on the exact
-                same machine with the exact same version of deltakit_stim will produce the exact
+                same machine with the exact same version of Lestim will produce the exact
                 same simulation results.
 
                 CAUTION: simulation results *WILL NOT* be consistent between versions of
-                deltakit_stim. This restriction is present to make it possible to have future
+                Lestim. This restriction is present to make it possible to have future
                 optimizations to the random sampling, and is enforced by introducing
                 intentional differences in the seeding strategy from version to version.
 
@@ -657,8 +622,8 @@ class Circuit:
             ValueError: skip_reference_sample is True and reference_sample is not None.
 
         Examples:
-            >>> import deltakit_stim
-            >>> c = deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> c = lestim.Circuit('''
             ...    X 2
             ...    M 0 1 2
             ... ''')
@@ -668,13 +633,13 @@ class Circuit:
         """
     def copy(
         self,
-    ) -> deltakit_stim.Circuit:
+    ) -> lestim.Circuit:
         """Returns a copy of the circuit. An independent circuit with the same contents.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> c1 = deltakit_stim.Circuit("H 0")
+            >>> c1 = lestim.Circuit("H 0")
             >>> c2 = c1.copy()
             >>> c2 is c1
             False
@@ -683,8 +648,6 @@ class Circuit:
         """
     def count_determined_measurements(
         self,
-        *,
-        unknown_input: bool = False,
     ) -> int:
         """Counts the number of predictable measurements in the circuit.
 
@@ -716,51 +679,26 @@ class Circuit:
         the Z basis. Typically this relationship is not declared as a detector, because
         it's not local, or as an observable, because it doesn't store a qubit.
 
-        Args:
-            unknown_input: Defaults to False (inputs assumed to be in the |0> state).
-                When set to True, the inputs are instead treated as being in unknown
-                random states. For example, this means that Z-basis measurements at
-                the very beginning of the circuit will be considered random rather
-                than determined.
-
         Returns:
             The number of measurements that were predictable.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> deltakit_stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     R 0
             ...     M 0
             ... ''').count_determined_measurements()
             1
 
-            >>> deltakit_stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     R 0
             ...     H 0
             ...     M 0
             ... ''').count_determined_measurements()
             0
 
-            >>> deltakit_stim.Circuit('''
-            ...     M 0
-            ... ''').count_determined_measurements()
-            1
-
-            >>> deltakit_stim.Circuit('''
-            ...     M 0
-            ... ''').count_determined_measurements(unknown_input=True)
-            0
-
-            >>> deltakit_stim.Circuit('''
-            ...     M 0
-            ...     M 0 1
-            ...     M 0 1 2
-            ...     M 0 1 2 3
-            ... ''').count_determined_measurements(unknown_input=True)
-            6
-
-            >>> deltakit_stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     R 0 1
             ...     MZZ 0 1
             ...     MYY 0 1
@@ -768,7 +706,7 @@ class Circuit:
             ... ''').count_determined_measurements()
             2
 
-            >>> circuit = deltakit_stim.Circuit.generated(
+            >>> circuit = lestim.Circuit.generated(
             ...     "surface_code:rotated_memory_x",
             ...     distance=5,
             ...     rounds=9,
@@ -780,7 +718,7 @@ class Circuit:
         """
     def decomposed(
         self,
-    ) -> deltakit_stim.Circuit:
+    ) -> lestim.Circuit:
         """Recreates the circuit using (mostly) the {H,S,CX,M,R} gate set.
 
         The intent of this method is to simplify the circuit to use fewer gate types,
@@ -801,25 +739,25 @@ class Circuit:
         - Repeat blocks are not flattened.
 
         Returns:
-            A `deltakit_stim.Circuit` whose function is equivalent to the original circuit,
+            A `lestim.Circuit` whose function is equivalent to the original circuit,
             but with most gates decomposed into the {H,S,CX,M,R} gate set.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> deltakit_stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     SWAP 0 1
             ... ''').decomposed()
-            deltakit_stim.Circuit('''
+            lestim.Circuit('''
                 CX 0 1 1 0 0 1
             ''')
 
-            >>> deltakit_stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     ISWAP 0 1 2 1
             ...     TICK
             ...     MPP !X1*Y2*Z3
             ... ''').decomposed()
-            deltakit_stim.Circuit('''
+            lestim.Circuit('''
                 H 0
                 CX 0 1 1 0
                 H 1
@@ -846,17 +784,17 @@ class Circuit:
     def detecting_regions(
         self,
         *,
-        targets: Optional[Iterable[deltakit_stim.DemTarget | str | Iterable[float]]] = None,
+        targets: Optional[Iterable[lestim.DemTarget | str | Iterable[float]]] = None,
         ticks: Optional[Iterable[int]] = None,
-    ) -> Dict[deltakit_stim.DemTarget, Dict[int, deltakit_stim.PauliString]]:
+    ) -> Dict[lestim.DemTarget, Dict[int, lestim.PauliString]]:
         """Records where detectors and observables are sensitive to errors over time.
 
         The result of this method is a nested dictionary, mapping detectors/observables
         and ticks to Pauli sensitivities for that detector/observable at that time.
 
         For example, if observable 2 has Z-type sensitivity on qubits 5 and 6 during
-        tick 3, then `result[deltakit_stim.target_logical_observable_id(2)][3]` will be equal to
-        `deltakit_stim.PauliString("Z5*Z6")`.
+        tick 3, then `result[lestim.target_logical_observable_id(2)][3]` will be equal to
+        `lestim.PauliString("Z5*Z6")`.
 
         If you want sensitivities from more places in the circuit, besides just at the
         TICK instructions, you can work around this by making a version of the circuit
@@ -869,7 +807,7 @@ class Circuit:
                 matching any one filter are included.
 
                 A variety of filters are supported:
-                    deltakit_stim.DemTarget: Includes the targeted detector or observable.
+                    lestim.DemTarget: Includes the targeted detector or observable.
                     Iterable[float]: Coordinate prefix match. Includes detectors whose
                         coordinate data begins with the same floats.
                     "D": Includes all detectors.
@@ -889,17 +827,17 @@ class Circuit:
                 regions.
 
         Returns:
-            Nested dictionaries keyed first by a `deltakit_stim.DemTarget` identifying the
+            Nested dictionaries keyed first by a `lestim.DemTarget` identifying the
             detector or observable, then by the index of the tick, leading to a
             PauliString with that target's error sensitivity at that tick.
 
-            Note you can use `deltakit_stim.PauliString.pauli_indices` to quickly get to the
+            Note you can use `lestim.PauliString.pauli_indices` to quickly get to the
             non-identity terms in the sensitivity.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> detecting_regions = deltakit_stim.Circuit('''
+            >>> detecting_regions = lestim.Circuit('''
             ...     R 0
             ...     TICK
             ...     H 0
@@ -918,14 +856,14 @@ class Circuit:
                 tick 1 = +X_
                 tick 2 = +XX
 
-            >>> circuit = deltakit_stim.Circuit.generated(
+            >>> circuit = lestim.Circuit.generated(
             ...     "surface_code:rotated_memory_x",
             ...     rounds=5,
             ...     distance=4,
             ... )
 
             >>> detecting_regions = circuit.detecting_regions(
-            ...     targets=["L0", (2, 4), deltakit_stim.DemTarget.relative_detector_id(5)],
+            ...     targets=["L0", (2, 4), lestim.DemTarget.relative_detector_id(5)],
             ...     ticks=range(5, 15),
             ... )
             >>> for target, tick_regions in detecting_regions.items():
@@ -980,14 +918,14 @@ class Circuit:
         approximate_disjoint_errors: float = False,
         ignore_decomposition_failures: bool = False,
         block_decomposition_from_introducing_remnant_edges: bool = False,
-    ) -> deltakit_stim.DetectorErrorModel:
-        """Returns a deltakit_stim.DetectorErrorModel describing the error processes in the circuit.
+    ) -> lestim.DetectorErrorModel:
+        """Returns a lestim.DetectorErrorModel describing the error processes in the circuit.
 
         Args:
             decompose_errors: Defaults to false. When set to true, the error analysis
                 attempts to decompose the components of composite error mechanisms (such
                 as depolarization errors) into simpler errors, and suggest this
-                decomposition via `deltakit_stim.target_separator()` between the components. For
+                decomposition via `lestim.target_separator()` between the components. For
                 example, in an XZ surface code, single qubit depolarization has a Y
                 error term which can be decomposed into simpler X and Z error terms.
                 Decomposition fails (causing this method to throw) if it's not possible
@@ -1050,9 +988,9 @@ class Circuit:
                 Irrelevant unless decompose_errors=True.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> deltakit_stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     X_ERROR(0.125) 0
             ...     X_ERROR(0.25) 1
             ...     CORRELATED_ERROR(0.375) X0 X1
@@ -1060,7 +998,7 @@ class Circuit:
             ...     DETECTOR rec[-2]
             ...     DETECTOR rec[-1]
             ... ''').detector_error_model()
-            deltakit_stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(0.125) D0
                 error(0.375) D0 D1
                 error(0.25) D1
@@ -1068,12 +1006,11 @@ class Circuit:
         """
     def diagram(
         self,
-        type: Literal["timeline-text", "timeline-svg", "timeline-svg-html", "timeline-3d", "timeline-3d-html", "detslice-text", "detslice-svg", "detslice-svg-html", "matchgraph-svg", "matchgraph-svg-html", "matchgraph-3d", "matchgraph-3d-html", "timeslice-svg", "timeslice-svg-html", "detslice-with-ops-svg", "detslice-with-ops-svg-html", "interactive", "interactive-html"] = 'timeline-text',
+        type: str = 'timeline-text',
         *,
         tick: Union[None, int, range] = None,
-        filter_coords: Iterable[Union[Iterable[float], deltakit_stim.DemTarget]] = ((),),
-        rows: int | None = None,
-    ) -> 'deltakit_stim._DiagramHelper':
+        filter_coords: Iterable[Union[Iterable[float], lestim.DemTarget]] = ((),),
+    ) -> 'lestim._DiagramHelper':
         """Returns a diagram of the circuit, from a variety of options.
 
         Args:
@@ -1113,11 +1050,11 @@ class Circuit:
                 "detslice-svg-html": Same as detslice-svg but the SVG image
                     is inside a resizable HTML iframe.
                 "matchgraph-svg": An SVG image of the match graph extracted
-                    from the circuit by deltakit_stim.Circuit.detector_error_model.
+                    from the circuit by lestim.Circuit.detector_error_model.
                 "matchgraph-svg-html": Same as matchgraph-svg but the SVG image
                     is inside a resizable HTML iframe.
                 "matchgraph-3d": An 3D model of the match graph extracted
-                    from the circuit by deltakit_stim.Circuit.detector_error_model.
+                    from the circuit by lestim.Circuit.detector_error_model.
                 "matchgraph-3d-html": Same 3d model as 'match-graph-3d' but
                     embedded into an HTML web page containing an interactive
                     THREE.js viewer for the 3d model.
@@ -1147,19 +1084,11 @@ class Circuit:
 
                 Passing `range(A, B)` for a time slice will show the
                 operations between tick A and tick B.
-            rows: In diagrams that have multiple separate pieces, such as timeslice
-                diagrams and detslice diagrams, this controls how many rows of
-                pieces there will be. If not specified, a number of rows that creates
-                a roughly square layout will be chosen.
-            filter_coords: A list of things to include in the diagram. Different
-                effects depending on the diagram.
-
-                For detslice diagrams, the filter defaults to showing all detectors
-                and no observables. When specified, each list entry can be a collection
-                of floats (detectors whose coordinates start with the same numbers will
-                be included), a deltakit_stim.DemTarget (specifying a detector or observable
-                to include), a string like "D5" or "L0" specifying a detector or
-                observable to include.
+            filter_coords: A set of acceptable coordinate prefixes, or
+                desired lestim.DemTargets. For detector slice diagrams, only
+                detectors match one of the filters are included. If no filter
+                is specified, all detectors are included (but no observables).
+                To include an observable, add it as one of the filters.
 
         Returns:
             An object whose `__str__` method returns the diagram, so that
@@ -1169,8 +1098,8 @@ class Circuit:
             viewer instead of as raw text.
 
         Examples:
-            >>> import deltakit_stim
-            >>> circuit = deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> circuit = lestim.Circuit('''
             ...     H 0
             ...     CNOT 0 1 1 2
             ... ''')
@@ -1182,7 +1111,7 @@ class Circuit:
                      |
             q2: -----X-
 
-            >>> circuit = deltakit_stim.Circuit('''
+            >>> circuit = lestim.Circuit('''
             ...     H 0
             ...     CNOT 0 1
             ...     TICK
@@ -1200,13 +1129,13 @@ class Circuit:
         *,
         dem_filter: object = None,
         reduce_to_one_representative_error: bool = False,
-    ) -> List[deltakit_stim.ExplainedError]:
+    ) -> List[lestim.ExplainedError]:
         """Explains how detector error model errors are produced by circuit errors.
 
         Args:
             dem_filter: Defaults to None (unused). When used, the output will only
                 contain detector error model errors that appear in the given
-                `deltakit_stim.DetectorErrorModel`. Any error mechanisms from the detector error
+                `lestim.DetectorErrorModel`. Any error mechanisms from the detector error
                 model that can't be reproduced using one error from the circuit will
                 also be included in the result, but with an empty list of associated
                 circuit error mechanisms.
@@ -1214,13 +1143,13 @@ class Circuit:
                 in the result will contain at most one circuit error mechanism.
 
         Returns:
-            A `List[deltakit_stim.ExplainedError]` (see `deltakit_stim.ExplainedError` for more
+            A `List[lestim.ExplainedError]` (see `lestim.ExplainedError` for more
             information). Each item in the list describes how a detector error model
             error can be produced by individual circuit errors.
 
         Examples:
-            >>> import deltakit_stim
-            >>> circuit = deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> circuit = lestim.Circuit('''
             ...     # Create Bell pair.
             ...     H 0
             ...     CNOT 0 1
@@ -1238,7 +1167,7 @@ class Circuit:
             ...     DETECTOR rec[-2]
             ... ''')
             >>> explained_errors = circuit.explain_detector_error_model_errors(
-            ...     dem_filter=deltakit_stim.DetectorErrorModel('error(1) D0 D1'),
+            ...     dem_filter=lestim.DetectorErrorModel('error(1) D0 D1'),
             ...     reduce_to_one_representative_error=True,
             ... )
             >>> print(explained_errors[0].circuit_error_locations[0])
@@ -1253,17 +1182,17 @@ class Circuit:
         """
     def flattened(
         self,
-    ) -> deltakit_stim.Circuit:
+    ) -> lestim.Circuit:
         """Creates an equivalent circuit without REPEAT or SHIFT_COORDS.
 
         Returns:
-            A `deltakit_stim.Circuit` with the same instructions in the same order,
+            A `lestim.Circuit` with the same instructions in the same order,
             but with loops flattened into repeated instructions and with
             all coordinate shifts inlined.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> lestim.Circuit('''
             ...     REPEAT 5 {
             ...         MR 0 1
             ...         DETECTOR(0, 0) rec[-2]
@@ -1271,7 +1200,7 @@ class Circuit:
             ...         SHIFT_COORDS(0, 1)
             ...     }
             ... ''').flattened()
-            deltakit_stim.Circuit('''
+            lestim.Circuit('''
                 MR 0 1
                 DETECTOR(0, 0) rec[-2]
                 DETECTOR(1, 0) rec[-1]
@@ -1299,80 +1228,29 @@ class Circuit:
         avoid REPEAT blocks, `for instruction in circuit.flattened()`.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> lestim.Circuit('''
             ...    H 0
             ...    X_ERROR(0.125) 1
             ...    M 0 !1
             ... ''').flattened_operations()
             [('H', [0], 0), ('X_ERROR', [1], 0.125), ('M', [0, ('inv', 1)], 0)]
 
-            >>> deltakit_stim.Circuit('''
+            >>> lestim.Circuit('''
             ...    REPEAT 2 {
             ...        H 6
             ...    }
             ... ''').flattened_operations()
             [('H', [6], 0), ('H', [6], 0)]
         """
-    def flow_generators(
-        self,
-    ) -> List[deltakit_stim.Flow]:
-        """Returns a list of flows that generate all of the circuit's flows.
-
-        Every stabilizer flow that the circuit implements is a product of some
-        subset of the returned generators. Every returned flow will be a flow
-        of the circuit.
-
-        Returns:
-            A list of flow generators for the circuit.
-
-        Examples:
-            >>> import deltakit_stim
-
-            >>> deltakit_stim.Circuit("H 0").flow_generators()
-            [deltakit_stim.Flow("X -> Z"), deltakit_stim.Flow("Z -> X")]
-
-            >>> deltakit_stim.Circuit("M 0").flow_generators()
-            [deltakit_stim.Flow("1 -> Z xor rec[0]"), deltakit_stim.Flow("Z -> rec[0]")]
-
-            >>> deltakit_stim.Circuit("RX 0").flow_generators()
-            [deltakit_stim.Flow("1 -> X")]
-
-            >>> for flow in deltakit_stim.Circuit("MXX 0 1").flow_generators():
-            ...     print(flow)
-            1 -> XX xor rec[0]
-            _X -> _X
-            X_ -> _X xor rec[0]
-            ZZ -> ZZ
-
-            >>> for flow in deltakit_stim.Circuit.generated(
-            ...     "repetition_code:memory",
-            ...     rounds=2,
-            ...     distance=3,
-            ...     after_clifford_depolarization=1e-3,
-            ... ).flow_generators():
-            ...     print(flow)
-            1 -> rec[0]
-            1 -> rec[1]
-            1 -> rec[2]
-            1 -> rec[3]
-            1 -> rec[4]
-            1 -> rec[5]
-            1 -> rec[6]
-            1 -> ____Z
-            1 -> ___Z_
-            1 -> __Z__
-            1 -> _Z___
-            1 -> Z____
-        """
     @staticmethod
     def from_file(
         file: Union[io.TextIOBase, str, pathlib.Path],
-    ) -> deltakit_stim.Circuit:
-        """Reads a deltakit_stim circuit from a file.
+    ) -> lestim.Circuit:
+        """Reads a lestim circuit from a file.
 
         The file format is defined at
-        https://github.com/quantumlib/Stim/blob/main/doc/file_format_deltakit_stim_circuit.md
+        https://github.com/quantumlib/Stim/blob/main/doc/file_format_lestim_circuit.md
 
         Args:
             file: A file path or open file object to read from.
@@ -1381,27 +1259,27 @@ class Circuit:
             The circuit parsed from the file.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
             >>> import tempfile
 
             >>> with tempfile.TemporaryDirectory() as tmpdir:
-            ...     path = tmpdir + '/tmp.deltakit_stim'
+            ...     path = tmpdir + '/tmp.lestim'
             ...     with open(path, 'w') as f:
             ...         print('H 5', file=f)
-            ...     circuit = deltakit_stim.Circuit.from_file(path)
+            ...     circuit = lestim.Circuit.from_file(path)
             >>> circuit
-            deltakit_stim.Circuit('''
+            lestim.Circuit('''
                 H 5
             ''')
 
             >>> with tempfile.TemporaryDirectory() as tmpdir:
-            ...     path = tmpdir + '/tmp.deltakit_stim'
+            ...     path = tmpdir + '/tmp.lestim'
             ...     with open(path, 'w') as f:
             ...         print('CNOT 4 5', file=f)
             ...     with open(path) as f:
-            ...         circuit = deltakit_stim.Circuit.from_file(f)
+            ...         circuit = lestim.Circuit.from_file(path)
             >>> circuit
-            deltakit_stim.Circuit('''
+            lestim.Circuit('''
                 CX 4 5
             ''')
         """
@@ -1417,7 +1295,7 @@ class Circuit:
         after_reset_flip_probability: float = 0.0,
         after_reset_leakage: float = 0.0,
         after_clifford_leakage_and_relaxation: float = 0.0,
-    ) -> deltakit_stim.Circuit:
+    ) -> lestim.Circuit:
         """Generates common circuits.
 
         The generated circuits can include configurable noise.
@@ -1426,7 +1304,7 @@ class Circuit:
         that their detection events and logical observables can be sampled.
 
         The generated circuits include TICK annotations to mark the progression of time.
-        (E.g. so that converting them using `deltakit_stimcirq.deltakit_stim_circuit_to_cirq_circuit` will
+        (E.g. so that converting them using `lestimcirq.lestim_circuit_to_cirq_circuit` will
         produce a `cirq.Circuit` with the intended moment structure.)
 
         Args:
@@ -1475,8 +1353,8 @@ class Circuit:
             The generated circuit.
 
         Examples:
-            >>> import deltakit_stim
-            >>> circuit = deltakit_stim.Circuit.generated(
+            >>> import lestim
+            >>> circuit = lestim.Circuit.generated(
             ...     "repetition_code:memory",
             ...     distance=4,
             ...     rounds=10000,
@@ -1533,8 +1411,8 @@ class Circuit:
             If `only` is specified, then `set(result.keys()) == set(only)`.
 
         Examples:
-            >>> import deltakit_stim
-            >>> circuit = deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> circuit = lestim.Circuit('''
             ...    M 0
             ...    DETECTOR rec[-1]
             ...    DETECTOR(1, 2, 3) rec[-1]
@@ -1562,8 +1440,8 @@ class Circuit:
             in the result.
 
         Examples:
-            >>> import deltakit_stim
-            >>> circuit = deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> circuit = lestim.Circuit('''
             ...    QUBIT_COORDS(1, 2, 3) 1
             ... ''')
             >>> circuit.get_final_qubit_coordinates()
@@ -1571,7 +1449,7 @@ class Circuit:
         """
     def has_all_flows(
         self,
-        flows: Iterable[deltakit_stim.Flow],
+        flows: Iterable[lestim.Flow],
         *,
         unsigned: bool = False,
     ) -> bool:
@@ -1581,10 +1459,8 @@ class Circuit:
         because, behind the scenes, the circuit can be iterated once instead of once
         per flow.
 
-        This method ignores any noise in the circuit.
-
         Args:
-            flows: An iterable of `deltakit_stim.Flow` instances representing the flows to check.
+            flows: An iterable of `lestim.Flow` instances representing the flows to check.
             unsigned: Defaults to False. When False, the flows must be correct including
                 the sign of the Pauli strings. When True, only the Pauli terms need to
                 be correct; the signs are permitted to be inverted. In effect, this
@@ -1594,26 +1470,26 @@ class Circuit:
             True if the circuit has the given flow; False otherwise.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> deltakit_stim.Circuit('H 0').has_all_flows([
-            ...     deltakit_stim.Flow('X -> Z'),
-            ...     deltakit_stim.Flow('Y -> Y'),
-            ...     deltakit_stim.Flow('Z -> X'),
+            >>> lestim.Circuit('H 0').has_all_flows([
+            ...     lestim.Flow('X -> Z'),
+            ...     lestim.Flow('Y -> Y'),
+            ...     lestim.Flow('Z -> X'),
             ... ])
             False
 
-            >>> deltakit_stim.Circuit('H 0').has_all_flows([
-            ...     deltakit_stim.Flow('X -> Z'),
-            ...     deltakit_stim.Flow('Y -> -Y'),
-            ...     deltakit_stim.Flow('Z -> X'),
+            >>> lestim.Circuit('H 0').has_all_flows([
+            ...     lestim.Flow('X -> Z'),
+            ...     lestim.Flow('Y -> -Y'),
+            ...     lestim.Flow('Z -> X'),
             ... ])
             True
 
-            >>> deltakit_stim.Circuit('H 0').has_all_flows([
-            ...     deltakit_stim.Flow('X -> Z'),
-            ...     deltakit_stim.Flow('Y -> Y'),
-            ...     deltakit_stim.Flow('Z -> X'),
+            >>> lestim.Circuit('H 0').has_all_flows([
+            ...     lestim.Flow('X -> Z'),
+            ...     lestim.Flow('Y -> Y'),
+            ...     lestim.Flow('Z -> X'),
             ... ], unsigned=True)
             True
 
@@ -1626,7 +1502,7 @@ class Circuit:
         """
     def has_flow(
         self,
-        flow: deltakit_stim.Flow,
+        flow: lestim.Flow,
         *,
         unsigned: bool = False,
     ) -> bool:
@@ -1643,8 +1519,6 @@ class Circuit:
         A flow like P -> 1 means the circuit measures P.
         A flow like 1 -> 1 means the circuit contains a check (could be a DETECTOR).
 
-        This method ignores any noise in the circuit.
-
         Args:
             flow: The flow to check for.
             unsigned: Defaults to False. When False, the flows must be correct including
@@ -1656,83 +1530,75 @@ class Circuit:
             True if the circuit has the given flow; False otherwise.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> m = deltakit_stim.Circuit('M 0')
-            >>> m.has_flow(deltakit_stim.Flow('Z -> Z'))
+            >>> m = lestim.Circuit('M 0')
+            >>> m.has_flow(lestim.Flow('Z -> Z'))
             True
-            >>> m.has_flow(deltakit_stim.Flow('X -> X'))
+            >>> m.has_flow(lestim.Flow('X -> X'))
             False
-            >>> m.has_flow(deltakit_stim.Flow('Z -> I'))
+            >>> m.has_flow(lestim.Flow('Z -> I'))
             False
-            >>> m.has_flow(deltakit_stim.Flow('Z -> I xor rec[-1]'))
+            >>> m.has_flow(lestim.Flow('Z -> I xor rec[-1]'))
             True
-            >>> m.has_flow(deltakit_stim.Flow('Z -> rec[-1]'))
-            True
-
-            >>> cx58 = deltakit_stim.Circuit('CX 5 8')
-            >>> cx58.has_flow(deltakit_stim.Flow('X5 -> X5*X8'))
-            True
-            >>> cx58.has_flow(deltakit_stim.Flow('X_ -> XX'))
-            False
-            >>> cx58.has_flow(deltakit_stim.Flow('_____X___ -> _____X__X'))
+            >>> m.has_flow(lestim.Flow('Z -> rec[-1]'))
             True
 
-            >>> deltakit_stim.Circuit('''
+            >>> cx58 = lestim.Circuit('CX 5 8')
+            >>> cx58.has_flow(lestim.Flow('X5 -> X5*X8'))
+            True
+            >>> cx58.has_flow(lestim.Flow('X_ -> XX'))
+            False
+            >>> cx58.has_flow(lestim.Flow('_____X___ -> _____X__X'))
+            True
+
+            >>> lestim.Circuit('''
             ...     RY 0
-            ... ''').has_flow(deltakit_stim.Flow(
-            ...     output=deltakit_stim.PauliString("Y"),
+            ... ''').has_flow(lestim.Flow(
+            ...     output=lestim.PauliString("Y"),
             ... ))
             True
 
-            >>> deltakit_stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     RY 0
-            ...     X_ERROR(0.1) 0
-            ... ''').has_flow(deltakit_stim.Flow(
-            ...     output=deltakit_stim.PauliString("Y"),
-            ... ))
-            True
-
-            >>> deltakit_stim.Circuit('''
-            ...     RY 0
-            ... ''').has_flow(deltakit_stim.Flow(
-            ...     output=deltakit_stim.PauliString("X"),
+            ... ''').has_flow(lestim.Flow(
+            ...     output=lestim.PauliString("X"),
             ... ))
             False
 
-            >>> deltakit_stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     CX 0 1
-            ... ''').has_flow(deltakit_stim.Flow(
-            ...     input=deltakit_stim.PauliString("+X_"),
-            ...     output=deltakit_stim.PauliString("+XX"),
+            ... ''').has_flow(lestim.Flow(
+            ...     input=lestim.PauliString("+X_"),
+            ...     output=lestim.PauliString("+XX"),
             ... ))
             True
 
-            >>> deltakit_stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     # Lattice surgery CNOT
             ...     R 1
             ...     MXX 0 1
             ...     MZZ 1 2
             ...     MX 1
-            ... ''').has_flow(deltakit_stim.Flow(
-            ...     input=deltakit_stim.PauliString("+X_X"),
-            ...     output=deltakit_stim.PauliString("+__X"),
+            ... ''').has_flow(lestim.Flow(
+            ...     input=lestim.PauliString("+X_X"),
+            ...     output=lestim.PauliString("+__X"),
             ...     measurements=[0, 2],
             ... ))
             True
 
-            >>> deltakit_stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     H 0
             ... ''').has_flow(
-            ...     deltakit_stim.Flow("Y -> Y"),
+            ...     lestim.Flow("Y -> Y"),
             ...     unsigned=True,
             ... )
             True
 
-            >>> deltakit_stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     H 0
             ... ''').has_flow(
-            ...     deltakit_stim.Flow("Y -> Y"),
+            ...     lestim.Flow("Y -> Y"),
             ...     unsigned=False,
             ... )
             False
@@ -1744,65 +1610,16 @@ class Circuit:
             True, there is technically still a 2^-256 chance the circuit doesn't have
             the flow. This is lower than the chance of a cosmic ray flipping the result.
         """
-    def insert(
-        self,
-        index: int,
-        operation: Union[deltakit_stim.CircuitInstruction, deltakit_stim.Circuit],
-    ) -> None:
-        """Inserts an operation at the given index, pushing existing operations forward.
-
-        Beware that inserted operations are automatically fused with the preceding
-        and following operations, if possible. This can make it complex to reason
-        about how the indices of operations change in response to insertions.
-
-        Args:
-            index: The index to insert at.
-
-                Must satisfy -len(circuit) <= index < len(circuit). Negative indices
-                are made non-negative by adding len(circuit) to them, so they refer to
-                indices relative to the end of the circuit instead of the start.
-
-                Instructions before the index are not shifted. Instructions that
-                were at or after the index are shifted forwards as needed.
-            operation: The object to insert. This can be a single
-                deltakit_stim.CircuitInstruction or an entire deltakit_stim.Circuit.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> c = deltakit_stim.Circuit('''
-            ...     H 0
-            ...     S 1
-            ...     X 2
-            ... ''')
-            >>> c.insert(1, deltakit_stim.CircuitInstruction("Y", [3, 4, 5]))
-            >>> c
-            deltakit_stim.Circuit('''
-                H 0
-                Y 3 4 5
-                S 1
-                X 2
-            ''')
-            >>> c.insert(-1, deltakit_stim.Circuit("S 999\nCX 0 1\nCZ 2 3"))
-            >>> c
-            deltakit_stim.Circuit('''
-                H 0
-                Y 3 4 5
-                S 1 999
-                CX 0 1
-                CZ 2 3
-                X 2
-            ''')
-        """
     def inverse(
         self,
-    ) -> deltakit_stim.Circuit:
+    ) -> lestim.Circuit:
         """Returns a circuit that applies the same operations but inverted and in reverse.
 
         If circuit starts with QUBIT_COORDS instructions, the returned circuit will
         still have the same QUBIT_COORDS instructions in the same order at the start.
 
         Returns:
-            A `deltakit_stim.Circuit` that applies inverted operations in the reverse order.
+            A `lestim.Circuit` that applies inverted operations in the reverse order.
 
         Raises:
             ValueError: The circuit contains operations that don't have an inverse,
@@ -1810,18 +1627,18 @@ class Circuit:
                 such as SHIFT_COORDS.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> deltakit_stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     S 0 1
             ...     ISWAP 0 1 1 2
             ... ''').inverse()
-            deltakit_stim.Circuit('''
+            lestim.Circuit('''
                 ISWAP_DAG 1 2 0 1
                 S_DAG 1 0
             ''')
 
-            >>> deltakit_stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     QUBIT_COORDS(1, 2) 0
             ...     QUBIT_COORDS(4, 3) 1
             ...     QUBIT_COORDS(9, 5) 2
@@ -1832,7 +1649,7 @@ class Circuit:
             ...         S 1 2
             ...     }
             ... ''').inverse()
-            deltakit_stim.Circuit('''
+            lestim.Circuit('''
                 QUBIT_COORDS(1, 2) 0
                 QUBIT_COORDS(4, 3) 1
                 QUBIT_COORDS(9, 5) 2
@@ -1853,10 +1670,9 @@ class Circuit:
         """Makes a maxSAT problem for the circuit's likeliest undetectable logical error.
 
         The output is a string describing the maxSAT problem in WDIMACS format
-        (see https://jix.github.io/varisat/manual/0.2.0/formats/dimacs.html). The
-        optimal solution to the problem is the highest likelihood set of error
-        mechanisms that combine to flip any logical observable while producing no
-        detection events).
+        (see https://maxhs.org/docs/wdimacs.html). The optimal solution to the
+        problem is the highest likelihood set of error mechanisms that combine to
+        flip any logical observable while producing no detection events).
 
         If there are any errors with probability p > 0.5, they are inverted so
         that the resulting weight ends up being positive. If there are errors
@@ -1906,8 +1722,8 @@ class Circuit:
             requested format.
 
         Examples:
-            >>> import deltakit_stim
-            >>> circuit = deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> circuit = lestim.Circuit('''
             ...   X_ERROR(0.1) 0
             ...   M 0
             ...   OBSERVABLE_INCLUDE(0) rec[-1]
@@ -1924,65 +1740,6 @@ class Circuit:
             4001 -1 0
             4001 2 0
         """
-    def missing_detectors(
-        self,
-        *,
-        unknown_input: bool = False,
-    ) -> int:
-        """Finds deterministic measurements independent of declared detectors/observables.
-
-        This method is useful for debugging missing detectors in a circuit, because it
-        identifies generators for uncovered degrees of freedom.
-
-        It's not recommended to use this method to solve for the detectors of a circuit.
-        The returned detectors are not guaranteed to be stable across versions, and
-        aren't optimized to be "good" (e.g. form a low weight basis or be matchable
-        if possible). It will also identify things that are technically determined
-        but that the user may not want to use as a detector, such as the fact that
-        in the first round after transversal Z basis initialization of a toric code
-        the product of all X stabilizer measurements is deterministic even though the
-        individual measurements are all random.
-
-        Args:
-            unknown_input: Defaults to False (inputs assumed to be in the |0> state).
-                When set to True, the inputs are instead treated as being in unknown
-                random states. For example, this means that Z-basis measurements at
-                the very beginning of the circuit will be considered random rather
-                than determined.
-
-        Returns:
-            A circuit containing DETECTOR instructions that specify the uncovered
-            degrees of freedom in the deterministic measurement sets of the input
-            circuit. The returned circuit can be appended to the input circuit to
-            get a circuit with no missing detectors.
-
-        Examples:
-            >>> import deltakit_stim
-
-            >>> deltakit_stim.Circuit('''
-            ...     R 0
-            ...     M 0
-            ... ''').missing_detectors()
-            deltakit_stim.Circuit('''
-                DETECTOR rec[-1]
-            ''')
-
-            >>> deltakit_stim.Circuit('''
-            ...     MZZ 0 1
-            ...     MYY 0 1
-            ...     MXX 0 1
-            ...     DEPOLARIZE1(0.1) 0 1
-            ...     MZZ 0 1
-            ...     MYY 0 1
-            ...     MXX 0 1
-            ...     DETECTOR rec[-1] rec[-4]
-            ...     DETECTOR rec[-2] rec[-5]
-            ...     DETECTOR rec[-3] rec[-6]
-            ... ''').missing_detectors(unknown_input=True)
-            deltakit_stim.Circuit('''
-                DETECTOR rec[-3] rec[-2] rec[-1]
-            ''')
-        """
     @property
     def num_detectors(
         self,
@@ -1990,8 +1747,8 @@ class Circuit:
         """Counts the number of bits produced when sampling the circuit's detectors.
 
         Examples:
-            >>> import deltakit_stim
-            >>> c = deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> c = lestim.Circuit('''
             ...    M 0
             ...    DETECTOR rec[-1]
             ...    REPEAT 100 {
@@ -2010,8 +1767,8 @@ class Circuit:
         """Counts the number of bits produced when sampling the circuit's measurements.
 
         Examples:
-            >>> import deltakit_stim
-            >>> c = deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> c = lestim.Circuit('''
             ...    M 0
             ...    REPEAT 100 {
             ...        M 0 1
@@ -2030,8 +1787,8 @@ class Circuit:
         OBSERVABLE_INCLUDE instruction.
 
         Examples:
-            >>> import deltakit_stim
-            >>> c = deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> c = lestim.Circuit('''
             ...    M 0
             ...    OBSERVABLE_INCLUDE(2) rec[-1]
             ...    OBSERVABLE_INCLUDE(5) rec[-1]
@@ -2048,13 +1805,13 @@ class Circuit:
         This is always one more than the largest qubit index used by the circuit.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> lestim.Circuit('''
             ...    X 0
             ...    M 0 1
             ... ''').num_qubits
             2
-            >>> deltakit_stim.Circuit('''
+            >>> lestim.Circuit('''
             ...    X 0
             ...    M 0 1
             ...    H 100
@@ -2070,12 +1827,12 @@ class Circuit:
         This is always one more than the largest sweep bit index used by the circuit.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> lestim.Circuit('''
             ...    CX sweep[2] 0
             ... ''').num_sweep_bits
             3
-            >>> deltakit_stim.Circuit('''
+            >>> lestim.Circuit('''
             ...    CZ sweep[5] 0
             ...    CX sweep[2] 0
             ... ''').num_sweep_bits
@@ -2093,17 +1850,17 @@ class Circuit:
             The number of ticks executed by the circuit.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> deltakit_stim.Circuit().num_ticks
+            >>> lestim.Circuit().num_ticks
             0
 
-            >>> deltakit_stim.Circuit('''
+            >>> lestim.Circuit('''
             ...    TICK
             ... ''').num_ticks
             1
 
-            >>> deltakit_stim.Circuit('''
+            >>> lestim.Circuit('''
             ...    H 0
             ...    TICK
             ...    CX 0 1
@@ -2111,7 +1868,7 @@ class Circuit:
             ... ''').num_ticks
             2
 
-            >>> deltakit_stim.Circuit('''
+            >>> lestim.Circuit('''
             ...    H 0
             ...    TICK
             ...    REPEAT 100 {
@@ -2120,87 +1877,6 @@ class Circuit:
             ...    }
             ... ''').num_ticks
             101
-        """
-    def pop(
-        self,
-        index: int = -1,
-    ) -> Union[deltakit_stim.CircuitInstruction, deltakit_stim.CircuitRepeatBlock]:
-        """Pops an operation from the end of the circuit, or at the given index.
-
-        Args:
-            index: Defaults to -1 (end of circuit). The index to pop from.
-
-        Returns:
-            The popped instruction.
-
-        Raises:
-            IndexError: The given index is outside the bounds of the circuit.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> c = deltakit_stim.Circuit('''
-            ...     H 0
-            ...     S 1
-            ...     X 2
-            ...     Y 3
-            ... ''')
-            >>> c.pop()
-            deltakit_stim.CircuitInstruction('Y', [deltakit_stim.GateTarget(3)], [])
-            >>> c.pop(1)
-            deltakit_stim.CircuitInstruction('S', [deltakit_stim.GateTarget(1)], [])
-            >>> c
-            deltakit_stim.Circuit('''
-                H 0
-                X 2
-            ''')
-        """
-    def reference_detector_and_observable_signs(
-        self,
-        *,
-        bit_packed: bool = False,
-    ) -> Tuple[np.ndarray, np.ndarray]:
-        """Determines noiseless parities of the measurement sets of detectors/observables.
-
-        BEWARE: the returned values are NOT the "expected value of the
-        detector/observable". Stim consistently defines the value of a
-        detector/observable as whether or not it flipped, so the expected value of a
-        detector/observable is vacuously always 0 (not flipped). This method instead
-        returns the "sign"; the expected parity of the measurement set declared by the
-        detector/observable. The sign is the baseline used to determine if a flip
-        occurred. A detector/observable's value is whether its sign disagrees with the
-        measured parity of its measurement set.
-
-        Note that this method doesn't account for sweep bits. It will effectively ignore
-        instructions like `CX sweep[0] 0`.
-
-        Args:
-            bit_packed: Defaults to False. Determines whether the output numpy arrays
-                use dtype=bool_ or dtype=uint8 with 8 bools packed into each byte.
-
-        Returns:
-            A (det, obs) tuple with numpy arrays containing the reference parities.
-
-            if bit_packed:
-                det.shape == (math.ceil(num_detectors / 8),)
-                det.dtype == np.uint8
-                obs.shape == (math.ceil(num_observables / 8),)
-                obs.dtype == np.uint8
-            else:
-                det.shape == (num_detectors,)
-                det.dtype == np.bool_
-                obs.shape == (num_observables,)
-                obs.dtype == np.bool_
-
-        Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.Circuit('''
-            ...     X 1
-            ...     M 0 1
-            ...     DETECTOR rec[-1]
-            ...     DETECTOR rec[-2]
-            ...     OBSERVABLE_INCLUDE(3) rec[-1] rec[-2]
-            ... ''').reference_detector_and_observable_signs()
-            (array([ True, False]), array([False, False, False,  True]))
         """
     def reference_sample(
         self,
@@ -2213,26 +1889,12 @@ class Circuit:
         towards +Z instead of randomly +Z/-Z.
 
         Args:
+            circuit: The circuit to "sample" from.
             bit_packed: Defaults to False. Determines whether the output numpy arrays
                 use dtype=bool_ or dtype=uint8 with 8 bools packed into each byte.
 
         Returns:
-            A numpy array containing the reference sample.
-
-            if bit_packed:
-                shape == (math.ceil(num_measurements / 8),)
-                dtype == np.uint8
-            else:
-                shape == (num_measurements,)
-                dtype == np.bool_
-
-        Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.Circuit('''
-            ...     X 1
-            ...     M 0 1
-            ... ''').reference_sample()
-            array([False,  True])
+            reference_sample: reference sample sampled from the given circuit.
         """
     def search_for_undetectable_logical_errors(
         self,
@@ -2241,7 +1903,7 @@ class Circuit:
         dont_explore_edges_with_degree_above: int,
         dont_explore_edges_increasing_symptom_degree: bool,
         canonicalize_circuit_errors: bool = False,
-    ) -> List[deltakit_stim.ExplainedError]:
+    ) -> List[lestim.ExplainedError]:
         """Searches for small sets of errors that form an undetectable logical error.
 
         THIS IS A HEURISTIC METHOD. It does not guarantee that it will find errors of
@@ -2251,7 +1913,7 @@ class Circuit:
         being considered.
 
         If you want a well behaved method that does provide guarantees of finding errors
-        of a particular type, use `deltakit_stim.Circuit.shortest_graphlike_error`. This method
+        of a particular type, use `lestim.Circuit.shortest_graphlike_error`. This method
         is more thorough than that (assuming you don't truncate so hard you omit
         graphlike edges), but exactly how thorough is difficult to describe. It's also
         not guaranteed that the behavior of this method will not be changed in the
@@ -2309,13 +1971,13 @@ class Circuit:
         Returns:
             A list of error mechanisms that cause an undetected logical error.
 
-            Each entry in the list is a `deltakit_stim.ExplainedError` detailing the location
+            Each entry in the list is a `lestim.ExplainedError` detailing the location
             and effects of a single physical error. The effects of the entire list
             combine to produce a logical frame change without any detection events.
 
         Examples:
-            >>> import deltakit_stim
-            >>> circuit = deltakit_stim.Circuit.generated(
+            >>> import lestim
+            >>> circuit = lestim.Circuit.generated(
             ...     "surface_code:rotated_memory_x",
             ...     rounds=5,
             ...     distance=5,
@@ -2335,11 +1997,11 @@ class Circuit:
         """Makes a maxSAT problem of the circuit's distance, that other tools can solve.
 
         The output is a string describing the maxSAT problem in WDIMACS format
-        (see https://jix.github.io/varisat/manual/0.2.0/formats/dimacs.html). The
-        optimal solution to the problem is the fault distance of the circuit (the
-        minimum number of error mechanisms that combine to flip any logical observable
-        while producing no detection events). This method ignores the probabilities of
-        the error mechanisms since it only cares about minimizing the number of errors
+        (see https://maxhs.org/docs/wdimacs.html). The optimal solution to the
+        problem is the fault distance of the circuit (the minimum number of error
+        mechanisms that combine to flip any logical observable while producing no
+        detection events). This method ignores the probabilities of the error
+        mechanisms since it only cares about minimizing the number of errors
         triggered.
 
         There are many tools that can solve maxSAT problems in WDIMACS format.
@@ -2378,8 +2040,8 @@ class Circuit:
             requested format.
 
         Examples:
-            >>> import deltakit_stim
-            >>> circuit = deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> circuit = lestim.Circuit('''
             ...   X_ERROR(0.1) 0
             ...   M 0
             ...   OBSERVABLE_INCLUDE(0) rec[-1]
@@ -2399,7 +2061,7 @@ class Circuit:
         *,
         ignore_ungraphlike_errors: bool = True,
         canonicalize_circuit_errors: bool = False,
-    ) -> List[deltakit_stim.ExplainedError]:
+    ) -> List[lestim.ExplainedError]:
         """Finds a minimum set of graphlike errors to produce an undetected logical error.
 
         A "graphlike error" is an error that creates at most two detection events
@@ -2411,7 +2073,7 @@ class Circuit:
         minimum *number* of physical errors, not the maximum probability of those
         physical errors all occurring.
 
-        This method works by converting the circuit into a `deltakit_stim.DetectorErrorModel`
+        This method works by converting the circuit into a `lestim.DetectorErrorModel`
         using `circuit.detector_error_model(...)`, computing the shortest graphlike
         error of the error model, and then converting the physical errors making up that
         logical error back into representative circuit errors.
@@ -2449,14 +2111,14 @@ class Circuit:
         Returns:
             A list of error mechanisms that cause an undetected logical error.
 
-            Each entry in the list is a `deltakit_stim.ExplainedError` detailing the location
+            Each entry in the list is a `lestim.ExplainedError` detailing the location
             and effects of a single physical error. The effects of the entire list
             combine to produce a logical frame change without any detection events.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> circuit = deltakit_stim.Circuit.generated(
+            >>> circuit = lestim.Circuit.generated(
             ...     "repetition_code:memory",
             ...     rounds=10,
             ...     distance=7,
@@ -2464,103 +2126,12 @@ class Circuit:
             >>> len(circuit.shortest_graphlike_error())
             7
         """
-    def solve_flow_measurements(
-        self,
-        flows: List[deltakit_stim.Flow],
-    ) -> List[Optional[List[int]]]:
-        """Finds measurements to explain the starts/ends of the given flows, ignoring sign.
-
-        CAUTION: it's not guaranteed that the solutions returned by this method are
-        minimal. It may use 20 measurements when only 2 are needed. The method applies
-        some simple heuristics that attempt to reduce the size, but these heuristics
-        aren't perfect and don't make any strong guarantees.
-
-        The recommended way to use this method is on small parts of a circuit, such as a
-        single surface code round. The ideal use case is when there is exactly one
-        solution for each flow, because then the method behaves predictably and
-        consistently. When there are multiple solutions, the method has no real way to
-        pick out a "good" solution rather than a "cataclysmic trash fire of a" solution.
-        For example, if you have a multi-round surface code circuit with open time
-        boundaries and solve the flow 1 -> Z1*Z2*Z3*Z4, then there's a good solution
-        (the Z1*Z2*Z3*Z4 measurement from the last round), various mediocre solutions
-        (a Z1*Z2*Z3*Z4 measurement from a different round), and lots of terrible
-        solutions (a combination of multiple Z1*Z2*Z3*Z4 measurements from an odd number
-        of rounds, times a random combination of unrelated detectors). The method is
-        permitted to return any of those solutions.
-
-        Args:
-            flows: A list of flows, each of which to be solved. Measurements and signs
-                are entirely ignored.
-
-                An error is raised if one of the given flows has an identity pauli
-                string as its input and as its output, despite the fact that this case
-                has a vacuous solution (no measurements). This error is only present as
-                a safety check that catches some possible bugs in the calling code, such
-                as accidentally applying this method to detector flows. This error may
-                be removed in the future, so that the vacuous case succeeds vacuously.
-
-        Returns:
-            A list of solutions for each given flow.
-
-            If no solution exists for flows[k], then solutions[k] is None.
-            Otherwise, solutions[k] is a list of measurement indices for flows[k].
-
-            When solutions[k] is not None, it's guaranteed that
-
-                circuit.has_flow(deltakit_stim.Flow(
-                    input=flows[k].input,
-                    output=flows[k].output,
-                    measurements=solutions[k],
-                ), unsigned=True)
-
-        Raises:
-            ValueError:
-                A flow had an empty input and output.
-
-        Examples:
-            >>> import deltakit_stim
-
-            >>> deltakit_stim.Circuit('''
-            ...     M 2
-            ... ''').solve_flow_measurements([
-            ...     deltakit_stim.Flow("Z2 -> 1"),
-            ... ])
-            [[0]]
-
-            >>> deltakit_stim.Circuit('''
-            ...     M 2
-            ... ''').solve_flow_measurements([
-            ...     deltakit_stim.Flow("X2 -> X2"),
-            ... ])
-            [None]
-
-            >>> deltakit_stim.Circuit('''
-            ...     MXX 0 1
-            ... ''').solve_flow_measurements([
-            ...     deltakit_stim.Flow("YY -> ZZ"),
-            ... ])
-            [[0]]
-
-            >>> # Rep code cycle
-            >>> deltakit_stim.Circuit('''
-            ...     R 1 3
-            ...     CX 0 1 2 3
-            ...     CX 4 3 2 1
-            ...     M 1 3
-            ... ''').solve_flow_measurements([
-            ...     deltakit_stim.Flow("1 -> Z0*Z4"),
-            ...     deltakit_stim.Flow("Z0 -> Z2"),
-            ...     deltakit_stim.Flow("X0*X2*X4 -> X0*X2*X4"),
-            ...     deltakit_stim.Flow("Y0 -> Y0"),
-            ... ])
-            [[0, 1], [0], [], None]
-        """
     def time_reversed_for_flows(
         self,
-        flows: Iterable[deltakit_stim.Flow],
+        flows: Iterable[lestim.Flow],
         *,
         dont_turn_measurements_into_resets: bool = False,
-    ) -> Tuple[deltakit_stim.Circuit, List[deltakit_stim.Flow]]:
+    ) -> Tuple[lestim.Circuit, List[lestim.Flow]]:
         """Time-reverses the circuit while preserving error correction structure.
 
         This method returns a circuit that has the same internal detecting regions
@@ -2624,9 +2195,9 @@ class Circuit:
             It unconditionally sets the sign to False.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> inv_circuit, inv_flows = deltakit_stim.Circuit('''
+            >>> inv_circuit, inv_flows = lestim.Circuit('''
             ...     R 0
             ...     H 0
             ...     S 0
@@ -2634,7 +2205,7 @@ class Circuit:
             ...     DETECTOR rec[-1]
             ... ''').time_reversed_for_flows([])
             >>> inv_circuit
-            deltakit_stim.Circuit('''
+            lestim.Circuit('''
                 RY 0
                 S_DAG 0
                 H 0
@@ -2644,89 +2215,89 @@ class Circuit:
             >>> inv_flows
             []
 
-            >>> inv_circuit, inv_flows = deltakit_stim.Circuit('''
+            >>> inv_circuit, inv_flows = lestim.Circuit('''
             ...     M 0
             ... ''').time_reversed_for_flows([
-            ...     deltakit_stim.Flow("Z -> rec[-1]"),
+            ...     lestim.Flow("Z -> rec[-1]"),
             ... ])
             >>> inv_circuit
-            deltakit_stim.Circuit('''
+            lestim.Circuit('''
                 R 0
             ''')
             >>> inv_flows
-            [deltakit_stim.Flow("1 -> Z")]
+            [lestim.Flow("1 -> Z")]
             >>> inv_circuit.has_all_flows(inv_flows, unsigned=True)
             True
 
-            >>> inv_circuit, inv_flows = deltakit_stim.Circuit('''
+            >>> inv_circuit, inv_flows = lestim.Circuit('''
             ...     R 0
             ... ''').time_reversed_for_flows([
-            ...     deltakit_stim.Flow("1 -> Z"),
+            ...     lestim.Flow("1 -> Z"),
             ... ])
             >>> inv_circuit
-            deltakit_stim.Circuit('''
+            lestim.Circuit('''
                 M 0
             ''')
             >>> inv_flows
-            [deltakit_stim.Flow("Z -> rec[-1]")]
+            [lestim.Flow("Z -> rec[-1]")]
 
-            >>> inv_circuit, inv_flows = deltakit_stim.Circuit('''
+            >>> inv_circuit, inv_flows = lestim.Circuit('''
             ...     M 0
             ... ''').time_reversed_for_flows([
-            ...     deltakit_stim.Flow("1 -> Z xor rec[-1]"),
+            ...     lestim.Flow("1 -> Z xor rec[-1]"),
             ... ])
             >>> inv_circuit
-            deltakit_stim.Circuit('''
+            lestim.Circuit('''
                 M 0
             ''')
             >>> inv_flows
-            [deltakit_stim.Flow("Z -> rec[-1]")]
+            [lestim.Flow("Z -> rec[-1]")]
 
-            >>> inv_circuit, inv_flows = deltakit_stim.Circuit('''
+            >>> inv_circuit, inv_flows = lestim.Circuit('''
             ...     M 0
             ... ''').time_reversed_for_flows(
-            ...     flows=[deltakit_stim.Flow("Z -> rec[-1]")],
+            ...     flows=[lestim.Flow("Z -> rec[-1]")],
             ...     dont_turn_measurements_into_resets=True,
             ... )
             >>> inv_circuit
-            deltakit_stim.Circuit('''
+            lestim.Circuit('''
                 M 0
             ''')
             >>> inv_flows
-            [deltakit_stim.Flow("1 -> Z xor rec[-1]")]
+            [lestim.Flow("1 -> Z xor rec[-1]")]
 
-            >>> inv_circuit, inv_flows = deltakit_stim.Circuit('''
+            >>> inv_circuit, inv_flows = lestim.Circuit('''
             ...     MR(0.125) 0
             ... ''').time_reversed_for_flows([])
             >>> inv_circuit
-            deltakit_stim.Circuit('''
+            lestim.Circuit('''
                 MR 0
                 X_ERROR(0.125) 0
             ''')
             >>> inv_flows
             []
 
-            >>> inv_circuit, inv_flows = deltakit_stim.Circuit('''
+            >>> inv_circuit, inv_flows = lestim.Circuit('''
             ...     MXX 0 1
             ...     H 0
             ... ''').time_reversed_for_flows([
-            ...     deltakit_stim.Flow("ZZ -> YY xor rec[-1]"),
-            ...     deltakit_stim.Flow("ZZ -> XZ"),
+            ...     lestim.Flow("ZZ -> YY xor rec[-1]"),
+            ...     lestim.Flow("ZZ -> XZ"),
             ... ])
             >>> inv_circuit
-            deltakit_stim.Circuit('''
+            lestim.Circuit('''
                 H 0
                 MXX 0 1
             ''')
             >>> inv_flows
-            [deltakit_stim.Flow("YY -> ZZ xor rec[-1]"), deltakit_stim.Flow("XZ -> ZZ")]
+            [lestim.Flow("YY -> ZZ xor rec[-1]"), lestim.Flow("XZ -> ZZ")]
 
-            >>> deltakit_stim.Circuit.generated(
+            >>> lestim.Circuit.generated(
             ...     "surface_code:rotated_memory_x",
             ...     distance=2,
             ...     rounds=1,
             ... ).time_reversed_for_flows([])[0]
-            deltakit_stim.Circuit('''
+            lestim.Circuit('''
                 QUBIT_COORDS(1, 1) 1
                 QUBIT_COORDS(2, 0) 2
                 QUBIT_COORDS(3, 1) 3
@@ -2760,68 +2331,46 @@ class Circuit:
         """
     def to_crumble_url(
         self,
-        *,
-        skip_detectors: bool = False,
-        mark: Optional[Dict[int, List[deltakit_stim.ExplainedError]]] = None,
     ) -> str:
         """Returns a URL that opens up crumble and loads this circuit into it.
 
         Crumble is a tool for editing stabilizer circuits, and visualizing their
         stabilizer flows. Its source code is in the `glue/crumble` directory of
-        the deltakit_stim code repository on github. A prebuilt version is made available
+        the lestim code repository on github. A prebuilt version is made available
         at https://algassert.com/crumble, which is what the URL returned by this
         method will point to.
-
-        Args:
-            skip_detectors: Defaults to False. If set to True, detectors from the
-                circuit aren't included in the crumble URL. This can reduce visual
-                clutter in crumble, and improve its performance, since it doesn't
-                need to indicate or track the sensitivity regions of detectors.
-            mark: Defaults to None (no marks). If set to a dictionary from int to
-                errors, such as `mark={1: circuit.shortest_graphlike_error()}`,
-                then the errors will be highlighted and tracked forward by crumble.
 
         Returns:
             A URL that can be opened in a web browser.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> lestim.Circuit('''
             ...     H 0
             ...     CNOT 0 1
             ...     S 1
             ... ''').to_crumble_url()
-            'https://algassert.com/crumble#circuit=H_0;CX_0_1;S_1_'
-
-            >>> circuit = deltakit_stim.Circuit('''
-            ...     M(0.25) 0 1 2
-            ...     DETECTOR rec[-1] rec[-2]
-            ...     DETECTOR rec[-2] rec[-3]
-            ...     OBSERVABLE_INCLUDE(0) rec[-1]
-            ... ''')
-            >>> err = circuit.shortest_graphlike_error(canonicalize_circuit_errors=True)
-            >>> circuit.to_crumble_url(skip_detectors=True, mark={1: err})
-            'https://algassert.com/crumble#circuit=;TICK;MARKX(1)1;MARKX(1)2;MARKX(1)0;TICK;M(0.25)0_1_2;OI(0)rec[-1]_'
+            'https://algassert.com/crumble#circuit=H_0;CX_0_1;S_1'
         """
     def to_file(
         self,
         file: Union[io.TextIOBase, str, pathlib.Path],
     ) -> None:
-        """Writes the deltakit_stim circuit to a file.
+        """Writes the lestim circuit to a file.
 
         The file format is defined at
-        https://github.com/quantumlib/Stim/blob/main/doc/file_format_deltakit_stim_circuit.md
+        https://github.com/quantumlib/Stim/blob/main/doc/file_format_lestim_circuit.md
 
         Args:
             file: A file path or an open file to write to.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
             >>> import tempfile
-            >>> c = deltakit_stim.Circuit('H 5\nX 0')
+            >>> c = lestim.Circuit('H 5\nX 0')
 
             >>> with tempfile.TemporaryDirectory() as tmpdir:
-            ...     path = tmpdir + '/tmp.deltakit_stim'
+            ...     path = tmpdir + '/tmp.lestim'
             ...     with open(path, 'w') as f:
             ...         c.to_file(f)
             ...     with open(path) as f:
@@ -2830,7 +2379,7 @@ class Circuit:
             'H 5\nX 0\n'
 
             >>> with tempfile.TemporaryDirectory() as tmpdir:
-            ...     path = tmpdir + '/tmp.deltakit_stim'
+            ...     path = tmpdir + '/tmp.lestim'
             ...     c.to_file(path)
             ...     with open(path) as f:
             ...         contents = f.read()
@@ -2850,8 +2399,8 @@ class Circuit:
                 This should be set to 2 or to 3.
 
                 Differences between the versions are:
-                    - Support for operations on classical bits (only version 3).
-                        This means DETECTOR and OBSERVABLE_INCLUDE only work with
+                    - Support for operations on classical bits operations (only version
+                        3). This means DETECTOR and OBSERVABLE_INCLUDE only work with
                         version 3.
                     - Support for feedback operations (only version 3).
                     - Support for subroutines (only version 3). Without subroutines,
@@ -2872,8 +2421,8 @@ class Circuit:
             The OpenQASM code as a string.
 
         Examples:
-            >>> import deltakit_stim
-            >>> circuit = deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> circuit = lestim.Circuit('''
             ...     R 0 1
             ...     X 1
             ...     H 0
@@ -2915,8 +2464,8 @@ class Circuit:
             A URL that can be opened in a web browser.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> lestim.Circuit('''
             ...     H 0
             ...     CNOT 0 1
             ...     S 1
@@ -2929,7 +2478,7 @@ class Circuit:
         ignore_noise: bool = False,
         ignore_measurement: bool = False,
         ignore_reset: bool = False,
-    ) -> deltakit_stim.Tableau:
+    ) -> lestim.Tableau:
         """Converts the circuit into an equivalent stabilizer tableau.
 
         Args:
@@ -2959,25 +2508,25 @@ class Circuit:
                 The circuit contains reset operations but ignore_reset=False.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> lestim.Circuit('''
             ...     H 0
             ...     CNOT 0 1
             ... ''').to_tableau()
-            deltakit_stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    deltakit_stim.PauliString("+Z_"),
-                    deltakit_stim.PauliString("+_X"),
+                    lestim.PauliString("+Z_"),
+                    lestim.PauliString("+_X"),
                 ],
                 zs=[
-                    deltakit_stim.PauliString("+XX"),
-                    deltakit_stim.PauliString("+ZZ"),
+                    lestim.PauliString("+XX"),
+                    lestim.PauliString("+ZZ"),
                 ],
             )
         """
     def with_inlined_feedback(
         self,
-    ) -> deltakit_stim.Circuit:
+    ) -> lestim.Circuit:
         """Returns a circuit without feedback with rewritten detectors/observables.
 
         When a feedback operation affects the expected parity of a detector or
@@ -2997,7 +2546,7 @@ class Circuit:
             assert dem1.approx_equals(dem2, 1e-5)
 
         Returns:
-            A `deltakit_stim.Circuit` with feedback operations removed, with rewritten DETECTOR
+            A `lestim.Circuit` with feedback operations removed, with rewritten DETECTOR
             instructions (as needed to avoid changing the meaning of each detector), and
             with additional OBSERVABLE_INCLUDE instructions (as needed to avoid changing
             the meaning of each observable).
@@ -3008,9 +2557,9 @@ class Circuit:
             the structure of the circuit.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> deltakit_stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     CX 0 1        # copy to measure qubit
             ...     M 1           # measure first time
             ...     CX rec[-1] 1  # use feedback to reset measurement qubit
@@ -3019,7 +2568,7 @@ class Circuit:
             ...     DETECTOR rec[-1] rec[-2]
             ...     OBSERVABLE_INCLUDE(0) rec[-1]
             ... ''').with_inlined_feedback()
-            deltakit_stim.Circuit('''
+            lestim.Circuit('''
                 CX 0 1
                 M 1
                 OBSERVABLE_INCLUDE(0) rec[-1]
@@ -3031,7 +2580,7 @@ class Circuit:
         """
     def without_noise(
         self,
-    ) -> deltakit_stim.Circuit:
+    ) -> lestim.Circuit:
         """Returns a copy of the circuit with all noise processes removed.
 
         Pure noise instructions, such as X_ERROR and DEPOLARIZE2, are not
@@ -3041,250 +2590,70 @@ class Circuit:
         parameter removed.
 
         Returns:
-            A `deltakit_stim.Circuit` with the same instructions except all noise
+            A `lestim.Circuit` with the same instructions except all noise
             processes have been removed.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> lestim.Circuit('''
             ...     X_ERROR(0.25) 0
             ...     CNOT 0 1
             ...     M(0.125) 0
             ... ''').without_noise()
-            deltakit_stim.Circuit('''
+            lestim.Circuit('''
                 CX 0 1
                 M 0
             ''')
         """
-    def without_tags(
-        self,
-    ) -> deltakit_stim.Circuit:
-        """Returns a copy of the circuit with all tags removed.
-
-        Returns:
-            A `deltakit_stim.Circuit` with the same instructions except all tags have been
-            removed.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.Circuit('''
-            ...     X[test-tag] 0
-            ...     M[test-tag-2](0.125) 0
-            ... ''').without_tags()
-            deltakit_stim.Circuit('''
-                X 0
-                M(0.125) 0
-            ''')
-        """
 class CircuitErrorLocation:
-    """Describes the location of an error mechanism from a deltakit_stim circuit.
-
-    Examples:
-        >>> import deltakit_stim
-        >>> circuit = deltakit_stim.Circuit.generated(
-        ...     "repetition_code:memory",
-        ...     distance=5,
-        ...     rounds=5,
-        ...     before_round_data_depolarization=1e-3,
-        ... )
-        >>> logical_error = circuit.shortest_graphlike_error()
-        >>> error_location = logical_error[0].circuit_error_locations[0]
-        >>> print(error_location)
-        CircuitErrorLocation {
-            flipped_pauli_product: X0
-            Circuit location stack trace:
-                (after 1 TICKs)
-                at instruction #3 (DEPOLARIZE1) in the circuit
-                at target #1 of the instruction
-                resolving to DEPOLARIZE1(0.001) 0
-        }
+    """Describes the location of an error mechanism from a lestim circuit.
     """
     def __init__(
         self,
         *,
         tick_offset: int,
-        flipped_pauli_product: List[deltakit_stim.GateTargetWithCoords],
+        flipped_pauli_product: List[lestim.GateTargetWithCoords],
         flipped_measurement: object,
-        instruction_targets: deltakit_stim.CircuitTargetsInsideInstruction,
-        stack_frames: List[deltakit_stim.CircuitErrorLocationStackFrame],
-        noise_tag: str = '',
+        instruction_targets: lestim.CircuitTargetsInsideInstruction,
+        stack_frames: List[lestim.CircuitErrorLocationStackFrame],
     ) -> None:
-        """Creates a deltakit_stim.CircuitErrorLocation.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> err = deltakit_stim.CircuitErrorLocation(
-            ...     tick_offset=1,
-            ...     flipped_pauli_product=(
-            ...         deltakit_stim.GateTargetWithCoords(
-            ...             gate_target=deltakit_stim.target_x(0),
-            ...             coords=[],
-            ...         ),
-            ...     ),
-            ...     flipped_measurement=deltakit_stim.FlippedMeasurement(
-            ...         record_index=None,
-            ...         observable=(),
-            ...     ),
-            ...     instruction_targets=deltakit_stim.CircuitTargetsInsideInstruction(
-            ...         gate='DEPOLARIZE1',
-            ...         args=[0.001],
-            ...         target_range_start=0,
-            ...         target_range_end=1,
-            ...         targets_in_range=(deltakit_stim.GateTargetWithCoords(
-            ...             gate_target=0,
-            ...             coords=[],
-            ...         ),)
-            ...     ),
-            ...     stack_frames=(
-            ...         deltakit_stim.CircuitErrorLocationStackFrame(
-            ...             instruction_offset=2,
-            ...             iteration_index=0,
-            ...             instruction_repetitions_arg=0,
-            ...         ),
-            ...     ),
-            ...     noise_tag='test-tag',
-            ... )
-            >>> print(err)
-            CircuitErrorLocation {
-                noise_tag: test-tag
-                flipped_pauli_product: X0
-                Circuit location stack trace:
-                    (after 1 TICKs)
-                    at instruction #3 (DEPOLARIZE1) in the circuit
-                    at target #1 of the instruction
-                    resolving to DEPOLARIZE1(0.001) 0
-            }
+        """Creates a lestim.CircuitErrorLocation.
         """
     @property
     def flipped_measurement(
         self,
-    ) -> Optional[deltakit_stim.FlippedMeasurement]:
+    ) -> Optional[stim.FlippedMeasurement]:
         """The measurement that was flipped by the error mechanism.
-
         If the error isn't a measurement error, this will be None.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> err = deltakit_stim.Circuit('''
-            ...     R 0
-            ...     M(0.125) 0
-            ...     OBSERVABLE_INCLUDE(0) rec[-1]
-            ... ''').shortest_graphlike_error()
-            >>> err[0].circuit_error_locations[0].flipped_measurement
-            deltakit_stim.FlippedMeasurement(
-                record_index=0,
-                observable=(deltakit_stim.GateTargetWithCoords(deltakit_stim.target_z(0), []),),
-            )
         """
     @property
     def flipped_pauli_product(
         self,
-    ) -> List[deltakit_stim.GateTargetWithCoords]:
+    ) -> List[lestim.GateTargetWithCoords]:
         """The Pauli errors that the error mechanism applied to qubits.
-
         When the error is a measurement error, this will be an empty list.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> err = deltakit_stim.Circuit('''
-            ...     R 0
-            ...     Y_ERROR(0.125) 0
-            ...     M 0
-            ...     OBSERVABLE_INCLUDE(0) rec[-1]
-            ... ''').shortest_graphlike_error()
-            >>> err[0].circuit_error_locations[0].flipped_pauli_product
-            [deltakit_stim.GateTargetWithCoords(deltakit_stim.target_y(0), [])]
         """
     @property
     def instruction_targets(
         self,
-    ) -> deltakit_stim.CircuitTargetsInsideInstruction:
+    ) -> lestim.CircuitTargetsInsideInstruction:
         """Within the error instruction, which may have hundreds of
         targets, which specific targets were being executed to
         produce the error.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> err = deltakit_stim.Circuit('''
-            ...     R 0
-            ...     TICK
-            ...     Y_ERROR(0.125) 0
-            ...     M 0
-            ...     OBSERVABLE_INCLUDE(0) rec[-1]
-            ... ''').shortest_graphlike_error()
-            >>> targets = err[0].circuit_error_locations[0].instruction_targets
-            >>> targets == deltakit_stim.CircuitTargetsInsideInstruction(
-            ...     gate='Y_ERROR',
-            ...     args=[0.125],
-            ...     target_range_start=0,
-            ...     target_range_end=1,
-            ...     targets_in_range=(deltakit_stim.GateTargetWithCoords(0, []),),
-            ... )
-            True
-        """
-    @property
-    def noise_tag(
-        self,
-    ) -> str:
-        """The tag on the noise instruction that caused the error.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> err = deltakit_stim.Circuit('''
-            ...     R 0
-            ...     Y_ERROR[test-tag](0.125) 0
-            ...     M 0
-            ...     OBSERVABLE_INCLUDE(0) rec[-1]
-            ... ''').shortest_graphlike_error()
-            >>> err[0].circuit_error_locations[0].noise_tag
-            'test-tag'
         """
     @property
     def stack_frames(
         self,
-    ) -> List[deltakit_stim.CircuitErrorLocationStackFrame]:
-        """Describes where in the circuit's execution the error happened.
-
-        Multiple frames are needed because the error may occur within a loop,
-        or a loop nested inside a loop, or etc.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> err = deltakit_stim.Circuit('''
-            ...     R 0
-            ...     TICK
-            ...     Y_ERROR(0.125) 0
-            ...     M 0
-            ...     OBSERVABLE_INCLUDE(0) rec[-1]
-            ... ''').shortest_graphlike_error()
-            >>> err[0].circuit_error_locations[0].stack_frames
-            [deltakit_stim.CircuitErrorLocationStackFrame(
-                instruction_offset=2,
-                iteration_index=0,
-                instruction_repetitions_arg=0,
-            )]
+    ) -> List[lestim.CircuitErrorLocationStackFrame]:
+        """Where in the circuit's execution does the error mechanism occur,
+        accounting for things like nested loops that iterate multiple times.
         """
     @property
     def tick_offset(
         self,
     ) -> int:
-        """The number of TICKs that executed before the error happened.
-
-        This counts TICKs occurring multiple times during loops.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> err = deltakit_stim.Circuit('''
-            ...     R 0
-            ...     TICK
-            ...     TICK
-            ...     TICK
-            ...     Y_ERROR(0.125) 0
-            ...     M 0
-            ...     OBSERVABLE_INCLUDE(0) rec[-1]
-            ... ''').shortest_graphlike_error()
-            >>> err[0].circuit_error_locations[0].tick_offset
-            3
+        """The number of TICKs that executed before the error mechanism being discussed,
+        including TICKs that occurred multiple times during loops.
         """
 class CircuitErrorLocationStackFrame:
     """Describes the location of an instruction being executed within a
@@ -3293,30 +2662,6 @@ class CircuitErrorLocationStackFrame:
     The full location of an instruction is a list of these frames,
     drilling down from the top level circuit to the inner-most loop
     that the instruction is within.
-
-
-    Examples:
-        >>> import deltakit_stim
-        >>> err = deltakit_stim.Circuit('''
-        ...     REPEAT 5 {
-        ...         R 0
-        ...         Y_ERROR(0.125) 0
-        ...         M 0
-        ...     }
-        ...     OBSERVABLE_INCLUDE(0) rec[-1]
-        ... ''').shortest_graphlike_error()
-        >>> err[0].circuit_error_locations[0].stack_frames[0]
-        deltakit_stim.CircuitErrorLocationStackFrame(
-            instruction_offset=0,
-            iteration_index=0,
-            instruction_repetitions_arg=5,
-        )
-        >>> err[0].circuit_error_locations[0].stack_frames[1]
-        deltakit_stim.CircuitErrorLocationStackFrame(
-            instruction_offset=1,
-            iteration_index=4,
-            instruction_repetitions_arg=0,
-        )
     """
     def __init__(
         self,
@@ -3325,15 +2670,7 @@ class CircuitErrorLocationStackFrame:
         iteration_index: int,
         instruction_repetitions_arg: int,
     ) -> None:
-        """Creates a deltakit_stim.CircuitErrorLocationStackFrame.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> frame = deltakit_stim.CircuitErrorLocationStackFrame(
-            ...     instruction_offset=1,
-            ...     iteration_index=2,
-            ...     instruction_repetitions_arg=3,
-            ... )
+        """Creates a lestim.CircuitErrorLocationStackFrame.
         """
     @property
     def instruction_offset(
@@ -3344,18 +2681,6 @@ class CircuitErrorLocationStackFrame:
         from the line number, because blank lines and commented lines
         don't count and also because the offset of the first instruction
         is 0 instead of 1.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> err = deltakit_stim.Circuit('''
-            ...     R 0
-            ...     TICK
-            ...     Y_ERROR(0.125) 0
-            ...     M 0
-            ...     OBSERVABLE_INCLUDE(0) rec[-1]
-            ... ''').shortest_graphlike_error()
-            >>> err[0].circuit_error_locations[0].stack_frames[0].instruction_offset
-            2
         """
     @property
     def instruction_repetitions_arg(
@@ -3364,23 +2689,6 @@ class CircuitErrorLocationStackFrame:
         """If the instruction being referred to is a REPEAT block,
         this is the repetition count of that REPEAT block. Otherwise
         this field defaults to 0.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> err = deltakit_stim.Circuit('''
-            ...     REPEAT 5 {
-            ...         R 0
-            ...         Y_ERROR(0.125) 0
-            ...         M 0
-            ...     }
-            ...     OBSERVABLE_INCLUDE(0) rec[-1]
-            ... ''').shortest_graphlike_error()
-            >>> full = err[0].circuit_error_locations[0].stack_frames[0]
-            >>> loop = err[0].circuit_error_locations[0].stack_frames[1]
-            >>> full.instruction_repetitions_arg
-            5
-            >>> loop.instruction_repetitions_arg
-            0
         """
     @property
     def iteration_index(
@@ -3389,100 +2697,62 @@ class CircuitErrorLocationStackFrame:
         """Disambiguates which iteration of the loop containing this instruction
         is being referred to. If the instruction isn't in a REPEAT block, this
         field defaults to 0.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> err = deltakit_stim.Circuit('''
-            ...     REPEAT 5 {
-            ...         R 0
-            ...         Y_ERROR(0.125) 0
-            ...         M 0
-            ...     }
-            ...     OBSERVABLE_INCLUDE(0) rec[-1]
-            ... ''').shortest_graphlike_error()
-            >>> full = err[0].circuit_error_locations[0].stack_frames[0]
-            >>> loop = err[0].circuit_error_locations[0].stack_frames[1]
-            >>> full.iteration_index
-            0
-            >>> loop.iteration_index
-            4
         """
 class CircuitInstruction:
     """An instruction, like `H 0 1` or `CNOT rec[-1] 5`, from a circuit.
 
     Examples:
-        >>> import deltakit_stim
-        >>> circuit = deltakit_stim.Circuit('''
+        >>> import lestim
+        >>> circuit = lestim.Circuit('''
         ...     H 0
         ...     M 0 1
         ...     X_ERROR(0.125) 5
         ... ''')
         >>> circuit[0]
-        deltakit_stim.CircuitInstruction('H', [deltakit_stim.GateTarget(0)], [])
+        lestim.CircuitInstruction('H', [lestim.GateTarget(0)], [])
         >>> circuit[1]
-        deltakit_stim.CircuitInstruction('M', [deltakit_stim.GateTarget(0), deltakit_stim.GateTarget(1)], [])
+        lestim.CircuitInstruction('M', [lestim.GateTarget(0), lestim.GateTarget(1)], [])
         >>> circuit[2]
-        deltakit_stim.CircuitInstruction('X_ERROR', [deltakit_stim.GateTarget(5)], [0.125])
+        lestim.CircuitInstruction('X_ERROR', [lestim.GateTarget(5)], [0.125])
     """
     def __eq__(
         self,
-        arg0: deltakit_stim.CircuitInstruction,
+        arg0: lestim.CircuitInstruction,
     ) -> bool:
-        """Determines if two `deltakit_stim.CircuitInstruction`s are identical.
+        """Determines if two `lestim.CircuitInstruction`s are identical.
         """
     def __init__(
         self,
         name: str,
-        targets: Optional[Iterable[Union[int, deltakit_stim.GateTarget]]] = None,
-        gate_args: Optional[Iterable[float]] = None,
-        *,
-        tag: str = "",
+        targets: List[object],
+        gate_args: List[float] = (),
     ) -> None:
-        """Creates or parses a `deltakit_stim.CircuitInstruction`.
+        """Initializes a `lestim.CircuitInstruction`.
 
         Args:
             name: The name of the instruction being applied.
-                If `targets` and `gate_args` aren't specified, this can be a full
-                instruction line from a deltakit_stim Circuit file, like "CX 0 1".
             targets: The targets the instruction is being applied to. These can be raw
-                values like `0` and `deltakit_stim.target_rec(-1)`, or instances of
-                `deltakit_stim.GateTarget`.
+                values like `0` and `lestim.target_rec(-1)`, or instances of
+                `lestim.GateTarget`.
             gate_args: The sequence of numeric arguments parameterizing a gate. For
                 noise gates this is their probabilities. For `OBSERVABLE_INCLUDE`
                 instructions it's the index of the logical observable to affect.
-            tag: Defaults to "". A custom string attached to the instruction. For
-                example, for a TICK instruction, this could a string specifying an
-                amount of time which is used by custom code for adding noise to a
-                circuit. In general, deltakit_stim will attempt to propagate tags across circuit
-                transformations but will otherwise completely ignore them.
-
-        Examples:
-            >>> import deltakit_stim
-
-            >>> print(deltakit_stim.CircuitInstruction('DEPOLARIZE1', [5], [0.25]))
-            DEPOLARIZE1(0.25) 5
-
-            >>> deltakit_stim.CircuitInstruction('CX rec[-1] 5  # comment')
-            deltakit_stim.CircuitInstruction('CX', [deltakit_stim.target_rec(-1), deltakit_stim.GateTarget(5)], [])
-
-            >>> print(deltakit_stim.CircuitInstruction('I', [2], tag='100ns'))
-            I[100ns] 2
         """
     def __ne__(
         self,
-        arg0: deltakit_stim.CircuitInstruction,
+        arg0: lestim.CircuitInstruction,
     ) -> bool:
-        """Determines if two `deltakit_stim.CircuitInstruction`s are different.
+        """Determines if two `lestim.CircuitInstruction`s are different.
         """
     def __repr__(
         self,
     ) -> str:
-        """Returns text that is a valid python expression evaluating to an equivalent `deltakit_stim.CircuitInstruction`.
+        """Returns text that is a valid python expression evaluating to an equivalent `lestim.CircuitInstruction`.
         """
     def __str__(
         self,
     ) -> str:
-        """Returns a text description of the instruction as a deltakit_stim circuit file line.
+        """Returns a text description of the instruction as a lestim circuit file line.
         """
     def gate_args_copy(
         self,
@@ -3492,17 +2762,6 @@ class CircuitInstruction:
         For noisy gates this typically a list of probabilities.
         For OBSERVABLE_INCLUDE it's a singleton list containing the logical observable
         index.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> instruction = deltakit_stim.CircuitInstruction('X_ERROR', [2, 3], [0.125])
-            >>> instruction.gate_args_copy()
-            [0.125]
-
-            >>> instruction.gate_args_copy() == instruction.gate_args_copy()
-            True
-            >>> instruction.gate_args_copy() is instruction.gate_args_copy()
-            False
         """
     @property
     def name(
@@ -3510,104 +2769,17 @@ class CircuitInstruction:
     ) -> str:
         """The name of the instruction (e.g. `H` or `X_ERROR` or `DETECTOR`).
         """
-    @property
-    def num_measurements(
-        self,
-    ) -> int:
-        """Returns the number of bits produced when running this instruction.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.CircuitInstruction('H', [0]).num_measurements
-            0
-            >>> deltakit_stim.CircuitInstruction('M', [0]).num_measurements
-            1
-            >>> deltakit_stim.CircuitInstruction('M', [2, 3, 5, 7, 11]).num_measurements
-            5
-            >>> deltakit_stim.CircuitInstruction('MXX', [0, 1, 4, 5, 11, 13]).num_measurements
-            3
-            >>> deltakit_stim.Circuit('MPP X0*X1 X0*Z1*Y2')[0].num_measurements
-            2
-            >>> deltakit_stim.CircuitInstruction('HERALDED_ERASE', [0], [0.25]).num_measurements
-            1
-        """
-    @property
-    def tag(
-        self,
-    ) -> str:
-        """The custom tag attached to the instruction.
-
-        The tag is an arbitrary string.
-        The default tag, when none is specified, is the empty string.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.Circuit("H[test] 0")[0].tag
-            'test'
-            >>> deltakit_stim.Circuit("H 0")[0].tag
-            ''
-        """
-    def target_groups(
-        self,
-    ) -> List[List[deltakit_stim.GateTarget]]:
-        """Splits the instruction's targets into groups depending on the type of gate.
-
-        Single qubit gates like H get one group per target.
-        Two qubit gates like CX get one group per pair of targets.
-        Pauli product gates like MPP get one group per combined product.
-
-        Returns:
-            A list of groups of targets.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> for g in deltakit_stim.Circuit('H 0 1 2')[0].target_groups():
-            ...     print(repr(g))
-            [deltakit_stim.GateTarget(0)]
-            [deltakit_stim.GateTarget(1)]
-            [deltakit_stim.GateTarget(2)]
-
-            >>> for g in deltakit_stim.Circuit('CX 0 1 2 3')[0].target_groups():
-            ...     print(repr(g))
-            [deltakit_stim.GateTarget(0), deltakit_stim.GateTarget(1)]
-            [deltakit_stim.GateTarget(2), deltakit_stim.GateTarget(3)]
-
-            >>> for g in deltakit_stim.Circuit('MPP X0*Y1*Z2 X5*X6')[0].target_groups():
-            ...     print(repr(g))
-            [deltakit_stim.target_x(0), deltakit_stim.target_y(1), deltakit_stim.target_z(2)]
-            [deltakit_stim.target_x(5), deltakit_stim.target_x(6)]
-
-            >>> for g in deltakit_stim.Circuit('DETECTOR rec[-1] rec[-2]')[0].target_groups():
-            ...     print(repr(g))
-            [deltakit_stim.target_rec(-1)]
-            [deltakit_stim.target_rec(-2)]
-
-            >>> for g in deltakit_stim.Circuit('CORRELATED_ERROR(0.1) X0 Y1')[0].target_groups():
-            ...     print(repr(g))
-            [deltakit_stim.target_x(0), deltakit_stim.target_y(1)]
-        """
     def targets_copy(
         self,
-    ) -> List[deltakit_stim.GateTarget]:
+    ) -> List[lestim.GateTarget]:
         """Returns a copy of the targets of the instruction.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> instruction = deltakit_stim.CircuitInstruction('X_ERROR', [2, 3], [0.125])
-            >>> instruction.targets_copy()
-            [deltakit_stim.GateTarget(2), deltakit_stim.GateTarget(3)]
-
-            >>> instruction.targets_copy() == instruction.targets_copy()
-            True
-            >>> instruction.targets_copy() is instruction.targets_copy()
-            False
         """
 class CircuitRepeatBlock:
     """A REPEAT block from a circuit.
 
     Examples:
-        >>> import deltakit_stim
-        >>> circuit = deltakit_stim.Circuit('''
+        >>> import lestim
+        >>> circuit = lestim.Circuit('''
         ...     H 0
         ...     REPEAT 5 {
         ...         CX 0 1
@@ -3618,64 +2790,50 @@ class CircuitRepeatBlock:
         >>> repeat_block.repeat_count
         5
         >>> repeat_block.body_copy()
-        deltakit_stim.Circuit('''
+        lestim.Circuit('''
             CX 0 1
             CZ 1 2
         ''')
     """
     def __eq__(
         self,
-        arg0: deltakit_stim.CircuitRepeatBlock,
+        arg0: lestim.CircuitRepeatBlock,
     ) -> bool:
-        """Determines if two `deltakit_stim.CircuitRepeatBlock`s are identical.
+        """Determines if two `lestim.CircuitRepeatBlock`s are identical.
         """
     def __init__(
         self,
         repeat_count: int,
-        body: deltakit_stim.Circuit,
-        *,
-        tag: str = '',
+        body: lestim.Circuit,
     ) -> None:
-        """Initializes a `deltakit_stim.CircuitRepeatBlock`.
+        """Initializes a `lestim.CircuitRepeatBlock`.
 
         Args:
             repeat_count: The number of times to repeat the block.
             body: The body of the block, as a circuit.
-            tag: Defaults to empty. A custom string attached to the REPEAT instruction.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> c = deltakit_stim.Circuit()
-            >>> c.append(deltakit_stim.CircuitRepeatBlock(100, deltakit_stim.Circuit("M 0")))
-            >>> c
-            deltakit_stim.Circuit('''
-                REPEAT 100 {
-                    M 0
-                }
-            ''')
         """
     def __ne__(
         self,
-        arg0: deltakit_stim.CircuitRepeatBlock,
+        arg0: lestim.CircuitRepeatBlock,
     ) -> bool:
-        """Determines if two `deltakit_stim.CircuitRepeatBlock`s are different.
+        """Determines if two `lestim.CircuitRepeatBlock`s are different.
         """
     def __repr__(
         self,
     ) -> str:
-        """Returns valid python code evaluating to an equivalent `deltakit_stim.CircuitRepeatBlock`.
+        """Returns valid python code evaluating to an equivalent `lestim.CircuitRepeatBlock`.
         """
     def body_copy(
         self,
-    ) -> deltakit_stim.Circuit:
+    ) -> lestim.Circuit:
         """Returns a copy of the body of the repeat block.
 
         (Making a copy is enforced to make it clear that editing the result won't change
         the block's body.)
 
         Examples:
-            >>> import deltakit_stim
-            >>> circuit = deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> circuit = lestim.Circuit('''
             ...     H 0
             ...     REPEAT 5 {
             ...         CX 0 1
@@ -3684,7 +2842,7 @@ class CircuitRepeatBlock:
             ... ''')
             >>> repeat_block = circuit[1]
             >>> repeat_block.body_copy()
-            deltakit_stim.Circuit('''
+            lestim.Circuit('''
                 CX 0 1
                 CZ 1 2
             ''')
@@ -3692,16 +2850,16 @@ class CircuitRepeatBlock:
     @property
     def name(
         self,
-    ) -> str:
+    ) -> object:
         """Returns the name "REPEAT".
 
         This is a duck-typing convenience method. It exists so that code that doesn't
-        know whether it has a `deltakit_stim.CircuitInstruction` or a `deltakit_stim.CircuitRepeatBlock`
+        know whether it has a `lestim.CircuitInstruction` or a `lestim.CircuitRepeatBlock`
         can check the object's name without having to do an `instanceof` check first.
 
         Examples:
-            >>> import deltakit_stim
-            >>> circuit = deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> circuit = lestim.Circuit('''
             ...     H 0
             ...     REPEAT 5 {
             ...         CX 1 2
@@ -3712,28 +2870,14 @@ class CircuitRepeatBlock:
             ['H', 'REPEAT', 'S']
         """
     @property
-    def num_measurements(
-        self,
-    ) -> int:
-        """Returns the number of bits produced when running this loop.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.CircuitRepeatBlock(
-            ...     body=deltakit_stim.Circuit("M 0 1"),
-            ...     repeat_count=25,
-            ... ).num_measurements
-            50
-        """
-    @property
     def repeat_count(
         self,
     ) -> int:
         """The repetition count of the repeat block.
 
         Examples:
-            >>> import deltakit_stim
-            >>> circuit = deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> circuit = lestim.Circuit('''
             ...     H 0
             ...     REPEAT 5 {
             ...         CX 0 1
@@ -3744,32 +2888,6 @@ class CircuitRepeatBlock:
             >>> repeat_block.repeat_count
             5
         """
-    @property
-    def tag(
-        self,
-    ) -> str:
-        """The custom tag attached to the REPEAT instruction.
-
-        The tag is an arbitrary string.
-        The default tag, when none is specified, is the empty string.
-
-        Examples:
-            >>> import deltakit_stim
-
-            >>> deltakit_stim.Circuit('''
-            ...     REPEAT[test] 5 {
-            ...         H 0
-            ...     }
-            ... ''')[0].tag
-            'test'
-
-            >>> deltakit_stim.Circuit('''
-            ...     REPEAT 5 {
-            ...         H 0
-            ...     }
-            ... ''')[0].tag
-            ''
-        """
 class CircuitTargetsInsideInstruction:
     """Describes a range of targets within a circuit instruction.
     """
@@ -3777,81 +2895,24 @@ class CircuitTargetsInsideInstruction:
         self,
         *,
         gate: str,
-        tag: str = '',
         args: List[float],
         target_range_start: int,
         target_range_end: int,
-        targets_in_range: List[deltakit_stim.GateTargetWithCoords],
+        targets_in_range: List[lestim.GateTargetWithCoords],
     ) -> None:
-        """Creates a deltakit_stim.CircuitTargetsInsideInstruction.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> val = deltakit_stim.CircuitTargetsInsideInstruction(
-            ...     gate='X_ERROR',
-            ...     tag='',
-            ...     args=[0.25],
-            ...     target_range_start=0,
-            ...     target_range_end=1,
-            ...     targets_in_range=[deltakit_stim.GateTargetWithCoords(0, [])],
-            ... )
+        """Creates a lestim.CircuitTargetsInsideInstruction.
         """
     @property
     def args(
         self,
     ) -> List[float]:
         """Returns parens arguments of the gate / instruction that was being executed.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> err = deltakit_stim.Circuit('''
-            ...     R 0 1
-            ...     X_ERROR(0.25) 0 1
-            ...     M 0 1
-            ...     DETECTOR(2, 3) rec[-1] rec[-2]
-            ...     OBSERVABLE_INCLUDE(0) rec[-1]
-            ... ''').shortest_graphlike_error()
-            >>> loc: deltakit_stim.CircuitErrorLocation = err[0].circuit_error_locations[0]
-            >>> loc.instruction_targets.args
-            [0.25]
         """
     @property
     def gate(
         self,
     ) -> Optional[str]:
         """Returns the name of the gate / instruction that was being executed.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> err = deltakit_stim.Circuit('''
-            ...     R 0 1
-            ...     X_ERROR(0.25) 0 1
-            ...     M 0 1
-            ...     DETECTOR(2, 3) rec[-1] rec[-2]
-            ...     OBSERVABLE_INCLUDE(0) rec[-1]
-            ... ''').shortest_graphlike_error()
-            >>> loc: deltakit_stim.CircuitErrorLocation = err[0].circuit_error_locations[0]
-            >>> loc.instruction_targets.gate
-            'X_ERROR'
-        """
-    @property
-    def tag(
-        self,
-    ) -> str:
-        """Returns the tag of the gate / instruction that was being executed.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> err = deltakit_stim.Circuit('''
-            ...     R 0 1
-            ...     X_ERROR[look-at-me-imma-tag](0.25) 0 1
-            ...     M 0 1
-            ...     DETECTOR(2, 3) rec[-1] rec[-2]
-            ...     OBSERVABLE_INCLUDE(0) rec[-1]
-            ... ''').shortest_graphlike_error()
-            >>> loc: deltakit_stim.CircuitErrorLocation = err[0].circuit_error_locations[0]
-            >>> loc.instruction_targets.tag
-            'look-at-me-imma-tag'
         """
     @property
     def target_range_end(
@@ -3859,21 +2920,6 @@ class CircuitTargetsInsideInstruction:
     ) -> int:
         """Returns the exclusive end of the range of targets that were executing
         within the gate / instruction.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> err = deltakit_stim.Circuit('''
-            ...     R 0 1
-            ...     X_ERROR(0.25) 0 1
-            ...     M 0 1
-            ...     DETECTOR(2, 3) rec[-1] rec[-2]
-            ...     OBSERVABLE_INCLUDE(0) rec[-1]
-            ... ''').shortest_graphlike_error()
-            >>> loc: deltakit_stim.CircuitErrorLocation = err[0].circuit_error_locations[0]
-            >>> loc.instruction_targets.target_range_start
-            0
-            >>> loc.instruction_targets.target_range_end
-            1
         """
     @property
     def target_range_start(
@@ -3881,603 +2927,21 @@ class CircuitTargetsInsideInstruction:
     ) -> int:
         """Returns the inclusive start of the range of targets that were executing
         within the gate / instruction.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> err = deltakit_stim.Circuit('''
-            ...     R 0 1
-            ...     X_ERROR(0.25) 0 1
-            ...     M 0 1
-            ...     DETECTOR(2, 3) rec[-1] rec[-2]
-            ...     OBSERVABLE_INCLUDE(0) rec[-1]
-            ... ''').shortest_graphlike_error()
-            >>> loc: deltakit_stim.CircuitErrorLocation = err[0].circuit_error_locations[0]
-            >>> loc.instruction_targets.target_range_start
-            0
-            >>> loc.instruction_targets.target_range_end
-            1
         """
     @property
     def targets_in_range(
         self,
-    ) -> List[deltakit_stim.GateTargetWithCoords]:
+    ) -> List[lestim.GateTargetWithCoords]:
         """Returns the subset of targets of the gate/instruction that were being executed.
 
         Includes coordinate data with the targets.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> err = deltakit_stim.Circuit('''
-            ...     R 0 1
-            ...     X_ERROR(0.25) 0 1
-            ...     M 0 1
-            ...     DETECTOR(2, 3) rec[-1] rec[-2]
-            ...     OBSERVABLE_INCLUDE(0) rec[-1]
-            ... ''').shortest_graphlike_error()
-            >>> loc: deltakit_stim.CircuitErrorLocation = err[0].circuit_error_locations[0]
-            >>> loc.instruction_targets.targets_in_range
-            [deltakit_stim.GateTargetWithCoords(0, [])]
-        """
-class CliffordString:
-    """A tensor product of single qubit Clifford gates (e.g. "H \u2297 X \u2297 S").
-
-    Represents a collection of Clifford operations applied pairwise to a
-    collection of qubits. Ignores global phase.
-
-    Examples:
-        >>> import deltakit_stim
-        >>> deltakit_stim.CliffordString("H,S,C_XYZ") * deltakit_stim.CliffordString("H,H,H")
-        deltakit_stim.CliffordString("I,C_ZYX,SQRT_X_DAG")
-    """
-    def __add__(
-        self,
-        rhs: deltakit_stim.CliffordString,
-    ) -> deltakit_stim.CliffordString:
-        """Concatenates two CliffordStrings.
-
-        Args:
-            rhs: The suffix of the concatenation.
-
-        Returns:
-            The concatenated Clifford string.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.CliffordString("I,X,H") + deltakit_stim.CliffordString("Y,S")
-            deltakit_stim.CliffordString("I,X,H,Y,S")
-        """
-    def __eq__(
-        self,
-        arg0: deltakit_stim.CliffordString,
-    ) -> bool:
-        """Determines if two Clifford strings have identical contents.
-        """
-    @overload
-    def __getitem__(
-        self,
-        index_or_slice: int,
-    ) -> deltakit_stim.GateData:
-        pass
-    @overload
-    def __getitem__(
-        self,
-        index_or_slice: slice,
-    ) -> deltakit_stim.CliffordString:
-        pass
-    def __getitem__(
-        self,
-        index_or_slice: Union[int, slice],
-    ) -> Union[deltakit_stim.GateData, deltakit_stim.CliffordString]:
-        """Returns a Clifford or substring from the CliffordString.
-
-        Args:
-            index_or_slice: The index of the Clifford to return, or the slice
-                corresponding to the sub CliffordString to return.
-
-        Returns:
-            The indexed Clifford (as a deltakit_stim.GateData instance) or the sliced
-            CliffordString.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.CliffordString("I,X,Y,Z,H")
-
-            >>> s[2]
-            deltakit_stim.gate_data('Y')
-
-            >>> s[-1]
-            deltakit_stim.gate_data('H')
-
-            >>> s[:-1]
-            deltakit_stim.CliffordString("I,X,Y,Z")
-
-            >>> s[::2]
-            deltakit_stim.CliffordString("I,Y,H")
-        """
-    def __iadd__(
-        self,
-        rhs: deltakit_stim.CliffordString,
-    ) -> deltakit_stim.CliffordString:
-        """Mutates the CliffordString by concatenating onto it.
-
-        Args:
-            rhs: The suffix to concatenate onto the target CliffordString.
-
-        Returns:
-            The mutated Clifford string.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> c = deltakit_stim.CliffordString("I,X,H")
-            >>> alias = c
-            >>> alias += deltakit_stim.CliffordString("Y,S")
-            >>> c
-            deltakit_stim.CliffordString("I,X,H,Y,S")
-        """
-    def __imul__(
-        self,
-        rhs: Union[deltakit_stim.CliffordString, int],
-    ) -> deltakit_stim.CliffordString:
-        """Inplace CliffordString multiplication.
-
-        Mutates the CliffordString into itself multiplied by another CliffordString
-        (via pairwise Clifford multipliation) or by an integer (via repeating the
-        contents).
-
-        Args:
-            rhs: Either a deltakit_stim.CliffordString or an int. If rhs is a
-                deltakit_stim.CliffordString, then the Cliffords from each string are multiplied
-                pairwise. If rhs is an int, it is the number of times to repeat the
-                Clifford string's contents.
-
-        Returns:
-            The mutated Clifford string.
-
-        Examples:
-            >>> import deltakit_stim
-
-            >>> c = deltakit_stim.CliffordString("S,X,X")
-            >>> alias = c
-            >>> alias *= deltakit_stim.CliffordString("S,Z,H,Z")
-            >>> c
-            deltakit_stim.CliffordString("Z,Y,SQRT_Y,Z")
-
-            >>> c = deltakit_stim.CliffordString("I,X,H")
-            >>> alias = c
-            >>> alias *= 2
-            >>> c
-            deltakit_stim.CliffordString("I,X,H,I,X,H")
-        """
-    def __init__(
-        self,
-        arg: Union[int, str, deltakit_stim.CliffordString, deltakit_stim.PauliString, deltakit_stim.Circuit],
-        /,
-    ) -> None:
-        """Initializes a deltakit_stim.CliffordString from the given argument.
-
-        Args:
-            arg [position-only]: This can be a variety of types, including:
-                int: initializes an identity Clifford string of the given length.
-                str: initializes by parsing a comma-separated list of gate names.
-                deltakit_stim.CliffordString: initializes by copying the given Clifford string.
-                deltakit_stim.PauliString: initializes by copying from the given Pauli string
-                    (ignores the sign of the Pauli string).
-                deltakit_stim.Circuit: initializes a CliffordString equivalent to the action
-                    of the circuit (as long as the circuit only contains single qubit
-                    unitary operations and annotations).
-                Iterable: initializes by interpreting each item as a Clifford.
-                    Each item can be a single-qubit Clifford gate name (like "SQRT_X")
-                    or deltakit_stim.GateData instance.
-
-        Examples:
-            >>> import deltakit_stim
-
-            >>> deltakit_stim.CliffordString(5)
-            deltakit_stim.CliffordString("I,I,I,I,I")
-
-            >>> deltakit_stim.CliffordString("X,Y,Z,SQRT_X")
-            deltakit_stim.CliffordString("X,Y,Z,SQRT_X")
-
-            >>> deltakit_stim.CliffordString(["H", deltakit_stim.gate_data("S")])
-            deltakit_stim.CliffordString("H,S")
-
-            >>> deltakit_stim.CliffordString(deltakit_stim.PauliString("XYZ"))
-            deltakit_stim.CliffordString("X,Y,Z")
-
-            >>> deltakit_stim.CliffordString(deltakit_stim.CliffordString("X,Y,Z"))
-            deltakit_stim.CliffordString("X,Y,Z")
-
-            >>> deltakit_stim.CliffordString(deltakit_stim.Circuit('''
-            ...     H 0 1 2
-            ...     S 2 3
-            ...     TICK
-            ...     S 3
-            ...     I 6
-            ... '''))
-            deltakit_stim.CliffordString("H,H,C_ZYX,Z,I,I,I")
-        """
-    def __ipow__(
-        self,
-        num_qubits: int,
-    ) -> object:
-        """Mutates the CliffordString into itself raised to a power.
-
-        Args:
-            power: The power to raise the CliffordString's Cliffords to.
-                This value can be negative (e.g. -1 inverts the string).
-
-        Returns:
-            The mutated Clifford string.
-
-        Examples:
-            >>> import deltakit_stim
-
-            >>> p = deltakit_stim.CliffordString("I,X,H,S,C_XYZ")
-            >>> p **= 3
-            >>> p
-            deltakit_stim.CliffordString("I,X,H,S_DAG,I")
-
-            >>> p **= 2
-            >>> p
-            deltakit_stim.CliffordString("I,I,I,Z,I")
-
-            >>> alias = p
-            >>> alias **= 2
-            >>> p
-            deltakit_stim.CliffordString("I,I,I,I,I")
-        """
-    def __len__(
-        self,
-    ) -> int:
-        """Returns the number of Clifford operations in the string.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> len(deltakit_stim.CliffordString("I,X,Y,Z,H"))
-            5
-        """
-    def __mul__(
-        self,
-        rhs: Union[deltakit_stim.CliffordString, int],
-    ) -> deltakit_stim.CliffordString:
-        """CliffordString multiplication.
-
-        Args:
-            rhs: Either a deltakit_stim.CliffordString or an int. If rhs is a
-                deltakit_stim.CliffordString, then the Cliffords from each string are multiplied
-                pairwise. If rhs is an int, it is the number of times to repeat the
-                Clifford string's contents.
-
-        Examples:
-            >>> import deltakit_stim
-
-            >>> deltakit_stim.CliffordString("S,X,X") * deltakit_stim.CliffordString("S,Z,H,Z")
-            deltakit_stim.CliffordString("Z,Y,SQRT_Y,Z")
-
-            >>> deltakit_stim.CliffordString("I,X,H") * 3
-            deltakit_stim.CliffordString("I,X,H,I,X,H,I,X,H")
-        """
-    def __ne__(
-        self,
-        arg0: deltakit_stim.CliffordString,
-    ) -> bool:
-        """Determines if two Clifford strings have non-identical contents.
-        """
-    def __pow__(
-        self,
-        power: int,
-    ) -> deltakit_stim.CliffordString:
-        """Returns the CliffordString raised to a power.
-
-        Args:
-            power: The power to raise the CliffordString's Cliffords to.
-                This value can be negative (e.g. -1 returns the inverse string).
-
-        Returns:
-            The Clifford string raised to the power.
-
-        Examples:
-            >>> import deltakit_stim
-
-            >>> p = deltakit_stim.CliffordString("I,X,H,S,C_XYZ")
-
-            >>> p**0
-            deltakit_stim.CliffordString("I,I,I,I,I")
-
-            >>> p**1
-            deltakit_stim.CliffordString("I,X,H,S,C_XYZ")
-
-            >>> p**12000001
-            deltakit_stim.CliffordString("I,X,H,S,C_XYZ")
-
-            >>> p**2
-            deltakit_stim.CliffordString("I,I,I,Z,C_ZYX")
-
-            >>> p**3
-            deltakit_stim.CliffordString("I,X,H,S_DAG,I")
-
-            >>> p**-1
-            deltakit_stim.CliffordString("I,X,H,S_DAG,C_ZYX")
-        """
-    def __repr__(
-        self,
-    ) -> str:
-        """Returns text that is a valid python expression evaluating to an equivalent `deltakit_stim.CliffordString`.
-        """
-    def __rmul__(
-        self,
-        lhs: int,
-    ) -> deltakit_stim.CliffordString:
-        """CliffordString left-multiplication.
-
-        Args:
-            lhs: The number of times to repeat the Clifford string's contents.
-
-        Returns:
-            The repeated Clifford string.
-
-        Examples:
-            >>> import deltakit_stim
-
-            >>> 2 * deltakit_stim.CliffordString("I,X,H")
-            deltakit_stim.CliffordString("I,X,H,I,X,H")
-
-            >>> 0 * deltakit_stim.CliffordString("I,X,H")
-            deltakit_stim.CliffordString("")
-
-            >>> 5 * deltakit_stim.CliffordString("I")
-            deltakit_stim.CliffordString("I,I,I,I,I")
-        """
-    def __setitem__(
-        self,
-        index_or_slice: Union[int, slice],
-        new_value: Union[str, deltakit_stim.GateData, deltakit_stim.CliffordString, deltakit_stim.PauliString, deltakit_stim.Tableau],
-    ) -> None:
-        """Overwrites an indexed Clifford, or slice of Cliffords, with the given value.
-
-        Args:
-            index_or_slice: The index of the Clifford to overwrite, or the slice
-                of Cliffords to overwrite.
-            new_value: Specifies the value to write into the Clifford string. This can
-                be set to a few different types of values:
-                - str: Name of the single qubit Clifford gate to write to the index or
-                    broadcast over the slice.
-                - deltakit_stim.GateData: The single qubit Clifford gate to write to the index
-                    or broadcast over the slice.
-                - deltakit_stim.Tableau: Must be a single qubit tableau. Specifies the single
-                    qubit Clifford gate to write to the index or broadcast over the
-                    slice.
-                - deltakit_stim.CliffordString: String of Cliffords to write into the slice.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.CliffordString("I,I,I,I,I")
-
-            >>> s[1] = 'H'
-            >>> s
-            deltakit_stim.CliffordString("I,H,I,I,I")
-
-            >>> s[2:] = 'SQRT_X'
-            >>> s
-            deltakit_stim.CliffordString("I,H,SQRT_X,SQRT_X,SQRT_X")
-
-            >>> s[0] = deltakit_stim.gate_data('S_DAG').inverse
-            >>> s
-            deltakit_stim.CliffordString("S,H,SQRT_X,SQRT_X,SQRT_X")
-
-            >>> s[:] = 'I'
-            >>> s
-            deltakit_stim.CliffordString("I,I,I,I,I")
-
-            >>> s[::2] = deltakit_stim.CliffordString("X,Y,Z")
-            >>> s
-            deltakit_stim.CliffordString("X,I,Y,I,Z")
-
-            >>> s[0] = deltakit_stim.Tableau.from_named_gate("H")
-            >>> s
-            deltakit_stim.CliffordString("H,I,Y,I,Z")
-
-            >>> s[:] = deltakit_stim.Tableau.from_named_gate("S")
-            >>> s
-            deltakit_stim.CliffordString("S,S,S,S,S")
-
-            >>> s[:4] = deltakit_stim.PauliString("IXYZ")
-            >>> s
-            deltakit_stim.CliffordString("I,X,Y,Z,S")
-        """
-    def __str__(
-        self,
-    ) -> str:
-        """Returns a string representation of the CliffordString's operations.
-        """
-    @staticmethod
-    def all_cliffords_string(
-    ) -> deltakit_stim.CliffordString:
-        """Returns a deltakit_stim.CliffordString containing each single qubit Clifford once.
-
-        Useful for things like testing that a method works on every single Clifford.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> cliffords = deltakit_stim.CliffordString.all_cliffords_string()
-            >>> len(cliffords)
-            24
-
-            >>> print(cliffords[:8])
-            I,X,Y,Z,H_XY,S,S_DAG,H_NXY
-
-            >>> print(cliffords[8:16])
-            H,SQRT_Y_DAG,H_NXZ,SQRT_Y,H_YZ,H_NYZ,SQRT_X,SQRT_X_DAG
-
-            >>> print(cliffords[16:])
-            C_XYZ,C_XYNZ,C_NXYZ,C_XNYZ,C_ZYX,C_ZNYX,C_NZYX,C_ZYNX
-        """
-    def copy(
-        self,
-    ) -> deltakit_stim.CliffordString:
-        """Returns a copy of the CliffordString.
-
-        Returns:
-            The copy.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> c = deltakit_stim.CliffordString("H,X")
-            >>> alias = c
-            >>> copy = c.copy()
-            >>> c *= 5
-            >>> alias
-            deltakit_stim.CliffordString("H,X,H,X,H,X,H,X,H,X")
-            >>> copy
-            deltakit_stim.CliffordString("H,X")
-        """
-    @staticmethod
-    def random(
-        num_qubits: int,
-    ) -> deltakit_stim.CliffordString:
-        """Samples a uniformly random CliffordString.
-
-        Args:
-            num_qubits: The number of qubits the CliffordString should act upon.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> p = deltakit_stim.CliffordString.random(5)
-            >>> len(p)
-            5
-
-        Returns:
-            The sampled Clifford string.
-        """
-    def x_outputs(
-        self,
-        *,
-        bit_packed_signs: bool = False,
-    ) -> Tuple[deltakit_stim.PauliString, np.ndarray]:
-        """Returns what each Clifford in the CliffordString conjugates an X input into.
-
-        For example, H conjugates X into +Z and S_DAG conjugates X into -Y.
-
-        Combined with `z_outputs`, the results of this method completely specify
-        the single qubit Clifford applied to each qubit.
-
-        Args:
-            bit_packed_signs: Defaults to False. When False, the sign data is returned
-                in a numpy array with dtype `np.bool_`. When True, the dtype is instead
-                `np.uint8` and 8 bits are packed into each byte (in little endian
-                order).
-
-        Returns:
-            A (paulis, signs) tuple.
-
-            `paulis` has type deltakit_stim.PauliString. Its sign is always positive.
-
-            `signs` has type np.ndarray and an argument-dependent shape:
-                bit_packed_signs=False:
-                    dtype=np.bool_
-                    shape=(num_qubits,)
-                bit_packed_signs=True:
-                    dtype=np.uint8
-                    shape=(math.ceil(num_qubits / 8),)
-
-        Examples:
-            >>> import deltakit_stim
-            >>> x_paulis, x_signs = deltakit_stim.CliffordString("I,Y,H,S").x_outputs()
-            >>> x_paulis
-            deltakit_stim.PauliString("+XXZY")
-            >>> x_signs
-            array([False,  True, False, False])
-
-            >>> deltakit_stim.CliffordString("I,Y,H,S").x_outputs(bit_packed_signs=True)[1]
-            array([2], dtype=uint8)
-        """
-    def y_outputs(
-        self,
-        *,
-        bit_packed_signs: bool = False,
-    ) -> Tuple[deltakit_stim.PauliString, np.ndarray]:
-        """Returns what each Clifford in the CliffordString conjugates a Y input into.
-
-        For example, H conjugates Y into -Y and S_DAG conjugates Y into +X.
-
-        Args:
-            bit_packed_signs: Defaults to False. When False, the sign data is returned
-                in a numpy array with dtype `np.bool_`. When True, the dtype is instead
-                `np.uint8` and 8 bits are packed into each byte (in little endian
-                order).
-
-        Returns:
-            A (paulis, signs) tuple.
-
-            `paulis` has type deltakit_stim.PauliString. Its sign is always positive.
-
-            `signs` has type np.ndarray and an argument-dependent shape:
-                bit_packed_signs=False:
-                    dtype=np.bool_
-                    shape=(num_qubits,)
-                bit_packed_signs=True:
-                    dtype=np.uint8
-                    shape=(math.ceil(num_qubits / 8),)
-
-        Examples:
-            >>> import deltakit_stim
-            >>> y_paulis, y_signs = deltakit_stim.CliffordString("I,X,H,S").y_outputs()
-            >>> y_paulis
-            deltakit_stim.PauliString("+YYYX")
-            >>> y_signs
-            array([False,  True,  True,  True])
-
-            >>> deltakit_stim.CliffordString("I,X,H,S").y_outputs(bit_packed_signs=True)[1]
-            array([14], dtype=uint8)
-        """
-    def z_outputs(
-        self,
-        *,
-        bit_packed_signs: bool = False,
-    ) -> Tuple[deltakit_stim.PauliString, np.ndarray]:
-        """Returns what each Clifford in the CliffordString conjugates a Z input into.
-
-        For example, H conjugates Z into +X and SQRT_X conjugates Z into -Y.
-
-        Combined with `x_outputs`, the results of this method completely specify
-        the single qubit Clifford applied to each qubit.
-
-        Args:
-            bit_packed_signs: Defaults to False. When False, the sign data is returned
-                in a numpy array with dtype `np.bool_`. When True, the dtype is instead
-                `np.uint8` and 8 bits are packed into each byte (in little endian
-                order).
-
-        Returns:
-            A (paulis, signs) tuple.
-
-            `paulis` has type deltakit_stim.PauliString. Its sign is always positive.
-
-            `signs` has type np.ndarray and an argument-dependent shape:
-                bit_packed_signs=False:
-                    dtype=np.bool_
-                    shape=(num_qubits,)
-                bit_packed_signs=True:
-                    dtype=np.uint8
-                    shape=(math.ceil(num_qubits / 8),)
-
-        Examples:
-            >>> import deltakit_stim
-            >>> z_paulis, z_signs = deltakit_stim.CliffordString("I,Y,H,S").z_outputs()
-            >>> z_paulis
-            deltakit_stim.PauliString("+ZZXZ")
-            >>> z_signs
-            array([False,  True, False, False])
-
-            >>> deltakit_stim.CliffordString("I,Y,H,S").z_outputs(bit_packed_signs=True)[1]
-            array([2], dtype=uint8)
         """
 class CompiledDemSampler:
     """A helper class for efficiently sampler from a detector error model.
 
     Examples:
-        >>> import deltakit_stim
-        >>> dem = deltakit_stim.DetectorErrorModel('''
+        >>> import lestim
+        >>> dem = lestim.DetectorErrorModel('''
         ...    error(0) D0
         ...    error(1) D1 D2 L0
         ... ''')
@@ -4570,9 +3034,9 @@ class CompiledDemSampler:
             (i.e. like `np.packbits(data, bitorder='little', axis=1)`).
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
             >>> import numpy as np
-            >>> dem = deltakit_stim.DetectorErrorModel('''
+            >>> dem = lestim.DetectorErrorModel('''
             ...    error(0) D0
             ...    error(1) D1 D2 L0
             ... ''')
@@ -4635,7 +3099,7 @@ class CompiledDemSampler:
                    [2]], dtype=uint8)
 
             >>> # Recording and replaying errors.
-            >>> noisy_dem = deltakit_stim.DetectorErrorModel('''
+            >>> noisy_dem = lestim.DetectorErrorModel('''
             ...    error(0.125) D0
             ...    error(0.25) D1
             ... ''')
@@ -4656,13 +3120,13 @@ class CompiledDemSampler:
         shots: int,
         *,
         det_out_file: Union[None, str, pathlib.Path],
-        det_out_format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"] = '01',
+        det_out_format: str = "01",
         obs_out_file: Union[None, str, pathlib.Path],
-        obs_out_format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"] = '01',
+        obs_out_format: str = "01",
         err_out_file: Union[None, str, pathlib.Path] = None,
-        err_out_format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"] = '01',
+        err_out_format: str = "01",
         replay_err_in_file: Union[None, str, pathlib.Path] = None,
-        replay_err_in_format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"] = '01',
+        replay_err_in_format: str = "01",
     ) -> None:
         """Samples the detector error model and writes the results to disk.
 
@@ -4700,10 +3164,10 @@ class CompiledDemSampler:
             Nothing. Results are written to disk.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
             >>> import tempfile
             >>> import pathlib
-            >>> dem = deltakit_stim.DetectorErrorModel('''
+            >>> dem = lestim.DetectorErrorModel('''
             ...    error(0) D0
             ...    error(0) D1
             ...    error(0) D0
@@ -4734,7 +3198,7 @@ class CompiledDetectorSampler:
     """
     def __init__(
         self,
-        circuit: deltakit_stim.Circuit,
+        circuit: lestim.Circuit,
         *,
         seed: object = None,
     ) -> None:
@@ -4768,11 +3232,11 @@ class CompiledDetectorSampler:
                 give different results from taking 100 shots in one call.
 
         Returns:
-            An initialized deltakit_stim.CompiledDetectorSampler.
+            An initialized lestim.CompiledDetectorSampler.
 
         Examples:
-            >>> import deltakit_stim
-            >>> c = deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> c = lestim.Circuit('''
             ...    H 0
             ...    CNOT 0 1
             ...    X_ERROR(1.0) 0
@@ -4786,8 +3250,27 @@ class CompiledDetectorSampler:
     def __repr__(
         self,
     ) -> str:
-        """Returns valid python code evaluating to an equivalent `deltakit_stim.CompiledDetectorSampler`.
+        """Returns valid python code evaluating to an equivalent `lestim.CompiledDetectorSampler`.
         """
+    @overload
+    def sample(
+        self,
+        shots: int,
+        *,
+        prepend_observables: bool = False,
+        append_observables: bool = False,
+        bit_packed: bool = False,
+    ) -> np.ndarray:
+        pass
+    @overload
+    def sample(
+        self,
+        shots: int,
+        *,
+        separate_observables: Literal[True],
+        bit_packed: bool = False,
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        pass
     def sample(
         self,
         shots: int,
@@ -4796,8 +3279,6 @@ class CompiledDetectorSampler:
         append_observables: bool = False,
         separate_observables: bool = False,
         bit_packed: bool = False,
-        dets_out: Optional[np.ndarray] = None,
-        obs_out: Optional[np.ndarray] = None,
     ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
         """Returns a numpy array containing a batch of detector samples from the circuit.
 
@@ -4816,12 +3297,6 @@ class CompiledDetectorSampler:
                 with the detectors and are placed at the end of the results.
             bit_packed: Returns a uint8 numpy array with 8 bits per byte, instead of
                 a bool_ numpy array with 1 bit per byte. Uses little endian packing.
-            dets_out: Defaults to None. Specifies a pre-allocated numpy array to write
-                the detection event data into. This array must have the correct shape
-                and dtype.
-            obs_out: Defaults to None. Specifies a pre-allocated numpy array to write
-                the observable flip data into. This array must have the correct shape
-                and dtype.
 
         Returns:
             A numpy array or tuple of numpy arrays containing the samples.
@@ -4869,19 +3344,6 @@ class CompiledDetectorSampler:
                     (dets[s, m // 8] >> (m % 8)) & 1
                 The bit for observable `m` in shot `s` is at
                     (obs[s, m // 8] >> (m % 8)) & 1
-
-        Examples:
-            >>> import deltakit_stim
-            >>> c = deltakit_stim.Circuit('''
-            ...    H 0
-            ...    CNOT 0 1
-            ...    X_ERROR(1.0) 0
-            ...    M 0 1
-            ...    DETECTOR rec[-1] rec[-2]
-            ... ''')
-            >>> s = c.compile_detector_sampler()
-            >>> s.sample(shots=1)
-            array([[ True]])
         """
     def sample_bit_packed(
         self,
@@ -4916,9 +3378,9 @@ class CompiledDetectorSampler:
         shots: int,
         *,
         filepath: Union[str, pathlib.Path],
-        format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"] = '01',
+        format: 'Literal["01", "b8", "r8", "ptb64", "hits", "dets"]' = '01',
         obs_out_filepath: Optional[Union[str, pathlib.Path]] = None,
-        obs_out_format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"] = '01',
+        obs_out_format: 'Literal["01", "b8", "r8", "ptb64", "hits", "dets"]' = '01',
         prepend_observables: bool = False,
         append_observables: bool = False,
     ) -> None:
@@ -4947,11 +3409,11 @@ class CompiledDetectorSampler:
             None.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
             >>> import tempfile
             >>> with tempfile.TemporaryDirectory() as d:
             ...     path = f"{d}/tmp.dat"
-            ...     c = deltakit_stim.Circuit('''
+            ...     c = lestim.Circuit('''
             ...         X_ERROR(1) 0
             ...         M 0 1
             ...         DETECTOR rec[-2]
@@ -4972,7 +3434,7 @@ class CompiledMeasurementSampler:
     """
     def __init__(
         self,
-        circuit: deltakit_stim.Circuit,
+        circuit: lestim.Circuit,
         *,
         skip_reference_sample: bool = False,
         seed: object = None,
@@ -4981,11 +3443,11 @@ class CompiledMeasurementSampler:
         """Creates a measurement sampler for the given circuit.
 
         The sampler uses a noiseless reference sample, collected from the circuit using
-        deltakit_stim's Tableau simulator during initialization of the sampler, as a baseline for
+        lestim's Tableau simulator during initialization of the sampler, as a baseline for
         deriving more samples using an error propagation simulator.
 
         Args:
-            circuit: The deltakit_stim circuit to sample from.
+            circuit: The lestim circuit to sample from.
             skip_reference_sample: Defaults to False. When set to True, the reference
                 sample used by the sampler is initialized to all-zeroes instead of being
                 collected from the circuit. This means that the results returned by the
@@ -5009,11 +3471,11 @@ class CompiledMeasurementSampler:
                 Defaults to None. When None, the prng is seeded from system entropy.
 
                 When set to an integer, making the exact same series calls on the exact
-                same machine with the exact same version of deltakit_stim will produce the exact
+                same machine with the exact same version of Lestim will produce the exact
                 same simulation results.
 
                 CAUTION: simulation results *WILL NOT* be consistent between versions of
-                deltakit_stim. This restriction is present to make it possible to have future
+                Lestim. This restriction is present to make it possible to have future
                 optimizations to the random sampling, and is enforced by introducing
                 intentional differences in the seeding strategy from version to version.
 
@@ -5036,11 +3498,11 @@ class CompiledMeasurementSampler:
                 is used, in which case it will be set to all-zeros.
 
         Returns:
-            An initialized deltakit_stim.CompiledMeasurementSampler.
+            An initialized lestim.CompiledMeasurementSampler.
 
         Examples:
-            >>> import deltakit_stim
-            >>> c = deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> c = lestim.Circuit('''
             ...    X 0   2 3
             ...    M 0 1 2 3
             ... ''')
@@ -5051,7 +3513,7 @@ class CompiledMeasurementSampler:
     def __repr__(
         self,
     ) -> str:
-        """Returns text that is a valid python expression evaluating to an equivalent `deltakit_stim.CompiledMeasurementSampler`.
+        """Returns text that is a valid python expression evaluating to an equivalent `lestim.CompiledMeasurementSampler`.
         """
     def sample(
         self,
@@ -5081,8 +3543,8 @@ class CompiledMeasurementSampler:
                     (result[s, m // 8] >> (m % 8)) & 1
 
         Examples:
-            >>> import deltakit_stim
-            >>> c = deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> c = lestim.Circuit('''
             ...    X 0   2 3
             ...    M 0 1 2 3
             ... ''')
@@ -5109,8 +3571,8 @@ class CompiledMeasurementSampler:
             `result[s, (m // 8)] & 2**(m % 8)`.
 
         Examples:
-            >>> import deltakit_stim
-            >>> c = deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> c = lestim.Circuit('''
             ...    X 0 1 2 3 4 5 6 7     10
             ...    M 0 1 2 3 4 5 6 7 8 9 10
             ... ''')
@@ -5122,17 +3584,17 @@ class CompiledMeasurementSampler:
         self,
         shots: int,
         *,
-        filepath: Union[str, pathlib.Path],
-        format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"] = '01',
+        filepath: str,
+        format: str = '01',
     ) -> None:
         """Samples measurements from the circuit and writes them to a file.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
             >>> import tempfile
             >>> with tempfile.TemporaryDirectory() as d:
             ...     path = f"{d}/tmp.dat"
-            ...     c = deltakit_stim.Circuit('''
+            ...     c = lestim.Circuit('''
             ...         X 0   2 3
             ...         M 0 1 2 3
             ...     ''')
@@ -5160,23 +3622,23 @@ class CompiledMeasurementsToDetectionEventsConverter:
     """
     def __init__(
         self,
-        circuit: deltakit_stim.Circuit,
+        circuit: lestim.Circuit,
         *,
         skip_reference_sample: bool = False,
     ) -> None:
         """Creates a measurement-to-detection-events converter for the given circuit.
 
         The converter uses a noiseless reference sample, collected from the circuit
-        using deltakit_stim's Tableau simulator during initialization of the converter, as a
+        using lestim's Tableau simulator during initialization of the converter, as a
         baseline for determining what the expected value of a detector is.
 
         Note that the expected behavior of gauge detectors (detectors that are not
         actually deterministic under noiseless execution) can vary depending on the
-        reference sample. deltakit_stim mitigates this by always generating the same reference
+        reference sample. Lestim mitigates this by always generating the same reference
         sample for a given circuit.
 
         Args:
-            circuit: The deltakit_stim circuit to use for conversions.
+            circuit: The lestim circuit to use for conversions.
             skip_reference_sample: Defaults to False. When set to True, the reference
                 sample used by the converter is initialized to all-zeroes instead of
                 being collected from the circuit. This should only be used if it's known
@@ -5184,12 +3646,12 @@ class CompiledMeasurementsToDetectionEventsConverter:
                 circuit (under noiseless execution).
 
         Returns:
-            An initialized deltakit_stim.CompiledMeasurementsToDetectionEventsConverter.
+            An initialized lestim.CompiledMeasurementsToDetectionEventsConverter.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
             >>> import numpy as np
-            >>> converter = deltakit_stim.Circuit('''
+            >>> converter = lestim.Circuit('''
             ...    X 0
             ...    M 0
             ...    DETECTOR rec[-1]
@@ -5204,7 +3666,7 @@ class CompiledMeasurementsToDetectionEventsConverter:
     def __repr__(
         self,
     ) -> str:
-        """Returns text that is a valid python expression evaluating to an equivalent `deltakit_stim.CompiledMeasurementsToDetectionEventsConverter`.
+        """Returns text that is a valid python expression evaluating to an equivalent `lestim.CompiledMeasurementsToDetectionEventsConverter`.
         """
     @overload
     def convert(
@@ -5222,7 +3684,7 @@ class CompiledMeasurementsToDetectionEventsConverter:
         *,
         measurements: np.ndarray,
         sweep_bits: Optional[np.ndarray] = None,
-        separate_observables: Literal[True],
+        separate_observables: 'Literal[True]',
         append_observables: bool = False,
         bit_packed: bool = False,
     ) -> Tuple[np.ndarray, np.ndarray]:
@@ -5281,9 +3743,9 @@ class CompiledMeasurementsToDetectionEventsConverter:
             circuit.num_detectors).
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
             >>> import numpy as np
-            >>> converter = deltakit_stim.Circuit('''
+            >>> converter = lestim.Circuit('''
             ...    X 0
             ...    M 0 1
             ...    DETECTOR rec[-1]
@@ -5314,15 +3776,15 @@ class CompiledMeasurementsToDetectionEventsConverter:
     def convert_file(
         self,
         *,
-        measurements_filepath: Union[str, pathlib.Path],
-        measurements_format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"] = '01',
-        sweep_bits_filepath: Optional[Union[str, pathlib.Path]] = None,
-        sweep_bits_format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"] = '01',
-        detection_events_filepath: Union[str, pathlib.Path],
-        detection_events_format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"] = '01',
+        measurements_filepath: str,
+        measurements_format: str = '01',
+        sweep_bits_filepath: str = None,
+        sweep_bits_format: str = '01',
+        detection_events_filepath: str,
+        detection_events_format: str = '01',
         append_observables: bool = False,
-        obs_out_filepath: Optional[Union[str, pathlib.Path]] = None,
-        obs_out_format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"] = '01',
+        obs_out_filepath: str = None,
+        obs_out_format: str = '01',
     ) -> None:
         """Reads measurement data from a file and writes detection events to another file.
 
@@ -5356,9 +3818,9 @@ class CompiledMeasurementsToDetectionEventsConverter:
                 observable data is not output.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
             >>> import tempfile
-            >>> converter = deltakit_stim.Circuit('''
+            >>> converter = lestim.Circuit('''
             ...    X 0
             ...    M 0
             ...    DETECTOR rec[-1]
@@ -5381,8 +3843,8 @@ class DemInstruction:
     """An instruction from a detector error model.
 
     Examples:
-        >>> import deltakit_stim
-        >>> model = deltakit_stim.DetectorErrorModel('''
+        >>> import lestim
+        >>> model = lestim.DetectorErrorModel('''
         ...     error(0.125) D0
         ...     error(0.125) D0 D1 L0
         ...     error(0.125) D1 D2
@@ -5391,152 +3853,66 @@ class DemInstruction:
         ... ''')
         >>> instruction = model[0]
         >>> instruction
-        deltakit_stim.DemInstruction('error', [0.125], [deltakit_stim.target_relative_detector_id(0)])
+        lestim.DemInstruction('error', [0.125], [lestim.target_relative_detector_id(0)])
     """
     def __eq__(
         self,
-        arg0: deltakit_stim.DemInstruction,
+        arg0: lestim.DemInstruction,
     ) -> bool:
         """Determines if two instructions have identical contents.
         """
     def __init__(
         self,
         type: str,
-        args: Optional[Iterable[float]] = None,
-        targets: Optional[Iterable[deltakit_stim.DemTarget]] = None,
-        *,
-        tag: str = "",
+        args: List[float],
+        targets: List[object],
     ) -> None:
-        """Creates or parses a deltakit_stim.DemInstruction.
+        """Creates a lestim.DemInstruction.
 
         Args:
             type: The name of the instruction type (e.g. "error" or "shift_detectors").
-                If `args` and `targets` aren't specified, this can also be set to a
-                full line of text from a dem file, like "error(0.25) D0".
             args: Numeric values parameterizing the instruction (e.g. the 0.1 in
                 "error(0.1)").
             targets: The objects the instruction involves (e.g. the "D0" and "L1" in
                 "error(0.1) D0 L1").
-            tag: An arbitrary piece of text attached to the instruction.
 
         Examples:
-            >>> import deltakit_stim
-            >>> instruction = deltakit_stim.DemInstruction(
+            >>> import lestim
+            >>> instruction = lestim.DemInstruction(
             ...     'error',
             ...     [0.125],
-            ...     [deltakit_stim.target_relative_detector_id(5)],
-            ...     tag='test-tag',
-            ... )
+            ...     [lestim.target_relative_detector_id(5)])
             >>> print(instruction)
-            error[test-tag](0.125) D5
-
-            >>> print(deltakit_stim.DemInstruction('error(0.125) D5 L6 ^ D4  # comment'))
-            error(0.125) D5 L6 ^ D4
+            error(0.125) D5
         """
     def __ne__(
         self,
-        arg0: deltakit_stim.DemInstruction,
+        arg0: lestim.DemInstruction,
     ) -> bool:
         """Determines if two instructions have non-identical contents.
         """
     def __repr__(
         self,
     ) -> str:
-        """Returns text that is a valid python expression evaluating to an equivalent `deltakit_stim.DetectorErrorModel`.
+        """Returns text that is a valid python expression evaluating to an equivalent `lestim.DetectorErrorModel`.
         """
     def __str__(
         self,
     ) -> str:
-        """Returns detector error model (.dem) instructions (that can be parsed by deltakit_stim) for the model.
+        """Returns detector error model (.dem) instructions (that can be parsed by lestim) for the model.
         """
     def args_copy(
         self,
     ) -> List[float]:
-        """Returns a copy of the list of numbers parameterizing the instruction.
-
-        For example, this would be coordinates of a detector instruction or the
-        probability of an error instruction. The result is a copy, meaning that
-        editing it won't change the instruction's targets or future copies.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> instruction = deltakit_stim.DetectorErrorModel('''
-            ...     error(0.125) D0
-            ... ''')[0]
-            >>> instruction.args_copy()
-            [0.125]
-
-            >>> instruction.args_copy() == instruction.args_copy()
-            True
-            >>> instruction.args_copy() is instruction.args_copy()
-            False
-        """
-    @property
-    def tag(
-        self,
-    ) -> str:
-        """Returns the arbitrary text tag attached to the instruction.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> dem = deltakit_stim.DetectorErrorModel('''
-            ...     error[test-tag](0.125) D0
-            ...     error(0.125) D0
-            ... ''')
-            >>> dem[0].tag
-            'test-tag'
-            >>> dem[1].tag
-            ''
-        """
-    def target_groups(
-        self,
-    ) -> List[List[deltakit_stim.DemTarget]]:
-        """Returns a copy of the instruction's targets, split by target separators.
-
-        When a detector error model instruction contains a suggested decomposition,
-        its targets contain separators (`deltakit_stim.DemTarget("^")`). This method splits the
-        targets into groups based the separators, similar to how `str.split` works.
-
-        Returns:
-            A list of groups of targets.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> dem = deltakit_stim.DetectorErrorModel('''
-            ...     error(0.01) D0 D1 ^ D2
-            ...     error(0.01) D0 L0
-            ...     error(0.01)
-            ... ''')
-
-            >>> dem[0].target_groups()
-            [[deltakit_stim.DemTarget('D0'), deltakit_stim.DemTarget('D1')], [deltakit_stim.DemTarget('D2')]]
-
-            >>> dem[1].target_groups()
-            [[deltakit_stim.DemTarget('D0'), deltakit_stim.DemTarget('L0')]]
-
-            >>> dem[2].target_groups()
-            [[]]
+        """Returns a copy of the list of numbers parameterizing the instruction (e.g. the probability of an error).
         """
     def targets_copy(
         self,
-    ) -> List[Union[int, deltakit_stim.DemTarget]]:
+    ) -> List[Union[int, lestim.DemTarget]]:
         """Returns a copy of the instruction's targets.
 
-        The result is a copy, meaning that editing it won't change the instruction's
-        targets or future copies.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> instruction = deltakit_stim.DetectorErrorModel('''
-            ...     error(0.125) D0 L2
-            ... ''')[0]
-            >>> instruction.targets_copy()
-            [deltakit_stim.DemTarget('D0'), deltakit_stim.DemTarget('L2')]
-
-            >>> instruction.targets_copy() == instruction.targets_copy()
-            True
-            >>> instruction.targets_copy() is instruction.targets_copy()
-            False
+        (Making a copy is enforced to make it clear that editing the result won't change
+        the instruction's targets.)
         """
     @property
     def type(
@@ -5548,31 +3924,31 @@ class DemRepeatBlock:
     """A repeat block from a detector error model.
 
     Examples:
-        >>> import deltakit_stim
-        >>> model = deltakit_stim.DetectorErrorModel('''
+        >>> import lestim
+        >>> model = lestim.DetectorErrorModel('''
         ...     repeat 100 {
         ...         error(0.125) D0 D1
         ...         shift_detectors 1
         ...     }
         ... ''')
         >>> model[0]
-        deltakit_stim.DemRepeatBlock(100, deltakit_stim.DetectorErrorModel('''
+        lestim.DemRepeatBlock(100, lestim.DetectorErrorModel('''
             error(0.125) D0 D1
             shift_detectors 1
         '''))
     """
     def __eq__(
         self,
-        arg0: deltakit_stim.DemRepeatBlock,
+        arg0: lestim.DemRepeatBlock,
     ) -> bool:
         """Determines if two repeat blocks are identical.
         """
     def __init__(
         self,
         repeat_count: int,
-        block: deltakit_stim.DetectorErrorModel,
+        block: lestim.DetectorErrorModel,
     ) -> None:
-        """Creates a deltakit_stim.DemRepeatBlock.
+        """Creates a lestim.DemRepeatBlock.
 
         Args:
             repeat_count: The number of times the repeat block's body is supposed to
@@ -5581,39 +3957,27 @@ class DemRepeatBlock:
                 instructions to repeat.
 
         Examples:
-            >>> import deltakit_stim
-            >>> repeat_block = deltakit_stim.DemRepeatBlock(100, deltakit_stim.DetectorErrorModel('''
+            >>> import lestim
+            >>> repeat_block = lestim.DemRepeatBlock(100, lestim.DetectorErrorModel('''
             ...     error(0.125) D0 D1
             ...     shift_detectors 1
             ... '''))
         """
     def __ne__(
         self,
-        arg0: deltakit_stim.DemRepeatBlock,
+        arg0: lestim.DemRepeatBlock,
     ) -> bool:
         """Determines if two repeat blocks are different.
         """
     def __repr__(
         self,
     ) -> str:
-        """Returns text that is a valid python expression evaluating to an equivalent `deltakit_stim.DemRepeatBlock`.
+        """Returns text that is a valid python expression evaluating to an equivalent `lestim.DemRepeatBlock`.
         """
     def body_copy(
         self,
-    ) -> deltakit_stim.DetectorErrorModel:
-        """Returns a copy of the block's body, as a deltakit_stim.DetectorErrorModel.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> body = deltakit_stim.DetectorErrorModel('''
-            ...     error(0.125) D0 D1
-            ...     shift_detectors 1
-            ... ''')
-            >>> repeat_block = deltakit_stim.DemRepeatBlock(100, body)
-            >>> repeat_block.body_copy() == body
-            True
-            >>> repeat_block.body_copy() is repeat_block.body_copy()
-            False
+    ) -> lestim.DetectorErrorModel:
+        """Returns a copy of the block's body, as a lestim.DetectorErrorModel.
         """
     @property
     def repeat_count(
@@ -5628,12 +3992,12 @@ class DemRepeatBlock:
         """Returns the type name "repeat".
 
         This is a duck-typing convenience method. It exists so that code that doesn't
-        know whether it has a `deltakit_stim.DemInstruction` or a `deltakit_stim.DemRepeatBlock`
+        know whether it has a `lestim.DemInstruction` or a `lestim.DemRepeatBlock`
         can check the type field without having to do an `instanceof` check first.
 
         Examples:
-            >>> import deltakit_stim
-            >>> dem = deltakit_stim.DetectorErrorModel('''
+            >>> import lestim
+            >>> dem = lestim.DetectorErrorModel('''
             ...     error(0.1) D0 L0
             ...     repeat 5 {
             ...         error(0.1) D0 D1
@@ -5649,40 +4013,20 @@ class DemTarget:
     """
     def __eq__(
         self,
-        arg0: deltakit_stim.DemTarget,
+        arg0: lestim.DemTarget,
     ) -> bool:
-        """Determines if two `deltakit_stim.DemTarget`s are identical.
-        """
-    def __init__(
-        self,
-        arg: object,
-        /,
-    ) -> None:
-        """Creates a deltakit_stim.DemTarget from the given object.
-
-        Args:
-            arg: A string to parse as a deltakit_stim.DemTarget, or some other object to
-                convert into a deltakit_stim.DemTarget.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.DemTarget("D5") == deltakit_stim.target_relative_detector_id(5)
-            True
-            >>> deltakit_stim.DemTarget("L2") == deltakit_stim.target_logical_observable_id(2)
-            True
-            >>> deltakit_stim.DemTarget("^") == deltakit_stim.target_separator()
-            True
+        """Determines if two `lestim.DemTarget`s are identical.
         """
     def __ne__(
         self,
-        arg0: deltakit_stim.DemTarget,
+        arg0: lestim.DemTarget,
     ) -> bool:
-        """Determines if two `deltakit_stim.DemTarget`s are different.
+        """Determines if two `lestim.DemTarget`s are different.
         """
     def __repr__(
         self,
     ) -> str:
-        """Returns valid python code evaluating to an equivalent `deltakit_stim.DemTarget`.
+        """Returns valid python code evaluating to an equivalent `lestim.DemTarget`.
         """
     def __str__(
         self,
@@ -5696,15 +4040,6 @@ class DemTarget:
 
         In a detector error model file, observable targets are prefixed by `L`. For
         example, in `error(0.25) D0 L1` the `L1` is an observable target.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.DemTarget("L2").is_logical_observable_id()
-            True
-            >>> deltakit_stim.DemTarget("D3").is_logical_observable_id()
-            False
-            >>> deltakit_stim.DemTarget("^").is_logical_observable_id()
-            False
         """
     def is_relative_detector_id(
         self,
@@ -5713,15 +4048,6 @@ class DemTarget:
 
         In a detector error model file, detectors are prefixed by `D`. For
         example, in `error(0.25) D0 L1` the `D0` is a relative detector target.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.DemTarget("L2").is_relative_detector_id()
-            False
-            >>> deltakit_stim.DemTarget("D3").is_relative_detector_id()
-            True
-            >>> deltakit_stim.DemTarget("^").is_relative_detector_id()
-            False
         """
     def is_separator(
         self,
@@ -5730,20 +4056,11 @@ class DemTarget:
 
         Separates separate the components of a suggested decompositions within an error.
         For example, the `^` in `error(0.25) D1 D2 ^ D3 D4` is the separator.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.DemTarget("L2").is_separator()
-            False
-            >>> deltakit_stim.DemTarget("D3").is_separator()
-            False
-            >>> deltakit_stim.DemTarget("^").is_separator()
-            True
         """
     @staticmethod
     def logical_observable_id(
         index: int,
-    ) -> deltakit_stim.DemTarget:
+    ) -> lestim.DemTarget:
         """Returns a logical observable id identifying a frame change.
 
         Args:
@@ -5753,20 +4070,20 @@ class DemTarget:
             The logical observable target.
 
         Examples:
-            >>> import deltakit_stim
-            >>> m = deltakit_stim.DetectorErrorModel()
+            >>> import lestim
+            >>> m = lestim.DetectorErrorModel()
             >>> m.append("error", 0.25, [
-            ...     deltakit_stim.DemTarget.logical_observable_id(13)
+            ...     lestim.DemTarget.logical_observable_id(13)
             ... ])
             >>> print(repr(m))
-            deltakit_stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(0.25) L13
             ''')
         """
     @staticmethod
     def relative_detector_id(
         index: int,
-    ) -> deltakit_stim.DemTarget:
+    ) -> lestim.DemTarget:
         """Returns a relative detector id (e.g. "D5" in a .dem file).
 
         Args:
@@ -5776,31 +4093,31 @@ class DemTarget:
             The relative detector target.
 
         Examples:
-            >>> import deltakit_stim
-            >>> m = deltakit_stim.DetectorErrorModel()
+            >>> import lestim
+            >>> m = lestim.DetectorErrorModel()
             >>> m.append("error", 0.25, [
-            ...     deltakit_stim.DemTarget.relative_detector_id(13)
+            ...     lestim.DemTarget.relative_detector_id(13)
             ... ])
             >>> print(repr(m))
-            deltakit_stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(0.25) D13
             ''')
         """
     @staticmethod
     def separator(
-    ) -> deltakit_stim.DemTarget:
+    ) -> lestim.DemTarget:
         """Returns a target separator (e.g. "^" in a .dem file).
 
         Examples:
-            >>> import deltakit_stim
-            >>> m = deltakit_stim.DetectorErrorModel()
+            >>> import lestim
+            >>> m = lestim.DetectorErrorModel()
             >>> m.append("error", 0.25, [
-            ...     deltakit_stim.DemTarget.relative_detector_id(1),
-            ...     deltakit_stim.DemTarget.separator(),
-            ...     deltakit_stim.DemTarget.relative_detector_id(2),
+            ...     lestim.DemTarget.relative_detector_id(1),
+            ...     lestim.DemTarget.separator(),
+            ...     lestim.DemTarget.relative_detector_id(2),
             ... ])
             >>> print(repr(m))
-            deltakit_stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(0.25) D1 ^ D2
             ''')
         """
@@ -5811,10 +4128,11 @@ class DemTarget:
         """Returns the target's integer value.
 
         Example:
-            >>> import deltakit_stim
-            >>> deltakit_stim.DemTarget("D5").val
+
+            >>> import lestim
+            >>> lestim.target_relative_detector_id(5).val
             5
-            >>> deltakit_stim.DemTarget("L6").val
+            >>> lestim.target_logical_observable_id(6).val
             6
         """
 class DemTargetWithCoords:
@@ -5832,33 +4150,14 @@ class DemTargetWithCoords:
     problem in a circuit, instead of having to constantly manually
     look up the coordinates of a detector index in order to understand
     what is happening.
-
-    Examples:
-        >>> import deltakit_stim
-        >>> t = deltakit_stim.DemTargetWithCoords(deltakit_stim.DemTarget("D1"), [1.5, 2.0])
-        >>> t.dem_target
-        deltakit_stim.DemTarget('D1')
-        >>> t.coords
-        [1.5, 2.0]
     """
     def __init__(
         self,
-        dem_target: deltakit_stim.DemTarget,
+        *,
+        dem_target: lestim.DemTarget,
         coords: List[float],
     ) -> None:
-        """Creates a deltakit_stim.DemTargetWithCoords.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> err = deltakit_stim.Circuit('''
-            ...     R 0 1
-            ...     X_ERROR(0.25) 0 1
-            ...     M 0 1
-            ...     DETECTOR(2, 3) rec[-1] rec[-2]
-            ...     OBSERVABLE_INCLUDE(0) rec[-1]
-            ... ''').shortest_graphlike_error()
-            >>> err[0].dem_error_terms[0]
-            deltakit_stim.DemTargetWithCoords(dem_target=deltakit_stim.DemTarget('D0'), coords=[2, 3])
+        """Creates a lestim.DemTargetWithCoords.
         """
     @property
     def coords(
@@ -5867,36 +4166,12 @@ class DemTargetWithCoords:
         """Returns the associated coordinate information as a list of floats.
 
         If there is no coordinate information, returns an empty list.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> err = deltakit_stim.Circuit('''
-            ...     R 0 1
-            ...     X_ERROR(0.25) 0 1
-            ...     M 0 1
-            ...     DETECTOR(2, 3) rec[-1] rec[-2]
-            ...     OBSERVABLE_INCLUDE(0) rec[-1]
-            ... ''').shortest_graphlike_error()
-            >>> err[0].dem_error_terms[0].coords
-            [2.0, 3.0]
         """
     @property
     def dem_target(
         self,
-    ) -> deltakit_stim.DemTarget:
-        """Returns the actual DEM target as a `deltakit_stim.DemTarget`.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> err = deltakit_stim.Circuit('''
-            ...     R 0 1
-            ...     X_ERROR(0.25) 0 1
-            ...     M 0 1
-            ...     DETECTOR(2, 3) rec[-1] rec[-2]
-            ...     OBSERVABLE_INCLUDE(0) rec[-1]
-            ... ''').shortest_graphlike_error()
-            >>> err[0].dem_error_terms[0].dem_target
-            deltakit_stim.DemTarget('D0')
+    ) -> lestim.DemTarget:
+        """Returns the actual DEM target as a `lestim.DemTarget`.
         """
 class DetectorErrorModel:
     """An error model built out of independent error mechanics.
@@ -5934,8 +4209,8 @@ class DetectorErrorModel:
     the full error model.
 
     Examples:
-        >>> import deltakit_stim
-        >>> model = deltakit_stim.DetectorErrorModel('''
+        >>> import lestim
+        >>> model = lestim.DetectorErrorModel('''
         ...     error(0.125) D0
         ...     error(0.125) D0 D1 L0
         ...     error(0.125) D1 D2
@@ -5945,7 +4220,7 @@ class DetectorErrorModel:
         >>> len(model)
         5
 
-        >>> deltakit_stim.Circuit('''
+        >>> lestim.Circuit('''
         ...     X_ERROR(0.125) 0
         ...     X_ERROR(0.25) 1
         ...     CORRELATED_ERROR(0.375) X0 X1
@@ -5953,7 +4228,7 @@ class DetectorErrorModel:
         ...     DETECTOR rec[-2]
         ...     DETECTOR rec[-1]
         ... ''').detector_error_model()
-        deltakit_stim.DetectorErrorModel('''
+        lestim.DetectorErrorModel('''
             error(0.125) D0
             error(0.375) D0 D1
             error(0.25) D1
@@ -5961,27 +4236,27 @@ class DetectorErrorModel:
     """
     def __add__(
         self,
-        second: deltakit_stim.DetectorErrorModel,
-    ) -> deltakit_stim.DetectorErrorModel:
+        second: lestim.DetectorErrorModel,
+    ) -> lestim.DetectorErrorModel:
         """Creates a detector error model by appending two models.
 
         Examples:
-            >>> import deltakit_stim
-            >>> m1 = deltakit_stim.DetectorErrorModel('''
+            >>> import lestim
+            >>> m1 = lestim.DetectorErrorModel('''
             ...    error(0.125) D0
             ... ''')
-            >>> m2 = deltakit_stim.DetectorErrorModel('''
+            >>> m2 = lestim.DetectorErrorModel('''
             ...    error(0.25) D1
             ... ''')
             >>> m1 + m2
-            deltakit_stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(0.125) D0
                 error(0.25) D1
             ''')
         """
     def __eq__(
         self,
-        arg0: deltakit_stim.DetectorErrorModel,
+        arg0: lestim.DetectorErrorModel,
     ) -> bool:
         """Determines if two detector error models have identical contents.
         """
@@ -5989,13 +4264,13 @@ class DetectorErrorModel:
     def __getitem__(
         self,
         index_or_slice: int,
-    ) -> Union[deltakit_stim.DemInstruction, deltakit_stim.DemRepeatBlock]:
+    ) -> Union[stim.DemInstruction, stim.DemRepeatBlock]:
         pass
     @overload
     def __getitem__(
         self,
         index_or_slice: slice,
-    ) -> deltakit_stim.DetectorErrorModel:
+    ) -> stim.DetectorErrorModel:
         pass
     def __getitem__(
         self,
@@ -6009,8 +4284,8 @@ class DetectorErrorModel:
                 model.
 
         Examples:
-            >>> import deltakit_stim
-            >>> model = deltakit_stim.DetectorErrorModel('''
+            >>> import lestim
+            >>> model = lestim.DetectorErrorModel('''
             ...    error(0.125) D0
             ...    error(0.125) D1 L1
             ...    repeat 100 {
@@ -6022,14 +4297,14 @@ class DetectorErrorModel:
             ...    detector D5
             ... ''')
             >>> model[0]
-            deltakit_stim.DemInstruction('error', [0.125], [deltakit_stim.target_relative_detector_id(0)])
+            lestim.DemInstruction('error', [0.125], [lestim.target_relative_detector_id(0)])
             >>> model[2]
-            deltakit_stim.DemRepeatBlock(100, deltakit_stim.DetectorErrorModel('''
+            lestim.DemRepeatBlock(100, lestim.DetectorErrorModel('''
                 error(0.125) D1 D2
                 shift_detectors 1
             '''))
             >>> model[1::2]
-            deltakit_stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(0.125) D1 L1
                 error(0.125) D2
                 detector D5
@@ -6037,21 +4312,21 @@ class DetectorErrorModel:
         """
     def __iadd__(
         self,
-        second: deltakit_stim.DetectorErrorModel,
-    ) -> deltakit_stim.DetectorErrorModel:
+        second: lestim.DetectorErrorModel,
+    ) -> lestim.DetectorErrorModel:
         """Appends a detector error model into the receiving model (mutating it).
 
         Examples:
-            >>> import deltakit_stim
-            >>> m1 = deltakit_stim.DetectorErrorModel('''
+            >>> import lestim
+            >>> m1 = lestim.DetectorErrorModel('''
             ...    error(0.125) D0
             ... ''')
-            >>> m2 = deltakit_stim.DetectorErrorModel('''
+            >>> m2 = lestim.DetectorErrorModel('''
             ...    error(0.25) D1
             ... ''')
             >>> m1 += m2
             >>> print(repr(m1))
-            deltakit_stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(0.125) D0
                 error(0.25) D1
             ''')
@@ -6059,7 +4334,7 @@ class DetectorErrorModel:
     def __imul__(
         self,
         repetitions: int,
-    ) -> deltakit_stim.DetectorErrorModel:
+    ) -> lestim.DetectorErrorModel:
         """Mutates the detector error model by putting its contents into a repeat block.
 
         Special case: if the repetition count is 0, the model is cleared.
@@ -6069,8 +4344,8 @@ class DetectorErrorModel:
             repetitions: The number of times the repeat block should repeat.
 
         Examples:
-            >>> import deltakit_stim
-            >>> m = deltakit_stim.DetectorErrorModel('''
+            >>> import lestim
+            >>> m = lestim.DetectorErrorModel('''
             ...    error(0.25) D0
             ...    shift_detectors 1
             ... ''')
@@ -6085,16 +4360,16 @@ class DetectorErrorModel:
         self,
         detector_error_model_text: str = '',
     ) -> None:
-        """Creates a deltakit_stim.DetectorErrorModel.
+        """Creates a lestim.DetectorErrorModel.
 
         Args:
             detector_error_model_text: Defaults to empty. Describes instructions to
                 append into the circuit in the detector error model (.dem) format.
 
         Examples:
-            >>> import deltakit_stim
-            >>> empty = deltakit_stim.DetectorErrorModel()
-            >>> not_empty = deltakit_stim.DetectorErrorModel('''
+            >>> import lestim
+            >>> empty = lestim.DetectorErrorModel()
+            >>> not_empty = lestim.DetectorErrorModel('''
             ...    error(0.125) D0 L0
             ... ''')
         """
@@ -6106,16 +4381,16 @@ class DetectorErrorModel:
         Instructions inside of blocks are not included in this count.
 
         Examples:
-            >>> import deltakit_stim
-            >>> len(deltakit_stim.DetectorErrorModel())
+            >>> import lestim
+            >>> len(lestim.DetectorErrorModel())
             0
-            >>> len(deltakit_stim.DetectorErrorModel('''
+            >>> len(lestim.DetectorErrorModel('''
             ...    error(0.1) D0 D1
             ...    shift_detectors 100
             ...    logical_observable L5
             ... '''))
             3
-            >>> len(deltakit_stim.DetectorErrorModel('''
+            >>> len(lestim.DetectorErrorModel('''
             ...    repeat 100 {
             ...        error(0.1) D0 D1
             ...        error(0.1) D1 D2
@@ -6126,7 +4401,7 @@ class DetectorErrorModel:
     def __mul__(
         self,
         repetitions: int,
-    ) -> deltakit_stim.DetectorErrorModel:
+    ) -> lestim.DetectorErrorModel:
         """Repeats the detector error model using a repeat block.
 
         Has special cases for 0 repetitions and 1 repetitions.
@@ -6141,13 +4416,13 @@ class DetectorErrorModel:
             contents of that repeat block are this detector error model.
 
         Examples:
-            >>> import deltakit_stim
-            >>> m = deltakit_stim.DetectorErrorModel('''
+            >>> import lestim
+            >>> m = lestim.DetectorErrorModel('''
             ...    error(0.25) D0
             ...    shift_detectors 1
             ... ''')
             >>> m * 3
-            deltakit_stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 repeat 3 {
                     error(0.25) D0
                     shift_detectors 1
@@ -6156,19 +4431,19 @@ class DetectorErrorModel:
         """
     def __ne__(
         self,
-        arg0: deltakit_stim.DetectorErrorModel,
+        arg0: lestim.DetectorErrorModel,
     ) -> bool:
         """Determines if two detector error models have non-identical contents.
         """
     def __repr__(
         self,
     ) -> str:
-        """Returns valid python code evaluating to an equivalent `deltakit_stim.DetectorErrorModel`.
+        """Returns valid python code evaluating to an equivalent `lestim.DetectorErrorModel`.
         """
     def __rmul__(
         self,
         repetitions: int,
-    ) -> deltakit_stim.DetectorErrorModel:
+    ) -> lestim.DetectorErrorModel:
         """Repeats the detector error model using a repeat block.
 
         Has special cases for 0 repetitions and 1 repetitions.
@@ -6183,13 +4458,13 @@ class DetectorErrorModel:
             contents of that repeat block are this detector error model.
 
         Examples:
-            >>> import deltakit_stim
-            >>> m = deltakit_stim.DetectorErrorModel('''
+            >>> import lestim
+            >>> m = lestim.DetectorErrorModel('''
             ...    error(0.25) D0
             ...    shift_detectors 1
             ... ''')
             >>> 3 * m
-            deltakit_stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 repeat 3 {
                     error(0.25) D0
                     shift_detectors 1
@@ -6206,46 +4481,42 @@ class DetectorErrorModel:
         instruction: object,
         parens_arguments: object = None,
         targets: List[object] = (),
-        *,
-        tag: str = '',
     ) -> None:
         """Appends an instruction to the detector error model.
 
         Args:
-            instruction: Either the name of an instruction, a deltakit_stim.DemInstruction, a
-                deltakit_stim.DemRepeatBlock. or a deltakit_stim.DetectorErrorModel. The
-                `parens_arguments`, `targets`, and 'tag' arguments should be given iff
-                the instruction is a name.
+            instruction: Either the name of an instruction, a lestim.DemInstruction, or a
+                lestim.DemRepeatBlock. The `parens_arguments` and `targets` arguments are
+                given if and only if the instruction is a name.
             parens_arguments: Numeric values parameterizing the instruction. The numbers
                 inside parentheses in a detector error model file (eg. the `0.25` in
                 `error(0.25) D0`). This argument can be given either a list of doubles,
                 or a single double (which will be implicitly wrapped into a list).
             targets: The instruction targets, such as the `D0` in `error(0.25) D0`.
-            tag: An arbitrary piece of text attached to the repeat instruction.
 
         Examples:
-            >>> import deltakit_stim
-            >>> m = deltakit_stim.DetectorErrorModel()
+            >>> import lestim
+            >>> m = lestim.DetectorErrorModel()
             >>> m.append("error", 0.125, [
-            ...     deltakit_stim.DemTarget.relative_detector_id(1),
+            ...     lestim.DemTarget.relative_detector_id(1),
             ... ])
             >>> m.append("error", 0.25, [
-            ...     deltakit_stim.DemTarget.relative_detector_id(1),
-            ...     deltakit_stim.DemTarget.separator(),
-            ...     deltakit_stim.DemTarget.relative_detector_id(2),
-            ...     deltakit_stim.DemTarget.logical_observable_id(3),
-            ... ], tag='test-tag')
+            ...     lestim.DemTarget.relative_detector_id(1),
+            ...     lestim.DemTarget.separator(),
+            ...     lestim.DemTarget.relative_detector_id(2),
+            ...     lestim.DemTarget.logical_observable_id(3),
+            ... ])
             >>> print(repr(m))
-            deltakit_stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(0.125) D1
-                error[test-tag](0.25) D1 ^ D2 L3
+                error(0.25) D1 ^ D2 L3
             ''')
 
             >>> m.append("shift_detectors", (1, 2, 3), [5])
             >>> print(repr(m))
-            deltakit_stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(0.125) D1
-                error[test-tag](0.25) D1 ^ D2 L3
+                error(0.25) D1 ^ D2 L3
                 shift_detectors(1, 2, 3) 5
             ''')
 
@@ -6253,19 +4524,19 @@ class DetectorErrorModel:
             >>> m.append(m[0])
             >>> m.append(m[-2])
             >>> print(repr(m))
-            deltakit_stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(0.125) D1
-                error[test-tag](0.25) D1 ^ D2 L3
+                error(0.25) D1 ^ D2 L3
                 shift_detectors(1, 2, 3) 5
                 repeat 3 {
                     error(0.125) D1
-                    error[test-tag](0.25) D1 ^ D2 L3
+                    error(0.25) D1 ^ D2 L3
                     shift_detectors(1, 2, 3) 5
                 }
                 error(0.125) D1
                 repeat 3 {
                     error(0.125) D1
-                    error[test-tag](0.25) D1 ^ D2 L3
+                    error(0.25) D1 ^ D2 L3
                     shift_detectors(1, 2, 3) 5
                 }
             ''')
@@ -6294,30 +4565,30 @@ class DetectorErrorModel:
             the receiving circuit up to the given tolerance, otherwise False.
 
         Examples:
-            >>> import deltakit_stim
-            >>> base = deltakit_stim.DetectorErrorModel('''
+            >>> import lestim
+            >>> base = lestim.DetectorErrorModel('''
             ...    error(0.099) D0 D1
             ... ''')
 
             >>> base.approx_equals(base, atol=0)
             True
 
-            >>> base.approx_equals(deltakit_stim.DetectorErrorModel('''
+            >>> base.approx_equals(lestim.DetectorErrorModel('''
             ...    error(0.101) D0 D1
             ... '''), atol=0)
             False
 
-            >>> base.approx_equals(deltakit_stim.DetectorErrorModel('''
+            >>> base.approx_equals(lestim.DetectorErrorModel('''
             ...    error(0.101) D0 D1
             ... '''), atol=0.0001)
             False
 
-            >>> base.approx_equals(deltakit_stim.DetectorErrorModel('''
+            >>> base.approx_equals(lestim.DetectorErrorModel('''
             ...    error(0.101) D0 D1
             ... '''), atol=0.01)
             True
 
-            >>> base.approx_equals(deltakit_stim.DetectorErrorModel('''
+            >>> base.approx_equals(lestim.DetectorErrorModel('''
             ...    error(0.099) D0 D1 L0 L1 L2 L3 L4
             ... '''), atol=9999)
             False
@@ -6328,19 +4599,19 @@ class DetectorErrorModel:
         """Clears the contents of the detector error model.
 
         Examples:
-            >>> import deltakit_stim
-            >>> model = deltakit_stim.DetectorErrorModel('''
+            >>> import lestim
+            >>> model = lestim.DetectorErrorModel('''
             ...    error(0.1) D0 D1
             ... ''')
             >>> model.clear()
             >>> model
-            deltakit_stim.DetectorErrorModel()
+            lestim.DetectorErrorModel()
         """
     def compile_sampler(
         self,
         *,
         seed: object = None,
-    ) -> deltakit_stim.CompiledDemSampler:
+    ) -> lestim.CompiledDemSampler:
         """Returns a CompiledDemSampler that can batch sample from detector error models.
 
         Args:
@@ -6352,11 +4623,11 @@ class DetectorErrorModel:
                 Defaults to None. When None, the prng is seeded from system entropy.
 
                 When set to an integer, making the exact same series calls on the exact
-                same machine with the exact same version of deltakit_stim will produce the exact
+                same machine with the exact same version of Lestim will produce the exact
                 same simulation results.
 
                 CAUTION: simulation results *WILL NOT* be consistent between versions of
-                deltakit_stim. This restriction is present to make it possible to have future
+                Lestim. This restriction is present to make it possible to have future
                 optimizations to the random sampling, and is enforced by introducing
                 intentional differences in the seeding strategy from version to version.
 
@@ -6370,11 +4641,11 @@ class DetectorErrorModel:
                 give different results from taking 100 shots in one call.
 
         Returns:
-            A seeded deltakit_stim.CompiledDemSampler for the given detector error model.
+            A seeded lestim.CompiledDemSampler for the given detector error model.
 
         Examples:
-            >>> import deltakit_stim
-            >>> dem = deltakit_stim.DetectorErrorModel('''
+            >>> import lestim
+            >>> dem = lestim.DetectorErrorModel('''
             ...    error(0) D0
             ...    error(1) D1 D2 L0
             ... ''')
@@ -6400,15 +4671,15 @@ class DetectorErrorModel:
         """
     def copy(
         self,
-    ) -> deltakit_stim.DetectorErrorModel:
+    ) -> lestim.DetectorErrorModel:
         """Returns a copy of the detector error model.
 
         The copy is an independent detector error model with the same contents.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> c1 = deltakit_stim.DetectorErrorModel("error(0.1) D0 D1")
+            >>> c1 = lestim.DetectorErrorModel("error(0.1) D0 D1")
             >>> c2 = c1.copy()
             >>> c2 is c1
             False
@@ -6417,7 +4688,7 @@ class DetectorErrorModel:
         """
     def diagram(
         self,
-        type: Literal["matchgraph-svg", "matchgraph-svg-html", "matchgraph-3d", "matchgraph-3d-html"] = 'matchgraph-svg',
+        type: str,
     ) -> Any:
         """Returns a diagram of the circuit, from a variety of options.
 
@@ -6450,9 +4721,9 @@ class DetectorErrorModel:
             viewer instead of as raw text.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
             >>> import tempfile
-            >>> circuit = deltakit_stim.Circuit.generated(
+            >>> circuit = lestim.Circuit.generated(
             ...     "repetition_code:memory",
             ...     rounds=10,
             ...     distance=7,
@@ -6471,17 +4742,17 @@ class DetectorErrorModel:
         """
     def flattened(
         self,
-    ) -> deltakit_stim.DetectorErrorModel:
+    ) -> lestim.DetectorErrorModel:
         """Returns the detector error model without repeat or detector_shift instructions.
 
         Returns:
-            A `deltakit_stim.DetectorErrorModel` with the same errors in the same order, but with
+            A `lestim.DetectorErrorModel` with the same errors in the same order, but with
             repeat loops flattened into actually repeated instructions and with all
             coordinate/index shifts inlined.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.DetectorErrorModel('''
+            >>> import lestim
+            >>> lestim.DetectorErrorModel('''
             ...     error(0.125) D0
             ...     REPEAT 5 {
             ...         error(0.25) D0 D1
@@ -6489,7 +4760,7 @@ class DetectorErrorModel:
             ...     }
             ...     error(0.125) D0 L0
             ... ''').flattened()
-            deltakit_stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(0.125) D0
                 error(0.25) D0 D1
                 error(0.25) D1 D2
@@ -6502,7 +4773,7 @@ class DetectorErrorModel:
     @staticmethod
     def from_file(
         file: Union[io.TextIOBase, str, pathlib.Path],
-    ) -> deltakit_stim.DetectorErrorModel:
+    ) -> lestim.DetectorErrorModel:
         """Reads a detector error model from a file.
 
         Args:
@@ -6512,27 +4783,27 @@ class DetectorErrorModel:
             The circuit parsed from the file.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
             >>> import tempfile
 
             >>> with tempfile.TemporaryDirectory() as tmpdir:
-            ...     path = tmpdir + '/tmp.deltakit_stim'
+            ...     path = tmpdir + '/tmp.lestim'
             ...     with open(path, 'w') as f:
             ...         print('error(0.25) D2 D3', file=f)
-            ...     circuit = deltakit_stim.DetectorErrorModel.from_file(path)
+            ...     circuit = lestim.DetectorErrorModel.from_file(path)
             >>> circuit
-            deltakit_stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(0.25) D2 D3
             ''')
 
             >>> with tempfile.TemporaryDirectory() as tmpdir:
-            ...     path = tmpdir + '/tmp.deltakit_stim'
+            ...     path = tmpdir + '/tmp.lestim'
             ...     with open(path, 'w') as f:
             ...         print('error(0.25) D2 D3', file=f)
             ...     with open(path) as f:
-            ...         circuit = deltakit_stim.DetectorErrorModel.from_file(f)
+            ...         circuit = lestim.DetectorErrorModel.from_file(path)
             >>> circuit
-            deltakit_stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(0.25) D2 D3
             ''')
         """
@@ -6553,8 +4824,8 @@ class DetectorErrorModel:
             empty tuple. If `only` is specified, then `set(result.keys()) == set(only)`.
 
         Examples:
-            >>> import deltakit_stim
-            >>> dem = deltakit_stim.DetectorErrorModel('''
+            >>> import lestim
+            >>> dem = lestim.DetectorErrorModel('''
             ...    error(0.25) D0 D1
             ...    detector(1, 2, 3) D1
             ...    shift_detectors(5) 1
@@ -6576,9 +4847,9 @@ class DetectorErrorModel:
         detectors is n.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> deltakit_stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     X_ERROR(0.125) 0
             ...     X_ERROR(0.25) 1
             ...     CORRELATED_ERROR(0.375) X0 X1
@@ -6588,12 +4859,12 @@ class DetectorErrorModel:
             ... ''').detector_error_model().num_detectors
             2
 
-            >>> deltakit_stim.DetectorErrorModel('''
+            >>> lestim.DetectorErrorModel('''
             ...    error(0.1) D0 D199
             ... ''').num_detectors
             200
 
-            >>> deltakit_stim.DetectorErrorModel('''
+            >>> lestim.DetectorErrorModel('''
             ...    shift_detectors 1000
             ...    error(0.1) D0 D199
             ... ''').num_detectors
@@ -6609,9 +4880,9 @@ class DetectorErrorModel:
         Redundant errors with the same targets count as separate errors.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> deltakit_stim.DetectorErrorModel('''
+            >>> lestim.DetectorErrorModel('''
             ...     error(0.125) D0
             ...     repeat 100 {
             ...         repeat 5 {
@@ -6632,16 +4903,16 @@ class DetectorErrorModel:
         of observables is n.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> deltakit_stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     X_ERROR(0.125) 0
             ...     M 0
             ...     OBSERVABLE_INCLUDE(99) rec[-1]
             ... ''').detector_error_model().num_observables
             100
 
-            >>> deltakit_stim.DetectorErrorModel('''
+            >>> lestim.DetectorErrorModel('''
             ...    error(0.1) L399
             ... ''').num_observables
             400
@@ -6649,14 +4920,14 @@ class DetectorErrorModel:
     def rounded(
         self,
         arg0: int,
-    ) -> deltakit_stim.DetectorErrorModel:
+    ) -> lestim.DetectorErrorModel:
         """Creates an equivalent detector error model but with rounded error probabilities.
 
         Args:
             digits: The number of digits to round to.
 
         Returns:
-            A `deltakit_stim.DetectorErrorModel` with the same instructions in the same order,
+            A `lestim.DetectorErrorModel` with the same instructions in the same order,
             but with the parens arguments of error instructions rounded to the given
             precision.
 
@@ -6664,20 +4935,20 @@ class DetectorErrorModel:
             included in the output.
 
         Examples:
-            >>> import deltakit_stim
-            >>> dem = deltakit_stim.DetectorErrorModel('''
+            >>> import lestim
+            >>> dem = lestim.DetectorErrorModel('''
             ...     error(0.019499) D0
             ...     error(0.000001) D0 D1
             ... ''')
 
             >>> dem.rounded(2)
-            deltakit_stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(0.02) D0
                 error(0) D0 D1
             ''')
 
             >>> dem.rounded(3)
-            deltakit_stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(0.019) D0
                 error(0) D0 D1
             ''')
@@ -6685,7 +4956,7 @@ class DetectorErrorModel:
     def shortest_graphlike_error(
         self,
         ignore_ungraphlike_errors: bool = True,
-    ) -> deltakit_stim.DetectorErrorModel:
+    ) -> lestim.DetectorErrorModel:
         """Finds a minimum set of graphlike errors to produce an undetected logical error.
 
         Note that this method does not pay attention to error probabilities (other than
@@ -6708,7 +4979,7 @@ class DetectorErrorModel:
         the race to find a solution.
 
         Args:
-            ignore_ungraphlike_errors: Defaults to True. When False, an exception is
+            ignore_ungraphlike_errors: Defaults to False. When False, an exception is
                 raised if there are any errors in the model that are not graphlike. When
                 True, those errors are skipped as if they weren't present.
 
@@ -6741,28 +5012,28 @@ class DetectorErrorModel:
             large as the true code distance.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> deltakit_stim.DetectorErrorModel('''
+            >>> lestim.DetectorErrorModel('''
             ...     error(0.125) D0
             ...     error(0.125) D0 D1
             ...     error(0.125) D1 L55
             ...     error(0.125) D1
             ... ''').shortest_graphlike_error()
-            deltakit_stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(1) D1
                 error(1) D1 L55
             ''')
 
-            >>> deltakit_stim.DetectorErrorModel('''
+            >>> lestim.DetectorErrorModel('''
             ...     error(0.125) D0 D1 D2
             ...     error(0.125) L0
             ... ''').shortest_graphlike_error(ignore_ungraphlike_errors=True)
-            deltakit_stim.DetectorErrorModel('''
+            lestim.DetectorErrorModel('''
                 error(1) L0
             ''')
 
-            >>> circuit = deltakit_stim.Circuit.generated(
+            >>> circuit = lestim.Circuit.generated(
             ...     "repetition_code:memory",
             ...     rounds=10,
             ...     distance=7,
@@ -6781,12 +5052,12 @@ class DetectorErrorModel:
             file: A file path or an open file to write to.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
             >>> import tempfile
-            >>> c = deltakit_stim.DetectorErrorModel('error(0.25) D2 D3')
+            >>> c = lestim.DetectorErrorModel('error(0.25) D2 D3')
 
             >>> with tempfile.TemporaryDirectory() as tmpdir:
-            ...     path = tmpdir + '/tmp.deltakit_stim'
+            ...     path = tmpdir + '/tmp.lestim'
             ...     with open(path, 'w') as f:
             ...         c.to_file(f)
             ...     with open(path) as f:
@@ -6795,90 +5066,28 @@ class DetectorErrorModel:
             'error(0.25) D2 D3\n'
 
             >>> with tempfile.TemporaryDirectory() as tmpdir:
-            ...     path = tmpdir + '/tmp.deltakit_stim'
+            ...     path = tmpdir + '/tmp.lestim'
             ...     c.to_file(path)
             ...     with open(path) as f:
             ...         contents = f.read()
             >>> contents
             'error(0.25) D2 D3\n'
         """
-    def without_tags(
-        self,
-    ) -> deltakit_stim.DetectorErrorModel:
-        """Returns a copy of the detector error model with all tags removed.
-
-        Returns:
-            A `deltakit_stim.DetectorErrorModel` with the same instructions except all tags have
-            been removed.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.DetectorErrorModel('''
-            ...     error[test-tag](0.25) D0
-            ... ''').without_tags()
-            deltakit_stim.DetectorErrorModel('''
-                error(0.25) D0
-            ''')
-        """
 class ExplainedError:
-    """Describes the location of an error mechanism from a deltakit_stim circuit.
-
-    Examples:
-        >>> import deltakit_stim
-        >>> err = deltakit_stim.Circuit('''
-        ...     R 0
-        ...     TICK
-        ...     Y_ERROR(0.125) 0
-        ...     M 0
-        ...     OBSERVABLE_INCLUDE(0) rec[-1]
-        ... ''').shortest_graphlike_error()
-        >>> print(err[0])
-        ExplainedError {
-            dem_error_terms: L0
-            CircuitErrorLocation {
-                flipped_pauli_product: Y0
-                Circuit location stack trace:
-                    (after 1 TICKs)
-                    at instruction #3 (Y_ERROR) in the circuit
-                    at target #1 of the instruction
-                    resolving to Y_ERROR(0.125) 0
-            }
-        }
+    """Describes the location of an error mechanism from a lestim circuit.
     """
     def __init__(
         self,
         *,
-        dem_error_terms: List[deltakit_stim.DemTargetWithCoords],
-        circuit_error_locations: List[deltakit_stim.CircuitErrorLocation],
+        dem_error_terms: List[lestim.DemTargetWithCoords],
+        circuit_error_locations: List[lestim.CircuitErrorLocation],
     ) -> None:
-        """Creates a deltakit_stim.ExplainedError.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> err = deltakit_stim.Circuit('''
-            ...     R 0
-            ...     TICK
-            ...     Y_ERROR(0.125) 0
-            ...     M 0
-            ...     OBSERVABLE_INCLUDE(0) rec[-1]
-            ... ''').shortest_graphlike_error()
-            >>> print(err[0])
-            ExplainedError {
-                dem_error_terms: L0
-                CircuitErrorLocation {
-                    flipped_pauli_product: Y0
-                    Circuit location stack trace:
-                        (after 1 TICKs)
-                        at instruction #3 (Y_ERROR) in the circuit
-                        at target #1 of the instruction
-                        resolving to Y_ERROR(0.125) 0
-                }
-            }
+        """Creates a lestim.ExplainedError.
         """
     @property
     def circuit_error_locations(
         self,
-    ) -> List[deltakit_stim.CircuitErrorLocation]:
+    ) -> List[lestim.CircuitErrorLocation]:
         """The locations of circuit errors that produce the symptoms in dem_error_terms.
 
         Note: if this list contains a single entry, it may be because a result
@@ -6888,30 +5097,11 @@ class ExplainedError:
         Note: if this list is empty, it may be because there was a DEM error decomposed
         into parts where one of the parts is impossible to make on its own from a single
         circuit error.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> err = deltakit_stim.Circuit('''
-            ...     R 0
-            ...     TICK
-            ...     Y_ERROR(0.125) 0
-            ...     M 0
-            ...     OBSERVABLE_INCLUDE(0) rec[-1]
-            ... ''').shortest_graphlike_error()
-            >>> print(err[0].circuit_error_locations[0])
-            CircuitErrorLocation {
-                flipped_pauli_product: Y0
-                Circuit location stack trace:
-                    (after 1 TICKs)
-                    at instruction #3 (Y_ERROR) in the circuit
-                    at target #1 of the instruction
-                    resolving to Y_ERROR(0.125) 0
-            }
         """
     @property
     def dem_error_terms(
         self,
-    ) -> List[deltakit_stim.DemTargetWithCoords]:
+    ) -> List[lestim.DemTargetWithCoords]:
         """The detectors and observables flipped by this error mechanism.
         """
 class FlipSimulator:
@@ -6924,8 +5114,8 @@ class FlipSimulator:
     Supports interactive usage, where gates and measurements are applied on demand.
 
     Examples:
-        >>> import deltakit_stim
-        >>> sim = deltakit_stim.FlipSimulator(batch_size=256)
+        >>> import lestim
+        >>> sim = lestim.FlipSimulator(batch_size=256)
     """
     def __init__(
         self,
@@ -6935,7 +5125,7 @@ class FlipSimulator:
         num_qubits: int = 0,
         seed: Optional[int] = None,
     ) -> None:
-        """Initializes a deltakit_stim.FlipSimulator.
+        """Initializes a lestim.FlipSimulator.
 
         Args:
             batch_size: For speed, the flip simulator simulates many instances in
@@ -6991,11 +5181,11 @@ class FlipSimulator:
                 Defaults to None. When None, the prng is seeded from system entropy.
 
                 When set to an integer, making the exact same series calls on the exact
-                same machine with the exact same version of deltakit_stim will produce the exact
+                same machine with the exact same version of Lestim will produce the exact
                 same simulation results.
 
                 CAUTION: simulation results *WILL NOT* be consistent between versions of
-                deltakit_stim. This restriction is present to make it possible to have future
+                Lestim. This restriction is present to make it possible to have future
                 optimizations to the random sampling, and is enforced by introducing
                 intentional differences in the seeding strategy from version to version.
 
@@ -7011,84 +5201,11 @@ class FlipSimulator:
                 seed.
 
         Returns:
-            An initialized deltakit_stim.FlipSimulator.
+            An initialized lestim.FlipSimulator.
 
         Examples:
-            >>> import deltakit_stim
-            >>> sim = deltakit_stim.FlipSimulator(batch_size=256)
-        """
-    def append_measurement_flips(
-        self,
-        measurement_flip_data: np.ndarray,
-    ) -> None:
-        """Appends measurement flip data to the simulator's measurement record.
-
-        Args:
-            measurement_flip_data: The flip data to append. The following shape/dtype
-                combinations are supported.
-
-                Single measurement without bit packing:
-                    shape=(self.batch_size,)
-                    dtype=np.bool_
-
-                Single measurement with bit packing:
-                    shape=(math.ceil(self.batch_size / 8),)
-                    dtype=np.uint8
-
-                Multiple measurements without bit packing:
-                    shape=(num_measurements, self.batch_size)
-                    dtype=np.bool_
-
-                Multiple measurements with bit packing:
-                    shape=(num_measurements, math.ceil(self.batch_size / 8))
-                    dtype=np.uint8
-
-        Examples:
-            >>> import deltakit_stim
-            >>> import numpy as np
-            >>> sim = deltakit_stim.FlipSimulator(batch_size=9)
-            >>> sim.append_measurement_flips(np.array(
-            ...     [0, 1, 0, 0, 1, 0, 0, 1, 1],
-            ...     dtype=np.bool_,
-            ... ))
-
-            >>> sim.get_measurement_flips()
-            array([[False,  True, False, False,  True, False, False,  True,  True]])
-
-            >>> sim.append_measurement_flips(np.array(
-            ...     [0b11001001, 0],
-            ...     dtype=np.uint8,
-            ... ))
-
-            >>> sim.get_measurement_flips()
-            array([[False,  True, False, False,  True, False, False,  True,  True],
-                   [ True, False, False,  True, False, False,  True,  True, False]])
-
-            >>> sim.append_measurement_flips(np.array(
-            ...     [[0b11111111, 0b1], [0b00000000, 0b0], [0b11111111, 0b1]],
-            ...     dtype=np.uint8,
-            ... ))
-
-            >>> sim.get_measurement_flips()
-            array([[False,  True, False, False,  True, False, False,  True,  True],
-                   [ True, False, False,  True, False, False,  True,  True, False],
-                   [ True,  True,  True,  True,  True,  True,  True,  True,  True],
-                   [False, False, False, False, False, False, False, False, False],
-                   [ True,  True,  True,  True,  True,  True,  True,  True,  True]])
-
-            >>> sim.append_measurement_flips(np.array(
-            ...     [[1, 0, 1, 0, 1, 0, 1, 0, 1], [0, 1, 0, 1, 0, 1, 0, 1, 0]],
-            ...     dtype=np.bool_,
-            ... ))
-
-            >>> sim.get_measurement_flips()
-            array([[False,  True, False, False,  True, False, False,  True,  True],
-                   [ True, False, False,  True, False, False,  True,  True, False],
-                   [ True,  True,  True,  True,  True,  True,  True,  True,  True],
-                   [False, False, False, False, False, False, False, False, False],
-                   [ True,  True,  True,  True,  True,  True,  True,  True,  True],
-                   [ True, False,  True, False,  True, False,  True, False,  True],
-                   [False,  True, False,  True, False,  True, False,  True, False]])
+            >>> import lestim
+            >>> sim = lestim.FlipSimulator(batch_size=256)
         """
     @property
     def batch_size(
@@ -7097,11 +5214,11 @@ class FlipSimulator:
         """Returns the number of instances being simulated by the simulator.
 
         Examples:
-            >>> import deltakit_stim
-            >>> sim = deltakit_stim.FlipSimulator(batch_size=256)
+            >>> import lestim
+            >>> sim = lestim.FlipSimulator(batch_size=256)
             >>> sim.batch_size
             256
-            >>> sim = deltakit_stim.FlipSimulator(batch_size=42)
+            >>> sim = lestim.FlipSimulator(batch_size=42)
             >>> sim.batch_size
             42
         """
@@ -7110,7 +5227,6 @@ class FlipSimulator:
         *,
         pauli: Union[str, int],
         mask: np.ndarray,
-        p: float = 1,
     ) -> None:
         """Applies a pauli error to all qubits in all instances, filtered by a mask.
 
@@ -7131,14 +5247,11 @@ class FlipSimulator:
                 The error is only applied to qubit q in instance k when
 
                     mask[q, k] == True.
-            p: Defaults to 1 (no effect). When specified, the error is applied
-                probabilistically instead of deterministically to each (instance, qubit)
-                pair matching the mask. This argument specifies the probability.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
             >>> import numpy as np
-            >>> sim = deltakit_stim.FlipSimulator(
+            >>> sim = lestim.FlipSimulator(
             ...     batch_size=2,
             ...     num_qubits=3,
             ...     disable_stabilizer_randomization=True,
@@ -7148,117 +5261,18 @@ class FlipSimulator:
             ...     mask=np.asarray([[True, False],[False, False],[True, True]]),
             ... )
             >>> sim.peek_pauli_flips()
-            [deltakit_stim.PauliString("+X_X"), deltakit_stim.PauliString("+__X")]
+            [lestim.PauliString("+X_X"), lestim.PauliString("+__X")]
 
             >>> sim.broadcast_pauli_errors(
             ...     pauli='Z',
             ...     mask=np.asarray([[False, True],[False, False],[True, True]]),
             ... )
             >>> sim.peek_pauli_flips()
-            [deltakit_stim.PauliString("+X_Y"), deltakit_stim.PauliString("+Z_Y")]
-        """
-    def clear(
-        self,
-    ) -> None:
-        """Clears the simulator's state, so it can be reused for another simulation.
-
-        This clears the measurement flip history, clears the detector flip history,
-        and zeroes the observable flip state. It also resets all qubits to |0>. If
-        stabilizer randomization is disabled, this zeros all pauli flip data. Otherwise
-        it randomizes all pauli flips to be I or Z with equal probability.
-
-        Behind the scenes, this doesn't free memory or resize the simulator. So,
-        repeating the same simulation with calls to `clear` in between will be faster
-        than allocating a new simulator each time (by avoiding re-allocations).
-
-        Examples:
-            >>> import deltakit_stim
-            >>> sim = deltakit_stim.FlipSimulator(batch_size=256)
-            >>> sim.do(deltakit_stim.Circuit("M(0.1) 9"))
-            >>> sim.num_qubits
-            10
-            >>> sim.get_measurement_flips().shape
-            (1, 256)
-
-            >>> sim.clear()
-            >>> sim.num_qubits
-            10
-            >>> sim.get_measurement_flips().shape
-            (0, 256)
-        """
-    def copy(
-        self,
-        *,
-        copy_rng: bool = False,
-        seed: Optional[int] = None,
-    ) -> deltakit_stim.FlipSimulator:
-        """Returns a simulator with the same internal state, except perhaps its prng.
-
-        Args:
-            copy_rng: Defaults to False. When False, the copy's pseudo random number
-                generator is reinitialized with a random seed instead of being a copy
-                of the original simulator's pseudo random number generator. This
-                causes the copy and the original to sample independent randomness,
-                instead of identical randomness, for future random operations. When set
-                to true, the copy will have the exact same pseudo random number
-                generator state as the original, and so will produce identical results
-                if told to do the same noisy operations. This argument is incompatible
-                with the `seed` argument.
-
-            seed: PARTIALLY determines simulation results by deterministically seeding
-                the random number generator.
-
-                Must be None or an integer in range(2**64).
-
-                Defaults to None. When None, the prng state is either copied from the
-                original simulator or reseeded from system entropy, depending on the
-                copy_rng argument.
-
-                When set to an integer, making the exact same series calls on the exact
-                same machine with the exact same version of Stim will produce the exact
-                same simulation results.
-
-                CAUTION: simulation results *WILL NOT* be consistent between versions of
-                Stim. This restriction is present to make it possible to have future
-                optimizations to the random sampling, and is enforced by introducing
-                intentional differences in the seeding strategy from version to version.
-
-                CAUTION: simulation results *MAY NOT* be consistent across machines that
-                differ in the width of supported SIMD instructions. For example, using
-                the same seed on a machine that supports AVX instructions and one that
-                only supports SSE instructions may produce different simulation results.
-
-                CAUTION: simulation results *MAY NOT* be consistent if you vary how the
-                circuit is executed. For example, reordering whether a reset on one
-                qubit happens before or after a reset on another qubit can result in
-                different measurement results being observed starting from the same
-                seed.
-
-        Returns:
-            The copy of the simulator.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> import numpy as np
-
-            >>> s1 = deltakit_stim.FlipSimulator(batch_size=256)
-            >>> s1.set_pauli_flip('X', qubit_index=2, instance_index=3)
-            >>> s2 = s1.copy()
-            >>> s2 is s1
-            False
-            >>> s2.peek_pauli_flips() == s1.peek_pauli_flips()
-            True
-
-            >>> s1 = deltakit_stim.FlipSimulator(batch_size=256)
-            >>> s2 = s1.copy(copy_rng=True)
-            >>> s1.do(deltakit_stim.Circuit("X_ERROR(0.25) 0 \n M 0"))
-            >>> s2.do(deltakit_stim.Circuit("X_ERROR(0.25) 0 \n M 0"))
-            >>> np.array_equal(s1.get_measurement_flips(), s2.get_measurement_flips())
-            True
+            [lestim.PauliString("+X_Y"), lestim.PauliString("+Z_Y")]
         """
     def do(
         self,
-        obj: Union[deltakit_stim.Circuit, deltakit_stim.CircuitInstruction, deltakit_stim.CircuitRepeatBlock],
+        obj: Union[lestim.Circuit, lestim.CircuitInstruction, lestim.CircuitRepeatBlock],
     ) -> None:
         """Applies a circuit or circuit instruction to the simulator's state.
 
@@ -7269,12 +5283,12 @@ class FlipSimulator:
             obj: The circuit or instruction to apply to the simulator's state.
 
         Examples:
-            >>> import deltakit_stim
-            >>> sim = deltakit_stim.FlipSimulator(
+            >>> import lestim
+            >>> sim = lestim.FlipSimulator(
             ...     batch_size=1,
             ...     disable_stabilizer_randomization=True,
             ... )
-            >>> circuit = deltakit_stim.Circuit('''
+            >>> circuit = lestim.Circuit('''
             ...     X_ERROR(1) 0 1 3
             ...     REPEAT 5 {
             ...         H 0
@@ -7283,78 +5297,15 @@ class FlipSimulator:
             ... ''')
             >>> sim.do(circuit)
             >>> sim.peek_pauli_flips()
-            [deltakit_stim.PauliString("+ZZ_X")]
+            [lestim.PauliString("+ZZ_X")]
 
             >>> sim.do(circuit[0])
             >>> sim.peek_pauli_flips()
-            [deltakit_stim.PauliString("+YY__")]
+            [lestim.PauliString("+YY__")]
 
             >>> sim.do(circuit[1])
             >>> sim.peek_pauli_flips()
-            [deltakit_stim.PauliString("+YX__")]
-        """
-    def generate_bernoulli_samples(
-        self,
-        num_samples: int,
-        *,
-        p: float,
-        bit_packed: bool = False,
-        out: Optional[np.ndarray] = None,
-    ) -> np.ndarray:
-        """Uses the simulator's random number generator to produce biased coin flips.
-
-        This method has best performance when specifying `bit_packed=True` and
-        when specifying an `out=` parameter pointing to a numpy array that has
-        contiguous data aligned to a 64 bit boundary. (If `out` isn't specified,
-        the returned numpy array will have this property.)
-
-        Args:
-            num_samples: The number of samples to produce.
-            p: The probability of each sample being True instead of False.
-            bit_packed: Defaults to False (no bit packing). When True, the result
-                has type np.uint8 instead of np.bool_ and 8 samples are packed into
-                each byte as if by np.packbits(bitorder='little'). (The bit order
-                is relevant when producing a number of samples that isn't a multiple
-                of 8.)
-            out: Defaults to None (allocate new). A numpy array to write the samples
-                into. Must have the correct size and dtype.
-
-        Returns:
-            A numpy array containing the samples. The shape and dtype depends on
-            the bit_packed argument:
-
-                if not bit_packed:
-                    shape = (num_samples,)
-                    dtype = np.bool_
-                elif not transpose and bit_packed:
-                    shape = (math.ceil(num_samples / 8),)
-                    dtype = np.uint8
-
-        Raises:
-            ValueError:
-                The given `out` argument had a shape or dtype inconsistent with the
-                requested data.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> sim = deltakit_stim.FlipSimulator(batch_size=256)
-            >>> r = sim.generate_bernoulli_samples(1001, p=0.25)
-            >>> r.dtype
-            dtype('bool')
-            >>> r.shape
-            (1001,)
-
-            >>> r = sim.generate_bernoulli_samples(53, p=0.1, bit_packed=True)
-            >>> r.dtype
-            dtype('uint8')
-            >>> r.shape
-            (7,)
-            >>> r[6] & 0b1110_0000  # zero'd padding bits
-            np.uint8(0)
-
-            >>> r2 = sim.generate_bernoulli_samples(53, p=0.2, bit_packed=True, out=r)
-            >>> r is r2  # Check request to reuse r worked.
-            True
+            [lestim.PauliString("+YX__")]
         """
     def get_detector_flips(
         self,
@@ -7399,9 +5350,9 @@ class FlipSimulator:
             the dtype to np.uint8.
 
         Examples:
-            >>> import deltakit_stim
-            >>> sim = deltakit_stim.FlipSimulator(batch_size=9)
-            >>> sim.do(deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> sim = lestim.FlipSimulator(batch_size=9)
+            >>> sim.do(lestim.Circuit('''
             ...     M 0 0 0
             ...     DETECTOR rec[-2] rec[-3]
             ...     DETECTOR rec[-1] rec[-2]
@@ -7470,9 +5421,9 @@ class FlipSimulator:
             the dtype to np.uint8.
 
         Examples:
-            >>> import deltakit_stim
-            >>> sim = deltakit_stim.FlipSimulator(batch_size=9)
-            >>> sim.do(deltakit_stim.Circuit('M 0 1 2'))
+            >>> import lestim
+            >>> sim = lestim.FlipSimulator(batch_size=9)
+            >>> sim.do(lestim.Circuit('M 0 1 2'))
 
             >>> sim.get_measurement_flips()
             array([[False, False, False, False, False, False, False, False, False],
@@ -7536,9 +5487,9 @@ class FlipSimulator:
             the dtype to np.uint8.
 
         Examples:
-            >>> import deltakit_stim
-            >>> sim = deltakit_stim.FlipSimulator(batch_size=9)
-            >>> sim.do(deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> sim = lestim.FlipSimulator(batch_size=9)
+            >>> sim.do(lestim.Circuit('''
             ...     M 0 0 0
             ...     OBSERVABLE_INCLUDE(0) rec[-2]
             ...     OBSERVABLE_INCLUDE(1) rec[-1]
@@ -7568,11 +5519,11 @@ class FlipSimulator:
         """Returns the number of detectors that have been simulated and stored.
 
         Examples:
-            >>> import deltakit_stim
-            >>> sim = deltakit_stim.FlipSimulator(batch_size=256)
+            >>> import lestim
+            >>> sim = lestim.FlipSimulator(batch_size=256)
             >>> sim.num_detectors
             0
-            >>> sim.do(deltakit_stim.Circuit('''
+            >>> sim.do(lestim.Circuit('''
             ...     M 0 0
             ...     DETECTOR rec[-1] rec[-2]
             ... '''))
@@ -7586,11 +5537,11 @@ class FlipSimulator:
         """Returns the number of measurements that have been simulated and stored.
 
         Examples:
-            >>> import deltakit_stim
-            >>> sim = deltakit_stim.FlipSimulator(batch_size=256)
+            >>> import lestim
+            >>> sim = lestim.FlipSimulator(batch_size=256)
             >>> sim.num_measurements
             0
-            >>> sim.do(deltakit_stim.Circuit('M 3 5'))
+            >>> sim.do(lestim.Circuit('M 3 5'))
             >>> sim.num_measurements
             2
         """
@@ -7601,11 +5552,11 @@ class FlipSimulator:
         """Returns the number of observables currently tracked by the simulator.
 
         Examples:
-            >>> import deltakit_stim
-            >>> sim = deltakit_stim.FlipSimulator(batch_size=256)
+            >>> import lestim
+            >>> sim = lestim.FlipSimulator(batch_size=256)
             >>> sim.num_observables
             0
-            >>> sim.do(deltakit_stim.Circuit('''
+            >>> sim.do(lestim.Circuit('''
             ...     M 0
             ...     OBSERVABLE_INCLUDE(4) rec[-1]
             ... '''))
@@ -7619,76 +5570,76 @@ class FlipSimulator:
         """Returns the number of qubits currently tracked by the simulator.
 
         Examples:
-            >>> import deltakit_stim
-            >>> sim = deltakit_stim.FlipSimulator(batch_size=256)
+            >>> import lestim
+            >>> sim = lestim.FlipSimulator(batch_size=256)
             >>> sim.num_qubits
             0
-            >>> sim = deltakit_stim.FlipSimulator(batch_size=256, num_qubits=4)
+            >>> sim = lestim.FlipSimulator(batch_size=256, num_qubits=4)
             >>> sim.num_qubits
             4
-            >>> sim.do(deltakit_stim.Circuit('H 5'))
+            >>> sim.do(lestim.Circuit('H 5'))
             >>> sim.num_qubits
             6
         """
     @overload
     def peek_pauli_flips(
         self,
-    ) -> List[deltakit_stim.PauliString]:
+    ) -> List[lestim.PauliString]:
         pass
     @overload
     def peek_pauli_flips(
         self,
         *,
         instance_index: int,
-    ) -> deltakit_stim.PauliString:
+    ) -> lestim.PauliString:
         pass
     def peek_pauli_flips(
         self,
         *,
         instance_index: Optional[int] = None,
-    ) -> Union[deltakit_stim.PauliString, List[deltakit_stim.PauliString]]:
-        """Returns the current pauli errors packed into deltakit_stim.PauliString instances.
+    ) -> Union[lestim.PauliString, List[lestim.PauliString]]:
+        """Returns the current pauli errors packed into lestim.PauliString instances.
 
         Args:
             instance_index: Defaults to None. When set to None, the pauli errors from
-                all instances are returned as a list of `deltakit_stim.PauliString`. When set to
-                an integer, a single `deltakit_stim.PauliString` is returned containing the
+                all instances are returned as a list of `lestim.PauliString`. When set to
+                an integer, a single `lestim.PauliString` is returned containing the
                 errors for the indexed instance.
 
         Returns:
             if instance_index is None:
-                A list of deltakit_stim.PauliString, with the k'th entry being the errors from
+                A list of lestim.PauliString, with the k'th entry being the errors from
                 the k'th simulation instance.
             else:
-                A deltakit_stim.PauliString with the errors from the k'th simulation instance.
+                A lestim.PauliString with the errors from the k'th simulation instance.
 
         Examples:
-            >>> import deltakit_stim
-            >>> sim = deltakit_stim.FlipSimulator(
+            >>> import lestim
+            >>> sim = lestim.FlipSimulator(
             ...     batch_size=2,
             ...     disable_stabilizer_randomization=True,
             ...     num_qubits=10,
             ... )
 
             >>> sim.peek_pauli_flips()
-            [deltakit_stim.PauliString("+__________"), deltakit_stim.PauliString("+__________")]
+            [lestim.PauliString("+__________"), lestim.PauliString("+__________")]
 
             >>> sim.peek_pauli_flips(instance_index=0)
-            deltakit_stim.PauliString("+__________")
+            lestim.PauliString("+__________")
 
-            >>> sim.do(deltakit_stim.Circuit('''
+            >>> sim.do(lestim.Circuit('''
             ...     X_ERROR(1) 0 3 5
             ...     Z_ERROR(1) 3 6
             ... '''))
 
             >>> sim.peek_pauli_flips()
-            [deltakit_stim.PauliString("+X__Y_XZ___"), deltakit_stim.PauliString("+X__Y_XZ___")]
+            [lestim.PauliString("+X__Y_XZ___"), lestim.PauliString("+X__Y_XZ___")]
 
-            >>> sim = deltakit_stim.FlipSimulator(
+            >>> sim = lestim.FlipSimulator(
             ...     batch_size=1,
             ...     num_qubits=100,
             ... )
-            >>> flips: deltakit_stim.PauliString = sim.peek_pauli_flips(instance_index=0)
+            >>> flips: lestim.PauliString = sim.peek_pauli_flips(instance_index=0)
             >>> sorted(set(str(flips)))  # Should have Zs from stabilizer randomization
             ['+', 'Z', '_']
         """
@@ -7711,220 +5662,37 @@ class FlipSimulator:
                 indices to index from the end of the list.
 
         Examples:
-            >>> import deltakit_stim
-            >>> sim = deltakit_stim.FlipSimulator(
+            >>> import lestim
+            >>> sim = lestim.FlipSimulator(
             ...     batch_size=2,
             ...     num_qubits=3,
             ...     disable_stabilizer_randomization=True,
             ... )
             >>> sim.set_pauli_flip('X', qubit_index=2, instance_index=1)
             >>> sim.peek_pauli_flips()
-            [deltakit_stim.PauliString("+___"), deltakit_stim.PauliString("+__X")]
-        """
-    def to_numpy(
-        self,
-        *,
-        bit_packed: bool = False,
-        transpose: bool = False,
-        output_xs: Union[bool, np.ndarray] = False,
-        output_zs: Union[bool, np.ndarray] = False,
-        output_measure_flips: Union[bool, np.ndarray] = False,
-        output_detector_flips: Union[bool, np.ndarray] = False,
-        output_observable_flips: Union[bool, np.ndarray] = False,
-    ) -> Optional[Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]]:
-        """Writes the simulator state into numpy arrays.
-
-        Args:
-            bit_packed: Whether or not the result is bit packed, storing 8 bits per
-                byte instead of 1 bit per byte. Bit packing always applies to
-                the second index of the result. Bits are packed in little endian
-                order (as if by `np.packbits(X, axis=1, order='little')`).
-            transpose: Defaults to False. When set to False, the second index of the
-                returned array (the index affected by bit packing) is the shot index
-                (meaning the first index is the qubit index or measurement index or
-                etc). When set to True, results are transposed so that the first
-                index is the shot index.
-            output_xs: Defaults to False. When set to False, the X flip data is not
-                generated and the corresponding array in the result tuple is set to
-                None. When set to True, a new array is allocated to hold the X flip
-                data and this array is returned via the result tuple. When set to
-                a numpy array, the results are written into that array (the shape and
-                dtype of the array must be exactly correct).
-            output_zs: Defaults to False. When set to False, the Z flip data is not
-                generated and the corresponding array in the result tuple is set to
-                None. When set to True, a new array is allocated to hold the Z flip
-                data and this array is returned via the result tuple. When set to
-                a numpy array, the results are written into that array (the shape and
-                dtype of the array must be exactly correct).
-            output_measure_flips: Defaults to False. When set to False, the measure
-                flip data is not generated and the corresponding array in the result
-                tuple is set to None. When set to True, a new array is allocated to
-                hold the measure flip data and this array is returned via the result
-                tuple. When set to a numpy array, the results are written into that
-                array (the shape and dtype of the array must be exactly correct).
-            output_detector_flips: Defaults to False. When set to False, the detector
-                flip data is not generated and the corresponding array in the result
-                tuple is set to None. When set to True, a new array is allocated to
-                hold the detector flip data and this array is returned via the result
-                tuple. When set to a numpy array, the results are written into that
-                array (the shape and dtype of the array must be exactly correct).
-            output_observable_flips: Defaults to False. When set to False, the obs
-                flip data is not generated and the corresponding array in the result
-                tuple is set to None. When set to True, a new array is allocated to
-                hold the obs flip data and this array is returned via the result
-                tuple. When set to a numpy array, the results are written into that
-                array (the shape and dtype of the array must be exactly correct).
-
-        Returns:
-            A tuple (xs, zs, ms, ds, os) of numpy arrays. The xs and zs arrays are
-            the pauli flip data specified using XZ encoding (00=I, 10=X, 11=Y, 01=Z).
-            The ms array is the measure flip data, the ds array is the detector flip
-            data, and the os array is the obs flip data. The arrays default to
-            `None` when the corresponding `output_*` argument was left False.
-
-            The shape and dtype of the data depends on arguments given to the function.
-            The following specifies each array's shape and dtype for each case:
-
-                if not transpose and not bit_packed:
-                    xs.shape = (sim.batch_size, sim.num_qubits)
-                    zs.shape = (sim.batch_size, sim.num_qubits)
-                    ms.shape = (sim.batch_size, sim.num_measurements)
-                    ds.shape = (sim.batch_size, sim.num_detectors)
-                    os.shape = (sim.batch_size, sim.num_observables)
-                    xs.dtype = np.bool_
-                    zs.dtype = np.bool_
-                    ms.dtype = np.bool_
-                    ds.dtype = np.bool_
-                    os.dtype = np.bool_
-                elif not transpose and bit_packed:
-                    xs.shape = (sim.batch_size, math.ceil(sim.num_qubits / 8))
-                    zs.shape = (sim.batch_size, math.ceil(sim.num_qubits / 8))
-                    ms.shape = (sim.batch_size, math.ceil(sim.num_measurements / 8))
-                    ds.shape = (sim.batch_size, math.ceil(sim.num_detectors / 8))
-                    os.shape = (sim.batch_size, math.ceil(sim.num_observables / 8))
-                    xs.dtype = np.uint8
-                    zs.dtype = np.uint8
-                    ms.dtype = np.uint8
-                    ds.dtype = np.uint8
-                    os.dtype = np.uint8
-                elif transpose and not bit_packed:
-                    xs.shape = (sim.num_qubits, sim.batch_size)
-                    zs.shape = (sim.num_qubits, sim.batch_size)
-                    ms.shape = (sim.num_measurements, sim.batch_size)
-                    ds.shape = (sim.num_detectors, sim.batch_size)
-                    os.shape = (sim.num_observables, sim.batch_size)
-                    xs.dtype = np.bool_
-                    zs.dtype = np.bool_
-                    ms.dtype = np.bool_
-                    ds.dtype = np.bool_
-                    os.dtype = np.bool_
-                elif transpose and bit_packed:
-                    xs.shape = (sim.num_qubits, math.ceil(sim.batch_size / 8))
-                    zs.shape = (sim.num_qubits, math.ceil(sim.batch_size / 8))
-                    ms.shape = (sim.num_measurements, math.ceil(sim.batch_size / 8))
-                    ds.shape = (sim.num_detectors, math.ceil(sim.batch_size / 8))
-                    os.shape = (sim.num_observables, math.ceil(sim.batch_size / 8))
-                    xs.dtype = np.uint8
-                    zs.dtype = np.uint8
-                    ms.dtype = np.uint8
-                    ds.dtype = np.uint8
-                    os.dtype = np.uint8
-
-        Raises:
-            ValueError:
-                All the `output_*` arguments were False, or an `output_*` argument
-                had a shape or dtype inconsistent with the requested data.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> import numpy as np
-            >>> sim = deltakit_stim.FlipSimulator(batch_size=9)
-            >>> sim.do(deltakit_stim.Circuit('M(1) 0 1 2'))
-
-            >>> ms_buf = np.empty(shape=(9, 1), dtype=np.uint8)
-            >>> xs, zs, ms, ds, os = sim.to_numpy(
-            ...     transpose=True,
-            ...     bit_packed=True,
-            ...     output_xs=True,
-            ...     output_measure_flips=ms_buf,
-            ... )
-            >>> assert ms is ms_buf
-            >>> xs
-            array([[0],
-                   [0],
-                   [0],
-                   [0],
-                   [0],
-                   [0],
-                   [0],
-                   [0],
-                   [0]], dtype=uint8)
-            >>> zs
-            >>> ms
-            array([[7],
-                   [7],
-                   [7],
-                   [7],
-                   [7],
-                   [7],
-                   [7],
-                   [7],
-                   [7]], dtype=uint8)
-            >>> ds
-            >>> os
+            [lestim.PauliString("+___"), lestim.PauliString("+__X")]
         """
 class FlippedMeasurement:
     """Describes a measurement that was flipped.
 
     Gives the measurement's index in the measurement record, and also
     the observable of the measurement.
-
-    Examples:
-        >>> import deltakit_stim
-        >>> err = deltakit_stim.Circuit('''
-        ...     M(0.25) 1 10
-        ...     OBSERVABLE_INCLUDE(0) rec[-1]
-        ... ''').shortest_graphlike_error()
-        >>> err[0].circuit_error_locations[0].flipped_measurement
-        deltakit_stim.FlippedMeasurement(
-            record_index=1,
-            observable=(deltakit_stim.GateTargetWithCoords(deltakit_stim.target_z(10), []),),
-        )
     """
     def __init__(
         self,
-        measurement_record_index: Optional[int],
-        measured_observable: Iterable[deltakit_stim.GateTargetWithCoords],
-    ):
-        """Creates a deltakit_stim.FlippedMeasurement.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> print(deltakit_stim.FlippedMeasurement(
-            ...     record_index=5,
-            ...     observable=[],
-            ... ))
-            deltakit_stim.FlippedMeasurement(
-                record_index=5,
-                observable=(),
-            )
+        *,
+        record_index: int,
+        observable: object,
+    ) -> None:
+        """Creates a lestim.FlippedMeasurement.
         """
     @property
     def observable(
         self,
-    ) -> List[deltakit_stim.GateTargetWithCoords]:
+    ) -> List[lestim.GateTargetWithCoords]:
         """Returns the observable of the flipped measurement.
 
         For example, an `MX 5` measurement will have the observable X5.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> err = deltakit_stim.Circuit('''
-            ...     M(0.25) 1 10
-            ...     OBSERVABLE_INCLUDE(0) rec[-1]
-            ... ''').shortest_graphlike_error()
-            >>> err[0].circuit_error_locations[0].flipped_measurement.observable
-            [deltakit_stim.GateTargetWithCoords(deltakit_stim.target_z(10), [])]
         """
     @property
     def record_index(
@@ -7933,24 +5701,15 @@ class FlippedMeasurement:
         """The measurement record index of the flipped measurement.
         For example, the fifth measurement in a circuit has a measurement
         record index of 4.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> err = deltakit_stim.Circuit('''
-            ...     M(0.25) 1 10
-            ...     OBSERVABLE_INCLUDE(0) rec[-1]
-            ... ''').shortest_graphlike_error()
-            >>> err[0].circuit_error_locations[0].flipped_measurement.record_index
-            1
         """
 class Flow:
     """A stabilizer flow (e.g. "XI -> XX xor rec[-1]").
 
     Stabilizer circuits implement, and can be defined by, how they turn input
     stabilizers into output stabilizers mediated by measurements. These
-    relationships are called stabilizer flows, and `deltakit_stim.Flow` is a representation
-    of such a flow. For example, a `deltakit_stim.Flow` can be given to
-    `deltakit_stim.Circuit.has_flow` to verify that a circuit implements the flow.
+    relationships are called stabilizer flows, and `lestim.Flow` is a representation
+    of such a flow. For example, a `lestim.Flow` can be given to
+    `lestim.Circuit.has_flow` to verify that a circuit implements the flow.
 
     A circuit has a stabilizer flow P -> Q if it maps the instantaneous stabilizer
     P at the start of the circuit to the instantaneous stabilizer Q at the end of
@@ -7964,169 +5723,103 @@ class Flow:
     A flow like 1 -> 1 means the circuit contains a check (could be a DETECTOR).
 
     References:
-        deltakit_stim's gate documentation includes the stabilizer flows of each gate.
+        Lestim's gate documentation includes the stabilizer flows of each gate.
 
         Appendix A of https://arxiv.org/abs/2302.02192 describes how flows are
         defined and provides a circuit construction for experimentally verifying
         their presence.
 
     Examples:
-        >>> import deltakit_stim
-        >>> c = deltakit_stim.Circuit("CNOT 2 4")
+        >>> import lestim
+        >>> c = lestim.Circuit("CNOT 2 4")
 
-        >>> c.has_flow(deltakit_stim.Flow("__X__ -> __X_X"))
+        >>> c.has_flow(lestim.Flow("__X__ -> __X_X"))
         True
 
-        >>> c.has_flow(deltakit_stim.Flow("X2*X4 -> X2"))
+        >>> c.has_flow(lestim.Flow("X2*X4 -> X2"))
         True
 
-        >>> c.has_flow(deltakit_stim.Flow("Z4 -> Z4"))
+        >>> c.has_flow(lestim.Flow("Z4 -> Z4"))
         False
     """
     def __eq__(
         self,
-        arg0: deltakit_stim.Flow,
+        arg0: lestim.Flow,
     ) -> bool:
         """Determines if two flows have identical contents.
         """
     def __init__(
         self,
-        arg: Union[None, str, deltakit_stim.Flow] = None,
+        arg: Union[None, str, lestim.Flow] = None,
         /,
         *,
-        input: Optional[deltakit_stim.PauliString] = None,
-        output: Optional[deltakit_stim.PauliString] = None,
+        input: Optional[lestim.PauliString] = None,
+        output: Optional[lestim.PauliString] = None,
         measurements: Optional[Iterable[Union[int, GateTarget]]] = None,
-        included_observables: Optional[Iterable[int]] = None,
     ) -> None:
-        """Initializes a deltakit_stim.Flow.
+        """Initializes a lestim.Flow.
 
         When given a string, the string is parsed as flow shorthand. For example,
         the string "X_ -> ZZ xor rec[-1]" will result in a flow with input pauli string
         "X_", output pauli string "ZZ", and measurement indices [-1].
 
-        Args:
+        Arguments:
             arg [position-only]: Defaults to None. Must be specified by itself if used.
                 str: Initializes a flow by parsing the given shorthand text.
-                deltakit_stim.Flow: Initializes a copy of the given flow.
+                lestim.Flow: Initializes a copy of the given flow.
                 None (default): Initializes an empty flow.
-            input: Defaults to None. Can be set to a deltakit_stim.PauliString to directly
+            input: Defaults to None. Can be set to a lestim.PauliString to directly
                 specify the flow's input stabilizer.
-            output: Defaults to None. Can be set to a deltakit_stim.PauliString to directly
+            output: Defaults to None. Can be set to a lestim.PauliString to directly
                 specify the flow's output stabilizer.
-            measurements: Defaults to None. Can be set to a list of integers or gate
-                targets like `deltakit_stim.target_rec(-1)`, to specify the measurements that
-                mediate the flow. Negative and positive measurement indices are allowed.
-                Indexes follow the python convention where -1 is the last measurement in
-                a circuit and 0 is the first measurement in a circuit.
-            included_observables: Defaults to None. `OBSERVABLE_INCLUDE` instructions
-                that target an observable index from this list will be implicitly
-                included in the flow. This allows flows to refer to observables. For
-                example, the flow "X5 -> obs[3]" says "At the start of the circuit,
-                observable 3 should be an X term on qubit 5. By the end of the circuit
-                it will be measured. The `OBSERVABLE_INCLUDE(3)` instructions in the
-                circuit should explain how this happened.".
+            measurements: Can be set to a list of integers or gate targets like
+                `lestim.target_rec(-1)`, to specify the measurements that mediate the
+                flow. Negative and positive measurement indices are allowed. Indexes
+                follow the python convention where -1 is the last measurement in a
+                circuit and 0 is the first measurement in a circuit.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> deltakit_stim.Flow("X2 -> -Y2*Z4 xor rec[-1]")
-            deltakit_stim.Flow("__X -> -__Y_Z xor rec[-1]")
+            >>> lestim.Flow("X2 -> -Y2*Z4 xor rec[-1]")
+            lestim.Flow("__X -> -__Y_Z xor rec[-1]")
 
-            >>> deltakit_stim.Flow("Z -> 1 xor rec[-1]")
-            deltakit_stim.Flow("Z -> rec[-1]")
+            >>> lestim.Flow("Z -> 1 xor rec[-1]")
+            lestim.Flow("Z -> rec[-1]")
 
-            >>> deltakit_stim.Flow(
-            ...     input=deltakit_stim.PauliString("XX"),
-            ...     output=deltakit_stim.PauliString("_X"),
+            >>> lestim.Flow(
+            ...     input=lestim.PauliString("XX"),
+            ...     output=lestim.PauliString("_X"),
             ...     measurements=[],
             ... )
-            deltakit_stim.Flow("XX -> _X")
-
-            >>> # Identical terms cancel.
-            >>> deltakit_stim.Flow("X2 -> Y2*Y2 xor rec[-2] xor rec[-2]")
-            deltakit_stim.Flow("__X -> ___")
-
-            >>> deltakit_stim.Flow("X -> Y xor obs[3] xor obs[3] xor obs[3]")
-            deltakit_stim.Flow("X -> Y xor obs[3]")
-        """
-    def __mul__(
-        self,
-        rhs: deltakit_stim.Flow,
-    ) -> deltakit_stim.Flow:
-        """Computes the product of two flows.
-
-        Args:
-            rhs: The right hand side of the multiplication.
-
-        Returns:
-            The product of the two flows.
-
-        Raises:
-            ValueError: The inputs anti-commute (their product would be anti-Hermitian).
-                For example, 1 -> X times 1 -> Y fails because it would give 1 -> iZ.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.Flow("X -> X") * deltakit_stim.Flow("Z -> Z")
-            deltakit_stim.Flow("Y -> Y")
-
-            >>> deltakit_stim.Flow("1 -> XX") * deltakit_stim.Flow("1 -> ZZ")
-            deltakit_stim.Flow("1 -> -YY")
-
-            >>> deltakit_stim.Flow("X -> rec[-1]") * deltakit_stim.Flow("X -> rec[-2]")
-            deltakit_stim.Flow("_ -> rec[-2] xor rec[-1]")
+            lestim.Flow("XX -> _X")
         """
     def __ne__(
         self,
-        arg0: deltakit_stim.Flow,
+        arg0: lestim.Flow,
     ) -> bool:
         """Determines if two flows have non-identical contents.
         """
     def __repr__(
         self,
     ) -> str:
-        """Returns valid python code evaluating to an equivalent `deltakit_stim.Flow`.
+        """Returns valid python code evaluating to an equivalent `lestim.Flow`.
         """
     def __str__(
         self,
     ) -> str:
         """Returns a shorthand description of the flow.
         """
-    def included_observables_copy(
-        self,
-    ) -> List[int]:
-        """Returns a copy of the flow's included observable indices.
-
-        When an observable is included in a flow, the flow implicitly includes all
-        measurements and pauli terms from `OBSERVABLE_INCLUDE` instructions targeting
-        that observable index.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> f = deltakit_stim.Flow(included_observables=[3, 2])
-            >>> f.included_observables_copy()
-            [2, 3]
-
-            >>> f.included_observables_copy() is f.included_observables_copy()
-            False
-
-            >>> f = deltakit_stim.Flow("X2 -> obs[3]")
-            >>> f.included_observables_copy()
-            [3]
-            >>> deltakit_stim.Circuit("OBSERVABLE_INCLUDE(3) X2").has_flow(f)
-            True
-        """
     def input_copy(
         self,
-    ) -> deltakit_stim.PauliString:
+    ) -> lestim.PauliString:
         """Returns a copy of the flow's input stabilizer.
 
         Examples:
-            >>> import deltakit_stim
-            >>> f = deltakit_stim.Flow(input=deltakit_stim.PauliString('XX'))
+            >>> import lestim
+            >>> f = lestim.Flow(input=lestim.PauliString('XX'))
             >>> f.input_copy()
-            deltakit_stim.PauliString("+XX")
+            lestim.PauliString("+XX")
 
             >>> f.input_copy() is f.input_copy()
             False
@@ -8137,8 +5830,8 @@ class Flow:
         """Returns a copy of the flow's measurement indices.
 
         Examples:
-            >>> import deltakit_stim
-            >>> f = deltakit_stim.Flow(measurements=[-1, 2])
+            >>> import lestim
+            >>> f = lestim.Flow(measurements=[-1, 2])
             >>> f.measurements_copy()
             [-1, 2]
 
@@ -8147,40 +5840,40 @@ class Flow:
         """
     def output_copy(
         self,
-    ) -> deltakit_stim.PauliString:
+    ) -> lestim.PauliString:
         """Returns a copy of the flow's output stabilizer.
 
         Examples:
-            >>> import deltakit_stim
-            >>> f = deltakit_stim.Flow(output=deltakit_stim.PauliString('XX'))
+            >>> import lestim
+            >>> f = lestim.Flow(output=lestim.PauliString('XX'))
             >>> f.output_copy()
-            deltakit_stim.PauliString("+XX")
+            lestim.PauliString("+XX")
 
             >>> f.output_copy() is f.output_copy()
             False
         """
 class GateData:
-    """Details about a gate supported by deltakit_stim.
+    """Details about a gate supported by lestim.
 
     Examples:
-        >>> import deltakit_stim
-        >>> deltakit_stim.gate_data('h').name
+        >>> import lestim
+        >>> lestim.gate_data('h').name
         'H'
-        >>> deltakit_stim.gate_data('h').is_unitary
+        >>> lestim.gate_data('h').is_unitary
         True
-        >>> deltakit_stim.gate_data('h').tableau
-        deltakit_stim.Tableau.from_conjugated_generators(
+        >>> lestim.gate_data('h').tableau
+        lestim.Tableau.from_conjugated_generators(
             xs=[
-                deltakit_stim.PauliString("+Z"),
+                lestim.PauliString("+Z"),
             ],
             zs=[
-                deltakit_stim.PauliString("+X"),
+                lestim.PauliString("+X"),
             ],
         )
     """
     def __eq__(
         self,
-        arg0: deltakit_stim.GateData,
+        arg0: lestim.GateData,
     ) -> bool:
         """Determines if two GateData instances are identical.
         """
@@ -8191,20 +5884,20 @@ class GateData:
         """Finds gate data for the named gate.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.GateData('H').is_unitary
+            >>> import lestim
+            >>> lestim.GateData('H').is_unitary
             True
         """
     def __ne__(
         self,
-        arg0: deltakit_stim.GateData,
+        arg0: lestim.GateData,
     ) -> bool:
         """Determines if two GateData instances are not identical.
         """
     def __repr__(
         self,
     ) -> str:
-        """Returns text that is a valid python expression evaluating to an equivalent `deltakit_stim.GateData`.
+        """Returns text that is a valid python expression evaluating to an equivalent `lestim.GateData`.
         """
     def __str__(
         self,
@@ -8221,16 +5914,16 @@ class GateData:
         case named, the result only includes upper cased aliases.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.gate_data('H').aliases
+            >>> import lestim
+            >>> lestim.gate_data('H').aliases
             ['H', 'H_XZ']
-            >>> deltakit_stim.gate_data('cnot').aliases
+            >>> lestim.gate_data('cnot').aliases
             ['CNOT', 'CX', 'ZCX']
         """
     @property
     def flows(
         self,
-    ) -> Optional[List[deltakit_stim.Flow]]:
+    ) -> Optional[List[lestim.Flow]]:
         """Returns stabilizer flow generators for the gate, or else None.
 
         A stabilizer flow describes an input-output relationship that the gate
@@ -8242,22 +5935,22 @@ class GateData:
         depend on how many qubits it targets and what basis it targets them in.
 
         Returns:
-            A list of deltakit_stim.Flow instances representing the generators.
+            A list of lestim.Flow instances representing the generators.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> deltakit_stim.gate_data('H').flows
-            [deltakit_stim.Flow("X -> Z"), deltakit_stim.Flow("Z -> X")]
+            >>> lestim.gate_data('H').flows
+            [lestim.Flow("X -> Z"), lestim.Flow("Z -> X")]
 
-            >>> for e in deltakit_stim.gate_data('ISWAP').flows:
+            >>> for e in lestim.gate_data('ISWAP').flows:
             ...     print(e)
             X_ -> ZY
             Z_ -> _Z
             _X -> YZ
             _Z -> Z_
 
-            >>> for e in deltakit_stim.gate_data('MXX').flows:
+            >>> for e in lestim.gate_data('MXX').flows:
             ...     print(e)
             X_ -> X_
             _X -> _X
@@ -8267,7 +5960,7 @@ class GateData:
     @property
     def generalized_inverse(
         self,
-    ) -> deltakit_stim.GateData:
+    ) -> lestim.GateData:
         """The closest-thing-to-an-inverse for the gate, if forced to pick something.
 
         The generalized inverse of a unitary gate U is its actual inverse U^-1.
@@ -8283,90 +5976,36 @@ class GateData:
         The generalized inverse of an annotation like TICK is just the same annotation.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> deltakit_stim.gate_data('H').generalized_inverse
-            deltakit_stim.gate_data('H')
+            >>> lestim.gate_data('H').generalized_inverse
+            lestim.gate_data('H')
 
-            >>> deltakit_stim.gate_data('CXSWAP').generalized_inverse
-            deltakit_stim.gate_data('SWAPCX')
+            >>> lestim.gate_data('CXSWAP').generalized_inverse
+            lestim.gate_data('SWAPCX')
 
-            >>> deltakit_stim.gate_data('X_ERROR').generalized_inverse
-            deltakit_stim.gate_data('X_ERROR')
+            >>> lestim.gate_data('X_ERROR').generalized_inverse
+            lestim.gate_data('X_ERROR')
 
-            >>> deltakit_stim.gate_data('MX').generalized_inverse
-            deltakit_stim.gate_data('MX')
+            >>> lestim.gate_data('MX').generalized_inverse
+            lestim.gate_data('MX')
 
-            >>> deltakit_stim.gate_data('MRY').generalized_inverse
-            deltakit_stim.gate_data('MRY')
+            >>> lestim.gate_data('MRY').generalized_inverse
+            lestim.gate_data('MRY')
 
-            >>> deltakit_stim.gate_data('R').generalized_inverse
-            deltakit_stim.gate_data('M')
+            >>> lestim.gate_data('R').generalized_inverse
+            lestim.gate_data('M')
 
-            >>> deltakit_stim.gate_data('DETECTOR').generalized_inverse
-            deltakit_stim.gate_data('DETECTOR')
+            >>> lestim.gate_data('DETECTOR').generalized_inverse
+            lestim.gate_data('DETECTOR')
 
-            >>> deltakit_stim.gate_data('TICK').generalized_inverse
-            deltakit_stim.gate_data('TICK')
-        """
-    def hadamard_conjugated(
-        self,
-        *,
-        unsigned: bool = False,
-    ) -> Optional[deltakit_stim.GateData]:
-        """Returns a deltakit_stim gate equivalent to this gate conjugated by Hadamard gates.
-
-        The Hadamard conjugate can be thought of as the XZ dual of the gate; the gate
-        you get by exchanging the X and Z bases. For example, a SQRT_X will become a
-        SQRT_Z and a CX gate will switch directions into an XCZ.
-
-        If deltakit_stim doesn't define a gate equivalent to conjugating this gate by Hadamards,
-        the value `None` is returned.
-
-        Args:
-            unsigned: Defaults to False. When False, the returned gate must be *exactly*
-                the Hadamard conjugation of this gate. When True, the returned gate must
-                have the same flows but the sign of the flows can be different (i.e.
-                the returned gate must be the Hadamard conjugate up to Pauli gate
-                differences).
-
-        Returns:
-            A deltakit_stim.GateData instance of the Hadamard conjugate, if it exists in deltakit_stim.
-
-            None, if deltakit_stim doesn't define a gate equal to the Hadamard conjugate.
-
-        Examples:
-            >>> import deltakit_stim
-
-            >>> deltakit_stim.gate_data('X').hadamard_conjugated()
-            deltakit_stim.gate_data('Z')
-            >>> deltakit_stim.gate_data('CX').hadamard_conjugated()
-            deltakit_stim.gate_data('XCZ')
-            >>> deltakit_stim.gate_data('RY').hadamard_conjugated() is None
-            True
-            >>> deltakit_stim.gate_data('RY').hadamard_conjugated(unsigned=True)
-            deltakit_stim.gate_data('RY')
-            >>> deltakit_stim.gate_data('ISWAP').hadamard_conjugated(unsigned=True) is None
-            True
-            >>> deltakit_stim.gate_data('SWAP').hadamard_conjugated()
-            deltakit_stim.gate_data('SWAP')
-            >>> deltakit_stim.gate_data('CXSWAP').hadamard_conjugated()
-            deltakit_stim.gate_data('SWAPCX')
-            >>> deltakit_stim.gate_data('MXX').hadamard_conjugated()
-            deltakit_stim.gate_data('MZZ')
-            >>> deltakit_stim.gate_data('DEPOLARIZE1').hadamard_conjugated()
-            deltakit_stim.gate_data('DEPOLARIZE1')
-            >>> deltakit_stim.gate_data('X_ERROR').hadamard_conjugated()
-            deltakit_stim.gate_data('Z_ERROR')
-            >>> deltakit_stim.gate_data('H_XY').hadamard_conjugated()
-            deltakit_stim.gate_data('H_NYZ')
-            >>> deltakit_stim.gate_data('DETECTOR').hadamard_conjugated(unsigned=True)
-            deltakit_stim.gate_data('DETECTOR')
+            >>> lestim.gate_data('TICK').generalized_inverse
+            lestim.gate_data('TICK')
         """
     @property
     def inverse(
         self,
-    ) -> Optional[deltakit_stim.GateData]:
+    ) -> Optional[lestim.GateData]:
         """The inverse of the gate, or None if it has no inverse.
 
         The inverse V of a gate U must have the property that V undoes the effects of U
@@ -8378,29 +6017,29 @@ class GateData:
         should be equivalent to doing nothing at all.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> deltakit_stim.gate_data('H').inverse
-            deltakit_stim.gate_data('H')
+            >>> lestim.gate_data('H').inverse
+            lestim.gate_data('H')
 
-            >>> deltakit_stim.gate_data('CX').inverse
-            deltakit_stim.gate_data('CX')
+            >>> lestim.gate_data('CX').inverse
+            lestim.gate_data('CX')
 
-            >>> deltakit_stim.gate_data('S').inverse
-            deltakit_stim.gate_data('S_DAG')
+            >>> lestim.gate_data('S').inverse
+            lestim.gate_data('S_DAG')
 
-            >>> deltakit_stim.gate_data('CXSWAP').inverse
-            deltakit_stim.gate_data('SWAPCX')
+            >>> lestim.gate_data('CXSWAP').inverse
+            lestim.gate_data('SWAPCX')
 
-            >>> deltakit_stim.gate_data('X_ERROR').inverse is None
+            >>> lestim.gate_data('X_ERROR').inverse is None
             True
-            >>> deltakit_stim.gate_data('M').inverse is None
+            >>> lestim.gate_data('M').inverse is None
             True
-            >>> deltakit_stim.gate_data('R').inverse is None
+            >>> lestim.gate_data('R').inverse is None
             True
-            >>> deltakit_stim.gate_data('DETECTOR').inverse is None
+            >>> lestim.gate_data('DETECTOR').inverse is None
             True
-            >>> deltakit_stim.gate_data('TICK').inverse is None
+            >>> lestim.gate_data('TICK').inverse is None
             True
         """
     @property
@@ -8414,26 +6053,26 @@ class GateData:
         noise that flips its result 0.1% of the time.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> deltakit_stim.gate_data('M').is_noisy_gate
+            >>> lestim.gate_data('M').is_noisy_gate
             True
-            >>> deltakit_stim.gate_data('MXX').is_noisy_gate
+            >>> lestim.gate_data('MXX').is_noisy_gate
             True
-            >>> deltakit_stim.gate_data('X_ERROR').is_noisy_gate
+            >>> lestim.gate_data('X_ERROR').is_noisy_gate
             True
-            >>> deltakit_stim.gate_data('CORRELATED_ERROR').is_noisy_gate
+            >>> lestim.gate_data('CORRELATED_ERROR').is_noisy_gate
             True
-            >>> deltakit_stim.gate_data('MPP').is_noisy_gate
+            >>> lestim.gate_data('MPP').is_noisy_gate
             True
 
-            >>> deltakit_stim.gate_data('H').is_noisy_gate
+            >>> lestim.gate_data('H').is_noisy_gate
             False
-            >>> deltakit_stim.gate_data('CX').is_noisy_gate
+            >>> lestim.gate_data('CX').is_noisy_gate
             False
-            >>> deltakit_stim.gate_data('R').is_noisy_gate
+            >>> lestim.gate_data('R').is_noisy_gate
             False
-            >>> deltakit_stim.gate_data('DETECTOR').is_noisy_gate
+            >>> lestim.gate_data('DETECTOR').is_noisy_gate
             False
         """
     @property
@@ -8443,34 +6082,34 @@ class GateData:
         """Returns whether or not the gate resets qubits in any basis.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> deltakit_stim.gate_data('R').is_reset
+            >>> lestim.gate_data('R').is_reset
             True
-            >>> deltakit_stim.gate_data('RX').is_reset
+            >>> lestim.gate_data('RX').is_reset
             True
-            >>> deltakit_stim.gate_data('MR').is_reset
+            >>> lestim.gate_data('MR').is_reset
             True
 
-            >>> deltakit_stim.gate_data('M').is_reset
+            >>> lestim.gate_data('M').is_reset
             False
-            >>> deltakit_stim.gate_data('MXX').is_reset
+            >>> lestim.gate_data('MXX').is_reset
             False
-            >>> deltakit_stim.gate_data('MPP').is_reset
+            >>> lestim.gate_data('MPP').is_reset
             False
-            >>> deltakit_stim.gate_data('H').is_reset
+            >>> lestim.gate_data('H').is_reset
             False
-            >>> deltakit_stim.gate_data('CX').is_reset
+            >>> lestim.gate_data('CX').is_reset
             False
-            >>> deltakit_stim.gate_data('HERALDED_ERASE').is_reset
+            >>> lestim.gate_data('HERALDED_ERASE').is_reset
             False
-            >>> deltakit_stim.gate_data('DEPOLARIZE2').is_reset
+            >>> lestim.gate_data('DEPOLARIZE2').is_reset
             False
-            >>> deltakit_stim.gate_data('X_ERROR').is_reset
+            >>> lestim.gate_data('X_ERROR').is_reset
             False
-            >>> deltakit_stim.gate_data('CORRELATED_ERROR').is_reset
+            >>> lestim.gate_data('CORRELATED_ERROR').is_reset
             False
-            >>> deltakit_stim.gate_data('DETECTOR').is_reset
+            >>> lestim.gate_data('DETECTOR').is_reset
             False
         """
     @property
@@ -8485,79 +6124,30 @@ class GateData:
         considered single qubit gates.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> deltakit_stim.gate_data('H').is_single_qubit_gate
+            >>> lestim.gate_data('H').is_single_qubit_gate
             True
-            >>> deltakit_stim.gate_data('R').is_single_qubit_gate
+            >>> lestim.gate_data('R').is_single_qubit_gate
             True
-            >>> deltakit_stim.gate_data('M').is_single_qubit_gate
+            >>> lestim.gate_data('M').is_single_qubit_gate
             True
-            >>> deltakit_stim.gate_data('X_ERROR').is_single_qubit_gate
+            >>> lestim.gate_data('X_ERROR').is_single_qubit_gate
             True
 
-            >>> deltakit_stim.gate_data('CX').is_single_qubit_gate
+            >>> lestim.gate_data('CX').is_single_qubit_gate
             False
-            >>> deltakit_stim.gate_data('MXX').is_single_qubit_gate
+            >>> lestim.gate_data('MXX').is_single_qubit_gate
             False
-            >>> deltakit_stim.gate_data('CORRELATED_ERROR').is_single_qubit_gate
+            >>> lestim.gate_data('CORRELATED_ERROR').is_single_qubit_gate
             False
-            >>> deltakit_stim.gate_data('MPP').is_single_qubit_gate
+            >>> lestim.gate_data('MPP').is_single_qubit_gate
             False
-            >>> deltakit_stim.gate_data('DETECTOR').is_single_qubit_gate
+            >>> lestim.gate_data('DETECTOR').is_single_qubit_gate
             False
-            >>> deltakit_stim.gate_data('TICK').is_single_qubit_gate
+            >>> lestim.gate_data('TICK').is_single_qubit_gate
             False
-            >>> deltakit_stim.gate_data('REPEAT').is_single_qubit_gate
-            False
-        """
-    @property
-    def is_symmetric_gate(
-        self,
-    ) -> bool:
-        """Returns whether or not the gate is the same when its targets are swapped.
-
-        A two qubit gate is symmetric if it doesn't matter if you swap its targets. It
-        is unaffected when conjugated by the SWAP gate.
-
-        Single qubit gates are vacuously symmetric. A multi-qubit gate is symmetric if
-        swapping any two of its targets has no effect.
-
-        Note that this method is for symmetry *without broadcasting*. For example, SWAP
-        is symmetric even though SWAP 1 2 3 4 isn't equal to SWAP 1 3 2 4.
-
-        Returns:
-            True if the gate is symmetric.
-            False if the gate isn't symmetric.
-
-        Examples:
-            >>> import deltakit_stim
-
-            >>> deltakit_stim.gate_data('CX').is_symmetric_gate
-            False
-            >>> deltakit_stim.gate_data('CZ').is_symmetric_gate
-            True
-            >>> deltakit_stim.gate_data('ISWAP').is_symmetric_gate
-            True
-            >>> deltakit_stim.gate_data('CXSWAP').is_symmetric_gate
-            False
-            >>> deltakit_stim.gate_data('MXX').is_symmetric_gate
-            True
-            >>> deltakit_stim.gate_data('DEPOLARIZE2').is_symmetric_gate
-            True
-            >>> deltakit_stim.gate_data('PAULI_CHANNEL_2').is_symmetric_gate
-            False
-            >>> deltakit_stim.gate_data('H').is_symmetric_gate
-            True
-            >>> deltakit_stim.gate_data('R').is_symmetric_gate
-            True
-            >>> deltakit_stim.gate_data('X_ERROR').is_symmetric_gate
-            True
-            >>> deltakit_stim.gate_data('CORRELATED_ERROR').is_symmetric_gate
-            False
-            >>> deltakit_stim.gate_data('MPP').is_symmetric_gate
-            False
-            >>> deltakit_stim.gate_data('DETECTOR').is_symmetric_gate
+            >>> lestim.gate_data('REPEAT').is_single_qubit_gate
             False
         """
     @property
@@ -8571,31 +6161,27 @@ class GateData:
         Variable-qubit gates like CORRELATED_ERROR and MPP are not
         considered two qubit gates.
 
-        Returns:
-            True if the gate is a two qubit gate.
-            False if the gate isn't a two qubit gate.
-
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> deltakit_stim.gate_data('CX').is_two_qubit_gate
+            >>> lestim.gate_data('CX').is_two_qubit_gate
             True
-            >>> deltakit_stim.gate_data('MXX').is_two_qubit_gate
+            >>> lestim.gate_data('MXX').is_two_qubit_gate
             True
 
-            >>> deltakit_stim.gate_data('H').is_two_qubit_gate
+            >>> lestim.gate_data('H').is_two_qubit_gate
             False
-            >>> deltakit_stim.gate_data('R').is_two_qubit_gate
+            >>> lestim.gate_data('R').is_two_qubit_gate
             False
-            >>> deltakit_stim.gate_data('M').is_two_qubit_gate
+            >>> lestim.gate_data('M').is_two_qubit_gate
             False
-            >>> deltakit_stim.gate_data('X_ERROR').is_two_qubit_gate
+            >>> lestim.gate_data('X_ERROR').is_two_qubit_gate
             False
-            >>> deltakit_stim.gate_data('CORRELATED_ERROR').is_two_qubit_gate
+            >>> lestim.gate_data('CORRELATED_ERROR').is_two_qubit_gate
             False
-            >>> deltakit_stim.gate_data('MPP').is_two_qubit_gate
+            >>> lestim.gate_data('MPP').is_two_qubit_gate
             False
-            >>> deltakit_stim.gate_data('DETECTOR').is_two_qubit_gate
+            >>> lestim.gate_data('DETECTOR').is_two_qubit_gate
             False
         """
     @property
@@ -8605,26 +6191,26 @@ class GateData:
         """Returns whether or not the gate is a unitary gate.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> deltakit_stim.gate_data('H').is_unitary
+            >>> lestim.gate_data('H').is_unitary
             True
-            >>> deltakit_stim.gate_data('CX').is_unitary
+            >>> lestim.gate_data('CX').is_unitary
             True
 
-            >>> deltakit_stim.gate_data('R').is_unitary
+            >>> lestim.gate_data('R').is_unitary
             False
-            >>> deltakit_stim.gate_data('M').is_unitary
+            >>> lestim.gate_data('M').is_unitary
             False
-            >>> deltakit_stim.gate_data('MXX').is_unitary
+            >>> lestim.gate_data('MXX').is_unitary
             False
-            >>> deltakit_stim.gate_data('X_ERROR').is_unitary
+            >>> lestim.gate_data('X_ERROR').is_unitary
             False
-            >>> deltakit_stim.gate_data('CORRELATED_ERROR').is_unitary
+            >>> lestim.gate_data('CORRELATED_ERROR').is_unitary
             False
-            >>> deltakit_stim.gate_data('MPP').is_unitary
+            >>> lestim.gate_data('MPP').is_unitary
             False
-            >>> deltakit_stim.gate_data('DETECTOR').is_unitary
+            >>> lestim.gate_data('DETECTOR').is_unitary
             False
         """
     @property
@@ -8634,10 +6220,10 @@ class GateData:
         """Returns the canonical name of the gate.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.gate_data('H').name
+            >>> import lestim
+            >>> lestim.gate_data('H').name
             'H'
-            >>> deltakit_stim.gate_data('cnot').name
+            >>> lestim.gate_data('cnot').name
             'CX'
         """
     @property
@@ -8647,25 +6233,25 @@ class GateData:
         """Returns the min/max parens arguments taken by the gate, as a python range.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> deltakit_stim.gate_data('M').num_parens_arguments_range
+            >>> lestim.gate_data('M').num_parens_arguments_range
             range(0, 2)
-            >>> list(deltakit_stim.gate_data('M').num_parens_arguments_range)
+            >>> list(lestim.gate_data('M').num_parens_arguments_range)
             [0, 1]
-            >>> list(deltakit_stim.gate_data('R').num_parens_arguments_range)
+            >>> list(lestim.gate_data('R').num_parens_arguments_range)
             [0]
-            >>> list(deltakit_stim.gate_data('H').num_parens_arguments_range)
+            >>> list(lestim.gate_data('H').num_parens_arguments_range)
             [0]
-            >>> list(deltakit_stim.gate_data('X_ERROR').num_parens_arguments_range)
+            >>> list(lestim.gate_data('X_ERROR').num_parens_arguments_range)
             [1]
-            >>> list(deltakit_stim.gate_data('PAULI_CHANNEL_1').num_parens_arguments_range)
+            >>> list(lestim.gate_data('PAULI_CHANNEL_1').num_parens_arguments_range)
             [3]
-            >>> list(deltakit_stim.gate_data('PAULI_CHANNEL_2').num_parens_arguments_range)
+            >>> list(lestim.gate_data('PAULI_CHANNEL_2').num_parens_arguments_range)
             [15]
-            >>> deltakit_stim.gate_data('DETECTOR').num_parens_arguments_range
+            >>> lestim.gate_data('DETECTOR').num_parens_arguments_range
             range(0, 256)
-            >>> list(deltakit_stim.gate_data('OBSERVABLE_INCLUDE').num_parens_arguments_range)
+            >>> list(lestim.gate_data('OBSERVABLE_INCLUDE').num_parens_arguments_range)
             [1]
         """
     @property
@@ -8675,60 +6261,60 @@ class GateData:
         """Returns whether or not the gate produces measurement results.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> deltakit_stim.gate_data('M').produces_measurements
+            >>> lestim.gate_data('M').produces_measurements
             True
-            >>> deltakit_stim.gate_data('MRY').produces_measurements
+            >>> lestim.gate_data('MRY').produces_measurements
             True
-            >>> deltakit_stim.gate_data('MXX').produces_measurements
+            >>> lestim.gate_data('MXX').produces_measurements
             True
-            >>> deltakit_stim.gate_data('MPP').produces_measurements
+            >>> lestim.gate_data('MPP').produces_measurements
             True
-            >>> deltakit_stim.gate_data('HERALDED_ERASE').produces_measurements
+            >>> lestim.gate_data('HERALDED_ERASE').produces_measurements
             True
 
-            >>> deltakit_stim.gate_data('H').produces_measurements
+            >>> lestim.gate_data('H').produces_measurements
             False
-            >>> deltakit_stim.gate_data('CX').produces_measurements
+            >>> lestim.gate_data('CX').produces_measurements
             False
-            >>> deltakit_stim.gate_data('R').produces_measurements
+            >>> lestim.gate_data('R').produces_measurements
             False
-            >>> deltakit_stim.gate_data('X_ERROR').produces_measurements
+            >>> lestim.gate_data('X_ERROR').produces_measurements
             False
-            >>> deltakit_stim.gate_data('CORRELATED_ERROR').produces_measurements
+            >>> lestim.gate_data('CORRELATED_ERROR').produces_measurements
             False
-            >>> deltakit_stim.gate_data('DETECTOR').produces_measurements
+            >>> lestim.gate_data('DETECTOR').produces_measurements
             False
         """
     @property
     def tableau(
         self,
-    ) -> Optional[deltakit_stim.Tableau]:
+    ) -> Optional[lestim.Tableau]:
         """Returns the gate's tableau, or None if the gate has no tableau.
 
         Examples:
-            >>> import deltakit_stim
-            >>> print(deltakit_stim.gate_data('M').tableau)
+            >>> import lestim
+            >>> print(lestim.gate_data('M').tableau)
             None
-            >>> deltakit_stim.gate_data('H').tableau
-            deltakit_stim.Tableau.from_conjugated_generators(
+            >>> lestim.gate_data('H').tableau
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    deltakit_stim.PauliString("+Z"),
+                    lestim.PauliString("+Z"),
                 ],
                 zs=[
-                    deltakit_stim.PauliString("+X"),
+                    lestim.PauliString("+X"),
                 ],
             )
-            >>> deltakit_stim.gate_data('ISWAP').tableau
-            deltakit_stim.Tableau.from_conjugated_generators(
+            >>> lestim.gate_data('ISWAP').tableau
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    deltakit_stim.PauliString("+ZY"),
-                    deltakit_stim.PauliString("+YZ"),
+                    lestim.PauliString("+ZY"),
+                    lestim.PauliString("+YZ"),
                 ],
                 zs=[
-                    deltakit_stim.PauliString("+_Z"),
-                    deltakit_stim.PauliString("+Z_"),
+                    lestim.PauliString("+_Z"),
+                    lestim.PauliString("+Z_"),
                 ],
             )
         """
@@ -8742,30 +6328,30 @@ class GateData:
         like `CX rec[-1] 1`.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> deltakit_stim.gate_data('CX').takes_measurement_record_targets
+            >>> lestim.gate_data('CX').takes_measurement_record_targets
             True
-            >>> deltakit_stim.gate_data('DETECTOR').takes_measurement_record_targets
+            >>> lestim.gate_data('DETECTOR').takes_measurement_record_targets
             True
 
-            >>> deltakit_stim.gate_data('H').takes_measurement_record_targets
+            >>> lestim.gate_data('H').takes_measurement_record_targets
             False
-            >>> deltakit_stim.gate_data('SWAP').takes_measurement_record_targets
+            >>> lestim.gate_data('SWAP').takes_measurement_record_targets
             False
-            >>> deltakit_stim.gate_data('R').takes_measurement_record_targets
+            >>> lestim.gate_data('R').takes_measurement_record_targets
             False
-            >>> deltakit_stim.gate_data('M').takes_measurement_record_targets
+            >>> lestim.gate_data('M').takes_measurement_record_targets
             False
-            >>> deltakit_stim.gate_data('MRY').takes_measurement_record_targets
+            >>> lestim.gate_data('MRY').takes_measurement_record_targets
             False
-            >>> deltakit_stim.gate_data('MXX').takes_measurement_record_targets
+            >>> lestim.gate_data('MXX').takes_measurement_record_targets
             False
-            >>> deltakit_stim.gate_data('X_ERROR').takes_measurement_record_targets
+            >>> lestim.gate_data('X_ERROR').takes_measurement_record_targets
             False
-            >>> deltakit_stim.gate_data('CORRELATED_ERROR').takes_measurement_record_targets
+            >>> lestim.gate_data('CORRELATED_ERROR').takes_measurement_record_targets
             False
-            >>> deltakit_stim.gate_data('MPP').takes_measurement_record_targets
+            >>> lestim.gate_data('MPP').takes_measurement_record_targets
             False
         """
     @property
@@ -8778,28 +6364,28 @@ class GateData:
         instead of `0` or `1`.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> deltakit_stim.gate_data('CORRELATED_ERROR').takes_pauli_targets
+            >>> lestim.gate_data('CORRELATED_ERROR').takes_pauli_targets
             True
-            >>> deltakit_stim.gate_data('MPP').takes_pauli_targets
+            >>> lestim.gate_data('MPP').takes_pauli_targets
             True
 
-            >>> deltakit_stim.gate_data('H').takes_pauli_targets
+            >>> lestim.gate_data('H').takes_pauli_targets
             False
-            >>> deltakit_stim.gate_data('CX').takes_pauli_targets
+            >>> lestim.gate_data('CX').takes_pauli_targets
             False
-            >>> deltakit_stim.gate_data('R').takes_pauli_targets
+            >>> lestim.gate_data('R').takes_pauli_targets
             False
-            >>> deltakit_stim.gate_data('M').takes_pauli_targets
+            >>> lestim.gate_data('M').takes_pauli_targets
             False
-            >>> deltakit_stim.gate_data('MRY').takes_pauli_targets
+            >>> lestim.gate_data('MRY').takes_pauli_targets
             False
-            >>> deltakit_stim.gate_data('MXX').takes_pauli_targets
+            >>> lestim.gate_data('MXX').takes_pauli_targets
             False
-            >>> deltakit_stim.gate_data('X_ERROR').takes_pauli_targets
+            >>> lestim.gate_data('X_ERROR').takes_pauli_targets
             False
-            >>> deltakit_stim.gate_data('DETECTOR').takes_pauli_targets
+            >>> lestim.gate_data('DETECTOR').takes_pauli_targets
             False
         """
     @property
@@ -8809,16 +6395,16 @@ class GateData:
         """Returns the gate's unitary matrix, or None if the gate isn't unitary.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> print(deltakit_stim.gate_data('M').unitary_matrix)
+            >>> print(lestim.gate_data('M').unitary_matrix)
             None
 
-            >>> deltakit_stim.gate_data('X').unitary_matrix
+            >>> lestim.gate_data('X').unitary_matrix
             array([[0.+0.j, 1.+0.j],
                    [1.+0.j, 0.+0.j]], dtype=complex64)
 
-            >>> deltakit_stim.gate_data('ISWAP').unitary_matrix
+            >>> lestim.gate_data('ISWAP').unitary_matrix
             array([[1.+0.j, 0.+0.j, 0.+0.j, 0.+0.j],
                    [0.+0.j, 0.+0.j, 0.+1.j, 0.+0.j],
                    [0.+0.j, 0.+1.j, 0.+0.j, 0.+0.j],
@@ -8828,54 +6414,40 @@ class GateTarget:
     """Represents a gate target, like `0` or `rec[-1]`, from a circuit.
 
     Examples:
-        >>> import deltakit_stim
-        >>> circuit = deltakit_stim.Circuit('''
+        >>> import lestim
+        >>> circuit = lestim.Circuit('''
         ...     M 0 !1
         ... ''')
         >>> circuit[0].targets_copy()[0]
-        deltakit_stim.GateTarget(0)
+        lestim.GateTarget(0)
         >>> circuit[0].targets_copy()[1]
-        deltakit_stim.target_inv(1)
+        lestim.GateTarget(lestim.target_inv(1))
     """
     def __eq__(
         self,
-        arg0: deltakit_stim.GateTarget,
+        arg0: lestim.GateTarget,
     ) -> bool:
-        """Determines if two `deltakit_stim.GateTarget`s are identical.
+        """Determines if two `lestim.GateTarget`s are identical.
         """
     def __init__(
         self,
         value: object,
     ) -> None:
-        """Initializes a `deltakit_stim.GateTarget`.
+        """Initializes a `lestim.GateTarget`.
 
         Args:
-            value: A value to convert into a gate target, like an integer
-                to interpret as a qubit target or a string to parse.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.GateTarget(deltakit_stim.GateTarget(5))
-            deltakit_stim.GateTarget(5)
-            >>> deltakit_stim.GateTarget("X7")
-            deltakit_stim.target_x(7)
-            >>> deltakit_stim.GateTarget("rec[-3]")
-            deltakit_stim.target_rec(-3)
-            >>> deltakit_stim.GateTarget("!Z7")
-            deltakit_stim.target_z(7, invert=True)
-            >>> deltakit_stim.GateTarget("*")
-            deltakit_stim.GateTarget.combiner()
+            value: A target like `5` or `lestim.target_rec(-1)`.
         """
     def __ne__(
         self,
-        arg0: deltakit_stim.GateTarget,
+        arg0: lestim.GateTarget,
     ) -> bool:
-        """Determines if two `deltakit_stim.GateTarget`s are different.
+        """Determines if two `lestim.GateTarget`s are different.
         """
     def __repr__(
         self,
     ) -> str:
-        """Returns text that is a valid python expression evaluating to an equivalent `deltakit_stim.GateTarget`.
+        """Returns text that is a valid python expression evaluating to an equivalent `lestim.GateTarget`.
         """
     @property
     def is_combiner(
@@ -8884,22 +6456,22 @@ class GateTarget:
         """Returns whether or not this is a combiner target like `*`.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.GateTarget(6).is_combiner
+            >>> import lestim
+            >>> lestim.GateTarget(6).is_combiner
             False
-            >>> deltakit_stim.target_inv(7).is_combiner
+            >>> lestim.target_inv(7).is_combiner
             False
-            >>> deltakit_stim.target_x(8).is_combiner
+            >>> lestim.target_x(8).is_combiner
             False
-            >>> deltakit_stim.target_y(2).is_combiner
+            >>> lestim.target_y(2).is_combiner
             False
-            >>> deltakit_stim.target_z(3).is_combiner
+            >>> lestim.target_z(3).is_combiner
             False
-            >>> deltakit_stim.target_sweep_bit(9).is_combiner
+            >>> lestim.target_sweep_bit(9).is_combiner
             False
-            >>> deltakit_stim.target_rec(-5).is_combiner
+            >>> lestim.target_rec(-5).is_combiner
             False
-            >>> deltakit_stim.target_combiner().is_combiner
+            >>> lestim.target_combiner().is_combiner
             True
         """
     @property
@@ -8909,22 +6481,22 @@ class GateTarget:
         """Returns whether or not this is an inverted target like `!5` or `!X4`.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.GateTarget(6).is_inverted_result_target
+            >>> import lestim
+            >>> lestim.GateTarget(6).is_inverted_result_target
             False
-            >>> deltakit_stim.target_inv(7).is_inverted_result_target
+            >>> lestim.target_inv(7).is_inverted_result_target
             True
-            >>> deltakit_stim.target_x(8).is_inverted_result_target
+            >>> lestim.target_x(8).is_inverted_result_target
             False
-            >>> deltakit_stim.target_x(8, invert=True).is_inverted_result_target
+            >>> lestim.target_x(8, invert=True).is_inverted_result_target
             True
-            >>> deltakit_stim.target_y(2).is_inverted_result_target
+            >>> lestim.target_y(2).is_inverted_result_target
             False
-            >>> deltakit_stim.target_z(3).is_inverted_result_target
+            >>> lestim.target_z(3).is_inverted_result_target
             False
-            >>> deltakit_stim.target_sweep_bit(9).is_inverted_result_target
+            >>> lestim.target_sweep_bit(9).is_inverted_result_target
             False
-            >>> deltakit_stim.target_rec(-5).is_inverted_result_target
+            >>> lestim.target_rec(-5).is_inverted_result_target
             False
         """
     @property
@@ -8934,20 +6506,20 @@ class GateTarget:
         """Returns whether or not this is a measurement record target like `rec[-5]`.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.GateTarget(6).is_measurement_record_target
+            >>> import lestim
+            >>> lestim.GateTarget(6).is_measurement_record_target
             False
-            >>> deltakit_stim.target_inv(7).is_measurement_record_target
+            >>> lestim.target_inv(7).is_measurement_record_target
             False
-            >>> deltakit_stim.target_x(8).is_measurement_record_target
+            >>> lestim.target_x(8).is_measurement_record_target
             False
-            >>> deltakit_stim.target_y(2).is_measurement_record_target
+            >>> lestim.target_y(2).is_measurement_record_target
             False
-            >>> deltakit_stim.target_z(3).is_measurement_record_target
+            >>> lestim.target_z(3).is_measurement_record_target
             False
-            >>> deltakit_stim.target_sweep_bit(9).is_measurement_record_target
+            >>> lestim.target_sweep_bit(9).is_measurement_record_target
             False
-            >>> deltakit_stim.target_rec(-5).is_measurement_record_target
+            >>> lestim.target_rec(-5).is_measurement_record_target
             True
         """
     @property
@@ -8957,20 +6529,20 @@ class GateTarget:
         """Returns whether or not this is a qubit target like `5` or `!6`.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.GateTarget(6).is_qubit_target
+            >>> import lestim
+            >>> lestim.GateTarget(6).is_qubit_target
             True
-            >>> deltakit_stim.target_inv(7).is_qubit_target
+            >>> lestim.target_inv(7).is_qubit_target
             True
-            >>> deltakit_stim.target_x(8).is_qubit_target
+            >>> lestim.target_x(8).is_qubit_target
             False
-            >>> deltakit_stim.target_y(2).is_qubit_target
+            >>> lestim.target_y(2).is_qubit_target
             False
-            >>> deltakit_stim.target_z(3).is_qubit_target
+            >>> lestim.target_z(3).is_qubit_target
             False
-            >>> deltakit_stim.target_sweep_bit(9).is_qubit_target
+            >>> lestim.target_sweep_bit(9).is_qubit_target
             False
-            >>> deltakit_stim.target_rec(-5).is_qubit_target
+            >>> lestim.target_rec(-5).is_qubit_target
             False
         """
     @property
@@ -8979,21 +6551,22 @@ class GateTarget:
     ) -> bool:
         """Returns whether or not this is a sweep bit target like `sweep[4]`.
 
+
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.GateTarget(6).is_sweep_bit_target
+            >>> import lestim
+            >>> lestim.GateTarget(6).is_sweep_bit_target
             False
-            >>> deltakit_stim.target_inv(7).is_sweep_bit_target
+            >>> lestim.target_inv(7).is_sweep_bit_target
             False
-            >>> deltakit_stim.target_x(8).is_sweep_bit_target
+            >>> lestim.target_x(8).is_sweep_bit_target
             False
-            >>> deltakit_stim.target_y(2).is_sweep_bit_target
+            >>> lestim.target_y(2).is_sweep_bit_target
             False
-            >>> deltakit_stim.target_z(3).is_sweep_bit_target
+            >>> lestim.target_z(3).is_sweep_bit_target
             False
-            >>> deltakit_stim.target_sweep_bit(9).is_sweep_bit_target
+            >>> lestim.target_sweep_bit(9).is_sweep_bit_target
             True
-            >>> deltakit_stim.target_rec(-5).is_sweep_bit_target
+            >>> lestim.target_rec(-5).is_sweep_bit_target
             False
         """
     @property
@@ -9003,20 +6576,20 @@ class GateTarget:
         """Returns whether or not this is an X pauli target like `X2` or `!X7`.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.GateTarget(6).is_x_target
+            >>> import lestim
+            >>> lestim.GateTarget(6).is_x_target
             False
-            >>> deltakit_stim.target_inv(7).is_x_target
+            >>> lestim.target_inv(7).is_x_target
             False
-            >>> deltakit_stim.target_x(8).is_x_target
+            >>> lestim.target_x(8).is_x_target
             True
-            >>> deltakit_stim.target_y(2).is_x_target
+            >>> lestim.target_y(2).is_x_target
             False
-            >>> deltakit_stim.target_z(3).is_x_target
+            >>> lestim.target_z(3).is_x_target
             False
-            >>> deltakit_stim.target_sweep_bit(9).is_x_target
+            >>> lestim.target_sweep_bit(9).is_x_target
             False
-            >>> deltakit_stim.target_rec(-5).is_x_target
+            >>> lestim.target_rec(-5).is_x_target
             False
         """
     @property
@@ -9026,20 +6599,20 @@ class GateTarget:
         """Returns whether or not this is a Y pauli target like `Y2` or `!Y7`.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.GateTarget(6).is_y_target
+            >>> import lestim
+            >>> lestim.GateTarget(6).is_y_target
             False
-            >>> deltakit_stim.target_inv(7).is_y_target
+            >>> lestim.target_inv(7).is_y_target
             False
-            >>> deltakit_stim.target_x(8).is_y_target
+            >>> lestim.target_x(8).is_y_target
             False
-            >>> deltakit_stim.target_y(2).is_y_target
+            >>> lestim.target_y(2).is_y_target
             True
-            >>> deltakit_stim.target_z(3).is_y_target
+            >>> lestim.target_z(3).is_y_target
             False
-            >>> deltakit_stim.target_sweep_bit(9).is_y_target
+            >>> lestim.target_sweep_bit(9).is_y_target
             False
-            >>> deltakit_stim.target_rec(-5).is_y_target
+            >>> lestim.target_rec(-5).is_y_target
             False
         """
     @property
@@ -9049,20 +6622,20 @@ class GateTarget:
         """Returns whether or not this is a Z pauli target like `Z2` or `!Z7`.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.GateTarget(6).is_z_target
+            >>> import lestim
+            >>> lestim.GateTarget(6).is_z_target
             False
-            >>> deltakit_stim.target_inv(7).is_z_target
+            >>> lestim.target_inv(7).is_z_target
             False
-            >>> deltakit_stim.target_x(8).is_z_target
+            >>> lestim.target_x(8).is_z_target
             False
-            >>> deltakit_stim.target_y(2).is_z_target
+            >>> lestim.target_y(2).is_z_target
             False
-            >>> deltakit_stim.target_z(3).is_z_target
+            >>> lestim.target_z(3).is_z_target
             True
-            >>> deltakit_stim.target_sweep_bit(9).is_z_target
+            >>> lestim.target_sweep_bit(9).is_z_target
             False
-            >>> deltakit_stim.target_rec(-5).is_z_target
+            >>> lestim.target_rec(-5).is_z_target
             False
         """
     @property
@@ -9074,20 +6647,20 @@ class GateTarget:
         For non-pauli targets, this property evaluates to 'I'.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.GateTarget(6).pauli_type
+            >>> import lestim
+            >>> lestim.GateTarget(6).pauli_type
             'I'
-            >>> deltakit_stim.target_inv(7).pauli_type
+            >>> lestim.target_inv(7).pauli_type
             'I'
-            >>> deltakit_stim.target_x(8).pauli_type
+            >>> lestim.target_x(8).pauli_type
             'X'
-            >>> deltakit_stim.target_y(2).pauli_type
+            >>> lestim.target_y(2).pauli_type
             'Y'
-            >>> deltakit_stim.target_z(3).pauli_type
+            >>> lestim.target_z(3).pauli_type
             'Z'
-            >>> deltakit_stim.target_sweep_bit(9).pauli_type
+            >>> lestim.target_sweep_bit(9).pauli_type
             'I'
-            >>> deltakit_stim.target_rec(-5).pauli_type
+            >>> lestim.target_rec(-5).pauli_type
             'I'
         """
     @property
@@ -9097,20 +6670,20 @@ class GateTarget:
         """Returns the integer value of the targeted qubit, or else None.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.GateTarget(6).qubit_value
+            >>> import lestim
+            >>> lestim.GateTarget(6).qubit_value
             6
-            >>> deltakit_stim.target_inv(7).qubit_value
+            >>> lestim.target_inv(7).qubit_value
             7
-            >>> deltakit_stim.target_x(8).qubit_value
+            >>> lestim.target_x(8).qubit_value
             8
-            >>> deltakit_stim.target_y(2).qubit_value
+            >>> lestim.target_y(2).qubit_value
             2
-            >>> deltakit_stim.target_z(3).qubit_value
+            >>> lestim.target_z(3).qubit_value
             3
-            >>> print(deltakit_stim.target_sweep_bit(9).qubit_value)
+            >>> print(lestim.target_sweep_bit(9).qubit_value)
             None
-            >>> print(deltakit_stim.target_rec(-5).qubit_value)
+            >>> print(lestim.target_rec(-5).qubit_value)
             None
         """
     @property
@@ -9123,20 +6696,20 @@ class GateTarget:
         measurement record targets.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.GateTarget(6).value
+            >>> import lestim
+            >>> lestim.GateTarget(6).value
             6
-            >>> deltakit_stim.target_inv(7).value
+            >>> lestim.target_inv(7).value
             7
-            >>> deltakit_stim.target_x(8).value
+            >>> lestim.target_x(8).value
             8
-            >>> deltakit_stim.target_y(2).value
+            >>> lestim.target_y(2).value
             2
-            >>> deltakit_stim.target_z(3).value
+            >>> lestim.target_z(3).value
             3
-            >>> deltakit_stim.target_sweep_bit(9).value
+            >>> lestim.target_sweep_bit(9).value
             9
-            >>> deltakit_stim.target_rec(-5).value
+            >>> lestim.target_rec(-5).value
             -5
         """
 class GateTargetWithCoords:
@@ -9150,29 +6723,14 @@ class GateTargetWithCoords:
     problem in a circuit, instead of having to constantly manually
     look up the coordinates of a qubit index in order to understand
     what is happening.
-
-    Examples:
-        >>> import deltakit_stim
-        >>> t = deltakit_stim.GateTargetWithCoords(0, [1.5, 2.0])
-        >>> t.gate_target
-        deltakit_stim.GateTarget(0)
-        >>> t.coords
-        [1.5, 2.0]
     """
     def __init__(
         self,
+        *,
         gate_target: object,
         coords: List[float],
     ) -> None:
-        """Creates a deltakit_stim.GateTargetWithCoords.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> t = deltakit_stim.GateTargetWithCoords(0, [1.5, 2.0])
-            >>> t.gate_target
-            deltakit_stim.GateTarget(0)
-            >>> t.coords
-            [1.5, 2.0]
+        """Creates a lestim.GateTargetWithCoords.
         """
     @property
     def coords(
@@ -9181,24 +6739,12 @@ class GateTargetWithCoords:
         """Returns the associated coordinate information as a list of floats.
 
         If there is no coordinate information, returns an empty list.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> t = deltakit_stim.GateTargetWithCoords(0, [1.5, 2.0])
-            >>> t.coords
-            [1.5, 2.0]
         """
     @property
     def gate_target(
         self,
-    ) -> deltakit_stim.GateTarget:
-        """Returns the actual gate target as a `deltakit_stim.GateTarget`.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> t = deltakit_stim.GateTargetWithCoords(0, [1.5, 2.0])
-            >>> t.gate_target
-            deltakit_stim.GateTarget(0)
+    ) -> lestim.GateTarget:
+        """Returns the actual gate target as a `lestim.GateTarget`.
         """
 class PauliString:
     """A signed Pauli tensor product (e.g. "+X \u2297 X \u2297 X" or "-Y \u2297 Z".
@@ -9207,38 +6753,38 @@ class PauliString:
     collection of qubits.
 
     Examples:
-        >>> import deltakit_stim
-        >>> deltakit_stim.PauliString("XX") * deltakit_stim.PauliString("YY")
-        deltakit_stim.PauliString("-ZZ")
-        >>> print(deltakit_stim.PauliString(5))
+        >>> import lestim
+        >>> lestim.PauliString("XX") * lestim.PauliString("YY")
+        lestim.PauliString("-ZZ")
+        >>> print(lestim.PauliString(5))
         +_____
     """
     def __add__(
         self,
-        rhs: deltakit_stim.PauliString,
-    ) -> deltakit_stim.PauliString:
+        rhs: lestim.PauliString,
+    ) -> lestim.PauliString:
         """Returns the tensor product of two Pauli strings.
 
         Concatenates the Pauli strings and multiplies their signs.
 
         Args:
-            rhs: A second deltakit_stim.PauliString.
+            rhs: A second lestim.PauliString.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> deltakit_stim.PauliString("X") + deltakit_stim.PauliString("YZ")
-            deltakit_stim.PauliString("+XYZ")
+            >>> lestim.PauliString("X") + lestim.PauliString("YZ")
+            lestim.PauliString("+XYZ")
 
-            >>> deltakit_stim.PauliString("iX") + deltakit_stim.PauliString("-X")
-            deltakit_stim.PauliString("-iXX")
+            >>> lestim.PauliString("iX") + lestim.PauliString("-X")
+            lestim.PauliString("-iXX")
 
         Returns:
             The tensor product.
         """
     def __eq__(
         self,
-        arg0: deltakit_stim.PauliString,
+        arg0: lestim.PauliString,
     ) -> bool:
         """Determines if two Pauli strings have identical contents.
         """
@@ -9252,7 +6798,7 @@ class PauliString:
     def __getitem__(
         self,
         index_or_slice: slice,
-    ) -> deltakit_stim.PauliString:
+    ) -> lestim.PauliString:
         pass
     def __getitem__(
         self,
@@ -9261,19 +6807,19 @@ class PauliString:
         """Returns an individual Pauli or Pauli string slice from the pauli string.
 
         Individual Paulis are returned as an int using the encoding 0=I, 1=X, 2=Y, 3=Z.
-        Slices are returned as a deltakit_stim.PauliString (always with positive sign).
+        Slices are returned as a lestim.PauliString (always with positive sign).
 
         Examples:
-            >>> import deltakit_stim
-            >>> p = deltakit_stim.PauliString("_XYZ")
+            >>> import lestim
+            >>> p = lestim.PauliString("_XYZ")
             >>> p[2]
             2
             >>> p[-1]
             3
             >>> p[:2]
-            deltakit_stim.PauliString("+_X")
+            lestim.PauliString("+_X")
             >>> p[::-1]
-            deltakit_stim.PauliString("+ZYX_")
+            lestim.PauliString("+ZYX_")
 
         Args:
             index_or_slice: The index of the pauli to return, or the slice of paulis to
@@ -9287,24 +6833,24 @@ class PauliString:
         """
     def __iadd__(
         self,
-        rhs: deltakit_stim.PauliString,
-    ) -> deltakit_stim.PauliString:
+        rhs: lestim.PauliString,
+    ) -> lestim.PauliString:
         """Performs an inplace tensor product.
 
         Concatenates the given Pauli string onto the receiving string and multiplies
         their signs.
 
         Args:
-            rhs: A second deltakit_stim.PauliString.
+            rhs: A second lestim.PauliString.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> p = deltakit_stim.PauliString("iX")
+            >>> p = lestim.PauliString("iX")
             >>> alias = p
-            >>> p += deltakit_stim.PauliString("-YY")
+            >>> p += lestim.PauliString("-YY")
             >>> p
-            deltakit_stim.PauliString("-iXYY")
+            lestim.PauliString("-iXYY")
             >>> alias is p
             True
 
@@ -9314,14 +6860,14 @@ class PauliString:
     def __imul__(
         self,
         rhs: object,
-    ) -> deltakit_stim.PauliString:
+    ) -> lestim.PauliString:
         """Inplace right-multiplies the Pauli string.
 
         Can multiply by another Pauli string, a complex unit, or a tensor power.
 
         Args:
             rhs: The right hand side of the multiplication. This can be:
-                - A deltakit_stim.PauliString to right-multiply term-by-term into the paulis of
+                - A lestim.PauliString to right-multiply term-by-term into the paulis of
                     the pauli string.
                 - A complex unit (1, -1, 1j, -1j) to multiply into the sign of the pauli
                     string.
@@ -9329,38 +6875,38 @@ class PauliString:
                     string to (how many times to repeat it).
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> p = deltakit_stim.PauliString("X")
+            >>> p = lestim.PauliString("X")
             >>> p *= 1j
             >>> p
-            deltakit_stim.PauliString("+iX")
+            lestim.PauliString("+iX")
 
-            >>> p = deltakit_stim.PauliString("iXY_")
+            >>> p = lestim.PauliString("iXY_")
             >>> p *= 3
             >>> p
-            deltakit_stim.PauliString("-iXY_XY_XY_")
+            lestim.PauliString("-iXY_XY_XY_")
 
-            >>> p = deltakit_stim.PauliString("X")
+            >>> p = lestim.PauliString("X")
             >>> alias = p
-            >>> p *= deltakit_stim.PauliString("Y")
+            >>> p *= lestim.PauliString("Y")
             >>> alias
-            deltakit_stim.PauliString("+iZ")
+            lestim.PauliString("+iZ")
 
-            >>> p = deltakit_stim.PauliString("X")
-            >>> p *= deltakit_stim.PauliString("_YY")
+            >>> p = lestim.PauliString("X")
+            >>> p *= lestim.PauliString("_YY")
             >>> p
-            deltakit_stim.PauliString("+XYY")
+            lestim.PauliString("+XYY")
 
         Returns:
             The mutated Pauli string.
         """
     def __init__(
         self,
-        arg: Union[None, int, str, deltakit_stim.PauliString, Iterable[Union[int, Literal["_", "I", "X", "Y", "Z"]]]] = None,
+        arg: Union[None, int, str, lestim.PauliString, Iterable[Union[int, 'Literal["_", "I", "X", "Y", "Z"]']]] = None,
         /,
     ) -> None:
-        """Initializes a deltakit_stim.PauliString from the given argument.
+        """Initializes a lestim.PauliString from the given argument.
 
         When given a string, the string is parsed as a pauli string. The string can
         optionally start with a sign ('+', '-', 'i', '+i', or '-i'). The rest of the
@@ -9370,76 +6916,59 @@ class PauliString:
         pauli string is a series of integers seperated by '*' and prefixed by 'I', 'X',
         'Y', or 'Z'.
 
-        Args:
+        Arguments:
             arg [position-only]: This can be a variety of types, including:
                 None (default): initializes an empty Pauli string.
                 int: initializes an identity Pauli string of the given length.
                 str: initializes by parsing the given text.
-                deltakit_stim.PauliString: initializes a copy of the given Pauli string.
+                lestim.PauliString: initializes a copy of the given Pauli string.
                 Iterable: initializes by interpreting each item as a Pauli.
                     Each item can be a single-qubit Pauli string (like "X"),
                     or an integer. Integers use the convention 0=I, 1=X, 2=Y, 3=Z.
-                Dict[int, Union[int, str]]: initializes by interpreting keys as
-                    the qubit index and values as the Pauli for that index.
-                    Each value can be a single-qubit Pauli string (like "X"),
-                    or an integer. Integers use the convention 0=I, 1=X, 2=Y, 3=Z.
-                Dict[Union[int, str], Iterable[int]]: initializes by interpreting keys
-                    as Pauli operators and values as the qubit indices for that Pauli.
-                    Each key can be a single-qubit Pauli string (like "X"),
-                    or an integer. Integers use the convention 0=I, 1=X, 2=Y, 3=Z.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> deltakit_stim.PauliString("-XYZ")
-            deltakit_stim.PauliString("-XYZ")
+            >>> lestim.PauliString("-XYZ")
+            lestim.PauliString("-XYZ")
 
-            >>> deltakit_stim.PauliString()
-            deltakit_stim.PauliString("+")
+            >>> lestim.PauliString()
+            lestim.PauliString("+")
 
-            >>> deltakit_stim.PauliString(5)
-            deltakit_stim.PauliString("+_____")
+            >>> lestim.PauliString(5)
+            lestim.PauliString("+_____")
 
-            >>> deltakit_stim.PauliString(deltakit_stim.PauliString("XX"))
-            deltakit_stim.PauliString("+XX")
+            >>> lestim.PauliString(lestim.PauliString("XX"))
+            lestim.PauliString("+XX")
 
-            >>> deltakit_stim.PauliString([0, 1, 3, 2])
-            deltakit_stim.PauliString("+_XZY")
+            >>> lestim.PauliString([0, 1, 3, 2])
+            lestim.PauliString("+_XZY")
 
-            >>> deltakit_stim.PauliString("X" for _ in range(4))
-            deltakit_stim.PauliString("+XXXX")
+            >>> lestim.PauliString("X" for _ in range(4))
+            lestim.PauliString("+XXXX")
 
-            >>> deltakit_stim.PauliString("-X2*Y6")
-            deltakit_stim.PauliString("-__X___Y")
+            >>> lestim.PauliString("-X2*Y6")
+            lestim.PauliString("-__X___Y")
 
-            >>> deltakit_stim.PauliString("X6*Y6")
-            deltakit_stim.PauliString("+i______Z")
-
-            >>> deltakit_stim.PauliString({0: "X", 2: "Y", 3: "X"})
-            deltakit_stim.PauliString("+X_YX")
-
-            >>> deltakit_stim.PauliString({0: "X", 2: 2, 3: 1})
-            deltakit_stim.PauliString("+X_YX")
-
-            >>> deltakit_stim.PauliString({"X": [1], 2: [4], "Z": [0, 3]})
-            deltakit_stim.PauliString("+ZX_ZY")
+            >>> lestim.PauliString("X6*Y6")
+            lestim.PauliString("+i______Z")
         """
     def __itruediv__(
         self,
         rhs: complex,
-    ) -> deltakit_stim.PauliString:
+    ) -> lestim.PauliString:
         """Inplace divides the Pauli string by a complex unit.
 
         Args:
             rhs: The divisor. Can be 1, -1, 1j, or -1j.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> p = deltakit_stim.PauliString("X")
+            >>> p = lestim.PauliString("X")
             >>> p /= 1j
             >>> p
-            deltakit_stim.PauliString("-iX")
+            lestim.PauliString("-iX")
 
         Returns:
             The mutated Pauli string.
@@ -9451,25 +6980,18 @@ class PauliString:
         self,
     ) -> int:
         """Returns the length the pauli string; the number of qubits it operates on.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> len(deltakit_stim.PauliString("XY_ZZ"))
-            5
-            >>> len(deltakit_stim.PauliString("X0*Z99"))
-            100
         """
     def __mul__(
         self,
         rhs: object,
-    ) -> deltakit_stim.PauliString:
+    ) -> lestim.PauliString:
         """Right-multiplies the Pauli string.
 
         Can multiply by another Pauli string, a complex unit, or a tensor power.
 
         Args:
             rhs: The right hand side of the multiplication. This can be:
-                - A deltakit_stim.PauliString to right-multiply term-by-term with the paulis of
+                - A lestim.PauliString to right-multiply term-by-term with the paulis of
                     the pauli string.
                 - A complex unit (1, -1, 1j, -1j) to multiply with the sign of the pauli
                     string.
@@ -9477,90 +6999,90 @@ class PauliString:
                     string to (how many times to repeat it).
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> deltakit_stim.PauliString("X") * 1
-            deltakit_stim.PauliString("+X")
-            >>> deltakit_stim.PauliString("X") * -1
-            deltakit_stim.PauliString("-X")
-            >>> deltakit_stim.PauliString("X") * 1j
-            deltakit_stim.PauliString("+iX")
+            >>> lestim.PauliString("X") * 1
+            lestim.PauliString("+X")
+            >>> lestim.PauliString("X") * -1
+            lestim.PauliString("-X")
+            >>> lestim.PauliString("X") * 1j
+            lestim.PauliString("+iX")
 
-            >>> deltakit_stim.PauliString("X") * 2
-            deltakit_stim.PauliString("+XX")
-            >>> deltakit_stim.PauliString("-X") * 2
-            deltakit_stim.PauliString("+XX")
-            >>> deltakit_stim.PauliString("iX") * 2
-            deltakit_stim.PauliString("-XX")
-            >>> deltakit_stim.PauliString("X") * 3
-            deltakit_stim.PauliString("+XXX")
-            >>> deltakit_stim.PauliString("iX") * 3
-            deltakit_stim.PauliString("-iXXX")
+            >>> lestim.PauliString("X") * 2
+            lestim.PauliString("+XX")
+            >>> lestim.PauliString("-X") * 2
+            lestim.PauliString("+XX")
+            >>> lestim.PauliString("iX") * 2
+            lestim.PauliString("-XX")
+            >>> lestim.PauliString("X") * 3
+            lestim.PauliString("+XXX")
+            >>> lestim.PauliString("iX") * 3
+            lestim.PauliString("-iXXX")
 
-            >>> deltakit_stim.PauliString("X") * deltakit_stim.PauliString("Y")
-            deltakit_stim.PauliString("+iZ")
-            >>> deltakit_stim.PauliString("X") * deltakit_stim.PauliString("XX_")
-            deltakit_stim.PauliString("+_X_")
-            >>> deltakit_stim.PauliString("XXXX") * deltakit_stim.PauliString("_XYZ")
-            deltakit_stim.PauliString("+X_ZY")
+            >>> lestim.PauliString("X") * lestim.PauliString("Y")
+            lestim.PauliString("+iZ")
+            >>> lestim.PauliString("X") * lestim.PauliString("XX_")
+            lestim.PauliString("+_X_")
+            >>> lestim.PauliString("XXXX") * lestim.PauliString("_XYZ")
+            lestim.PauliString("+X_ZY")
 
         Returns:
             The product or tensor power.
 
         Raises:
-            TypeError: The right hand side isn't a deltakit_stim.PauliString, a non-negative
+            TypeError: The right hand side isn't a lestim.PauliString, a non-negative
                 integer, or a complex unit (1, -1, 1j, or -1j).
         """
     def __ne__(
         self,
-        arg0: deltakit_stim.PauliString,
+        arg0: lestim.PauliString,
     ) -> bool:
         """Determines if two Pauli strings have non-identical contents.
         """
     def __neg__(
         self,
-    ) -> deltakit_stim.PauliString:
+    ) -> lestim.PauliString:
         """Returns the negation of the pauli string.
 
         Examples:
-            >>> import deltakit_stim
-            >>> -deltakit_stim.PauliString("X")
-            deltakit_stim.PauliString("-X")
-            >>> -deltakit_stim.PauliString("-Y")
-            deltakit_stim.PauliString("+Y")
-            >>> -deltakit_stim.PauliString("iZZZ")
-            deltakit_stim.PauliString("-iZZZ")
+            >>> import lestim
+            >>> -lestim.PauliString("X")
+            lestim.PauliString("-X")
+            >>> -lestim.PauliString("-Y")
+            lestim.PauliString("+Y")
+            >>> -lestim.PauliString("iZZZ")
+            lestim.PauliString("-iZZZ")
         """
     def __pos__(
         self,
-    ) -> deltakit_stim.PauliString:
+    ) -> lestim.PauliString:
         """Returns a pauli string with the same contents.
 
         Examples:
-            >>> import deltakit_stim
-            >>> +deltakit_stim.PauliString("+X")
-            deltakit_stim.PauliString("+X")
-            >>> +deltakit_stim.PauliString("-YY")
-            deltakit_stim.PauliString("-YY")
-            >>> +deltakit_stim.PauliString("iZZZ")
-            deltakit_stim.PauliString("+iZZZ")
+            >>> import lestim
+            >>> +lestim.PauliString("+X")
+            lestim.PauliString("+X")
+            >>> +lestim.PauliString("-YY")
+            lestim.PauliString("-YY")
+            >>> +lestim.PauliString("iZZZ")
+            lestim.PauliString("+iZZZ")
         """
     def __repr__(
         self,
     ) -> str:
-        """Returns valid python code evaluating to an equivalent `deltakit_stim.PauliString`.
+        """Returns valid python code evaluating to an equivalent `lestim.PauliString`.
         """
     def __rmul__(
         self,
         lhs: object,
-    ) -> deltakit_stim.PauliString:
+    ) -> lestim.PauliString:
         """Left-multiplies the Pauli string.
 
         Can multiply by another Pauli string, a complex unit, or a tensor power.
 
         Args:
             lhs: The left hand side of the multiplication. This can be:
-                - A deltakit_stim.PauliString to right-multiply term-by-term with the paulis of
+                - A lestim.PauliString to right-multiply term-by-term with the paulis of
                     the pauli string.
                 - A complex unit (1, -1, 1j, -1j) to multiply with the sign of the pauli
                     string.
@@ -9568,32 +7090,32 @@ class PauliString:
                     string to (how many times to repeat it).
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> 1 * deltakit_stim.PauliString("X")
-            deltakit_stim.PauliString("+X")
-            >>> -1 * deltakit_stim.PauliString("X")
-            deltakit_stim.PauliString("-X")
-            >>> 1j * deltakit_stim.PauliString("X")
-            deltakit_stim.PauliString("+iX")
+            >>> 1 * lestim.PauliString("X")
+            lestim.PauliString("+X")
+            >>> -1 * lestim.PauliString("X")
+            lestim.PauliString("-X")
+            >>> 1j * lestim.PauliString("X")
+            lestim.PauliString("+iX")
 
-            >>> 2 * deltakit_stim.PauliString("X")
-            deltakit_stim.PauliString("+XX")
-            >>> 2 * deltakit_stim.PauliString("-X")
-            deltakit_stim.PauliString("+XX")
-            >>> 2 * deltakit_stim.PauliString("iX")
-            deltakit_stim.PauliString("-XX")
-            >>> 3 * deltakit_stim.PauliString("X")
-            deltakit_stim.PauliString("+XXX")
-            >>> 3 * deltakit_stim.PauliString("iX")
-            deltakit_stim.PauliString("-iXXX")
+            >>> 2 * lestim.PauliString("X")
+            lestim.PauliString("+XX")
+            >>> 2 * lestim.PauliString("-X")
+            lestim.PauliString("+XX")
+            >>> 2 * lestim.PauliString("iX")
+            lestim.PauliString("-XX")
+            >>> 3 * lestim.PauliString("X")
+            lestim.PauliString("+XXX")
+            >>> 3 * lestim.PauliString("iX")
+            lestim.PauliString("-iXXX")
 
-            >>> deltakit_stim.PauliString("X") * deltakit_stim.PauliString("Y")
-            deltakit_stim.PauliString("+iZ")
-            >>> deltakit_stim.PauliString("X") * deltakit_stim.PauliString("XX_")
-            deltakit_stim.PauliString("+_X_")
-            >>> deltakit_stim.PauliString("XXXX") * deltakit_stim.PauliString("_XYZ")
-            deltakit_stim.PauliString("+X_ZY")
+            >>> lestim.PauliString("X") * lestim.PauliString("Y")
+            lestim.PauliString("+iZ")
+            >>> lestim.PauliString("X") * lestim.PauliString("XX_")
+            lestim.PauliString("+_X_")
+            >>> lestim.PauliString("XXXX") * lestim.PauliString("_XYZ")
+            lestim.PauliString("+X_ZY")
 
         Returns:
             The product.
@@ -9613,8 +7135,8 @@ class PauliString:
             new_pauli: Either a character from '_IXYZ' or an integer from range(4).
 
         Examples:
-            >>> import deltakit_stim
-            >>> p = deltakit_stim.PauliString(4)
+            >>> import lestim
+            >>> p = lestim.PauliString(4)
             >>> p[2] = 1
             >>> print(p)
             +__X_
@@ -9641,17 +7163,17 @@ class PauliString:
     def __truediv__(
         self,
         rhs: complex,
-    ) -> deltakit_stim.PauliString:
+    ) -> lestim.PauliString:
         """Divides the Pauli string by a complex unit.
 
         Args:
             rhs: The divisor. Can be 1, -1, 1j, or -1j.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> deltakit_stim.PauliString("X") / 1j
-            deltakit_stim.PauliString("-iX")
+            >>> lestim.PauliString("X") / 1j
+            lestim.PauliString("-iX")
 
         Returns:
             The quotient.
@@ -9662,21 +7184,21 @@ class PauliString:
     @overload
     def after(
         self,
-        operation: Union[deltakit_stim.Circuit, deltakit_stim.CircuitInstruction],
-    ) -> deltakit_stim.PauliString:
+        operation: Union[lestim.Circuit, lestim.CircuitInstruction],
+    ) -> lestim.PauliString:
         pass
     @overload
     def after(
         self,
-        operation: deltakit_stim.Tableau,
+        operation: lestim.Tableau,
         targets: Iterable[int],
-    ) -> deltakit_stim.PauliString:
+    ) -> lestim.PauliString:
         pass
     def after(
         self,
-        operation: Union[deltakit_stim.Circuit, deltakit_stim.Tableau, deltakit_stim.CircuitInstruction],
+        operation: Union[lestim.Circuit, lestim.Tableau, lestim.CircuitInstruction],
         targets: Optional[Iterable[int]] = None,
-    ) -> deltakit_stim.PauliString:
+    ) -> lestim.PauliString:
         """Returns the result of conjugating the Pauli string by an operation.
 
         Args:
@@ -9688,19 +7210,19 @@ class PauliString:
                 Specifies which qubits to target.
 
         Examples:
-            >>> import deltakit_stim
-            >>> p = deltakit_stim.PauliString("_XYZ")
+            >>> import lestim
+            >>> p = lestim.PauliString("_XYZ")
 
-            >>> p.after(deltakit_stim.CircuitInstruction("H", [1]))
-            deltakit_stim.PauliString("+_ZYZ")
+            >>> p.after(lestim.CircuitInstruction("H", [1]))
+            lestim.PauliString("+_ZYZ")
 
-            >>> p.after(deltakit_stim.Circuit('''
+            >>> p.after(lestim.Circuit('''
             ...     C_XYZ 1 2 3
             ... '''))
-            deltakit_stim.PauliString("+_YZX")
+            lestim.PauliString("+_YZX")
 
-            >>> p.after(deltakit_stim.Tableau.from_named_gate('CZ'), targets=[0, 1])
-            deltakit_stim.PauliString("+ZXYZ")
+            >>> p.after(lestim.Tableau.from_named_gate('CZ'), targets=[0, 1])
+            lestim.PauliString("+ZXYZ")
 
         Returns:
             The conjugated Pauli string. The Pauli string after the
@@ -9710,21 +7232,21 @@ class PauliString:
     @overload
     def before(
         self,
-        operation: Union[deltakit_stim.Circuit, deltakit_stim.CircuitInstruction],
-    ) -> deltakit_stim.PauliString:
+        operation: Union[lestim.Circuit, lestim.CircuitInstruction],
+    ) -> lestim.PauliString:
         pass
     @overload
     def before(
         self,
-        operation: deltakit_stim.Tableau,
+        operation: lestim.Tableau,
         targets: Iterable[int],
-    ) -> deltakit_stim.PauliString:
+    ) -> lestim.PauliString:
         pass
     def before(
         self,
-        operation: Union[deltakit_stim.Circuit, deltakit_stim.Tableau, deltakit_stim.CircuitInstruction],
+        operation: Union[lestim.Circuit, lestim.Tableau, lestim.CircuitInstruction],
         targets: Optional[Iterable[int]] = None,
-    ) -> deltakit_stim.PauliString:
+    ) -> lestim.PauliString:
         """Returns the result of conjugating the Pauli string by an operation.
 
         Args:
@@ -9736,19 +7258,19 @@ class PauliString:
                 Specifies which qubits to target.
 
         Examples:
-            >>> import deltakit_stim
-            >>> p = deltakit_stim.PauliString("_XYZ")
+            >>> import lestim
+            >>> p = lestim.PauliString("_XYZ")
 
-            >>> p.before(deltakit_stim.CircuitInstruction("H", [1]))
-            deltakit_stim.PauliString("+_ZYZ")
+            >>> p.before(lestim.CircuitInstruction("H", [1]))
+            lestim.PauliString("+_ZYZ")
 
-            >>> p.before(deltakit_stim.Circuit('''
+            >>> p.before(lestim.Circuit('''
             ...     C_XYZ 1 2 3
             ... '''))
-            deltakit_stim.PauliString("+_ZXY")
+            lestim.PauliString("+_ZXY")
 
-            >>> p.before(deltakit_stim.Tableau.from_named_gate('CZ'), targets=[0, 1])
-            deltakit_stim.PauliString("+ZXYZ")
+            >>> p.before(lestim.Tableau.from_named_gate('CZ'), targets=[0, 1])
+            lestim.PauliString("+ZXYZ")
 
         Returns:
             The conjugated Pauli string. The Pauli string before the
@@ -9757,7 +7279,7 @@ class PauliString:
         """
     def commutes(
         self,
-        other: deltakit_stim.PauliString,
+        other: lestim.PauliString,
     ) -> bool:
         """Determines if two Pauli strings commute or not.
 
@@ -9768,21 +7290,21 @@ class PauliString:
             other: The other Pauli string.
 
         Examples:
-            >>> import deltakit_stim
-            >>> xx = deltakit_stim.PauliString("XX")
-            >>> xx.commutes(deltakit_stim.PauliString("X_"))
+            >>> import lestim
+            >>> xx = lestim.PauliString("XX")
+            >>> xx.commutes(lestim.PauliString("X_"))
             True
-            >>> xx.commutes(deltakit_stim.PauliString("XX"))
+            >>> xx.commutes(lestim.PauliString("XX"))
             True
-            >>> xx.commutes(deltakit_stim.PauliString("XY"))
+            >>> xx.commutes(lestim.PauliString("XY"))
             False
-            >>> xx.commutes(deltakit_stim.PauliString("XZ"))
+            >>> xx.commutes(lestim.PauliString("XZ"))
             False
-            >>> xx.commutes(deltakit_stim.PauliString("ZZ"))
+            >>> xx.commutes(lestim.PauliString("ZZ"))
             True
-            >>> xx.commutes(deltakit_stim.PauliString("X_Y__"))
+            >>> xx.commutes(lestim.PauliString("X_Y__"))
             True
-            >>> xx.commutes(deltakit_stim.PauliString(""))
+            >>> xx.commutes(lestim.PauliString(""))
             True
 
         Returns:
@@ -9790,14 +7312,14 @@ class PauliString:
         """
     def copy(
         self,
-    ) -> deltakit_stim.PauliString:
+    ) -> lestim.PauliString:
         """Returns a copy of the pauli string.
 
         The copy is an independent pauli string with the same contents.
 
         Examples:
-            >>> import deltakit_stim
-            >>> p1 = deltakit_stim.PauliString.random(2)
+            >>> import lestim
+            >>> p1 = lestim.PauliString.random(2)
             >>> p2 = p1.copy()
             >>> p2 is p1
             False
@@ -9806,8 +7328,8 @@ class PauliString:
         """
     def extended_product(
         self,
-        other: deltakit_stim.PauliString,
-    ) -> Tuple[complex, deltakit_stim.PauliString]:
+        other: lestim.PauliString,
+    ) -> Tuple[complex, lestim.PauliString]:
         """[DEPRECATED] Use multiplication (__mul__ or *) instead.
         """
     @staticmethod
@@ -9817,7 +7339,7 @@ class PauliString:
         zs: np.ndarray,
         sign: Union[int, float, complex] = +1,
         num_qubits: Optional[int] = None,
-    ) -> deltakit_stim.PauliString:
+    ) -> lestim.PauliString:
         """Creates a pauli string from X bit and Z bit numpy arrays, using the encoding:
 
             x=0 and z=0 -> P=I
@@ -9847,27 +7369,27 @@ class PauliString:
             The created pauli string.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
             >>> import numpy as np
 
             >>> xs = np.array([1, 1, 1, 1, 1, 1, 1, 0, 0], dtype=np.bool_)
             >>> zs = np.array([0, 0, 0, 0, 1, 1, 1, 1, 1], dtype=np.bool_)
-            >>> deltakit_stim.PauliString.from_numpy(xs=xs, zs=zs, sign=-1)
-            deltakit_stim.PauliString("-XXXXYYYZZ")
+            >>> lestim.PauliString.from_numpy(xs=xs, zs=zs, sign=-1)
+            lestim.PauliString("-XXXXYYYZZ")
 
             >>> xs = np.array([127, 0], dtype=np.uint8)
             >>> zs = np.array([240, 1], dtype=np.uint8)
-            >>> deltakit_stim.PauliString.from_numpy(xs=xs, zs=zs, num_qubits=9)
-            deltakit_stim.PauliString("+XXXXYYYZZ")
+            >>> lestim.PauliString.from_numpy(xs=xs, zs=zs, num_qubits=9)
+            lestim.PauliString("+XXXXYYYZZ")
         """
     @staticmethod
     def from_unitary_matrix(
         matrix: Iterable[Iterable[Union[int, float, complex]]],
         *,
-        endian: Literal["little", "big"] = 'little',
+        endian: str = 'little',
         unsigned: bool = False,
-    ) -> deltakit_stim.PauliString:
-        """Creates a deltakit_stim.PauliString from the unitary matrix of a Pauli group member.
+    ) -> lestim.PauliString:
+        """Creates a lestim.PauliString from the unitary matrix of a Pauli group member.
 
         Args:
             matrix: A unitary matrix specified as an iterable of rows, with each row is
@@ -9892,26 +7414,26 @@ class PauliString:
             ValueError: The given matrix isn't the unitary matrix of a Pauli string.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.PauliString.from_unitary_matrix([
+            >>> import lestim
+            >>> lestim.PauliString.from_unitary_matrix([
             ...     [1j, 0],
             ...     [0, -1j],
             ... ], endian='little')
-            deltakit_stim.PauliString("+iZ")
+            lestim.PauliString("+iZ")
 
-            >>> deltakit_stim.PauliString.from_unitary_matrix([
+            >>> lestim.PauliString.from_unitary_matrix([
             ...     [1j**0.1, 0],
             ...     [0, -(1j**0.1)],
             ... ], endian='little', unsigned=True)
-            deltakit_stim.PauliString("+Z")
+            lestim.PauliString("+Z")
 
-            >>> deltakit_stim.PauliString.from_unitary_matrix([
+            >>> lestim.PauliString.from_unitary_matrix([
             ...     [0, 1, 0, 0],
             ...     [1, 0, 0, 0],
             ...     [0, 0, 0, -1],
             ...     [0, 0, -1, 0],
             ... ], endian='little')
-            deltakit_stim.PauliString("+XZ")
+            lestim.PauliString("+XZ")
         """
     @staticmethod
     def iter_all(
@@ -9920,7 +7442,7 @@ class PauliString:
         min_weight: int = 0,
         max_weight: object = None,
         allowed_paulis: str = 'XYZ',
-    ) -> deltakit_stim.PauliStringIterator:
+    ) -> lestim.PauliStringIterator:
         """Returns an iterator that iterates over all matching pauli strings.
 
         Args:
@@ -9937,11 +7459,11 @@ class PauliString:
                 allowed.
 
         Returns:
-            An Iterable[deltakit_stim.PauliString] that yields the requested pauli strings.
+            An Iterable[lestim.PauliString] that yields the requested pauli strings.
 
         Examples:
-            >>> import deltakit_stim
-            >>> pauli_string_iterator = deltakit_stim.PauliString.iter_all(
+            >>> import lestim
+            >>> pauli_string_iterator = lestim.PauliString.iter_all(
             ...     num_qubits=3,
             ...     min_weight=1,
             ...     max_weight=2,
@@ -9986,23 +7508,23 @@ class PauliString:
             A list containing the ascending indices of matching Pauli terms.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.PauliString("_____X___Y____Z___").pauli_indices()
+            >>> import lestim
+            >>> lestim.PauliString("_____X___Y____Z___").pauli_indices()
             [5, 9, 14]
 
-            >>> deltakit_stim.PauliString("_____X___Y____Z___").pauli_indices("XZ")
+            >>> lestim.PauliString("_____X___Y____Z___").pauli_indices("XZ")
             [5, 14]
 
-            >>> deltakit_stim.PauliString("_____X___Y____Z___").pauli_indices("X")
+            >>> lestim.PauliString("_____X___Y____Z___").pauli_indices("X")
             [5]
 
-            >>> deltakit_stim.PauliString("_____X___Y____Z___").pauli_indices("Y")
+            >>> lestim.PauliString("_____X___Y____Z___").pauli_indices("Y")
             [9]
 
-            >>> deltakit_stim.PauliString("_____X___Y____Z___").pauli_indices("IY")
+            >>> lestim.PauliString("_____X___Y____Z___").pauli_indices("IY")
             [0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17]
 
-            >>> deltakit_stim.PauliString("-X103*Y100").pauli_indices()
+            >>> lestim.PauliString("-X103*Y100").pauli_indices()
             [100, 103]
         """
     @staticmethod
@@ -10010,7 +7532,7 @@ class PauliString:
         num_qubits: int,
         *,
         allow_imaginary: bool = False,
-    ) -> deltakit_stim.PauliString:
+    ) -> lestim.PauliString:
         """Samples a uniformly random Hermitian Pauli string.
 
         Args:
@@ -10020,14 +7542,14 @@ class PauliString:
                 allows the result to be non-Hermitian.
 
         Examples:
-            >>> import deltakit_stim
-            >>> p = deltakit_stim.PauliString.random(5)
+            >>> import lestim
+            >>> p = lestim.PauliString.random(5)
             >>> len(p)
             5
             >>> p.sign in [-1, +1]
             True
 
-            >>> p2 = deltakit_stim.PauliString.random(3, allow_imaginary=True)
+            >>> p2 = lestim.PauliString.random(3, allow_imaginary=True)
             >>> len(p2)
             3
             >>> p2.sign in [-1, +1, 1j, -1j]
@@ -10043,14 +7565,14 @@ class PauliString:
         """The sign of the Pauli string. Can be +1, -1, 1j, or -1j.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.PauliString("X").sign
+            >>> import lestim
+            >>> lestim.PauliString("X").sign
             (1+0j)
-            >>> deltakit_stim.PauliString("-X").sign
+            >>> lestim.PauliString("-X").sign
             (-1+0j)
-            >>> deltakit_stim.PauliString("iX").sign
+            >>> lestim.PauliString("iX").sign
             1j
-            >>> deltakit_stim.PauliString("-iX").sign
+            >>> lestim.PauliString("-iX").sign
             (-0-1j)
         """
     @sign.setter
@@ -10094,15 +7616,15 @@ class PauliString:
                 zs_k = (zs[k // 8] >> (k % 8)) & 1
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> xs, zs = deltakit_stim.PauliString("XXXXYYYZZ").to_numpy()
+            >>> xs, zs = lestim.PauliString("XXXXYYYZZ").to_numpy()
             >>> xs
             array([ True,  True,  True,  True,  True,  True,  True, False, False])
             >>> zs
             array([False, False, False, False,  True,  True,  True,  True,  True])
 
-            >>> xs, zs = deltakit_stim.PauliString("XXXXYYYZZ").to_numpy(bit_packed=True)
+            >>> xs, zs = lestim.PauliString("XXXXYYYZZ").to_numpy(bit_packed=True)
             >>> xs
             array([127,   0], dtype=uint8)
             >>> zs
@@ -10110,7 +7632,7 @@ class PauliString:
         """
     def to_tableau(
         self,
-    ) -> deltakit_stim.Tableau:
+    ) -> lestim.Tableau:
         """Creates a Tableau equivalent to this Pauli string.
 
         The tableau represents a Clifford operation that multiplies qubits
@@ -10121,40 +7643,40 @@ class PauliString:
             The created tableau.
 
         Examples:
-            >>> import deltakit_stim
-            >>> p = deltakit_stim.PauliString("ZZ")
+            >>> import lestim
+            >>> p = lestim.PauliString("ZZ")
             >>> p.to_tableau()
-            deltakit_stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    deltakit_stim.PauliString("-X_"),
-                    deltakit_stim.PauliString("-_X"),
+                    lestim.PauliString("-X_"),
+                    lestim.PauliString("-_X"),
                 ],
                 zs=[
-                    deltakit_stim.PauliString("+Z_"),
-                    deltakit_stim.PauliString("+_Z"),
+                    lestim.PauliString("+Z_"),
+                    lestim.PauliString("+_Z"),
                 ],
             )
-            >>> q = deltakit_stim.PauliString("YX_Z")
+            >>> q = lestim.PauliString("YX_Z")
             >>> q.to_tableau()
-            deltakit_stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    deltakit_stim.PauliString("-X___"),
-                    deltakit_stim.PauliString("+_X__"),
-                    deltakit_stim.PauliString("+__X_"),
-                    deltakit_stim.PauliString("-___X"),
+                    lestim.PauliString("-X___"),
+                    lestim.PauliString("+_X__"),
+                    lestim.PauliString("+__X_"),
+                    lestim.PauliString("-___X"),
                 ],
                 zs=[
-                    deltakit_stim.PauliString("-Z___"),
-                    deltakit_stim.PauliString("-_Z__"),
-                    deltakit_stim.PauliString("+__Z_"),
-                    deltakit_stim.PauliString("+___Z"),
+                    lestim.PauliString("-Z___"),
+                    lestim.PauliString("-_Z__"),
+                    lestim.PauliString("+__Z_"),
+                    lestim.PauliString("+___Z"),
                 ],
             )
         """
     def to_unitary_matrix(
         self,
         *,
-        endian: Literal["little", "big"],
+        endian: str,
     ) -> np.ndarray[np.complex64]:
         """Converts the pauli string into a unitary matrix.
 
@@ -10170,8 +7692,8 @@ class PauliString:
             shape=(1 << len(pauli_string), 1 << len(pauli_string)).
 
         Example:
-            >>> import deltakit_stim
-            >>> deltakit_stim.PauliString("-YZ").to_unitary_matrix(endian="little")
+            >>> import lestim
+            >>> lestim.PauliString("-YZ").to_unitary_matrix(endian="little")
             array([[0.+0.j, 0.+1.j, 0.+0.j, 0.+0.j],
                    [0.-1.j, 0.+0.j, 0.+0.j, 0.+0.j],
                    [0.+0.j, 0.+0.j, 0.+0.j, 0.-1.j],
@@ -10184,22 +7706,22 @@ class PauliString:
         """Returns the number of non-identity pauli terms in the pauli string.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.PauliString("+___").weight
+            >>> import lestim
+            >>> lestim.PauliString("+___").weight
             0
-            >>> deltakit_stim.PauliString("+__X").weight
+            >>> lestim.PauliString("+__X").weight
             1
-            >>> deltakit_stim.PauliString("+XYZ").weight
+            >>> lestim.PauliString("+XYZ").weight
             3
-            >>> deltakit_stim.PauliString("-XXX___XXYZ").weight
+            >>> lestim.PauliString("-XXX___XXYZ").weight
             7
         """
 class PauliStringIterator:
     """Iterates over all pauli strings matching specified patterns.
 
     Examples:
-        >>> import deltakit_stim
-        >>> pauli_string_iterator = deltakit_stim.PauliString.iter_all(
+        >>> import lestim
+        >>> pauli_string_iterator = lestim.PauliString.iter_all(
         ...     2,
         ...     min_weight=1,
         ...     max_weight=1,
@@ -10214,7 +7736,7 @@ class PauliStringIterator:
     """
     def __iter__(
         self,
-    ) -> deltakit_stim.PauliStringIterator:
+    ) -> lestim.PauliStringIterator:
         """Returns an independent copy of the pauli string iterator.
 
         Since for-loops and loop-comprehensions call `iter` on things they
@@ -10223,7 +7745,7 @@ class PauliStringIterator:
         """
     def __next__(
         self,
-    ) -> deltakit_stim.PauliString:
+    ) -> lestim.PauliString:
         """Returns the next iterated pauli string.
         """
 class Tableau:
@@ -10233,18 +7755,18 @@ class Tableau:
     conjugates a list of Pauli group generators into composite Pauli products.
 
     Examples:
-        >>> import deltakit_stim
-        >>> deltakit_stim.Tableau.from_named_gate("H")
-        deltakit_stim.Tableau.from_conjugated_generators(
+        >>> import lestim
+        >>> lestim.Tableau.from_named_gate("H")
+        lestim.Tableau.from_conjugated_generators(
             xs=[
-                deltakit_stim.PauliString("+Z"),
+                lestim.PauliString("+Z"),
             ],
             zs=[
-                deltakit_stim.PauliString("+X"),
+                lestim.PauliString("+X"),
             ],
         )
 
-        >>> t = deltakit_stim.Tableau.random(5)
+        >>> t = lestim.Tableau.random(5)
         >>> t_inv = t**-1
         >>> print(t * t_inv)
         +-xz-xz-xz-xz-xz-
@@ -10257,22 +7779,22 @@ class Tableau:
 
         >>> x2z3 = t.x_output(2) * t.z_output(3)
         >>> t_inv(x2z3)
-        deltakit_stim.PauliString("+__XZ_")
+        lestim.PauliString("+__XZ_")
     """
     def __add__(
         self,
-        rhs: deltakit_stim.Tableau,
-    ) -> deltakit_stim.Tableau:
+        rhs: lestim.Tableau,
+    ) -> lestim.Tableau:
         """Returns the direct sum (diagonal concatenation) of two Tableaus.
 
         Args:
-            rhs: A second deltakit_stim.Tableau.
+            rhs: A second lestim.Tableau.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> s = deltakit_stim.Tableau.from_named_gate("S")
-            >>> cz = deltakit_stim.Tableau.from_named_gate("CZ")
+            >>> s = lestim.Tableau.from_named_gate("S")
+            >>> cz = lestim.Tableau.from_named_gate("CZ")
             >>> print(s + cz)
             +-xz-xz-xz-
             | ++ ++ ++
@@ -10285,21 +7807,12 @@ class Tableau:
         """
     def __call__(
         self,
-        pauli_string: deltakit_stim.PauliString,
-    ) -> deltakit_stim.PauliString:
-        """Returns the equivalent PauliString after the Tableau's Clifford operation.
+        pauli_string: lestim.PauliString,
+    ) -> lestim.PauliString:
+        """Returns the conjugation of a PauliString by the Tableau's Clifford operation.
 
-        If P is a Pauli product before a Clifford operation C, then this method returns
-        Q = C * P * C**-1 (the conjugation of P by C). Q is the equivalent Pauli product
-        after C. This works because:
-
-            C*P
-            = C*P * I
-            = C*P * (C**-1 * C)
-            = (C*P*C**-1) * C
-            = Q*C
-
-        (Keep in mind that A*B means first B is applied, then A is applied.)
+        The conjugation of P by C is equal to C**-1 * P * C. If P is a Pauli product
+        before C, then P2 = C**-1 * P * C is an equivalent Pauli product after C.
 
         Args:
             pauli_string: The pauli string to conjugate.
@@ -10308,33 +7821,33 @@ class Tableau:
             The new conjugated pauli string.
 
         Examples:
-            >>> import deltakit_stim
-            >>> t = deltakit_stim.Tableau.from_named_gate("CNOT")
-            >>> p = deltakit_stim.PauliString("XX")
+            >>> import lestim
+            >>> t = lestim.Tableau.from_named_gate("CNOT")
+            >>> p = lestim.PauliString("XX")
             >>> result = t(p)
             >>> print(result)
             +X_
         """
     def __eq__(
         self,
-        arg0: deltakit_stim.Tableau,
+        arg0: lestim.Tableau,
     ) -> bool:
         """Determines if two tableaus have identical contents.
         """
     def __iadd__(
         self,
-        rhs: deltakit_stim.Tableau,
-    ) -> deltakit_stim.Tableau:
+        rhs: lestim.Tableau,
+    ) -> lestim.Tableau:
         """Performs an inplace direct sum (diagonal concatenation).
 
         Args:
-            rhs: A second deltakit_stim.Tableau.
+            rhs: A second lestim.Tableau.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> s = deltakit_stim.Tableau.from_named_gate("S")
-            >>> cz = deltakit_stim.Tableau.from_named_gate("CZ")
+            >>> s = lestim.Tableau.from_named_gate("S")
+            >>> cz = lestim.Tableau.from_named_gate("CZ")
             >>> alias = s
             >>> s += cz
             >>> alias is s
@@ -10356,8 +7869,8 @@ class Tableau:
         """Creates an identity tableau over the given number of qubits.
 
         Examples:
-            >>> import deltakit_stim
-            >>> t = deltakit_stim.Tableau(3)
+            >>> import lestim
+            >>> t = lestim.Tableau(3)
             >>> print(t)
             +-xz-xz-xz-
             | ++ ++ ++
@@ -10372,17 +7885,11 @@ class Tableau:
         self,
     ) -> int:
         """Returns the number of qubits operated on by the tableau.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> t = deltakit_stim.Tableau.from_named_gate("CNOT")
-            >>> len(t)
-            2
         """
     def __mul__(
         self,
-        rhs: deltakit_stim.Tableau,
-    ) -> deltakit_stim.Tableau:
+        rhs: lestim.Tableau,
+    ) -> lestim.Tableau:
         """Returns the product of two tableaus.
 
         If the tableau T1 represents the Clifford operation with unitary C1,
@@ -10393,24 +7900,24 @@ class Tableau:
             rhs: The tableau  on the right hand side of the multiplication.
 
         Examples:
-            >>> import deltakit_stim
-            >>> t1 = deltakit_stim.Tableau.random(4)
-            >>> t2 = deltakit_stim.Tableau.random(4)
+            >>> import lestim
+            >>> t1 = lestim.Tableau.random(4)
+            >>> t2 = lestim.Tableau.random(4)
             >>> t3 = t2 * t1
-            >>> p = deltakit_stim.PauliString.random(4)
+            >>> p = lestim.PauliString.random(4)
             >>> t3(p) == t2(t1(p))
             True
         """
     def __ne__(
         self,
-        arg0: deltakit_stim.Tableau,
+        arg0: lestim.Tableau,
     ) -> bool:
         """Determines if two tableaus have non-identical contents.
         """
     def __pow__(
         self,
         exponent: int,
-    ) -> deltakit_stim.Tableau:
+    ) -> lestim.Tableau:
         """Raises the tableau to an integer power.
 
         Large powers are reached efficiently using repeated squaring.
@@ -10420,15 +7927,15 @@ class Tableau:
             exponent: The power to raise to. Can be negative, zero, or positive.
 
         Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.Tableau.from_named_gate("S")
-            >>> s**0 == deltakit_stim.Tableau(1)
+            >>> import lestim
+            >>> s = lestim.Tableau.from_named_gate("S")
+            >>> s**0 == lestim.Tableau(1)
             True
             >>> s**1 == s
             True
-            >>> s**2 == deltakit_stim.Tableau.from_named_gate("Z")
+            >>> s**2 == lestim.Tableau.from_named_gate("Z")
             True
-            >>> s**-1 == s**3 == deltakit_stim.Tableau.from_named_gate("S_DAG")
+            >>> s**-1 == s**3 == lestim.Tableau.from_named_gate("S_DAG")
             True
             >>> s**5 == s
             True
@@ -10440,7 +7947,7 @@ class Tableau:
     def __repr__(
         self,
     ) -> str:
-        """Returns valid python code evaluating to an equal `deltakit_stim.Tableau`.
+        """Returns valid python code evaluating to an equal `lestim.Tableau`.
         """
     def __str__(
         self,
@@ -10449,7 +7956,7 @@ class Tableau:
         """
     def append(
         self,
-        gate: deltakit_stim.Tableau,
+        gate: lestim.Tableau,
         targets: Sequence[int],
     ) -> None:
         """Appends an operation's effect into this tableau, mutating this tableau.
@@ -10461,23 +7968,23 @@ class Tableau:
             targets: The qubits being targeted by the gate.
 
         Examples:
-            >>> import deltakit_stim
-            >>> cnot = deltakit_stim.Tableau.from_named_gate("CNOT")
-            >>> t = deltakit_stim.Tableau(2)
+            >>> import lestim
+            >>> cnot = lestim.Tableau.from_named_gate("CNOT")
+            >>> t = lestim.Tableau(2)
             >>> t.append(cnot, [0, 1])
             >>> t.append(cnot, [1, 0])
             >>> t.append(cnot, [0, 1])
-            >>> t == deltakit_stim.Tableau.from_named_gate("SWAP")
+            >>> t == lestim.Tableau.from_named_gate("SWAP")
             True
         """
     def copy(
         self,
-    ) -> deltakit_stim.Tableau:
+    ) -> lestim.Tableau:
         """Returns a copy of the tableau. An independent tableau with the same contents.
 
         Examples:
-            >>> import deltakit_stim
-            >>> t1 = deltakit_stim.Tableau.random(2)
+            >>> import lestim
+            >>> t1 = lestim.Tableau.random(2)
             >>> t2 = t1.copy()
             >>> t2 is t1
             False
@@ -10486,12 +7993,12 @@ class Tableau:
         """
     @staticmethod
     def from_circuit(
-        circuit: deltakit_stim.Circuit,
+        circuit: lestim.Circuit,
         *,
         ignore_noise: bool = False,
         ignore_measurement: bool = False,
         ignore_reset: bool = False,
-    ) -> deltakit_stim.Tableau:
+    ) -> lestim.Tableau:
         """Converts a circuit into an equivalent stabilizer tableau.
 
         Args:
@@ -10522,35 +8029,35 @@ class Tableau:
                 The circuit contains reset operations but ignore_reset=False.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.Tableau.from_circuit(deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> lestim.Tableau.from_circuit(lestim.Circuit('''
             ...     H 0
             ...     CNOT 0 1
             ... '''))
-            deltakit_stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    deltakit_stim.PauliString("+Z_"),
-                    deltakit_stim.PauliString("+_X"),
+                    lestim.PauliString("+Z_"),
+                    lestim.PauliString("+_X"),
                 ],
                 zs=[
-                    deltakit_stim.PauliString("+XX"),
-                    deltakit_stim.PauliString("+ZZ"),
+                    lestim.PauliString("+XX"),
+                    lestim.PauliString("+ZZ"),
                 ],
             )
         """
     @staticmethod
     def from_conjugated_generators(
         *,
-        xs: List[deltakit_stim.PauliString],
-        zs: List[deltakit_stim.PauliString],
-    ) -> deltakit_stim.Tableau:
+        xs: List[lestim.PauliString],
+        zs: List[lestim.PauliString],
+    ) -> lestim.Tableau:
         """Creates a tableau from the given outputs for each generator.
 
         Verifies that the tableau is well formed.
 
         Args:
-            xs: A List[deltakit_stim.PauliString] with the results of conjugating X0, X1, etc.
-            zs: A List[deltakit_stim.PauliString] with the results of conjugating Z0, Z1, etc.
+            xs: A List[lestim.PauliString] with the results of conjugating X0, X1, etc.
+            zs: A List[lestim.PauliString] with the results of conjugating Z0, Z1, etc.
 
         Returns:
             The created tableau.
@@ -10560,26 +8067,26 @@ class Tableau:
                 or they don't satisfy the required commutation relationships.
 
         Examples:
-            >>> import deltakit_stim
-            >>> identity3 = deltakit_stim.Tableau.from_conjugated_generators(
+            >>> import lestim
+            >>> identity3 = lestim.Tableau.from_conjugated_generators(
             ...     xs=[
-            ...         deltakit_stim.PauliString("X__"),
-            ...         deltakit_stim.PauliString("_X_"),
-            ...         deltakit_stim.PauliString("__X"),
+            ...         lestim.PauliString("X__"),
+            ...         lestim.PauliString("_X_"),
+            ...         lestim.PauliString("__X"),
             ...     ],
             ...     zs=[
-            ...         deltakit_stim.PauliString("Z__"),
-            ...         deltakit_stim.PauliString("_Z_"),
-            ...         deltakit_stim.PauliString("__Z"),
+            ...         lestim.PauliString("Z__"),
+            ...         lestim.PauliString("_Z_"),
+            ...         lestim.PauliString("__Z"),
             ...     ],
             ... )
-            >>> identity3 == deltakit_stim.Tableau(3)
+            >>> identity3 == lestim.Tableau(3)
             True
         """
     @staticmethod
     def from_named_gate(
         name: str,
-    ) -> deltakit_stim.Tableau:
+    ) -> lestim.Tableau:
         """Returns the tableau of a named Clifford gate.
 
         Args:
@@ -10589,17 +8096,17 @@ class Tableau:
             The gate's tableau.
 
         Examples:
-            >>> import deltakit_stim
-            >>> print(deltakit_stim.Tableau.from_named_gate("H"))
+            >>> import lestim
+            >>> print(lestim.Tableau.from_named_gate("H"))
             +-xz-
             | ++
             | ZX
-            >>> print(deltakit_stim.Tableau.from_named_gate("CNOT"))
+            >>> print(lestim.Tableau.from_named_gate("CNOT"))
             +-xz-xz-
             | ++ ++
             | XZ _Z
             | X_ XZ
-            >>> print(deltakit_stim.Tableau.from_named_gate("S"))
+            >>> print(lestim.Tableau.from_named_gate("S"))
             +-xz-
             | ++
             | YZ
@@ -10613,7 +8120,7 @@ class Tableau:
         z2z: np.ndarray,
         x_signs: Optional[np.ndarray] = None,
         z_signs: Optional[np.ndarray] = None,
-    ) -> deltakit_stim.Tableau:
+    ) -> lestim.Tableau:
         """Creates a tableau from numpy arrays x2x, x2z, z2x, z2z, x_signs, and z_signs.
 
         The x2x, x2z, z2x, z2z arrays are the four quadrants of the table defined in
@@ -10656,30 +8163,30 @@ class Tableau:
             The tableau created from the numpy data.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
             >>> import numpy as np
 
-            >>> tableau = deltakit_stim.Tableau.from_numpy(
+            >>> tableau = lestim.Tableau.from_numpy(
             ...     x2x=np.array([[1, 1], [0, 1]], dtype=np.bool_),
             ...     z2x=np.array([[0, 0], [0, 0]], dtype=np.bool_),
             ...     x2z=np.array([[0, 0], [0, 0]], dtype=np.bool_),
             ...     z2z=np.array([[1, 0], [1, 1]], dtype=np.bool_),
             ... )
             >>> tableau
-            deltakit_stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    deltakit_stim.PauliString("+XX"),
-                    deltakit_stim.PauliString("+_X"),
+                    lestim.PauliString("+XX"),
+                    lestim.PauliString("+_X"),
                 ],
                 zs=[
-                    deltakit_stim.PauliString("+Z_"),
-                    deltakit_stim.PauliString("+ZZ"),
+                    lestim.PauliString("+Z_"),
+                    lestim.PauliString("+ZZ"),
                 ],
             )
-            >>> tableau == deltakit_stim.Tableau.from_named_gate("CNOT")
+            >>> tableau == lestim.Tableau.from_named_gate("CNOT")
             True
 
-            >>> deltakit_stim.Tableau.from_numpy(
+            >>> lestim.Tableau.from_numpy(
             ...     x2x=np.array([[9], [5], [7], [6]], dtype=np.uint8),
             ...     x2z=np.array([[13], [13], [0], [3]], dtype=np.uint8),
             ...     z2x=np.array([[8], [5], [9], [15]], dtype=np.uint8),
@@ -10687,32 +8194,32 @@ class Tableau:
             ...     x_signs=np.array([7], dtype=np.uint8),
             ...     z_signs=np.array([9], dtype=np.uint8),
             ... )
-            deltakit_stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    deltakit_stim.PauliString("-Y_ZY"),
-                    deltakit_stim.PauliString("-Y_YZ"),
-                    deltakit_stim.PauliString("-XXX_"),
-                    deltakit_stim.PauliString("+ZYX_"),
+                    lestim.PauliString("-Y_ZY"),
+                    lestim.PauliString("-Y_YZ"),
+                    lestim.PauliString("-XXX_"),
+                    lestim.PauliString("+ZYX_"),
                 ],
                 zs=[
-                    deltakit_stim.PauliString("-_ZZX"),
-                    deltakit_stim.PauliString("+YZXZ"),
-                    deltakit_stim.PauliString("+XZ_X"),
-                    deltakit_stim.PauliString("-YYXX"),
+                    lestim.PauliString("-_ZZX"),
+                    lestim.PauliString("+YZXZ"),
+                    lestim.PauliString("+XZ_X"),
+                    lestim.PauliString("-YYXX"),
                 ],
             )
         """
     @staticmethod
     def from_stabilizers(
-        stabilizers: Iterable[deltakit_stim.PauliString],
+        stabilizers: Iterable[stim.PauliString],
         *,
         allow_redundant: bool = False,
         allow_underconstrained: bool = False,
-    ) -> deltakit_stim.Tableau:
+    ) -> lestim.Tableau:
         """Creates a tableau representing a state with the given stabilizers.
 
         Args:
-            stabilizers: A list of `deltakit_stim.PauliString`s specifying the stabilizers that
+            stabilizers: A list of `lestim.PauliString`s specifying the stabilizers that
                 the state must have. It is permitted for stabilizers to have different
                 lengths. All stabilizers are padded up to the length of the longest
                 stabilizer by appending identity terms.
@@ -10750,38 +8257,38 @@ class Tableau:
 
         Examples:
 
-            >>> import deltakit_stim
-            >>> deltakit_stim.Tableau.from_stabilizers([
-            ...     deltakit_stim.PauliString("XX"),
-            ...     deltakit_stim.PauliString("ZZ"),
+            >>> import lestim
+            >>> lestim.Tableau.from_stabilizers([
+            ...     lestim.PauliString("XX"),
+            ...     lestim.PauliString("ZZ"),
             ... ])
-            deltakit_stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    deltakit_stim.PauliString("+Z_"),
-                    deltakit_stim.PauliString("+_X"),
+                    lestim.PauliString("+Z_"),
+                    lestim.PauliString("+_X"),
                 ],
                 zs=[
-                    deltakit_stim.PauliString("+XX"),
-                    deltakit_stim.PauliString("+ZZ"),
+                    lestim.PauliString("+XX"),
+                    lestim.PauliString("+ZZ"),
                 ],
             )
 
-            >>> deltakit_stim.Tableau.from_stabilizers([
-            ...     deltakit_stim.PauliString("XX_"),
-            ...     deltakit_stim.PauliString("ZZ_"),
-            ...     deltakit_stim.PauliString("-YY_"),
-            ...     deltakit_stim.PauliString(""),
+            >>> lestim.Tableau.from_stabilizers([
+            ...     lestim.PauliString("XX_"),
+            ...     lestim.PauliString("ZZ_"),
+            ...     lestim.PauliString("-YY_"),
+            ...     lestim.PauliString(""),
             ... ], allow_underconstrained=True, allow_redundant=True)
-            deltakit_stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    deltakit_stim.PauliString("+Z__"),
-                    deltakit_stim.PauliString("+_X_"),
-                    deltakit_stim.PauliString("+__X"),
+                    lestim.PauliString("+Z__"),
+                    lestim.PauliString("+_X_"),
+                    lestim.PauliString("+__X"),
                 ],
                 zs=[
-                    deltakit_stim.PauliString("+XX_"),
-                    deltakit_stim.PauliString("+ZZ_"),
-                    deltakit_stim.PauliString("+__Z"),
+                    lestim.PauliString("+XX_"),
+                    lestim.PauliString("+ZZ_"),
+                    lestim.PauliString("+__Z"),
                 ],
             )
         """
@@ -10789,14 +8296,14 @@ class Tableau:
     def from_state_vector(
         state_vector: Iterable[float],
         *,
-        endian: Literal["little", "big"],
-    ) -> deltakit_stim.Tableau:
+        endian: str,
+    ) -> lestim.Tableau:
         """Creates a tableau representing the stabilizer state of the given state vector.
 
         Args:
             state_vector: A list of complex amplitudes specifying a superposition. The
                 vector must correspond to a state that is reachable using Clifford
-                operations, and can be unnormalized.
+                operations, and must be normalized (i.e. it must be a unit vector).
             endian:
                 "little": state vector is in little endian order, where higher index
                     qubits correspond to larger changes in the state index.
@@ -10816,33 +8323,33 @@ class Tableau:
 
         Examples:
 
-            >>> import deltakit_stim
-            >>> deltakit_stim.Tableau.from_state_vector([
+            >>> import lestim
+            >>> lestim.Tableau.from_state_vector([
             ...     0.5**0.5,
             ...     0.5**0.5 * 1j,
             ... ], endian='little')
-            deltakit_stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    deltakit_stim.PauliString("+Z"),
+                    lestim.PauliString("+Z"),
                 ],
                 zs=[
-                    deltakit_stim.PauliString("+Y"),
+                    lestim.PauliString("+Y"),
                 ],
             )
-            >>> deltakit_stim.Tableau.from_state_vector([
+            >>> lestim.Tableau.from_state_vector([
             ...     0.5**0.5,
             ...     0,
             ...     0,
             ...     0.5**0.5,
             ... ], endian='little')
-            deltakit_stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    deltakit_stim.PauliString("+Z_"),
-                    deltakit_stim.PauliString("+_X"),
+                    lestim.PauliString("+Z_"),
+                    lestim.PauliString("+_X"),
                 ],
                 zs=[
-                    deltakit_stim.PauliString("+XX"),
-                    deltakit_stim.PauliString("+ZZ"),
+                    lestim.PauliString("+XX"),
+                    lestim.PauliString("+ZZ"),
                 ],
             )
         """
@@ -10850,8 +8357,8 @@ class Tableau:
     def from_unitary_matrix(
         matrix: Iterable[Iterable[float]],
         *,
-        endian: Literal["little", "big"] = 'little',
-    ) -> deltakit_stim.Tableau:
+        endian: str = 'little',
+    ) -> lestim.Tableau:
         """Creates a tableau from the unitary matrix of a Clifford operation.
 
         Args:
@@ -10871,34 +8378,34 @@ class Tableau:
                 operation.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.Tableau.from_unitary_matrix([
+            >>> import lestim
+            >>> lestim.Tableau.from_unitary_matrix([
             ...     [1, 0],
             ...     [0, 1j],
             ... ], endian='little')
-            deltakit_stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    deltakit_stim.PauliString("+Y"),
+                    lestim.PauliString("+Y"),
                 ],
                 zs=[
-                    deltakit_stim.PauliString("+Z"),
+                    lestim.PauliString("+Z"),
                 ],
             )
 
-            >>> deltakit_stim.Tableau.from_unitary_matrix([
+            >>> lestim.Tableau.from_unitary_matrix([
             ...     [1, 0, 0, 0],
             ...     [0, 1, 0, 0],
             ...     [0, 0, 0, -1j],
             ...     [0, 0, 1j, 0],
             ... ], endian='little')
-            deltakit_stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    deltakit_stim.PauliString("+XZ"),
-                    deltakit_stim.PauliString("+YX"),
+                    lestim.PauliString("+XZ"),
+                    lestim.PauliString("+YX"),
                 ],
                 zs=[
-                    deltakit_stim.PauliString("+ZZ"),
-                    deltakit_stim.PauliString("+_Z"),
+                    lestim.PauliString("+ZZ"),
+                    lestim.PauliString("+_Z"),
                 ],
             )
         """
@@ -10906,7 +8413,7 @@ class Tableau:
         self,
         *,
         unsigned: bool = False,
-    ) -> deltakit_stim.Tableau:
+    ) -> lestim.Tableau:
         """Computes the inverse of the tableau.
 
         The inverse T^-1 of a tableau T is the unique tableau with the property that
@@ -10924,35 +8431,35 @@ class Tableau:
             The inverse tableau.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
             >>> # Check that the inverse agrees with hard-coded tableaus.
-            >>> s = deltakit_stim.Tableau.from_named_gate("S")
-            >>> s_dag = deltakit_stim.Tableau.from_named_gate("S_DAG")
+            >>> s = lestim.Tableau.from_named_gate("S")
+            >>> s_dag = lestim.Tableau.from_named_gate("S_DAG")
             >>> s.inverse() == s_dag
             True
-            >>> z = deltakit_stim.Tableau.from_named_gate("Z")
+            >>> z = lestim.Tableau.from_named_gate("Z")
             >>> z.inverse() == z
             True
 
             >>> # Check that multiplying by the inverse produces the identity.
-            >>> t = deltakit_stim.Tableau.random(10)
+            >>> t = lestim.Tableau.random(10)
             >>> t_inv = t.inverse()
-            >>> identity = deltakit_stim.Tableau(10)
+            >>> identity = lestim.Tableau(10)
             >>> t * t_inv == t_inv * t == identity
             True
 
             >>> # Check a manual case.
-            >>> t = deltakit_stim.Tableau.from_conjugated_generators(
+            >>> t = lestim.Tableau.from_conjugated_generators(
             ...     xs=[
-            ...         deltakit_stim.PauliString("-__Z"),
-            ...         deltakit_stim.PauliString("+XZ_"),
-            ...         deltakit_stim.PauliString("+_ZZ"),
+            ...         lestim.PauliString("-__Z"),
+            ...         lestim.PauliString("+XZ_"),
+            ...         lestim.PauliString("+_ZZ"),
             ...     ],
             ...     zs=[
-            ...         deltakit_stim.PauliString("-YYY"),
-            ...         deltakit_stim.PauliString("+Z_Z"),
-            ...         deltakit_stim.PauliString("-ZYZ")
+            ...         lestim.PauliString("-YYY"),
+            ...         lestim.PauliString("+Z_Z"),
+            ...         lestim.PauliString("-ZYZ")
             ...     ],
             ... )
             >>> print(t.inverse())
@@ -10973,7 +8480,7 @@ class Tableau:
         input_index: int,
         *,
         unsigned: bool = False,
-    ) -> deltakit_stim.PauliString:
+    ) -> lestim.PauliString:
         """Conjugates a single-qubit X Pauli generator by the inverse of the tableau.
 
         A faster version of `tableau.inverse(unsigned).x_output(input_index)`.
@@ -10991,10 +8498,10 @@ class Tableau:
             The result of conjugating an X generator by the inverse of the tableau.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
             # Check equivalence with the inverse's x_output.
-            >>> t = deltakit_stim.Tableau.random(4)
+            >>> t = lestim.Tableau.random(4)
             >>> expected = t.inverse().x_output(0)
             >>> t.inverse_x_output(0) == expected
             True
@@ -11023,11 +8530,11 @@ class Tableau:
                 3: Z
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> t_inv = deltakit_stim.Tableau.from_conjugated_generators(
-            ...     xs=[deltakit_stim.PauliString("-Y_"), deltakit_stim.PauliString("+YZ")],
-            ...     zs=[deltakit_stim.PauliString("-ZY"), deltakit_stim.PauliString("+YX")],
+            >>> t_inv = lestim.Tableau.from_conjugated_generators(
+            ...     xs=[lestim.PauliString("-Y_"), lestim.PauliString("+YZ")],
+            ...     zs=[lestim.PauliString("-ZY"), lestim.PauliString("+YX")],
             ... ).inverse()
             >>> t_inv.inverse_x_output_pauli(0, 0)
             2
@@ -11043,7 +8550,7 @@ class Tableau:
         input_index: int,
         *,
         unsigned: bool = False,
-    ) -> deltakit_stim.PauliString:
+    ) -> lestim.PauliString:
         """Conjugates a single-qubit Y Pauli generator by the inverse of the tableau.
 
         A faster version of `tableau.inverse(unsigned).y_output(input_index)`.
@@ -11061,10 +8568,10 @@ class Tableau:
             The result of conjugating a Y generator by the inverse of the tableau.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
             # Check equivalence with the inverse's y_output.
-            >>> t = deltakit_stim.Tableau.random(4)
+            >>> t = lestim.Tableau.random(4)
             >>> expected = t.inverse().y_output(0)
             >>> t.inverse_y_output(0) == expected
             True
@@ -11093,11 +8600,11 @@ class Tableau:
                 3: Z
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> t_inv = deltakit_stim.Tableau.from_conjugated_generators(
-            ...     xs=[deltakit_stim.PauliString("-Y_"), deltakit_stim.PauliString("+YZ")],
-            ...     zs=[deltakit_stim.PauliString("-ZY"), deltakit_stim.PauliString("+YX")],
+            >>> t_inv = lestim.Tableau.from_conjugated_generators(
+            ...     xs=[lestim.PauliString("-Y_"), lestim.PauliString("+YZ")],
+            ...     zs=[lestim.PauliString("-ZY"), lestim.PauliString("+YX")],
             ... ).inverse()
             >>> t_inv.inverse_y_output_pauli(0, 0)
             1
@@ -11113,7 +8620,7 @@ class Tableau:
         input_index: int,
         *,
         unsigned: bool = False,
-    ) -> deltakit_stim.PauliString:
+    ) -> lestim.PauliString:
         """Conjugates a single-qubit Z Pauli generator by the inverse of the tableau.
 
         A faster version of `tableau.inverse(unsigned).z_output(input_index)`.
@@ -11131,12 +8638,12 @@ class Tableau:
             The result of conjugating a Z generator by the inverse of the tableau.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> import deltakit_stim
+            >>> import lestim
 
             # Check equivalence with the inverse's z_output.
-            >>> t = deltakit_stim.Tableau.random(4)
+            >>> t = lestim.Tableau.random(4)
             >>> expected = t.inverse().z_output(0)
             >>> t.inverse_z_output(0) == expected
             True
@@ -11165,11 +8672,11 @@ class Tableau:
                 3: Z
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> t_inv = deltakit_stim.Tableau.from_conjugated_generators(
-            ...     xs=[deltakit_stim.PauliString("-Y_"), deltakit_stim.PauliString("+YZ")],
-            ...     zs=[deltakit_stim.PauliString("-ZY"), deltakit_stim.PauliString("+YX")],
+            >>> t_inv = lestim.Tableau.from_conjugated_generators(
+            ...     xs=[lestim.PauliString("-Y_"), lestim.PauliString("+YZ")],
+            ...     zs=[lestim.PauliString("-ZY"), lestim.PauliString("+YX")],
             ... ).inverse()
             >>> t_inv.inverse_z_output_pauli(0, 0)
             3
@@ -11185,7 +8692,7 @@ class Tableau:
         num_qubits: int,
         *,
         unsigned: bool = False,
-    ) -> deltakit_stim.TableauIterator:
+    ) -> lestim.TableauIterator:
         """Returns an iterator that iterates over all Tableaus of a given size.
 
         Args:
@@ -11196,25 +8703,25 @@ class Tableau:
                 iterate over.
 
         Returns:
-            An Iterable[deltakit_stim.Tableau] that yields the requested tableaus.
+            An Iterable[lestim.Tableau] that yields the requested tableaus.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
             >>> single_qubit_gate_reprs = set()
-            >>> for t in deltakit_stim.Tableau.iter_all(1):
+            >>> for t in lestim.Tableau.iter_all(1):
             ...     single_qubit_gate_reprs.add(repr(t))
             >>> len(single_qubit_gate_reprs)
             24
 
             >>> num_2q_gates_mod_paulis = 0
-            >>> for _ in deltakit_stim.Tableau.iter_all(2, unsigned=True):
+            >>> for _ in lestim.Tableau.iter_all(2, unsigned=True):
             ...     num_2q_gates_mod_paulis += 1
             >>> num_2q_gates_mod_paulis
             720
         """
     def prepend(
         self,
-        gate: deltakit_stim.Tableau,
+        gate: lestim.Tableau,
         targets: Sequence[int],
     ) -> None:
         """Prepends an operation's effect into this tableau, mutating this tableau.
@@ -11226,16 +8733,16 @@ class Tableau:
             targets: The qubits being targeted by the gate.
 
         Examples:
-            >>> import deltakit_stim
-            >>> t = deltakit_stim.Tableau.from_named_gate("H")
-            >>> t.prepend(deltakit_stim.Tableau.from_named_gate("X"), [0])
-            >>> t == deltakit_stim.Tableau.from_named_gate("SQRT_Y_DAG")
+            >>> import lestim
+            >>> t = lestim.Tableau.from_named_gate("H")
+            >>> t.prepend(lestim.Tableau.from_named_gate("X"), [0])
+            >>> t == lestim.Tableau.from_named_gate("SQRT_Y_DAG")
             True
         """
     @staticmethod
     def random(
         num_qubits: int,
-    ) -> deltakit_stim.Tableau:
+    ) -> lestim.Tableau:
         """Samples a uniformly random Clifford operation and returns its tableau.
 
         Args:
@@ -11245,8 +8752,8 @@ class Tableau:
             The sampled tableau.
 
         Examples:
-            >>> import deltakit_stim
-            >>> t = deltakit_stim.Tableau.random(42)
+            >>> import lestim
+            >>> t = lestim.Tableau.random(42)
 
         References:
             "Hadamard-free circuits expose the structure of the Clifford group"
@@ -11255,8 +8762,8 @@ class Tableau:
         """
     def then(
         self,
-        second: deltakit_stim.Tableau,
-    ) -> deltakit_stim.Tableau:
+        second: lestim.Tableau,
+    ) -> lestim.Tableau:
         """Returns the result of composing two tableaus.
 
         If the tableau T1 represents the Clifford operation with unitary C1,
@@ -11269,18 +8776,18 @@ class Tableau:
                 the receiving tableau.
 
         Examples:
-            >>> import deltakit_stim
-            >>> t1 = deltakit_stim.Tableau.random(4)
-            >>> t2 = deltakit_stim.Tableau.random(4)
+            >>> import lestim
+            >>> t1 = lestim.Tableau.random(4)
+            >>> t2 = lestim.Tableau.random(4)
             >>> t3 = t1.then(t2)
-            >>> p = deltakit_stim.PauliString.random(4)
+            >>> p = lestim.PauliString.random(4)
             >>> t3(p) == t2(t1(p))
             True
         """
     def to_circuit(
         self,
-        method: Literal["elimination", "graph_state"] = 'elimination',
-    ) -> deltakit_stim.Circuit:
+        method: 'Literal["elimination", "graph_state"]' = 'elimination',
+    ) -> lestim.Circuit:
         """Synthesizes a circuit that implements the tableau's Clifford operation.
 
         The circuits returned by this method are not guaranteed to be stable
@@ -11338,24 +8845,24 @@ class Tableau:
             The synthesized circuit.
 
         Example:
-            >>> import deltakit_stim
-            >>> tableau = deltakit_stim.Tableau.from_conjugated_generators(
+            >>> import lestim
+            >>> tableau = lestim.Tableau.from_conjugated_generators(
             ...     xs=[
-            ...         deltakit_stim.PauliString("+YZ__"),
-            ...         deltakit_stim.PauliString("-Y_XY"),
-            ...         deltakit_stim.PauliString("+___Y"),
-            ...         deltakit_stim.PauliString("+YZX_"),
+            ...         lestim.PauliString("+YZ__"),
+            ...         lestim.PauliString("-Y_XY"),
+            ...         lestim.PauliString("+___Y"),
+            ...         lestim.PauliString("+YZX_"),
             ...     ],
             ...     zs=[
-            ...         deltakit_stim.PauliString("+XZYY"),
-            ...         deltakit_stim.PauliString("-XYX_"),
-            ...         deltakit_stim.PauliString("-ZXXZ"),
-            ...         deltakit_stim.PauliString("+XXZ_"),
+            ...         lestim.PauliString("+XZYY"),
+            ...         lestim.PauliString("-XYX_"),
+            ...         lestim.PauliString("-ZXXZ"),
+            ...         lestim.PauliString("+XXZ_"),
             ...     ],
             ... )
 
             >>> tableau.to_circuit()
-            deltakit_stim.Circuit('''
+            lestim.Circuit('''
                 S 0
                 H 0 1 3
                 CX 0 1 0 2 0 3
@@ -11377,7 +8884,7 @@ class Tableau:
             ''')
 
             >>> tableau.to_circuit("graph_state")
-            deltakit_stim.Circuit('''
+            lestim.Circuit('''
                 RX 0 1 2 3
                 TICK
                 CZ 0 3 1 2 1 3
@@ -11390,12 +8897,12 @@ class Tableau:
             ''')
 
             >>> tableau.to_circuit("mpp_state_unsigned")
-            deltakit_stim.Circuit('''
+            lestim.Circuit('''
                 MPP X0*Z1*Y2*Y3 !X0*Y1*X2 !Z0*X1*X2*Z3 X0*X1*Z2
             ''')
 
             >>> tableau.to_circuit("mpp_state")
-            deltakit_stim.Circuit('''
+            lestim.Circuit('''
                 MPP X0*Z1*Y2*Y3 !X0*Y1*X2 !Z0*X1*X2*Z3 X0*X1*Z2
                 CX rec[-3] 2 rec[-1] 2
                 CY rec[-4] 0 rec[-3] 0 rec[-3] 3 rec[-2] 3 rec[-1] 0
@@ -11466,17 +8973,17 @@ class Tableau:
                 (z2z[i, j // 8] >> (j % 8)) & 1 = tableau.z_output_pauli(i, j) in [2, 3]
 
         Examples:
-            >>> import deltakit_stim
-            >>> cnot = deltakit_stim.Tableau.from_named_gate("CNOT")
+            >>> import lestim
+            >>> cnot = lestim.Tableau.from_named_gate("CNOT")
             >>> print(repr(cnot))
-            deltakit_stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    deltakit_stim.PauliString("+XX"),
-                    deltakit_stim.PauliString("+_X"),
+                    lestim.PauliString("+XX"),
+                    lestim.PauliString("+_X"),
                 ],
                 zs=[
-                    deltakit_stim.PauliString("+Z_"),
-                    deltakit_stim.PauliString("+ZZ"),
+                    lestim.PauliString("+Z_"),
+                    lestim.PauliString("+ZZ"),
                 ],
             )
             >>> x2x, x2z, z2x, z2z, x_signs, z_signs = cnot.to_numpy()
@@ -11497,18 +9004,18 @@ class Tableau:
             >>> z_signs
             array([False, False])
 
-            >>> t = deltakit_stim.Tableau.from_conjugated_generators(
+            >>> t = lestim.Tableau.from_conjugated_generators(
             ...     xs=[
-            ...         deltakit_stim.PauliString("-Y_ZY"),
-            ...         deltakit_stim.PauliString("-Y_YZ"),
-            ...         deltakit_stim.PauliString("-XXX_"),
-            ...         deltakit_stim.PauliString("+ZYX_"),
+            ...         lestim.PauliString("-Y_ZY"),
+            ...         lestim.PauliString("-Y_YZ"),
+            ...         lestim.PauliString("-XXX_"),
+            ...         lestim.PauliString("+ZYX_"),
             ...     ],
             ...     zs=[
-            ...         deltakit_stim.PauliString("-_ZZX"),
-            ...         deltakit_stim.PauliString("+YZXZ"),
-            ...         deltakit_stim.PauliString("+XZ_X"),
-            ...         deltakit_stim.PauliString("-YYXX"),
+            ...         lestim.PauliString("-_ZZX"),
+            ...         lestim.PauliString("+YZXZ"),
+            ...         lestim.PauliString("+XZ_X"),
+            ...         lestim.PauliString("-YYXX"),
             ...     ],
             ... )
 
@@ -11566,7 +9073,7 @@ class Tableau:
         """
     def to_pauli_string(
         self,
-    ) -> deltakit_stim.PauliString:
+    ) -> lestim.PauliString:
         """Return a Pauli string equivalent to the tableau.
 
         If the tableau is equivalent to a pauli product, creates
@@ -11579,11 +9086,11 @@ class Tableau:
             ValueError: The Tableau isn't equivalent to a Pauli product.
 
         Example:
-            >>> import deltakit_stim
-            >>> t = (deltakit_stim.Tableau.from_named_gate("Z") +
-            ...      deltakit_stim.Tableau.from_named_gate("Y") +
-            ...      deltakit_stim.Tableau.from_named_gate("I") +
-            ...      deltakit_stim.Tableau.from_named_gate("X"))
+            >>> import lestim
+            >>> t = (lestim.Tableau.from_named_gate("Z") +
+            ...      lestim.Tableau.from_named_gate("Y") +
+            ...      lestim.Tableau.from_named_gate("I") +
+            ...      lestim.Tableau.from_named_gate("X"))
             >>> print(t)
             +-xz-xz-xz-xz-
             | -+ -- ++ +-
@@ -11598,7 +9105,7 @@ class Tableau:
         self,
         *,
         canonicalize: bool = False,
-    ) -> List[deltakit_stim.PauliString]:
+    ) -> List[lestim.PauliString]:
         """Returns the stabilizer generators of the tableau, optionally canonicalized.
 
         The stabilizer generators of the tableau are its Z outputs. Canonicalizing
@@ -11625,28 +9132,28 @@ class Tableau:
                 form if and only if they describe equivalent quantum states.
 
         Returns:
-            A List[deltakit_stim.PauliString] of the tableau's stabilizer generators.
+            A List[lestim.PauliString] of the tableau's stabilizer generators.
 
         Examples:
-            >>> import deltakit_stim
-            >>> t = deltakit_stim.Tableau.from_named_gate("CNOT")
+            >>> import lestim
+            >>> t = lestim.Tableau.from_named_gate("CNOT")
 
             >>> raw_stabilizers = t.to_stabilizers()
             >>> for e in raw_stabilizers:
             ...     print(repr(e))
-            deltakit_stim.PauliString("+Z_")
-            deltakit_stim.PauliString("+ZZ")
+            lestim.PauliString("+Z_")
+            lestim.PauliString("+ZZ")
 
             >>> canonical_stabilizers = t.to_stabilizers(canonicalize=True)
             >>> for e in canonical_stabilizers:
             ...     print(repr(e))
-            deltakit_stim.PauliString("+Z_")
-            deltakit_stim.PauliString("+_Z")
+            lestim.PauliString("+Z_")
+            lestim.PauliString("+_Z")
         """
     def to_state_vector(
         self,
         *,
-        endian: Literal["little", "big"] = 'little',
+        endian: str = 'little',
     ) -> np.ndarray[np.complex64]:
         """Returns the state vector produced by applying the tableau to the |0..0> state.
 
@@ -11677,11 +9184,11 @@ class Tableau:
             b_{n-1}, the qubit with index 1 is storing the bit b_{n-2}, etc.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
             >>> import numpy as np
-            >>> i2 = deltakit_stim.Tableau.from_named_gate('I')
-            >>> x = deltakit_stim.Tableau.from_named_gate('X')
-            >>> h = deltakit_stim.Tableau.from_named_gate('H')
+            >>> i2 = lestim.Tableau.from_named_gate('I')
+            >>> x = lestim.Tableau.from_named_gate('X')
+            >>> h = lestim.Tableau.from_named_gate('H')
 
             >>> (x + i2).to_state_vector(endian='little')
             array([0.+0.j, 1.+0.j, 0.+0.j, 0.+0.j], dtype=complex64)
@@ -11698,7 +9205,7 @@ class Tableau:
     def to_unitary_matrix(
         self,
         *,
-        endian: Literal["little", "big"],
+        endian: str,
     ) -> np.ndarray[np.complex64]:
         """Converts the tableau into a unitary matrix.
 
@@ -11723,15 +9230,15 @@ class Tableau:
             shape=(1 << len(tableau), 1 << len(tableau)).
 
         Example:
-            >>> import deltakit_stim
-            >>> cnot = deltakit_stim.Tableau.from_conjugated_generators(
+            >>> import lestim
+            >>> cnot = lestim.Tableau.from_conjugated_generators(
             ...     xs=[
-            ...         deltakit_stim.PauliString("XX"),
-            ...         deltakit_stim.PauliString("_X"),
+            ...         lestim.PauliString("XX"),
+            ...         lestim.PauliString("_X"),
             ...     ],
             ...     zs=[
-            ...         deltakit_stim.PauliString("Z_"),
-            ...         deltakit_stim.PauliString("ZZ"),
+            ...         lestim.PauliString("Z_"),
+            ...         lestim.PauliString("ZZ"),
             ...     ],
             ... )
             >>> cnot.to_unitary_matrix(endian='big')
@@ -11743,23 +9250,23 @@ class Tableau:
     def x_output(
         self,
         target: int,
-    ) -> deltakit_stim.PauliString:
+    ) -> lestim.PauliString:
         """Returns the result of conjugating a Pauli X by the tableau's Clifford operation.
 
         Args:
             target: The qubit targeted by the Pauli X operation.
 
         Examples:
-            >>> import deltakit_stim
-            >>> h = deltakit_stim.Tableau.from_named_gate("H")
+            >>> import lestim
+            >>> h = lestim.Tableau.from_named_gate("H")
             >>> h.x_output(0)
-            deltakit_stim.PauliString("+Z")
+            lestim.PauliString("+Z")
 
-            >>> cnot = deltakit_stim.Tableau.from_named_gate("CNOT")
+            >>> cnot = lestim.Tableau.from_named_gate("CNOT")
             >>> cnot.x_output(0)
-            deltakit_stim.PauliString("+XX")
+            lestim.PauliString("+XX")
             >>> cnot.x_output(1)
-            deltakit_stim.PauliString("+_X")
+            lestim.PauliString("+_X")
         """
     def x_output_pauli(
         self,
@@ -11782,11 +9289,11 @@ class Tableau:
                 3: Z
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> t = deltakit_stim.Tableau.from_conjugated_generators(
-            ...     xs=[deltakit_stim.PauliString("-Y_"), deltakit_stim.PauliString("+YZ")],
-            ...     zs=[deltakit_stim.PauliString("-ZY"), deltakit_stim.PauliString("+YX")],
+            >>> t = lestim.Tableau.from_conjugated_generators(
+            ...     xs=[lestim.PauliString("-Y_"), lestim.PauliString("+YZ")],
+            ...     zs=[lestim.PauliString("-ZY"), lestim.PauliString("+YX")],
             ... )
             >>> t.x_output_pauli(0, 0)
             2
@@ -11809,32 +9316,32 @@ class Tableau:
             target: The qubit the X generator applies to.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.Tableau.from_named_gate("S_DAG").x_sign(0)
+            >>> import lestim
+            >>> lestim.Tableau.from_named_gate("S_DAG").x_sign(0)
             -1
-            >>> deltakit_stim.Tableau.from_named_gate("S").x_sign(0)
+            >>> lestim.Tableau.from_named_gate("S").x_sign(0)
             1
         """
     def y_output(
         self,
         target: int,
-    ) -> deltakit_stim.PauliString:
+    ) -> lestim.PauliString:
         """Returns the result of conjugating a Pauli Y by the tableau's Clifford operation.
 
         Args:
             target: The qubit targeted by the Pauli Y operation.
 
         Examples:
-            >>> import deltakit_stim
-            >>> h = deltakit_stim.Tableau.from_named_gate("H")
+            >>> import lestim
+            >>> h = lestim.Tableau.from_named_gate("H")
             >>> h.y_output(0)
-            deltakit_stim.PauliString("-Y")
+            lestim.PauliString("-Y")
 
-            >>> cnot = deltakit_stim.Tableau.from_named_gate("CNOT")
+            >>> cnot = lestim.Tableau.from_named_gate("CNOT")
             >>> cnot.y_output(0)
-            deltakit_stim.PauliString("+YX")
+            lestim.PauliString("+YX")
             >>> cnot.y_output(1)
-            deltakit_stim.PauliString("+ZY")
+            lestim.PauliString("+ZY")
         """
     def y_output_pauli(
         self,
@@ -11857,11 +9364,11 @@ class Tableau:
                 3: Z
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> t = deltakit_stim.Tableau.from_conjugated_generators(
-            ...     xs=[deltakit_stim.PauliString("-Y_"), deltakit_stim.PauliString("+YZ")],
-            ...     zs=[deltakit_stim.PauliString("-ZY"), deltakit_stim.PauliString("+YX")],
+            >>> t = lestim.Tableau.from_conjugated_generators(
+            ...     xs=[lestim.PauliString("-Y_"), lestim.PauliString("+YZ")],
+            ...     zs=[lestim.PauliString("-ZY"), lestim.PauliString("+YX")],
             ... )
             >>> t.y_output_pauli(0, 0)
             1
@@ -11886,32 +9393,32 @@ class Tableau:
             target: The qubit the Y generator applies to.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.Tableau.from_named_gate("S_DAG").y_sign(0)
+            >>> import lestim
+            >>> lestim.Tableau.from_named_gate("S_DAG").y_sign(0)
             1
-            >>> deltakit_stim.Tableau.from_named_gate("S").y_sign(0)
+            >>> lestim.Tableau.from_named_gate("S").y_sign(0)
             -1
         """
     def z_output(
         self,
         target: int,
-    ) -> deltakit_stim.PauliString:
+    ) -> lestim.PauliString:
         """Returns the result of conjugating a Pauli Z by the tableau's Clifford operation.
 
         Args:
             target: The qubit targeted by the Pauli Z operation.
 
         Examples:
-            >>> import deltakit_stim
-            >>> h = deltakit_stim.Tableau.from_named_gate("H")
+            >>> import lestim
+            >>> h = lestim.Tableau.from_named_gate("H")
             >>> h.z_output(0)
-            deltakit_stim.PauliString("+X")
+            lestim.PauliString("+X")
 
-            >>> cnot = deltakit_stim.Tableau.from_named_gate("CNOT")
+            >>> cnot = lestim.Tableau.from_named_gate("CNOT")
             >>> cnot.z_output(0)
-            deltakit_stim.PauliString("+Z_")
+            lestim.PauliString("+Z_")
             >>> cnot.z_output(1)
-            deltakit_stim.PauliString("+ZZ")
+            lestim.PauliString("+ZZ")
         """
     def z_output_pauli(
         self,
@@ -11934,11 +9441,11 @@ class Tableau:
                 3: Z
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> t = deltakit_stim.Tableau.from_conjugated_generators(
-            ...     xs=[deltakit_stim.PauliString("-Y_"), deltakit_stim.PauliString("+YZ")],
-            ...     zs=[deltakit_stim.PauliString("-ZY"), deltakit_stim.PauliString("+YX")],
+            >>> t = lestim.Tableau.from_conjugated_generators(
+            ...     xs=[lestim.PauliString("-Y_"), lestim.PauliString("+YZ")],
+            ...     zs=[lestim.PauliString("-ZY"), lestim.PauliString("+YX")],
             ... )
             >>> t.z_output_pauli(0, 0)
             3
@@ -11961,18 +9468,18 @@ class Tableau:
             target: The qubit the Z generator applies to.
 
         Examples:
-            >>> import deltakit_stim
-            >>> deltakit_stim.Tableau.from_named_gate("SQRT_X_DAG").z_sign(0)
+            >>> import lestim
+            >>> lestim.Tableau.from_named_gate("SQRT_X_DAG").z_sign(0)
             1
-            >>> deltakit_stim.Tableau.from_named_gate("SQRT_X").z_sign(0)
+            >>> lestim.Tableau.from_named_gate("SQRT_X").z_sign(0)
             -1
         """
 class TableauIterator:
     """Iterates over all stabilizer tableaus of a specified size.
 
     Examples:
-        >>> import deltakit_stim
-        >>> tableau_iterator = deltakit_stim.Tableau.iter_all(1)
+        >>> import lestim
+        >>> tableau_iterator = lestim.Tableau.iter_all(1)
         >>> n = 0
         >>> for single_qubit_clifford in tableau_iterator:
         ...     n += 1
@@ -11981,7 +9488,7 @@ class TableauIterator:
     """
     def __iter__(
         self,
-    ) -> deltakit_stim.TableauIterator:
+    ) -> lestim.TableauIterator:
         """Returns an independent copy of the tableau iterator.
 
         Since for-loops and loop-comprehensions call `iter` on things they
@@ -11990,7 +9497,7 @@ class TableauIterator:
         """
     def __next__(
         self,
-    ) -> deltakit_stim.Tableau:
+    ) -> lestim.Tableau:
         """Returns the next iterated tableau.
         """
 class TableauSimulator:
@@ -11999,8 +9506,8 @@ class TableauSimulator:
     Supports interactive usage, where gates and measurements are applied on demand.
 
     Examples:
-        >>> import deltakit_stim
-        >>> s = deltakit_stim.TableauSimulator()
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
         >>> s.h(0)
         >>> if s.measure(0):
         ...     s.h(1)
@@ -12008,18 +9515,18 @@ class TableauSimulator:
         >>> s.measure(1) == s.measure(2)
         True
 
-        >>> s = deltakit_stim.TableauSimulator()
+        >>> s = lestim.TableauSimulator()
         >>> s.h(0)
         >>> s.cnot(0, 1)
         >>> s.current_inverse_tableau()
-        deltakit_stim.Tableau.from_conjugated_generators(
+        lestim.Tableau.from_conjugated_generators(
             xs=[
-                deltakit_stim.PauliString("+ZX"),
-                deltakit_stim.PauliString("+_X"),
+                lestim.PauliString("+ZX"),
+                lestim.PauliString("+_X"),
             ],
             zs=[
-                deltakit_stim.PauliString("+X_"),
-                deltakit_stim.PauliString("+XZ"),
+                lestim.PauliString("+X_"),
+                lestim.PauliString("+XZ"),
             ],
         )
     """
@@ -12028,7 +9535,7 @@ class TableauSimulator:
         *,
         seed: Optional[int] = None,
     ) -> None:
-        """Initializes a deltakit_stim.TableauSimulator.
+        """Initializes a lestim.TableauSimulator.
 
         Args:
             seed: PARTIALLY determines simulation results by deterministically seeding
@@ -12059,12 +9566,12 @@ class TableauSimulator:
                 seed.
 
         Returns:
-            An initialized deltakit_stim.TableauSimulator.
+            An initialized lestim.TableauSimulator.
 
         Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator(seed=0)
-            >>> s2 = deltakit_stim.TableauSimulator(seed=0)
+            >>> import lestim
+            >>> s = lestim.TableauSimulator(seed=0)
+            >>> s2 = lestim.TableauSimulator(seed=0)
             >>> s.h(0)
             >>> s2.h(0)
             >>> s.measure(0) == s2.measure(0)
@@ -12078,18 +9585,6 @@ class TableauSimulator:
 
         Args:
             *targets: The indices of the qubits to target with the gate.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
-            +X +Y +Z
-            >>> s.c_xyz(0, 1, 2)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
-            +Y +Z +X
         """
     def c_zyx(
         self,
@@ -12099,22 +9594,10 @@ class TableauSimulator:
 
         Args:
             *targets: The indices of the qubits to target with the gate.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
-            +X +Y +Z
-            >>> s.c_zyx(0, 1, 2)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
-            +Z +X +Y
         """
     def canonical_stabilizers(
         self,
-    ) -> List[deltakit_stim.PauliString]:
+    ) -> List[lestim.PauliString]:
         """Returns a standardized list of the simulator's current stabilizer generators.
 
         Two simulators have the same canonical stabilizers if and only if their current
@@ -12134,19 +9617,19 @@ class TableauSimulator:
                     then increment `next_output`.
 
         Returns:
-            A List[deltakit_stim.PauliString] of the simulator's state's stabilizers.
+            A List[lestim.PauliString] of the simulator's state's stabilizers.
 
         Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.h(0)
             >>> s.cnot(0, 1)
             >>> s.x(2)
             >>> for e in s.canonical_stabilizers():
             ...     print(repr(e))
-            deltakit_stim.PauliString("+XX_")
-            deltakit_stim.PauliString("+ZZ_")
-            deltakit_stim.PauliString("-__Z")
+            lestim.PauliString("+XX_")
+            lestim.PauliString("+ZZ_")
+            lestim.PauliString("-__Z")
 
             >>> # Scramble the stabilizers then check the canonical form is unchanged.
             >>> s.set_inverse_tableau(s.current_inverse_tableau()**-1)
@@ -12157,9 +9640,9 @@ class TableauSimulator:
             >>> s.set_inverse_tableau(s.current_inverse_tableau()**-1)
             >>> for e in s.canonical_stabilizers():
             ...     print(repr(e))
-            deltakit_stim.PauliString("+XX_")
-            deltakit_stim.PauliString("+ZZ_")
-            deltakit_stim.PauliString("-__Z")
+            lestim.PauliString("+XX_")
+            lestim.PauliString("+ZZ_")
+            lestim.PauliString("-__Z")
         """
     def cnot(
         self,
@@ -12171,25 +9654,13 @@ class TableauSimulator:
             *targets: The indices of the qubits to target with the gate.
                 Applies the gate to the first two targets, then the next two targets,
                 and so forth. There must be an even number of targets.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0, 3)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +X +Y +Z +X
-            >>> s.cnot(0, 1, 2, 3)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +_ +_ +Z +X
         """
     def copy(
         self,
         *,
         copy_rng: bool = False,
         seed: Optional[int] = None,
-    ) -> deltakit_stim.TableauSimulator:
+    ) -> lestim.TableauSimulator:
         """Returns a simulator with the same internal state, except perhaps its prng.
 
         Args:
@@ -12209,11 +9680,11 @@ class TableauSimulator:
                 copy_rng argument.
 
                 When set to an integer, making the exact same series calls on the exact
-                same machine with the exact same version of deltakit_stim will produce the exact
+                same machine with the exact same version of Lestim will produce the exact
                 same simulation results.
 
                 CAUTION: simulation results *WILL NOT* be consistent between versions of
-                deltakit_stim. This restriction is present to make it possible to have future
+                Lestim. This restriction is present to make it possible to have future
                 optimizations to the random sampling, and is enforced by introducing
                 intentional differences in the seeding strategy from version to version.
 
@@ -12229,23 +9700,23 @@ class TableauSimulator:
                 seed.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
 
-            >>> s1 = deltakit_stim.TableauSimulator()
-            >>> s1.set_inverse_tableau(deltakit_stim.Tableau.random(1))
+            >>> s1 = lestim.TableauSimulator()
+            >>> s1.set_inverse_tableau(lestim.Tableau.random(1))
             >>> s2 = s1.copy()
             >>> s2 is s1
             False
             >>> s2.current_inverse_tableau() == s1.current_inverse_tableau()
             True
 
-            >>> s1 = deltakit_stim.TableauSimulator()
+            >>> s1 = lestim.TableauSimulator()
             >>> s2 = s1.copy(copy_rng=True)
             >>> s1.h(0)
             >>> s2.h(0)
             >>> assert s1.measure(0) == s2.measure(0)
 
-            >>> s = deltakit_stim.TableauSimulator()
+            >>> s = lestim.TableauSimulator()
             >>> def brute_force_post_select(qubit, desired_result):
             ...     global s
             ...     while True:
@@ -12260,35 +9731,35 @@ class TableauSimulator:
         """
     def current_inverse_tableau(
         self,
-    ) -> deltakit_stim.Tableau:
-        """Returns a copy of the internal state of the simulator as a deltakit_stim.Tableau.
+    ) -> lestim.Tableau:
+        """Returns a copy of the internal state of the simulator as a lestim.Tableau.
 
         Returns:
-            A deltakit_stim.Tableau copy of the simulator's state.
+            A lestim.Tableau copy of the simulator's state.
 
         Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.h(0)
             >>> s.current_inverse_tableau()
-            deltakit_stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    deltakit_stim.PauliString("+Z"),
+                    lestim.PauliString("+Z"),
                 ],
                 zs=[
-                    deltakit_stim.PauliString("+X"),
+                    lestim.PauliString("+X"),
                 ],
             )
             >>> s.cnot(0, 1)
             >>> s.current_inverse_tableau()
-            deltakit_stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    deltakit_stim.PauliString("+ZX"),
-                    deltakit_stim.PauliString("+_X"),
+                    lestim.PauliString("+ZX"),
+                    lestim.PauliString("+_X"),
                 ],
                 zs=[
-                    deltakit_stim.PauliString("+X_"),
-                    deltakit_stim.PauliString("+XZ"),
+                    lestim.PauliString("+X_"),
+                    lestim.PauliString("+XZ"),
                 ],
             )
         """
@@ -12298,8 +9769,8 @@ class TableauSimulator:
         """Returns a copy of the record of all measurements performed by the simulator.
 
         Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.current_measurement_record()
             []
             >>> s.measure(0)
@@ -12309,7 +9780,7 @@ class TableauSimulator:
             True
             >>> s.current_measurement_record()
             [False, True]
-            >>> s.do(deltakit_stim.Circuit("M 0"))
+            >>> s.do(lestim.Circuit("M 0"))
             >>> s.current_measurement_record()
             [False, True, True]
 
@@ -12327,18 +9798,6 @@ class TableauSimulator:
             *targets: The indices of the qubits to target with the gate.
                 Applies the gate to the first two targets, then the next two targets,
                 and so forth. There must be an even number of targets.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0, 3)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +X +Y +Z +X
-            >>> s.cx(0, 1, 2, 3)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +_ +_ +Z +X
         """
     def cy(
         self,
@@ -12350,18 +9809,6 @@ class TableauSimulator:
             *targets: The indices of the qubits to target with the gate.
                 Applies the gate to the first two targets, then the next two targets,
                 and so forth. There must be an even number of targets.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0, 3)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +X +Y +Z +X
-            >>> s.cy(0, 1, 2, 3)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +X +Y +Z +X
         """
     def cz(
         self,
@@ -12373,18 +9820,6 @@ class TableauSimulator:
             *targets: The indices of the qubits to target with the gate.
                 Applies the gate to the first two targets, then the next two targets,
                 and so forth. There must be an even number of targets.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0, 3)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +X +Y +Z +X
-            >>> s.cz(0, 1, 2, 3)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +_ +_ +Z +X
         """
     def depolarize1(
         self,
@@ -12397,11 +9832,6 @@ class TableauSimulator:
             *targets: The indices of the qubits to target with the noise.
             p: The chance of the error being applied,
                 independently, to each qubit.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.depolarize1(0, 1, 2, p=0.01)
         """
     def depolarize2(
         self,
@@ -12416,51 +9846,46 @@ class TableauSimulator:
                 zip(targets[::1], targets[1::2]).
             p: The chance of the error being applied,
                 independently, to each qubit pair.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.depolarize1(0, 1, 4, 5, p=0.01)
         """
     def do(
         self,
-        circuit_or_pauli_string: Union[deltakit_stim.Circuit, deltakit_stim.PauliString, deltakit_stim.CircuitInstruction, deltakit_stim.CircuitRepeatBlock],
+        circuit_or_pauli_string: Union[lestim.Circuit, lestim.PauliString, lestim.CircuitInstruction, lestim.CircuitRepeatBlock],
     ) -> None:
         """Applies a circuit or pauli string to the simulator's state.
 
         Args:
-            circuit_or_pauli_string: A deltakit_stim.Circuit, deltakit_stim.PauliString,
-                deltakit_stim.CircuitInstruction, or deltakit_stim.CircuitRepeatBlock
+            circuit_or_pauli_string: A lestim.Circuit, lestim.PauliString,
+                lestim.CircuitInstruction, or lestim.CircuitRepeatBlock
                 with operations to apply to the simulator's state.
 
         Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.do(deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
+            >>> s.do(lestim.Circuit('''
             ...     X 0
             ...     M 0
             ... '''))
             >>> s.current_measurement_record()
             [True]
 
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.do(deltakit_stim.PauliString("IXYZ"))
+            >>> s = lestim.TableauSimulator()
+            >>> s.do(lestim.PauliString("IXYZ"))
             >>> s.measure_many(0, 1, 2, 3)
             [False, True, True, False]
         """
     def do_circuit(
         self,
-        circuit: deltakit_stim.Circuit,
+        circuit: lestim.Circuit,
     ) -> None:
         """Applies a circuit to the simulator's state.
 
         Args:
-            circuit: A deltakit_stim.Circuit containing operations to apply.
+            circuit: A lestim.Circuit containing operations to apply.
 
         Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.do_circuit(deltakit_stim.Circuit('''
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
+            >>> s.do_circuit(lestim.Circuit('''
             ...     X 0
             ...     M 0
             ... '''))
@@ -12469,23 +9894,23 @@ class TableauSimulator:
         """
     def do_pauli_string(
         self,
-        pauli_string: deltakit_stim.PauliString,
+        pauli_string: lestim.PauliString,
     ) -> None:
         """Applies the paulis from a pauli string to the simulator's state.
 
         Args:
-            pauli_string: A deltakit_stim.PauliString containing Paulis to apply.
+            pauli_string: A lestim.PauliString containing Paulis to apply.
 
         Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.do_pauli_string(deltakit_stim.PauliString("IXYZ"))
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
+            >>> s.do_pauli_string(lestim.PauliString("IXYZ"))
             >>> s.measure_many(0, 1, 2, 3)
             [False, True, True, False]
         """
     def do_tableau(
         self,
-        tableau: deltakit_stim.Tableau,
+        tableau: lestim.Tableau,
         targets: List[int],
     ) -> None:
         """Applies a custom tableau operation to qubits in the simulator.
@@ -12494,26 +9919,26 @@ class TableauSimulator:
         simulator's internal state is an inverse tableau.
 
         Args:
-            tableau: A deltakit_stim.Tableau representing the Clifford operation to apply.
+            tableau: A lestim.Tableau representing the Clifford operation to apply.
             targets: The indices of the qubits to operate on.
 
         Examples:
-            >>> import deltakit_stim
-            >>> sim = deltakit_stim.TableauSimulator()
+            >>> import lestim
+            >>> sim = lestim.TableauSimulator()
             >>> sim.h(1)
             >>> sim.h_yz(2)
             >>> [str(sim.peek_bloch(k)) for k in range(4)]
             ['+Z', '+X', '+Y', '+Z']
-            >>> rot3 = deltakit_stim.Tableau.from_conjugated_generators(
+            >>> rot3 = lestim.Tableau.from_conjugated_generators(
             ...     xs=[
-            ...         deltakit_stim.PauliString("_X_"),
-            ...         deltakit_stim.PauliString("__X"),
-            ...         deltakit_stim.PauliString("X__"),
+            ...         lestim.PauliString("_X_"),
+            ...         lestim.PauliString("__X"),
+            ...         lestim.PauliString("X__"),
             ...     ],
             ...     zs=[
-            ...         deltakit_stim.PauliString("_Z_"),
-            ...         deltakit_stim.PauliString("__Z"),
-            ...         deltakit_stim.PauliString("Z__"),
+            ...         lestim.PauliString("_Z_"),
+            ...         lestim.PauliString("__Z"),
+            ...         lestim.PauliString("Z__"),
             ...     ],
             ... )
 
@@ -12533,18 +9958,6 @@ class TableauSimulator:
 
         Args:
             *targets: The indices of the qubits to target with the gate.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
-            +X +Y +Z
-            >>> s.h(0, 1, 2)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
-            +Z -Y +X
         """
     def h_xy(
         self,
@@ -12554,18 +9967,6 @@ class TableauSimulator:
 
         Args:
             *targets: The indices of the qubits to target with the gate.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
-            +X +Y +Z
-            >>> s.h_xy(0, 1, 2)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
-            +Y +X -Z
         """
     def h_xz(
         self,
@@ -12575,18 +9976,6 @@ class TableauSimulator:
 
         Args:
             *targets: The indices of the qubits to target with the gate.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
-            +X +Y +Z
-            >>> s.h_xz(0, 1, 2)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
-            +Z -Y +X
         """
     def h_yz(
         self,
@@ -12596,18 +9985,6 @@ class TableauSimulator:
 
         Args:
             *targets: The indices of the qubits to target with the gate.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
-            +X +Y +Z
-            >>> s.h_yz(0, 1, 2)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
-            -X +Z +Y
         """
     def iswap(
         self,
@@ -12619,18 +9996,6 @@ class TableauSimulator:
             *targets: The indices of the qubits to target with the gate.
                 Applies the gate to the first two targets, then the next two targets,
                 and so forth. There must be an even number of targets.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0, 3)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +X +Y +Z +X
-            >>> s.iswap(0, 1, 2, 3)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +_ +_ +Y +Z
         """
     def iswap_dag(
         self,
@@ -12642,18 +10007,6 @@ class TableauSimulator:
             *targets: The indices of the qubits to target with the gate.
                 Applies the gate to the first two targets, then the next two targets,
                 and so forth. There must be an even number of targets.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0, 3)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +X +Y +Z +X
-            >>> s.iswap_dag(0, 1, 2, 3)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +_ +_ -Y +Z
         """
     def measure(
         self,
@@ -12672,15 +10025,6 @@ class TableauSimulator:
 
         Returns:
             The measurement result as a bool.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.x(1)
-            >>> s.measure(0)
-            False
-            >>> s.measure(1)
-            True
         """
     def measure_kickback(
         self,
@@ -12695,10 +10039,10 @@ class TableauSimulator:
         system projects into the state |00>. If the measurement result is True, then the
         system projects into the state |11>. Applying a Pauli X operation to both qubits
         flips between |00> and |11>. Therefore the Pauli kickback of the measurement is
-        `deltakit_stim.PauliString("XX")`. Note that there are often many possible equivalent
+        `lestim.PauliString("XX")`. Note that there are often many possible equivalent
         Pauli kickbacks. For example, if in the previous example there was a third qubit
-        in the |0> state, then both `deltakit_stim.PauliString("XX_")` and
-        `deltakit_stim.PauliString("XXZ")` are valid kickbacks.
+        in the |0> state, then both `lestim.PauliString("XX_")` and
+        `lestim.PauliString("XXZ")` are valid kickbacks.
 
         Measurements with deterministic results don't have a Pauli kickback.
 
@@ -12709,19 +10053,19 @@ class TableauSimulator:
             A (result, kickback) tuple.
             The result is a bool containing the measurement's output.
             The kickback is either None (meaning the measurement was deterministic) or a
-            deltakit_stim.PauliString (meaning the measurement was random, and the operations in
+            lestim.PauliString (meaning the measurement was random, and the operations in
             the Pauli string flip between the two possible post-measurement states).
 
         Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
 
             >>> s.measure_kickback(0)
             (False, None)
 
             >>> s.h(0)
             >>> s.measure_kickback(0)[1]
-            deltakit_stim.PauliString("+X")
+            lestim.PauliString("+X")
 
             >>> def pseudo_post_select(qubit, desired_result):
             ...     m, kick = s.measure_kickback(qubit)
@@ -12729,7 +10073,7 @@ class TableauSimulator:
             ...         if kick is None:
             ...             raise ValueError("Post-selected the impossible!")
             ...         s.do(kick)
-            >>> s = deltakit_stim.TableauSimulator()
+            >>> s = lestim.TableauSimulator()
             >>> s.h(0)
             >>> s.cnot(0, 1)
             >>> s.cnot(0, 2)
@@ -12748,24 +10092,17 @@ class TableauSimulator:
 
         Returns:
             The measurement results as a list of bools.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.x(1)
-            >>> s.measure_many(0, 1)
-            [False, True]
         """
     def measure_observable(
         self,
-        observable: deltakit_stim.PauliString,
+        observable: lestim.PauliString,
         *,
         flip_probability: float = 0.0,
     ) -> bool:
         """Measures an pauli string observable, as if by an MPP instruction.
 
         Args:
-            observable: The observable to measure, specified as a deltakit_stim.PauliString.
+            observable: The observable to measure, specified as a lestim.PauliString.
             flip_probability: Probability of the recorded measurement result being
                 flipped.
 
@@ -12779,18 +10116,18 @@ class TableauSimulator:
                 isn't a valid probability.
 
         Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.h(0)
             >>> s.cnot(0, 1)
 
-            >>> s.measure_observable(deltakit_stim.PauliString("XX"))
+            >>> s.measure_observable(lestim.PauliString("XX"))
             False
 
-            >>> s.measure_observable(deltakit_stim.PauliString("YY"))
+            >>> s.measure_observable(lestim.PauliString("YY"))
             True
 
-            >>> s.measure_observable(deltakit_stim.PauliString("-ZZ"))
+            >>> s.measure_observable(lestim.PauliString("-ZZ"))
             True
         """
     @property
@@ -12804,8 +10141,8 @@ class TableauSimulator:
         in the |0> state.
 
         Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.num_qubits
             0
             >>> s.h(2)
@@ -12815,8 +10152,8 @@ class TableauSimulator:
     def peek_bloch(
         self,
         target: int,
-    ) -> deltakit_stim.PauliString:
-        """Returns the state of the qubit as a single-qubit deltakit_stim.PauliString stabilizer.
+    ) -> lestim.PauliString:
+        """Returns the state of the qubit as a single-qubit lestim.PauliString stabilizer.
 
         This is a non-physical operation. It reports information about the qubit without
         disturbing it.
@@ -12825,42 +10162,42 @@ class TableauSimulator:
             target: The qubit to peek at.
 
         Returns:
-            deltakit_stim.PauliString("I"):
+            lestim.PauliString("I"):
                 The qubit is entangled. Its bloch vector is x=y=z=0.
-            deltakit_stim.PauliString("+Z"):
+            lestim.PauliString("+Z"):
                 The qubit is in the |0> state. Its bloch vector is z=+1, x=y=0.
-            deltakit_stim.PauliString("-Z"):
+            lestim.PauliString("-Z"):
                 The qubit is in the |1> state. Its bloch vector is z=-1, x=y=0.
-            deltakit_stim.PauliString("+Y"):
+            lestim.PauliString("+Y"):
                 The qubit is in the |i> state. Its bloch vector is y=+1, x=z=0.
-            deltakit_stim.PauliString("-Y"):
+            lestim.PauliString("-Y"):
                 The qubit is in the |-i> state. Its bloch vector is y=-1, x=z=0.
-            deltakit_stim.PauliString("+X"):
+            lestim.PauliString("+X"):
                 The qubit is in the |+> state. Its bloch vector is x=+1, y=z=0.
-            deltakit_stim.PauliString("-X"):
+            lestim.PauliString("-X"):
                 The qubit is in the |-> state. Its bloch vector is x=-1, y=z=0.
 
         Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.peek_bloch(0)
-            deltakit_stim.PauliString("+Z")
+            lestim.PauliString("+Z")
             >>> s.x(0)
             >>> s.peek_bloch(0)
-            deltakit_stim.PauliString("-Z")
+            lestim.PauliString("-Z")
             >>> s.h(0)
             >>> s.peek_bloch(0)
-            deltakit_stim.PauliString("-X")
+            lestim.PauliString("-X")
             >>> s.sqrt_x(1)
             >>> s.peek_bloch(1)
-            deltakit_stim.PauliString("-Y")
+            lestim.PauliString("-Y")
             >>> s.cz(0, 1)
             >>> s.peek_bloch(0)
-            deltakit_stim.PauliString("+_")
+            lestim.PauliString("+_")
         """
     def peek_observable_expectation(
         self,
-        observable: deltakit_stim.PauliString,
+        observable: lestim.PauliString,
     ) -> int:
         """Determines the expected value of an observable.
 
@@ -12880,22 +10217,22 @@ class TableauSimulator:
             0: Observable will be random when measured.
 
         Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.peek_observable_expectation(deltakit_stim.PauliString("+Z"))
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
+            >>> s.peek_observable_expectation(lestim.PauliString("+Z"))
             1
-            >>> s.peek_observable_expectation(deltakit_stim.PauliString("+X"))
+            >>> s.peek_observable_expectation(lestim.PauliString("+X"))
             0
-            >>> s.peek_observable_expectation(deltakit_stim.PauliString("-Z"))
+            >>> s.peek_observable_expectation(lestim.PauliString("-Z"))
             -1
 
-            >>> s.do(deltakit_stim.Circuit('''
+            >>> s.do(lestim.Circuit('''
             ...     H 0
             ...     CNOT 0 1
             ... '''))
             >>> queries = ['XX', 'YY', 'ZZ', '-ZZ', 'ZI', 'II', 'IIZ']
             >>> for q in queries:
-            ...     print(q, s.peek_observable_expectation(deltakit_stim.PauliString(q)))
+            ...     print(q, s.peek_observable_expectation(lestim.PauliString(q)))
             XX 1
             YY -1
             ZZ 1
@@ -12925,8 +10262,8 @@ class TableauSimulator:
             0: Qubit is in some other state.
 
         Example:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.reset_z(0)
             >>> s.peek_x(0)
             0
@@ -12958,8 +10295,8 @@ class TableauSimulator:
             0: Qubit is in some other state.
 
         Example:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.reset_z(0)
             >>> s.peek_y(0)
             0
@@ -12991,8 +10328,8 @@ class TableauSimulator:
             0: Qubit is in some other state.
 
         Example:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.reset_x(0)
             >>> s.peek_z(0)
             0
@@ -13005,7 +10342,7 @@ class TableauSimulator:
         """
     def postselect_observable(
         self,
-        observable: deltakit_stim.PauliString,
+        observable: lestim.PauliString,
         *,
         desired_value: bool = False,
     ) -> None:
@@ -13029,11 +10366,11 @@ class TableauSimulator:
                 eigenstate, so measuring it would never ever return the desired result.
 
         Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.postselect_observable(deltakit_stim.PauliString("+XX"))
-            >>> s.postselect_observable(deltakit_stim.PauliString("+ZZ"))
-            >>> s.peek_observable_expectation(deltakit_stim.PauliString("+YY"))
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
+            >>> s.postselect_observable(lestim.PauliString("+XX"))
+            >>> s.postselect_observable(lestim.PauliString("+ZZ"))
+            >>> s.peek_observable_expectation(lestim.PauliString("+YY"))
             -1
         """
     def postselect_x(
@@ -13061,8 +10398,8 @@ class TableauSimulator:
                 desired result.
 
         Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.peek_x(0)
             0
             >>> s.postselect_x(0, desired_value=False)
@@ -13100,8 +10437,8 @@ class TableauSimulator:
                 desired result.
 
         Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.peek_y(0)
             0
             >>> s.postselect_y(0, desired_value=False)
@@ -13139,8 +10476,8 @@ class TableauSimulator:
                 desired result.
 
         Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.h(0)
             >>> s.peek_z(0)
             0
@@ -13164,12 +10501,12 @@ class TableauSimulator:
             *targets: The indices of the qubits to reset.
 
         Example:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.x(0)
             >>> s.reset(0)
             >>> s.peek_bloch(0)
-            deltakit_stim.PauliString("+Z")
+            lestim.PauliString("+Z")
         """
     def reset_x(
         self,
@@ -13181,11 +10518,11 @@ class TableauSimulator:
             *targets: The indices of the qubits to reset.
 
         Example:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.reset_x(0)
             >>> s.peek_bloch(0)
-            deltakit_stim.PauliString("+X")
+            lestim.PauliString("+X")
         """
     def reset_y(
         self,
@@ -13197,11 +10534,11 @@ class TableauSimulator:
             *targets: The indices of the qubits to reset.
 
         Example:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.reset_y(0)
             >>> s.peek_bloch(0)
-            deltakit_stim.PauliString("+Y")
+            lestim.PauliString("+Y")
         """
     def reset_z(
         self,
@@ -13213,12 +10550,12 @@ class TableauSimulator:
             *targets: The indices of the qubits to reset.
 
         Example:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.h(0)
             >>> s.reset_z(0)
             >>> s.peek_bloch(0)
-            deltakit_stim.PauliString("+Z")
+            lestim.PauliString("+Z")
         """
     def s(
         self,
@@ -13228,18 +10565,6 @@ class TableauSimulator:
 
         Args:
             *targets: The indices of the qubits to target with the gate.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
-            +X +Y +Z
-            >>> s.s(0, 1, 2)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
-            +Y -X +Z
         """
     def s_dag(
         self,
@@ -13249,22 +10574,10 @@ class TableauSimulator:
 
         Args:
             *targets: The indices of the qubits to target with the gate.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
-            +X +Y +Z
-            >>> s.s_dag(0, 1, 2)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
-            -Y +X +Z
         """
     def set_inverse_tableau(
         self,
-        new_inverse_tableau: deltakit_stim.Tableau,
+        new_inverse_tableau: lestim.Tableau,
     ) -> None:
         """Overwrites the simulator's internal state with the given inverse tableau.
 
@@ -13282,9 +10595,9 @@ class TableauSimulator:
             new_inverse_tableau: The tableau to overwrite the internal state with.
 
         Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> t = deltakit_stim.Tableau.random(4)
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
+            >>> t = lestim.Tableau.random(4)
             >>> s.set_inverse_tableau(t)
             >>> s.current_inverse_tableau() == t
             True
@@ -13312,8 +10625,8 @@ class TableauSimulator:
                 should be tracking.
 
         Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> len(s.current_inverse_tableau())
             0
 
@@ -13328,7 +10641,7 @@ class TableauSimulator:
         """
     def set_state_from_stabilizers(
         self,
-        stabilizers: Iterable[deltakit_stim.PauliString],
+        stabilizers: Iterable[stim.PauliString],
         *,
         allow_redundant: bool = False,
         allow_underconstrained: bool = False,
@@ -13340,7 +10653,7 @@ class TableauSimulator:
         exactly match the number of qubits in the longest given stabilizer.
 
         Args:
-            stabilizers: A list of `deltakit_stim.PauliString`s specifying the stabilizers that
+            stabilizers: A list of `lestim.PauliString`s specifying the stabilizers that
                 the new state must have. It is permitted for stabilizers to have
                 different lengths. All stabilizers are padded up to the length of the
                 longest stabilizer by appending identity terms.
@@ -13378,41 +10691,41 @@ class TableauSimulator:
 
         Examples:
 
-            >>> import deltakit_stim
-            >>> tab_sim = deltakit_stim.TableauSimulator()
+            >>> import lestim
+            >>> tab_sim = lestim.TableauSimulator()
             >>> tab_sim.set_state_from_stabilizers([
-            ...     deltakit_stim.PauliString("XX"),
-            ...     deltakit_stim.PauliString("ZZ"),
+            ...     lestim.PauliString("XX"),
+            ...     lestim.PauliString("ZZ"),
             ... ])
             >>> tab_sim.current_inverse_tableau().inverse()
-            deltakit_stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    deltakit_stim.PauliString("+Z_"),
-                    deltakit_stim.PauliString("+_X"),
+                    lestim.PauliString("+Z_"),
+                    lestim.PauliString("+_X"),
                 ],
                 zs=[
-                    deltakit_stim.PauliString("+XX"),
-                    deltakit_stim.PauliString("+ZZ"),
+                    lestim.PauliString("+XX"),
+                    lestim.PauliString("+ZZ"),
                 ],
             )
 
             >>> tab_sim.set_state_from_stabilizers([
-            ...     deltakit_stim.PauliString("XX_"),
-            ...     deltakit_stim.PauliString("ZZ_"),
-            ...     deltakit_stim.PauliString("-YY_"),
-            ...     deltakit_stim.PauliString(""),
+            ...     lestim.PauliString("XX_"),
+            ...     lestim.PauliString("ZZ_"),
+            ...     lestim.PauliString("-YY_"),
+            ...     lestim.PauliString(""),
             ... ], allow_underconstrained=True, allow_redundant=True)
             >>> tab_sim.current_inverse_tableau().inverse()
-            deltakit_stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    deltakit_stim.PauliString("+Z__"),
-                    deltakit_stim.PauliString("+_X_"),
-                    deltakit_stim.PauliString("+__X"),
+                    lestim.PauliString("+Z__"),
+                    lestim.PauliString("+_X_"),
+                    lestim.PauliString("+__X"),
                 ],
                 zs=[
-                    deltakit_stim.PauliString("+XX_"),
-                    deltakit_stim.PauliString("+ZZ_"),
-                    deltakit_stim.PauliString("+__Z"),
+                    lestim.PauliString("+XX_"),
+                    lestim.PauliString("+ZZ_"),
+                    lestim.PauliString("+__Z"),
                 ],
             )
         """
@@ -13420,7 +10733,7 @@ class TableauSimulator:
         self,
         state_vector: Iterable[float],
         *,
-        endian: Literal["little", "big"],
+        endian: str,
     ) -> None:
         """Sets the simulator's state to a superposition specified by an amplitude vector.
 
@@ -13446,19 +10759,19 @@ class TableauSimulator:
 
         Examples:
 
-            >>> import deltakit_stim
-            >>> tab_sim = deltakit_stim.TableauSimulator()
+            >>> import lestim
+            >>> tab_sim = lestim.TableauSimulator()
             >>> tab_sim.set_state_from_state_vector([
             ...     0.5**0.5,
             ...     0.5**0.5 * 1j,
             ... ], endian='little')
             >>> tab_sim.current_inverse_tableau().inverse()
-            deltakit_stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    deltakit_stim.PauliString("+Z"),
+                    lestim.PauliString("+Z"),
                 ],
                 zs=[
-                    deltakit_stim.PauliString("+Y"),
+                    lestim.PauliString("+Y"),
                 ],
             )
             >>> tab_sim.set_state_from_state_vector([
@@ -13468,14 +10781,14 @@ class TableauSimulator:
             ...     0.5**0.5,
             ... ], endian='little')
             >>> tab_sim.current_inverse_tableau().inverse()
-            deltakit_stim.Tableau.from_conjugated_generators(
+            lestim.Tableau.from_conjugated_generators(
                 xs=[
-                    deltakit_stim.PauliString("+Z_"),
-                    deltakit_stim.PauliString("+_X"),
+                    lestim.PauliString("+Z_"),
+                    lestim.PauliString("+_X"),
                 ],
                 zs=[
-                    deltakit_stim.PauliString("+XX"),
-                    deltakit_stim.PauliString("+ZZ"),
+                    lestim.PauliString("+XX"),
+                    lestim.PauliString("+ZZ"),
                 ],
             )
         """
@@ -13487,18 +10800,6 @@ class TableauSimulator:
 
         Args:
             *targets: The indices of the qubits to target with the gate.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
-            +X +Y +Z
-            >>> s.sqrt_x(0, 1, 2)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
-            +X +Z -Y
         """
     def sqrt_x_dag(
         self,
@@ -13508,18 +10809,6 @@ class TableauSimulator:
 
         Args:
             *targets: The indices of the qubits to target with the gate.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
-            +X +Y +Z
-            >>> s.sqrt_x_dag(0, 1, 2)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
-            +X -Z +Y
         """
     def sqrt_y(
         self,
@@ -13529,18 +10818,6 @@ class TableauSimulator:
 
         Args:
             *targets: The indices of the qubits to target with the gate.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
-            +X +Y +Z
-            >>> s.sqrt_y(0, 1, 2)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
-            -Z +Y +X
         """
     def sqrt_y_dag(
         self,
@@ -13550,23 +10827,11 @@ class TableauSimulator:
 
         Args:
             *targets: The indices of the qubits to target with the gate.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
-            +X +Y +Z
-            >>> s.sqrt_y_dag(0, 1, 2)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
-            +Z +Y -X
         """
     def state_vector(
         self,
         *,
-        endian: Literal["little", "big"] = 'little',
+        endian: str = 'little',
     ) -> np.ndarray[np.complex64]:
         """Returns a wavefunction for the simulator's current state.
 
@@ -13597,22 +10862,19 @@ class TableauSimulator:
             b_{n-1}, the qubit with index 1 is storing the bit b_{n-2}, etc.
 
         Examples:
-            >>> import deltakit_stim
+            >>> import lestim
             >>> import numpy as np
-            >>> s = deltakit_stim.TableauSimulator()
+            >>> s = lestim.TableauSimulator()
             >>> s.x(2)
-            >>> s.state_vector(endian='little')
-            array([0.+0.j, 0.+0.j, 0.+0.j, 0.+0.j, 1.+0.j, 0.+0.j, 0.+0.j, 0.+0.j],
-                  dtype=complex64)
+            >>> list(s.state_vector(endian='little'))
+            [0j, 0j, 0j, 0j, (1+0j), 0j, 0j, 0j]
 
-            >>> s.state_vector(endian='big')
-            array([0.+0.j, 1.+0.j, 0.+0.j, 0.+0.j, 0.+0.j, 0.+0.j, 0.+0.j, 0.+0.j],
-                  dtype=complex64)
+            >>> list(s.state_vector(endian='big'))
+            [0j, (1+0j), 0j, 0j, 0j, 0j, 0j, 0j]
 
             >>> s.sqrt_x(1, 2)
-            >>> s.state_vector()
-            array([0.5+0.j , 0. +0.j , 0. -0.5j, 0. +0.j , 0. +0.5j, 0. +0.j ,
-                   0.5+0.j , 0. +0.j ], dtype=complex64)
+            >>> list(s.state_vector())
+            [(0.5+0j), 0j, -0.5j, 0j, 0.5j, 0j, (0.5+0j), 0j]
         """
     def swap(
         self,
@@ -13624,18 +10886,6 @@ class TableauSimulator:
             *targets: The indices of the qubits to target with the gate.
                 Applies the gate to the first two targets, then the next two targets,
                 and so forth. There must be an even number of targets.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0, 3)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +X +Y +Z +X
-            >>> s.swap(0, 1, 2, 3)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +Y +X +X +Z
         """
     def x(
         self,
@@ -13645,18 +10895,6 @@ class TableauSimulator:
 
         Args:
             *targets: The indices of the qubits to target with the gate.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
-            +X +Y +Z
-            >>> s.x(0, 1, 2)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
-            +X -Y -Z
         """
     def x_error(
         self,
@@ -13669,11 +10907,6 @@ class TableauSimulator:
             *targets: The indices of the qubits to target with the noise.
             p: The chance of the X error being applied,
                 independently, to each qubit.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.x_error(0, 1, 2, p=0.01)
         """
     def xcx(
         self,
@@ -13685,18 +10918,6 @@ class TableauSimulator:
             *targets: The indices of the qubits to target with the gate.
                 Applies the gate to the first two targets, then the next two targets,
                 and so forth. There must be an even number of targets.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0, 3)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +X +Y +Z +X
-            >>> s.xcx(0, 1, 2, 3)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +X +Y +Z +X
         """
     def xcy(
         self,
@@ -13708,18 +10929,6 @@ class TableauSimulator:
             *targets: The indices of the qubits to target with the gate.
                 Applies the gate to the first two targets, then the next two targets,
                 and so forth. There must be an even number of targets.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0, 3)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +X +Y +Z +X
-            >>> s.xcy(0, 1, 2, 3)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +X +Y +_ +_
         """
     def xcz(
         self,
@@ -13731,18 +10940,6 @@ class TableauSimulator:
             *targets: The indices of the qubits to target with the gate.
                 Applies the gate to the first two targets, then the next two targets,
                 and so forth. There must be an even number of targets.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0, 3)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +X +Y +Z +X
-            >>> s.xcz(0, 1, 2, 3)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +X +Y +_ +_
         """
     def y(
         self,
@@ -13752,18 +10949,6 @@ class TableauSimulator:
 
         Args:
             *targets: The indices of the qubits to target with the gate.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
-            +X +Y +Z
-            >>> s.y(0, 1, 2)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
-            -X +Y -Z
         """
     def y_error(
         self,
@@ -13776,11 +10961,6 @@ class TableauSimulator:
             *targets: The indices of the qubits to target with the noise.
             p: The chance of the Y error being applied,
                 independently, to each qubit.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.y_error(0, 1, 2, p=0.01)
         """
     def ycx(
         self,
@@ -13792,18 +10972,6 @@ class TableauSimulator:
             *targets: The indices of the qubits to target with the gate.
                 Applies the gate to the first two targets, then the next two targets,
                 and so forth. There must be an even number of targets.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0, 3)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +X +Y +Z +X
-            >>> s.ycx(0, 1, 2, 3)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +_ +_ +Z +X
         """
     def ycy(
         self,
@@ -13815,18 +10983,6 @@ class TableauSimulator:
             *targets: The indices of the qubits to target with the gate.
                 Applies the gate to the first two targets, then the next two targets,
                 and so forth. There must be an even number of targets.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0, 3)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +X +Y +Z +X
-            >>> s.ycy(0, 1, 2, 3)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +X +Y +_ +_
         """
     def ycz(
         self,
@@ -13838,18 +10994,6 @@ class TableauSimulator:
             *targets: The indices of the qubits to target with the gate.
                 Applies the gate to the first two targets, then the next two targets,
                 and so forth. There must be an even number of targets.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0, 3)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +X +Y +Z +X
-            >>> s.ycz(0, 1, 2, 3)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +_ +_ +_ +_
         """
     def z(
         self,
@@ -13859,20 +11003,8 @@ class TableauSimulator:
 
         Args:
             *targets: The indices of the qubits to target with the gate.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
-            +X +Y +Z
-            >>> s.z(0, 1, 2)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
-            -X -Y +Z
         """
-    def z_error(
+    def y_error(
         self,
         *targets: int,
         p: float,
@@ -13883,11 +11015,6 @@ class TableauSimulator:
             *targets: The indices of the qubits to target with the noise.
             p: The chance of the Z error being applied,
                 independently, to each qubit.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.z_error(0, 1, 2, p=0.01)
         """
     def zcx(
         self,
@@ -13899,18 +11026,6 @@ class TableauSimulator:
             *targets: The indices of the qubits to target with the gate.
                 Applies the gate to the first two targets, then the next two targets,
                 and so forth. There must be an even number of targets.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0, 3)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +X +Y +Z +X
-            >>> s.zcx(0, 1, 2, 3)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +_ +_ +Z +X
         """
     def zcy(
         self,
@@ -13922,18 +11037,6 @@ class TableauSimulator:
             *targets: The indices of the qubits to target with the gate.
                 Applies the gate to the first two targets, then the next two targets,
                 and so forth. There must be an even number of targets.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0, 3)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +X +Y +Z +X
-            >>> s.zcy(0, 1, 2, 3)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +X +Y +Z +X
         """
     def zcz(
         self,
@@ -13945,40 +11048,28 @@ class TableauSimulator:
             *targets: The indices of the qubits to target with the gate.
                 Applies the gate to the first two targets, then the next two targets,
                 and so forth. There must be an even number of targets.
-
-        Examples:
-            >>> import deltakit_stim
-            >>> s = deltakit_stim.TableauSimulator()
-            >>> s.reset_x(0, 3)
-            >>> s.reset_y(1)
-
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +X +Y +Z +X
-            >>> s.zcz(0, 1, 2, 3)
-            >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
-            +_ +_ +Z +X
         """
 @overload
 def gate_data(
     name: str,
-) -> deltakit_stim.GateData:
+) -> lestim.GateData:
     pass
 @overload
 def gate_data(
-) -> Dict[str, deltakit_stim.GateData]:
+) -> Dict[str, lestim.GateData]:
     pass
 def gate_data(
     name: Optional[str] = None,
-) -> Union[str, Dict[str, deltakit_stim.GateData]]:
+) -> Union[str, Dict[str, lestim.GateData]]:
     """Returns gate data for the given named gate, or all gates.
 
     Examples:
-        >>> import deltakit_stim
-        >>> deltakit_stim.gate_data('cnot').aliases
+        >>> import lestim
+        >>> lestim.gate_data('cnot').aliases
         ['CNOT', 'CX', 'ZCX']
-        >>> deltakit_stim.gate_data('cnot').is_two_qubit_gate
+        >>> lestim.gate_data('cnot').is_two_qubit_gate
         True
-        >>> gate_dict = deltakit_stim.gate_data()
+        >>> gate_dict = lestim.gate_data()
         >>> len(gate_dict) > 50
         True
         >>> gate_dict['MX'].produces_measurements
@@ -13988,7 +11079,7 @@ def main(
     *,
     command_line_args: List[str],
 ) -> int:
-    """Runs the command line tool version of deltakit_stim on the given arguments.
+    """Runs the command line tool version of lestim on the given arguments.
 
     Note that by default any input will be read from stdin, any output
     will print to stdout (as opposed to being intercepted). For most
@@ -14005,11 +11096,11 @@ def main(
         that something went wrong being the return code.
 
     Example:
-        >>> import deltakit_stim
+        >>> import lestim
         >>> import tempfile
         >>> with tempfile.TemporaryDirectory() as d:
         ...     path = f'{d}/tmp.out'
-        ...     return_code = deltakit_stim.main(command_line_args=[
+        ...     return_code = lestim.main(command_line_args=[
         ...         "gen",
         ...         "--code=repetition_code",
         ...         "--task=memory",
@@ -14061,7 +11152,7 @@ def main(
 def read_shot_data_file(
     *,
     path: Union[str, pathlib.Path],
-    format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"],
+    format: Union[str, 'Literal["01", "b8", "r8", "ptb64", "hits", "dets"]'],
     bit_packed: bool = False,
     num_measurements: int = 0,
     num_detectors: int = 0,
@@ -14072,18 +11163,18 @@ def read_shot_data_file(
 def read_shot_data_file(
     *,
     path: Union[str, pathlib.Path],
-    format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"],
+    format: Union[str, 'Literal["01", "b8", "r8", "ptb64", "hits", "dets"]'],
     bit_packed: bool = False,
     num_measurements: int = 0,
     num_detectors: int = 0,
     num_observables: int = 0,
-    separate_observables: Literal[True],
+    separate_observables: 'Literal[True]',
 ) -> Tuple[np.ndarray, np.ndarray]:
     pass
 def read_shot_data_file(
     *,
     path: Union[str, pathlib.Path],
-    format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"],
+    format: Union[str, 'Literal["01", "b8", "r8", "ptb64", "hits", "dets"]'],
     bit_packed: bool = False,
     num_measurements: int = 0,
     num_detectors: int = 0,
@@ -14143,7 +11234,7 @@ def read_shot_data_file(
                 bit b from shot s is at result[s, b // 8] & (1 << (b % 8))
 
     Examples:
-        >>> import deltakit_stim
+        >>> import lestim
         >>> import pathlib
         >>> import tempfile
         >>> with tempfile.TemporaryDirectory() as d:
@@ -14152,7 +11243,7 @@ def read_shot_data_file(
         ...         print("0000", file=f)
         ...         print("0101", file=f)
         ...
-        ...     read = deltakit_stim.read_shot_data_file(
+        ...     read = lestim.read_shot_data_file(
         ...         path=str(path),
         ...         format='01',
         ...         num_measurements=4)
@@ -14161,54 +11252,54 @@ def read_shot_data_file(
                [False,  True, False,  True]])
     """
 def target_combined_paulis(
-    paulis: Union[deltakit_stim.PauliString, List[deltakit_stim.GateTarget]],
+    paulis: Union[lestim.PauliString, List[lestim.GateTarget]],
     invert: bool = False,
-) -> deltakit_stim.GateTarget:
+) -> lestim.GateTarget:
     """Returns a list of targets encoding a pauli product for instructions like MPP.
 
     Args:
         paulis: The paulis to encode into the targets. This can be a
-            `deltakit_stim.PauliString` or a list of pauli targets from `deltakit_stim.target_x`,
-            `deltakit_stim.target_pauli`, etc.
+            `lestim.PauliString` or a list of pauli targets from `lestim.target_x`,
+            `lestim.target_pauli`, etc.
         invert: Defaults to False. If True, the product is inverted (like "!X2*Y3").
             Note that this is in addition to any inversions specified by the
             `paulis` argument.
 
     Examples:
-        >>> import deltakit_stim
-        >>> circuit = deltakit_stim.Circuit()
+        >>> import lestim
+        >>> circuit = lestim.Circuit()
         >>> circuit.append("MPP", [
-        ...     *deltakit_stim.target_combined_paulis(deltakit_stim.PauliString("-XYZ")),
-        ...     *deltakit_stim.target_combined_paulis([deltakit_stim.target_x(2), deltakit_stim.target_y(5)]),
-        ...     *deltakit_stim.target_combined_paulis([deltakit_stim.target_z(9)], invert=True),
+        ...     *lestim.target_combined_paulis(lestim.PauliString("-XYZ")),
+        ...     *lestim.target_combined_paulis([lestim.target_x(2), lestim.target_y(5)]),
+        ...     *lestim.target_combined_paulis([lestim.target_z(9)], invert=True),
         ... ])
         >>> circuit
-        deltakit_stim.Circuit('''
+        lestim.Circuit('''
             MPP !X0*Y1*Z2 X2*Y5 !Z9
         ''')
     """
 def target_combiner(
-) -> deltakit_stim.GateTarget:
+) -> lestim.GateTarget:
     """Returns a target combiner that can be used to build Pauli products.
 
     Examples:
-        >>> import deltakit_stim
-        >>> circuit = deltakit_stim.Circuit()
+        >>> import lestim
+        >>> circuit = lestim.Circuit()
         >>> circuit.append("MPP", [
-        ...     deltakit_stim.target_x(2),
-        ...     deltakit_stim.target_combiner(),
-        ...     deltakit_stim.target_y(3),
-        ...     deltakit_stim.target_combiner(),
-        ...     deltakit_stim.target_z(5),
+        ...     lestim.target_x(2),
+        ...     lestim.target_combiner(),
+        ...     lestim.target_y(3),
+        ...     lestim.target_combiner(),
+        ...     lestim.target_z(5),
         ... ])
         >>> circuit
-        deltakit_stim.Circuit('''
+        lestim.Circuit('''
             MPP X2*Y3*Z5
         ''')
     """
 def target_inv(
-    qubit_index: Union[int, deltakit_stim.GateTarget],
-) -> deltakit_stim.GateTarget:
+    qubit_index: Union[int, stim.GateTarget],
+) -> stim.GateTarget:
     """Returns a target flagged as inverted.
 
     Inverted targets are used to indicate measurement results should be flipped.
@@ -14217,11 +11308,11 @@ def target_inv(
         qubit_index: The underlying qubit index of the inverted target.
 
     Examples:
-        >>> import deltakit_stim
-        >>> circuit = deltakit_stim.Circuit()
-        >>> circuit.append("M", [2, deltakit_stim.target_inv(3)])
+        >>> import lestim
+        >>> circuit = lestim.Circuit()
+        >>> circuit.append("M", [2, lestim.target_inv(3)])
         >>> circuit
-        deltakit_stim.Circuit('''
+        lestim.Circuit('''
             M 2 !3
         ''')
 
@@ -14230,7 +11321,7 @@ def target_inv(
     """
 def target_logical_observable_id(
     index: int,
-) -> deltakit_stim.DemTarget:
+) -> lestim.DemTarget:
     """Returns a logical observable id identifying a frame change.
 
     Args:
@@ -14240,13 +11331,13 @@ def target_logical_observable_id(
         The logical observable target.
 
     Examples:
-        >>> import deltakit_stim
-        >>> m = deltakit_stim.DetectorErrorModel()
+        >>> import lestim
+        >>> m = lestim.DetectorErrorModel()
         >>> m.append("error", 0.25, [
-        ...     deltakit_stim.target_logical_observable_id(13)
+        ...     lestim.target_logical_observable_id(13)
         ... ])
         >>> print(repr(m))
-        deltakit_stim.DetectorErrorModel('''
+        lestim.DetectorErrorModel('''
             error(0.25) L13
         ''')
     """
@@ -14254,8 +11345,8 @@ def target_pauli(
     qubit_index: int,
     pauli: Union[str, int],
     invert: bool = False,
-) -> deltakit_stim.GateTarget:
-    """Returns a pauli target that can be passed into `deltakit_stim.Circuit.append`.
+) -> lestim.GateTarget:
+    """Returns a pauli target that can be passed into `lestim.Circuit.append`.
 
     Args:
         qubit_index: The qubit that the Pauli applies to.
@@ -14267,38 +11358,38 @@ def target_pauli(
             indicating that, for example, measurement results should be inverted).
 
     Examples:
-        >>> import deltakit_stim
-        >>> circuit = deltakit_stim.Circuit()
+        >>> import lestim
+        >>> circuit = lestim.Circuit()
         >>> circuit.append("MPP", [
-        ...     deltakit_stim.target_pauli(2, "X"),
-        ...     deltakit_stim.target_combiner(),
-        ...     deltakit_stim.target_pauli(3, "y", invert=True),
-        ...     deltakit_stim.target_pauli(5, 3),
+        ...     lestim.target_pauli(2, "X"),
+        ...     lestim.target_combiner(),
+        ...     lestim.target_pauli(3, "y", invert=True),
+        ...     lestim.target_pauli(5, 3),
         ... ])
         >>> circuit
-        deltakit_stim.Circuit('''
+        lestim.Circuit('''
             MPP X2*!Y3 Z5
         ''')
 
         >>> circuit.append("M", [
-        ...     deltakit_stim.target_pauli(7, "I"),
+        ...     lestim.target_pauli(7, "I"),
         ... ])
         >>> circuit
-        deltakit_stim.Circuit('''
+        lestim.Circuit('''
             MPP X2*!Y3 Z5
             M 7
         ''')
     """
 def target_rec(
     lookback_index: int,
-) -> deltakit_stim.GateTarget:
+) -> lestim.GateTarget:
     """Returns a measurement record target with the given lookback.
 
     Measurement record targets are used to refer back to the measurement record;
     the list of measurements that have been performed so far. Measurement record
     targets always specify an index relative to the *end* of the measurement record.
-    The latest measurement is `deltakit_stim.target_rec(-1)`, the next most recent
-    measurement is `deltakit_stim.target_rec(-2)`, and so forth. Indexing is done this way
+    The latest measurement is `lestim.target_rec(-1)`, the next most recent
+    measurement is `lestim.target_rec(-2)`, and so forth. Indexing is done this way
     in order to make it possible to write loops.
 
     Args:
@@ -14306,19 +11397,19 @@ def target_rec(
             to the end of the measurement record.
 
     Examples:
-        >>> import deltakit_stim
-        >>> circuit = deltakit_stim.Circuit()
+        >>> import lestim
+        >>> circuit = lestim.Circuit()
         >>> circuit.append("M", [5, 7, 11])
-        >>> circuit.append("CX", [deltakit_stim.target_rec(-2), 3])
+        >>> circuit.append("CX", [lestim.target_rec(-2), 3])
         >>> circuit
-        deltakit_stim.Circuit('''
+        lestim.Circuit('''
             M 5 7 11
             CX rec[-2] 3
         ''')
     """
 def target_relative_detector_id(
     index: int,
-) -> deltakit_stim.DemTarget:
+) -> lestim.DemTarget:
     """Returns a relative detector id (e.g. "D5" in a .dem file).
 
     Args:
@@ -14328,55 +11419,55 @@ def target_relative_detector_id(
         The relative detector target.
 
     Examples:
-        >>> import deltakit_stim
-        >>> m = deltakit_stim.DetectorErrorModel()
+        >>> import lestim
+        >>> m = lestim.DetectorErrorModel()
         >>> m.append("error", 0.25, [
-        ...     deltakit_stim.target_relative_detector_id(13)
+        ...     lestim.target_relative_detector_id(13)
         ... ])
         >>> print(repr(m))
-        deltakit_stim.DetectorErrorModel('''
+        lestim.DetectorErrorModel('''
             error(0.25) D13
         ''')
     """
 def target_separator(
-) -> deltakit_stim.DemTarget:
+) -> lestim.DemTarget:
     """Returns a target separator (e.g. "^" in a .dem file).
 
     Examples:
-        >>> import deltakit_stim
-        >>> m = deltakit_stim.DetectorErrorModel()
+        >>> import lestim
+        >>> m = lestim.DetectorErrorModel()
         >>> m.append("error", 0.25, [
-        ...     deltakit_stim.target_relative_detector_id(1),
-        ...     deltakit_stim.target_separator(),
-        ...     deltakit_stim.target_relative_detector_id(2),
+        ...     lestim.target_relative_detector_id(1),
+        ...     lestim.target_separator(),
+        ...     lestim.target_relative_detector_id(2),
         ... ])
         >>> print(repr(m))
-        deltakit_stim.DetectorErrorModel('''
+        lestim.DetectorErrorModel('''
             error(0.25) D1 ^ D2
         ''')
     """
 def target_sweep_bit(
     sweep_bit_index: int,
-) -> deltakit_stim.GateTarget:
-    """Returns a sweep bit target that can be passed into `deltakit_stim.Circuit.append`.
+) -> lestim.GateTarget:
+    """Returns a sweep bit target that can be passed into `lestim.Circuit.append`.
 
     Args:
         sweep_bit_index: The index of the sweep bit to target.
 
     Examples:
-        >>> import deltakit_stim
-        >>> circuit = deltakit_stim.Circuit()
-        >>> circuit.append("CX", [deltakit_stim.target_sweep_bit(2), 5])
+        >>> import lestim
+        >>> circuit = lestim.Circuit()
+        >>> circuit.append("CX", [lestim.target_sweep_bit(2), 5])
         >>> circuit
-        deltakit_stim.Circuit('''
+        lestim.Circuit('''
             CX sweep[2] 5
         ''')
     """
 def target_x(
-    qubit_index: Union[int, deltakit_stim.GateTarget],
+    qubit_index: Union[int, lestim.GateTarget],
     invert: bool = False,
-) -> deltakit_stim.GateTarget:
-    """Returns a Pauli X target that can be passed into `deltakit_stim.Circuit.append`.
+) -> lestim.GateTarget:
+    """Returns a Pauli X target that can be passed into `lestim.Circuit.append`.
 
     Args:
         qubit_index: The qubit that the Pauli applies to.
@@ -14384,25 +11475,25 @@ def target_x(
             that, for example, measurement results should be inverted).
 
     Examples:
-        >>> import deltakit_stim
-        >>> circuit = deltakit_stim.Circuit()
+        >>> import lestim
+        >>> circuit = lestim.Circuit()
         >>> circuit.append("MPP", [
-        ...     deltakit_stim.target_x(2),
-        ...     deltakit_stim.target_combiner(),
-        ...     deltakit_stim.target_y(3, invert=True),
-        ...     deltakit_stim.target_combiner(),
-        ...     deltakit_stim.target_z(5),
+        ...     lestim.target_x(2),
+        ...     lestim.target_combiner(),
+        ...     lestim.target_y(3, invert=True),
+        ...     lestim.target_combiner(),
+        ...     lestim.target_z(5),
         ... ])
         >>> circuit
-        deltakit_stim.Circuit('''
+        lestim.Circuit('''
             MPP X2*!Y3*Z5
         ''')
     """
 def target_y(
-    qubit_index: Union[int, deltakit_stim.GateTarget],
+    qubit_index: Union[int, lestim.GateTarget],
     invert: bool = False,
-) -> deltakit_stim.GateTarget:
-    """Returns a Pauli Y target that can be passed into `deltakit_stim.Circuit.append`.
+) -> lestim.GateTarget:
+    """Returns a Pauli Y target that can be passed into `lestim.Circuit.append`.
 
     Args:
         qubit_index: The qubit that the Pauli applies to.
@@ -14410,25 +11501,25 @@ def target_y(
             that, for example, measurement results should be inverted).
 
     Examples:
-        >>> import deltakit_stim
-        >>> circuit = deltakit_stim.Circuit()
+        >>> import lestim
+        >>> circuit = lestim.Circuit()
         >>> circuit.append("MPP", [
-        ...     deltakit_stim.target_x(2),
-        ...     deltakit_stim.target_combiner(),
-        ...     deltakit_stim.target_y(3, invert=True),
-        ...     deltakit_stim.target_combiner(),
-        ...     deltakit_stim.target_z(5),
+        ...     lestim.target_x(2),
+        ...     lestim.target_combiner(),
+        ...     lestim.target_y(3, invert=True),
+        ...     lestim.target_combiner(),
+        ...     lestim.target_z(5),
         ... ])
         >>> circuit
-        deltakit_stim.Circuit('''
+        lestim.Circuit('''
             MPP X2*!Y3*Z5
         ''')
     """
 def target_z(
-    qubit_index: Union[int, deltakit_stim.GateTarget],
+    qubit_index: Union[int, lestim.GateTarget],
     invert: bool = False,
-) -> deltakit_stim.GateTarget:
-    """Returns a Pauli Z target that can be passed into `deltakit_stim.Circuit.append`.
+) -> lestim.GateTarget:
+    """Returns a Pauli Z target that can be passed into `lestim.Circuit.append`.
 
     Args:
         qubit_index: The qubit that the Pauli applies to.
@@ -14436,17 +11527,17 @@ def target_z(
             that, for example, measurement results should be inverted).
 
     Examples:
-        >>> import deltakit_stim
-        >>> circuit = deltakit_stim.Circuit()
+        >>> import lestim
+        >>> circuit = lestim.Circuit()
         >>> circuit.append("MPP", [
-        ...     deltakit_stim.target_x(2),
-        ...     deltakit_stim.target_combiner(),
-        ...     deltakit_stim.target_y(3, invert=True),
-        ...     deltakit_stim.target_combiner(),
-        ...     deltakit_stim.target_z(5),
+        ...     lestim.target_x(2),
+        ...     lestim.target_combiner(),
+        ...     lestim.target_y(3, invert=True),
+        ...     lestim.target_combiner(),
+        ...     lestim.target_z(5),
         ... ])
         >>> circuit
-        deltakit_stim.Circuit('''
+        lestim.Circuit('''
             MPP X2*!Y3*Z5
         ''')
     """
@@ -14454,7 +11545,7 @@ def write_shot_data_file(
     *,
     data: np.ndarray,
     path: Union[str, pathlib.Path],
-    format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"],
+    format: str,
     num_measurements: int = 0,
     num_detectors: int = 0,
     num_observables: int = 0,
@@ -14480,7 +11571,7 @@ def write_shot_data_file(
             to observables from the original circuit that was sampled.
 
     Examples:
-        >>> import deltakit_stim
+        >>> import lestim
         >>> import pathlib
         >>> import tempfile
         >>> import numpy as np
@@ -14491,7 +11582,7 @@ def write_shot_data_file(
         ...         [0, 1, 1],
         ...     ], dtype=np.bool_)
         ...
-        ...     deltakit_stim.write_shot_data_file(
+        ...     lestim.write_shot_data_file(
         ...         path=str(path),
         ...         data=shot_data,
         ...         format='01',
