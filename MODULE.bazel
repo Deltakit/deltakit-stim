@@ -1,2 +1,12 @@
-bazel_dep(name = "googletest", version = "1.14.0")
-bazel_dep(name = "pybind11_bazel", version = "2.11.1")
+bazel_dep(name = "googletest", version = "1.14.0.bcr.1")
+bazel_dep(name = "pybind11_bazel", version = "3.0.0")
+bazel_dep(name = "rules_python", version = "1.6.3")
+
+# --- Python 3.13 setup ---
+python = use_extension("@rules_python//python/extensions:python.bzl", "python")
+python.defaults(python_version = "3.13")
+python.toolchain(python_version = "3.13")
+
+# --- Pybind11 setup ---
+internal_configure = use_extension("@pybind11_bazel//:internal_configure.bzl", "internal_configure_extension")
+use_repo(internal_configure, "pybind11")

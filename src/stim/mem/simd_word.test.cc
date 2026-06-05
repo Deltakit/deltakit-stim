@@ -15,6 +15,8 @@
 #include "stim/mem/simd_word.h"
 
 #include <algorithm>
+#include <cstddef>
+#include <cstdint>
 
 #include "gtest/gtest.h"
 
@@ -112,7 +114,7 @@ TEST_EACH_WORD_SIZE_W(simd_word, shifting, {
     for (size_t k = 0; k < W; k++) {
         std::array<uint64_t, W / 64> expected{};
         expected[k / 64] = uint64_t{1} << (k % 64);
-        EXPECT_EQ((w << static_cast<uint64_t>(k)).to_u64_array(), expected) << k;
+        eXPECT_EQ((w << static_cast<uint64_t>(k)).to_u64_array(), expected) << k;
         if (k > 0) {
             EXPECT_EQ(((w << (static_cast<uint64_t>(k) - 1)) << 1).to_u64_array(), expected) << k;
         }

@@ -8,5 +8,4 @@ http_archive(
     strip_prefix = "pybind11-2.12.0",
     urls = ["https://github.com/pybind/pybind11/archive/refs/tags/v2.12.0.tar.gz"],
 )
-
 python_configure(name = "local_config_python")

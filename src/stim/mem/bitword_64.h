@@ -19,6 +19,8 @@
 
 #include <array>
 #include <bit>
+#include <cstddef>
+#include <cstdint>
 #include <sstream>
 #include <stdlib.h>
 

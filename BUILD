@@ -99,6 +99,9 @@ cc_binary(
     ],
     includes = ["src/"],
     linkshared = 1,
+    linkopts = [
+        "-undefined", "dynamic_lookup",  # Allow unresolved symbols for Python API
+    ],
     deps = ["@pybind11//:pybind11"],
 )
 
