@@ -17,11 +17,11 @@ import tempfile
 
 import numpy as np
 import pytest
-import stim
+import deltakit_stim
 
 
 def test_compiled_detector_sampler_trivial():
-    c = stim.Circuit("""
+    c = deltakit_stim.Circuit("""
         X_ERROR(1) 0
         M 0
         DETECTOR rec[-1]
@@ -35,7 +35,7 @@ def test_compiled_detector_sampler_trivial():
 
 
 def test_compiled_detector_sampler_sample():
-    c = stim.Circuit("""
+    c = deltakit_stim.Circuit("""
         X_ERROR(1) 0
         M 0 1 2
         DETECTOR rec[-3] rec[-2]
@@ -160,7 +160,7 @@ def test_compiled_detector_sampler_sample():
 
 
 def test_write_obs_file():
-    c = stim.Circuit("""
+    c = deltakit_stim.Circuit("""
         X_ERROR(1) 1
         MR 0 1
         DETECTOR rec[-2]
@@ -172,7 +172,7 @@ def test_write_obs_file():
         OBSERVABLE_INCLUDE(1) rec[-1]
         OBSERVABLE_INCLUDE(2) rec[-2]
     """)
-    r: stim.CompiledDetectorSampler = c.compile_detector_sampler()
+    r: deltakit_stim.CompiledDetectorSampler = c.compile_detector_sampler()
     with tempfile.TemporaryDirectory() as d:
         d = pathlib.Path(d)
         r.sample_write(
@@ -202,7 +202,7 @@ def test_write_obs_file():
             assert f.read() == '1\n' * 100
 
 def test_detector_sampler_actually_fills_array():
-    circuit = stim.Circuit('''
+    circuit = deltakit_stim.Circuit('''
        X_ERROR(1) 0
        M 0
        DETECTOR rec[-1]
@@ -213,7 +213,7 @@ def test_detector_sampler_actually_fills_array():
 
 
 def test_manual_output_buffer():
-    circuit = stim.Circuit('''
+    circuit = deltakit_stim.Circuit('''
         X_ERROR(1) 0
         M 0
         DETECTOR

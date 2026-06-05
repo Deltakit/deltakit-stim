@@ -21,45 +21,45 @@ import numpy as np
 import pytest
 import types
 
-import stim
+import deltakit_stim
 import re
 
 def test_version():
-    assert re.match(r"^\d\.\d+", stim.__version__)
+    assert re.match(r"^\d\.\d+", deltakit_stim.__version__)
 
 
 def test_targets():
-    t = stim.target_x(5)
-    assert isinstance(t, stim.GateTarget)
+    t = deltakit_stim.target_x(5)
+    assert isinstance(t, deltakit_stim.GateTarget)
     assert t.is_x_target and t.value == 5
     assert not t.is_y_target
 
-    t = stim.target_y(6)
-    assert isinstance(t, stim.GateTarget)
+    t = deltakit_stim.target_y(6)
+    assert isinstance(t, deltakit_stim.GateTarget)
     assert t.is_y_target and t.value == 6
 
-    t = stim.target_z(5)
-    assert isinstance(t, stim.GateTarget)
+    t = deltakit_stim.target_z(5)
+    assert isinstance(t, deltakit_stim.GateTarget)
     assert t.is_z_target and t.value == 5
 
-    t = stim.target_inv(5)
-    assert isinstance(t, stim.GateTarget)
+    t = deltakit_stim.target_inv(5)
+    assert isinstance(t, deltakit_stim.GateTarget)
     assert t.is_inverted_result_target and t.value == 5
 
-    t = stim.target_rec(-5)
-    assert isinstance(t, stim.GateTarget)
+    t = deltakit_stim.target_rec(-5)
+    assert isinstance(t, deltakit_stim.GateTarget)
     assert t.is_measurement_record_target and not t.is_inverted_result_target and t.value == -5
 
-    t = stim.target_sweep_bit(4)
-    assert isinstance(t, stim.GateTarget)
+    t = deltakit_stim.target_sweep_bit(4)
+    assert isinstance(t, deltakit_stim.GateTarget)
     assert t.is_sweep_bit_target and not t.is_inverted_result_target and t.value == 4
 
-    t = stim.target_combiner()
-    assert isinstance(t, stim.GateTarget)
+    t = deltakit_stim.target_combiner()
+    assert isinstance(t, deltakit_stim.GateTarget)
 
 
 def test_gate_data():
-    data = stim.gate_data()
+    data = deltakit_stim.gate_data()
     assert len(data) == 85
     assert data["CX"].name == "CX"
     assert data["CX"].aliases == ["CNOT", "CX", "ZCX"]
@@ -68,7 +68,7 @@ def test_gate_data():
 
 
 def test_format_data():
-    format_data = stim._UNSTABLE_raw_format_data()
+    format_data = deltakit_stim._UNSTABLE_raw_format_data()
     assert len(format_data) >= 6
 
     # Check that example code has needed imports.
@@ -114,7 +114,7 @@ def test_format_data():
 
     # Check that python examples in help strings are correct.
     for k, v in format_data.items():
-        mod = types.ModuleType('stim_test_fake')
+        mod = types.ModuleType('deltakit_stim_test_fake')
         mod.f = lambda: 5
         mod.__test__ = {"f": mod.f}
         mod.f.__doc__ = v["help"]
@@ -124,7 +124,7 @@ def test_format_data():
 def test_main_write_to_file():
     with tempfile.TemporaryDirectory() as d:
         p = pathlib.Path(d) / 'tmp'
-        assert stim.main(command_line_args=[
+        assert deltakit_stim.main(command_line_args=[
             "gen",
             "--code=repetition_code",
             "--task=memory",
@@ -137,14 +137,14 @@ def test_main_write_to_file():
 
 
 def test_main_help(capsys):
-    assert stim.main(command_line_args=["help"]) == 0
+    assert deltakit_stim.main(command_line_args=["help"]) == 0
     captured = capsys.readouterr()
     assert captured.err == ""
-    assert 'Available stim commands' in captured.out
+    assert 'Available deltakit_stim commands' in captured.out
 
 
 def test_main_redirects_stdout(capsys):
-    assert stim.main(command_line_args=[
+    assert deltakit_stim.main(command_line_args=[
         "gen",
         "--code=repetition_code",
         "--task=memory",
@@ -157,7 +157,7 @@ def test_main_redirects_stdout(capsys):
 
 
 def test_main_redirects_stderr(capsys):
-    assert stim.main(command_line_args=[
+    assert deltakit_stim.main(command_line_args=[
         "gen",
         "--code=XXXXX",
         "--task=memory",
@@ -170,132 +170,132 @@ def test_main_redirects_stderr(capsys):
 
 
 def test_target_methods_accept_gate_targets():
-    assert stim.target_inv(stim.GateTarget(5)) == stim.target_inv(5)
-    assert stim.target_inv(stim.target_inv(5)) == stim.GateTarget(5)
-    assert stim.target_inv(stim.target_x(5)) == stim.target_x(5, invert=True)
-    assert stim.target_inv(stim.target_y(5)) == stim.target_y(5, invert=True)
-    assert stim.target_inv(stim.target_z(5)) == stim.target_z(5, invert=True)
+    assert deltakit_stim.target_inv(deltakit_stim.GateTarget(5)) == deltakit_stim.target_inv(5)
+    assert deltakit_stim.target_inv(deltakit_stim.target_inv(5)) == deltakit_stim.GateTarget(5)
+    assert deltakit_stim.target_inv(deltakit_stim.target_x(5)) == deltakit_stim.target_x(5, invert=True)
+    assert deltakit_stim.target_inv(deltakit_stim.target_y(5)) == deltakit_stim.target_y(5, invert=True)
+    assert deltakit_stim.target_inv(deltakit_stim.target_z(5)) == deltakit_stim.target_z(5, invert=True)
 
-    assert stim.target_x(stim.GateTarget(5)) == stim.target_x(5)
-    assert stim.target_x(stim.target_inv(stim.GateTarget(5))) == stim.target_x(5, invert=True)
-    assert stim.target_x(stim.GateTarget(5), invert=True) == stim.target_x(5, invert=True)
-    assert stim.target_x(stim.target_inv(stim.GateTarget(5)), invert=True) == stim.target_x(5)
+    assert deltakit_stim.target_x(deltakit_stim.GateTarget(5)) == deltakit_stim.target_x(5)
+    assert deltakit_stim.target_x(deltakit_stim.target_inv(deltakit_stim.GateTarget(5))) == deltakit_stim.target_x(5, invert=True)
+    assert deltakit_stim.target_x(deltakit_stim.GateTarget(5), invert=True) == deltakit_stim.target_x(5, invert=True)
+    assert deltakit_stim.target_x(deltakit_stim.target_inv(deltakit_stim.GateTarget(5)), invert=True) == deltakit_stim.target_x(5)
 
-    assert stim.target_y(stim.GateTarget(5)) == stim.target_y(5)
-    assert stim.target_y(stim.target_inv(stim.GateTarget(5))) == stim.target_y(5, invert=True)
-    assert stim.target_y(stim.GateTarget(5), invert=True) == stim.target_y(5, invert=True)
-    assert stim.target_y(stim.target_inv(stim.GateTarget(5)), invert=True) == stim.target_y(5)
+    assert deltakit_stim.target_y(deltakit_stim.GateTarget(5)) == deltakit_stim.target_y(5)
+    assert deltakit_stim.target_y(deltakit_stim.target_inv(deltakit_stim.GateTarget(5))) == deltakit_stim.target_y(5, invert=True)
+    assert deltakit_stim.target_y(deltakit_stim.GateTarget(5), invert=True) == deltakit_stim.target_y(5, invert=True)
+    assert deltakit_stim.target_y(deltakit_stim.target_inv(deltakit_stim.GateTarget(5)), invert=True) == deltakit_stim.target_y(5)
 
-    assert stim.target_z(stim.GateTarget(5)) == stim.target_z(5)
-    assert stim.target_z(stim.target_inv(stim.GateTarget(5))) == stim.target_z(5, invert=True)
-    assert stim.target_z(stim.GateTarget(5), invert=True) == stim.target_z(5, invert=True)
-    assert stim.target_z(stim.target_inv(stim.GateTarget(5)), invert=True) == stim.target_z(5)
-
-    with pytest.raises(ValueError):
-        stim.target_inv(stim.target_sweep_bit(4))
+    assert deltakit_stim.target_z(deltakit_stim.GateTarget(5)) == deltakit_stim.target_z(5)
+    assert deltakit_stim.target_z(deltakit_stim.target_inv(deltakit_stim.GateTarget(5))) == deltakit_stim.target_z(5, invert=True)
+    assert deltakit_stim.target_z(deltakit_stim.GateTarget(5), invert=True) == deltakit_stim.target_z(5, invert=True)
+    assert deltakit_stim.target_z(deltakit_stim.target_inv(deltakit_stim.GateTarget(5)), invert=True) == deltakit_stim.target_z(5)
 
     with pytest.raises(ValueError):
-        stim.target_inv(stim.target_rec(-4))
+        deltakit_stim.target_inv(deltakit_stim.target_sweep_bit(4))
 
     with pytest.raises(ValueError):
-        stim.target_x(stim.target_sweep_bit(4))
+        deltakit_stim.target_inv(deltakit_stim.target_rec(-4))
 
     with pytest.raises(ValueError):
-        stim.target_y(stim.target_sweep_bit(4))
+        deltakit_stim.target_x(deltakit_stim.target_sweep_bit(4))
 
     with pytest.raises(ValueError):
-        stim.target_z(stim.target_sweep_bit(4))
+        deltakit_stim.target_y(deltakit_stim.target_sweep_bit(4))
+
+    with pytest.raises(ValueError):
+        deltakit_stim.target_z(deltakit_stim.target_sweep_bit(4))
 
 
 def test_target_pauli():
-    assert stim.target_pauli(2, "I") == stim.GateTarget(2)
-    assert stim.target_pauli(2, "X") == stim.target_x(2)
-    assert stim.target_pauli(2, "Y") == stim.target_y(2)
-    assert stim.target_pauli(2, "Z") == stim.target_z(2)
-    assert stim.target_pauli(5, "x") == stim.target_x(5)
-    assert stim.target_pauli(2, "y") == stim.target_y(2)
-    assert stim.target_pauli(2, "z") == stim.target_z(2)
-    assert stim.target_pauli(2, 0) == stim.GateTarget(2)
-    assert stim.target_pauli(2, 1) == stim.target_x(2)
-    assert stim.target_pauli(2, 2) == stim.target_y(2)
-    assert stim.target_pauli(2, 3) == stim.target_z(2)
-    assert stim.target_pauli(2, 3, True) == stim.target_z(2, True)
-    assert stim.target_pauli(qubit_index=2, pauli=3, invert=True) == stim.target_z(2, True)
-    assert stim.target_pauli(5, np.array([2], dtype=np.uint8)[0]) == stim.target_y(5)
-    assert stim.target_pauli(5, np.array([2], dtype=np.uint32)[0]) == stim.target_y(5)
-    assert stim.target_pauli(5, np.array([2], dtype=np.int16)[0]) == stim.target_y(5)
+    assert deltakit_stim.target_pauli(2, "I") == deltakit_stim.GateTarget(2)
+    assert deltakit_stim.target_pauli(2, "X") == deltakit_stim.target_x(2)
+    assert deltakit_stim.target_pauli(2, "Y") == deltakit_stim.target_y(2)
+    assert deltakit_stim.target_pauli(2, "Z") == deltakit_stim.target_z(2)
+    assert deltakit_stim.target_pauli(5, "x") == deltakit_stim.target_x(5)
+    assert deltakit_stim.target_pauli(2, "y") == deltakit_stim.target_y(2)
+    assert deltakit_stim.target_pauli(2, "z") == deltakit_stim.target_z(2)
+    assert deltakit_stim.target_pauli(2, 0) == deltakit_stim.GateTarget(2)
+    assert deltakit_stim.target_pauli(2, 1) == deltakit_stim.target_x(2)
+    assert deltakit_stim.target_pauli(2, 2) == deltakit_stim.target_y(2)
+    assert deltakit_stim.target_pauli(2, 3) == deltakit_stim.target_z(2)
+    assert deltakit_stim.target_pauli(2, 3, True) == deltakit_stim.target_z(2, True)
+    assert deltakit_stim.target_pauli(qubit_index=2, pauli=3, invert=True) == deltakit_stim.target_z(2, True)
+    assert deltakit_stim.target_pauli(5, np.array([2], dtype=np.uint8)[0]) == deltakit_stim.target_y(5)
+    assert deltakit_stim.target_pauli(5, np.array([2], dtype=np.uint32)[0]) == deltakit_stim.target_y(5)
+    assert deltakit_stim.target_pauli(5, np.array([2], dtype=np.int16)[0]) == deltakit_stim.target_y(5)
 
     with pytest.raises(ValueError, match="too large"):
-        stim.target_pauli(2**31, 'X')
+        deltakit_stim.target_pauli(2**31, 'X')
     with pytest.raises(ValueError, match="Expected pauli"):
-        stim.target_pauli(5, 'F')
+        deltakit_stim.target_pauli(5, 'F')
     with pytest.raises(ValueError, match="Expected pauli"):
-        stim.target_pauli(5, np.array([257], dtype=np.uint32)[0])
+        deltakit_stim.target_pauli(5, np.array([257], dtype=np.uint32)[0])
 
 
 def test_target_combined_paulis():
-    assert stim.target_combined_paulis(stim.PauliString("XYZ")) == [
-        stim.target_x(0),
-        stim.target_combiner(),
-        stim.target_y(1),
-        stim.target_combiner(),
-        stim.target_z(2),
+    assert deltakit_stim.target_combined_paulis(deltakit_stim.PauliString("XYZ")) == [
+        deltakit_stim.target_x(0),
+        deltakit_stim.target_combiner(),
+        deltakit_stim.target_y(1),
+        deltakit_stim.target_combiner(),
+        deltakit_stim.target_z(2),
     ]
 
-    assert stim.target_combined_paulis(stim.PauliString("X"), True) == [
-        stim.target_x(0, True),
+    assert deltakit_stim.target_combined_paulis(deltakit_stim.PauliString("X"), True) == [
+        deltakit_stim.target_x(0, True),
     ]
 
-    assert stim.target_combined_paulis(stim.PauliString("-XYIZ")) == [
-        stim.target_x(0, invert=True),
-        stim.target_combiner(),
-        stim.target_y(1),
-        stim.target_combiner(),
-        stim.target_z(3),
+    assert deltakit_stim.target_combined_paulis(deltakit_stim.PauliString("-XYIZ")) == [
+        deltakit_stim.target_x(0, invert=True),
+        deltakit_stim.target_combiner(),
+        deltakit_stim.target_y(1),
+        deltakit_stim.target_combiner(),
+        deltakit_stim.target_z(3),
     ]
 
-    assert stim.target_combined_paulis(stim.PauliString("-XYIZ"), True) == [
-        stim.target_x(0),
-        stim.target_combiner(),
-        stim.target_y(1),
-        stim.target_combiner(),
-        stim.target_z(3),
+    assert deltakit_stim.target_combined_paulis(deltakit_stim.PauliString("-XYIZ"), True) == [
+        deltakit_stim.target_x(0),
+        deltakit_stim.target_combiner(),
+        deltakit_stim.target_y(1),
+        deltakit_stim.target_combiner(),
+        deltakit_stim.target_z(3),
     ]
 
-    assert stim.target_combined_paulis([stim.target_x(5), stim.target_z(9)]) == [
-        stim.target_x(5),
-        stim.target_combiner(),
-        stim.target_z(9),
+    assert deltakit_stim.target_combined_paulis([deltakit_stim.target_x(5), deltakit_stim.target_z(9)]) == [
+        deltakit_stim.target_x(5),
+        deltakit_stim.target_combiner(),
+        deltakit_stim.target_z(9),
     ]
 
-    assert stim.target_combined_paulis([stim.target_x(5, True), stim.target_z(9)]) == [
-        stim.target_x(5, True),
-        stim.target_combiner(),
-        stim.target_z(9),
+    assert deltakit_stim.target_combined_paulis([deltakit_stim.target_x(5, True), deltakit_stim.target_z(9)]) == [
+        deltakit_stim.target_x(5, True),
+        deltakit_stim.target_combiner(),
+        deltakit_stim.target_z(9),
     ]
-    assert stim.target_combined_paulis([stim.target_x(5), stim.target_z(9, True)]) == [
-        stim.target_x(5, True),
-        stim.target_combiner(),
-        stim.target_z(9),
+    assert deltakit_stim.target_combined_paulis([deltakit_stim.target_x(5), deltakit_stim.target_z(9, True)]) == [
+        deltakit_stim.target_x(5, True),
+        deltakit_stim.target_combiner(),
+        deltakit_stim.target_z(9),
     ]
-    assert stim.target_combined_paulis([stim.target_x(5), stim.target_z(9)], True) == [
-        stim.target_x(5, True),
-        stim.target_combiner(),
-        stim.target_z(9),
+    assert deltakit_stim.target_combined_paulis([deltakit_stim.target_x(5), deltakit_stim.target_z(9)], True) == [
+        deltakit_stim.target_x(5, True),
+        deltakit_stim.target_combiner(),
+        deltakit_stim.target_z(9),
     ]
-    assert stim.target_combined_paulis([stim.target_y(4)]) == [
-        stim.target_y(4),
+    assert deltakit_stim.target_combined_paulis([deltakit_stim.target_y(4)]) == [
+        deltakit_stim.target_y(4),
     ]
 
     with pytest.raises(ValueError, match="Expected a pauli string"):
-        stim.target_combined_paulis([stim.target_rec(-2)])
+        deltakit_stim.target_combined_paulis([deltakit_stim.target_rec(-2)])
     with pytest.raises(ValueError, match="Expected a pauli string"):
-        stim.target_combined_paulis([object()])
+        deltakit_stim.target_combined_paulis([object()])
     with pytest.raises(ValueError, match="Identity pauli product"):
-        stim.target_combined_paulis([])
+        deltakit_stim.target_combined_paulis([])
     with pytest.raises(ValueError, match="Identity pauli product"):
-        stim.target_combined_paulis(stim.PauliString(0))
+        deltakit_stim.target_combined_paulis(deltakit_stim.PauliString(0))
     with pytest.raises(ValueError, match="Identity pauli product"):
-        stim.target_combined_paulis(stim.PauliString(10))
+        deltakit_stim.target_combined_paulis(deltakit_stim.PauliString(10))
     with pytest.raises(ValueError, match="Imaginary"):
-        stim.target_combined_paulis(stim.PauliString("iX"))
+        deltakit_stim.target_combined_paulis(deltakit_stim.PauliString("iX"))

@@ -18,7 +18,7 @@ import pytest
 import tempfile
 
 import numpy as np
-import stim
+import deltakit_stim
 
 
 def test_read_shot_data_file_01():
@@ -29,20 +29,20 @@ def test_read_shot_data_file_01():
             print('0000000000', file=f)
 
         with pytest.raises(ValueError, match='expected data length'):
-            stim.read_shot_data_file(
+            deltakit_stim.read_shot_data_file(
                 path=path,
                 format='01',
                 num_measurements=9,
             )
 
         with pytest.raises(ValueError, match='ended in middle'):
-            stim.read_shot_data_file(
+            deltakit_stim.read_shot_data_file(
                 path=path,
                 format='01',
                 num_measurements=11,
             )
 
-        result = stim.read_shot_data_file(
+        result = deltakit_stim.read_shot_data_file(
             path=path,
             format='01',
             num_measurements=10,
@@ -56,7 +56,7 @@ def test_read_shot_data_file_01():
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             ])
 
-        result = stim.read_shot_data_file(
+        result = deltakit_stim.read_shot_data_file(
             path=path,
             format='01',
             num_measurements=10,
@@ -80,14 +80,14 @@ def test_read_shot_data_file_dets():
             print('shot D0 D5 L0', file=f)
 
         with pytest.raises(ValueError, match='D0'):
-            stim.read_shot_data_file(
+            deltakit_stim.read_shot_data_file(
                 path=path,
                 format='dets',
                 num_measurements=9,
             )
 
         with pytest.raises(ValueError, match='D5'):
-            stim.read_shot_data_file(
+            deltakit_stim.read_shot_data_file(
                 path=path,
                 format='dets',
                 num_measurements=0,
@@ -95,7 +95,7 @@ def test_read_shot_data_file_dets():
                 num_observables=2,
             )
 
-        result = stim.read_shot_data_file(
+        result = deltakit_stim.read_shot_data_file(
             path=path,
             format='dets',
             num_measurements=0,
@@ -112,7 +112,7 @@ def test_read_shot_data_file_dets():
             ])
 
         # Separate observables
-        result_dets, result_obs = stim.read_shot_data_file(
+        result_dets, result_obs = deltakit_stim.read_shot_data_file(
             path=path,
             format='dets',
             num_measurements=0,
@@ -138,7 +138,7 @@ def test_read_shot_data_file_dets():
             ])
 
         # Separate observables bit packed.
-        result_dets, result_obs = stim.read_shot_data_file(
+        result_dets, result_obs = deltakit_stim.read_shot_data_file(
             path=path,
             format='dets',
             num_measurements=0,
@@ -170,7 +170,7 @@ def test_write_shot_data_file_01():
         path = str(pathlib.Path(d) / 'file.01')
 
         with pytest.raises(ValueError, match='4 bits per shot.+bool_'):
-            stim.write_shot_data_file(
+            deltakit_stim.write_shot_data_file(
                 data=np.array([
                     [0, 1, 0],
                     [0, 1, 1],
@@ -181,7 +181,7 @@ def test_write_shot_data_file_01():
             )
 
         with pytest.raises(ValueError, match='4 bits per shot.+uint8'):
-            stim.write_shot_data_file(
+            deltakit_stim.write_shot_data_file(
                 data=np.array([
                     [0, 1, 0],
                     [0, 1, 1],
@@ -192,7 +192,7 @@ def test_write_shot_data_file_01():
             )
 
         with pytest.raises(ValueError, match='num_measurements and'):
-            stim.write_shot_data_file(
+            deltakit_stim.write_shot_data_file(
                 data=np.array([
                     [0, 1, 0],
                     [0, 1, 1],
@@ -203,7 +203,7 @@ def test_write_shot_data_file_01():
                 num_detectors=2,
             )
 
-        stim.write_shot_data_file(
+        deltakit_stim.write_shot_data_file(
             data=np.array([
                 [0, 1, 0],
                 [0, 1, 1],
@@ -215,7 +215,7 @@ def test_write_shot_data_file_01():
         with open(path) as f:
             assert f.read() == '010\n011\n'
 
-        stim.write_shot_data_file(
+        deltakit_stim.write_shot_data_file(
             data=np.array([
                 [0x38, 0x03],
                 [0x00, 0x00],
@@ -234,7 +234,7 @@ def test_read_data_file_partial_b8():
         with open(path, 'wb') as f:
             f.write(b'\0' * 273)
         with pytest.raises(ValueError, match="middle of record"):
-            stim.read_shot_data_file(
+            deltakit_stim.read_shot_data_file(
                 path=str(path),
                 format="b8",
                 num_detectors=2185,
@@ -247,7 +247,7 @@ def test_read_data_file_big_b8():
         path = pathlib.Path(d) / 'tmp.b8'
         with open(path, 'wb') as f:
             f.write(b'\0' * 274000)
-        stim.read_shot_data_file(
+        deltakit_stim.read_shot_data_file(
             path=str(path),
             format="b8",
             num_detectors=2185,
@@ -262,7 +262,7 @@ def test_read_01_shots():
             print("0000", file=f)
             print("0101", file=f)
 
-        read = stim.read_shot_data_file(
+        read = deltakit_stim.read_shot_data_file(
             path=str(path),
             format='01',
             num_measurements=4)
@@ -292,13 +292,13 @@ def test_read_write_shots_fuzzing(data_format: str, bit_packed: bool, path_type:
             path_arg = str(file_path)
         else:
             raise NotImplementedError(f'{path_type=}')
-        stim.write_shot_data_file(
+        deltakit_stim.write_shot_data_file(
             data=packed_data,
             path=path_arg,
             format=data_format,
             num_measurements=num_measurements,
         )
-        round_trip_data = stim.read_shot_data_file(
+        round_trip_data = deltakit_stim.read_shot_data_file(
             path=path_arg,
             format=data_format,
             num_measurements=num_measurements,
@@ -317,7 +317,7 @@ def test_read_write_shots_fuzzing_vs_python_references(data_format: str, num_bit
         path = pathlib.Path(d) / 'shots'
         num_shots = 320
         data = np.random.randint(2, size=(num_shots, num_bits_per_shot), dtype=np.bool_)
-        stim.write_shot_data_file(
+        deltakit_stim.write_shot_data_file(
             data=data,
             path=path,
             format=data_format,
@@ -325,7 +325,7 @@ def test_read_write_shots_fuzzing_vs_python_references(data_format: str, num_bit
         )
 
         g = {}
-        exec(stim._UNSTABLE_raw_format_data()[data_format]['save_example'], g)
+        exec(deltakit_stim._UNSTABLE_raw_format_data()[data_format]['save_example'], g)
         save_method = g[f'save_{data_format}']
         if data_format == 'dets':
             reference_written_data = save_method(data, num_detectors=num_bits_per_shot, num_observables=0)
@@ -337,7 +337,7 @@ def test_read_write_shots_fuzzing_vs_python_references(data_format: str, num_bit
         assert actual_written_data == reference_written_data
 
         g = {}
-        exec(stim._UNSTABLE_raw_format_data()[data_format]['parse_example'], g)
+        exec(deltakit_stim._UNSTABLE_raw_format_data()[data_format]['parse_example'], g)
         read_method = g[f'parse_{data_format}']
         if data_format == "01":
             reference_read_data = read_method(actual_written_data)
@@ -345,7 +345,7 @@ def test_read_write_shots_fuzzing_vs_python_references(data_format: str, num_bit
             reference_read_data = read_method(actual_written_data, num_detectors=num_bits_per_shot, num_observables=0)
         else:
             reference_read_data = read_method(actual_written_data, bits_per_shot=num_bits_per_shot)
-        actual_read_data = stim.read_shot_data_file(
+        actual_read_data = deltakit_stim.read_shot_data_file(
             path=path,
             format=data_format,
             num_detectors=num_bits_per_shot,
