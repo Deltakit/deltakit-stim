@@ -1,8 +1,8 @@
-import stim
+import deltakit_stim
 
 
 def test_to_crumble_url_simple():
-    c = stim.Circuit("""
+    c = deltakit_stim.Circuit("""
         QUBIT_COORDS(2, 1) 0
         QUBIT_COORDS(2, 2) 1
         H 0
@@ -18,12 +18,12 @@ def test_to_crumble_url_simple():
 
 
 def test_to_crumble_url_complex():
-    c = stim.Circuit.generated('surface_code:rotated_memory_x', distance=3, rounds=2, after_clifford_depolarization=0.001)
+    c = deltakit_stim.Circuit.generated('surface_code:rotated_memory_x', distance=3, rounds=2, after_clifford_depolarization=0.001)
     assert 'DEPOLARIZE1' in c.to_crumble_url()
 
 
 def test_to_crumble_url_mark_error():
-    c = stim.Circuit.generated('surface_code:rotated_memory_x', distance=3, rounds=2, after_clifford_depolarization=0.001, before_round_data_depolarization=0.001)
+    c = deltakit_stim.Circuit.generated('surface_code:rotated_memory_x', distance=3, rounds=2, after_clifford_depolarization=0.001, before_round_data_depolarization=0.001)
     err = c.shortest_graphlike_error(canonicalize_circuit_errors=True)
     url = c.to_crumble_url(skip_detectors=True, mark={1: err})
     assert 'MARKZ' in url

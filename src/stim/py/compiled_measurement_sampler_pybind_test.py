@@ -15,11 +15,11 @@ import tempfile
 
 import numpy as np
 import pytest
-import stim
+import deltakit_stim
 
 
 def test_compiled_measurement_sampler_sample():
-    c = stim.Circuit("""
+    c = deltakit_stim.Circuit("""
         X 1
         M 0 1 2 3
     """)
@@ -53,7 +53,7 @@ def test_compiled_measurement_sampler_sample():
 
 
 def test_measurements_vs_resets():
-    assert not np.any(stim.Circuit("""
+    assert not np.any(deltakit_stim.Circuit("""
         RX 0
         RY 1
         RZ 2
@@ -62,7 +62,7 @@ def test_measurements_vs_resets():
         M 0 1 2
     """).compile_sampler().sample(shots=100))
 
-    assert not np.any(stim.Circuit("""
+    assert not np.any(deltakit_stim.Circuit("""
         H 0
         H_YZ 1
         MRX 0
@@ -73,7 +73,7 @@ def test_measurements_vs_resets():
         M 0 1 2
     """).compile_sampler().sample(shots=100))
 
-    assert not np.any(stim.Circuit("""
+    assert not np.any(deltakit_stim.Circuit("""
         H 0
         H_YZ 1
         MRX 0
@@ -83,7 +83,7 @@ def test_measurements_vs_resets():
 
 
 def test_sample_write():
-    c = stim.Circuit("""
+    c = deltakit_stim.Circuit("""
         X 0 4 5
         M 0 1 2 3 4 5 6
     """)
@@ -100,32 +100,32 @@ def test_sample_write():
 
 def test_skip_reference_sample():
     np.testing.assert_array_equal(
-        stim.Circuit("X 0\nM 0").compile_sampler().sample(1),
+        deltakit_stim.Circuit("X 0\nM 0").compile_sampler().sample(1),
         [[True]],
     )
     np.testing.assert_array_equal(
-        stim.Circuit("X 0\nM 0").compile_sampler(skip_reference_sample=False).sample(1),
+        deltakit_stim.Circuit("X 0\nM 0").compile_sampler(skip_reference_sample=False).sample(1),
         [[True]],
     )
     np.testing.assert_array_equal(
-        stim.Circuit("X 0\nM 0").compile_sampler(skip_reference_sample=True).sample(1),
+        deltakit_stim.Circuit("X 0\nM 0").compile_sampler(skip_reference_sample=True).sample(1),
         [[False]],
     )
     np.testing.assert_array_equal(
-        stim.Circuit("X_ERROR(1) 0\nM 0").compile_sampler(skip_reference_sample=False).sample(1),
+        deltakit_stim.Circuit("X_ERROR(1) 0\nM 0").compile_sampler(skip_reference_sample=False).sample(1),
         [[True]],
     )
     np.testing.assert_array_equal(
-        stim.Circuit("X_ERROR(1) 0\nM 0").compile_sampler(skip_reference_sample=True).sample(1),
+        deltakit_stim.Circuit("X_ERROR(1) 0\nM 0").compile_sampler(skip_reference_sample=True).sample(1),
         [[True]],
     )
 
 def test_reference_sample_init():
     np.testing.assert_array_equal(
-        stim.Circuit("X 0\nM 0").compile_sampler(reference_sample=None).sample(1),
+        deltakit_stim.Circuit("X 0\nM 0").compile_sampler(reference_sample=None).sample(1),
         [[True]],
     )
-    circuit = stim.Circuit("X 0\nM 0")
+    circuit = deltakit_stim.Circuit("X 0\nM 0")
     ref_sample = np.array([False])
     np.testing.assert_array_equal(
         circuit.compile_sampler(reference_sample=ref_sample).sample(1),
@@ -136,7 +136,7 @@ def test_reference_sample_init():
         circuit.compile_sampler(reference_sample=ref_sample).sample(1),
         [[True]],
     )
-    circuit = stim.Circuit("X_ERROR(1) 0\n M 0")
+    circuit = deltakit_stim.Circuit("X_ERROR(1) 0\n M 0")
     ref_sample = np.array([False])
     np.testing.assert_array_equal(
         circuit.compile_sampler(reference_sample=ref_sample).sample(1),
@@ -149,13 +149,13 @@ def test_reference_sample_init():
     )
     with pytest.raises(ValueError):
         circuit.compile_sampler(reference_sample=ref_sample, skip_reference_sample=True)
-    circuit = stim.Circuit("H 0\n X 1\n CNOT 0 1\n H 0 1\n MPP X0*X1")
+    circuit = deltakit_stim.Circuit("H 0\n X 1\n CNOT 0 1\n H 0 1\n MPP X0*X1")
     ref_sample = circuit.reference_sample()
     np.testing.assert_array_equal(
         circuit.compile_sampler(reference_sample=ref_sample, seed=0).sample(10),
         circuit.compile_sampler(reference_sample=None, seed=0).sample(10),
     )
-    circuit = stim.Circuit("H 0\n X 1\n CNOT 0 1\n H 0 1 2\n MPP Y1*Y2 X1*X2 Z1*Z2")
+    circuit = deltakit_stim.Circuit("H 0\n X 1\n CNOT 0 1\n H 0 1 2\n MPP Y1*Y2 X1*X2 Z1*Z2")
     ref_sample = circuit.reference_sample()
     np.testing.assert_array_equal(
         circuit.compile_sampler(reference_sample=ref_sample, seed=0).sample(11),
@@ -164,25 +164,25 @@ def test_reference_sample_init():
 
 
 def test_repr():
-    assert repr(stim.Circuit("""
+    assert repr(deltakit_stim.Circuit("""
         X 0
         M 0
-    """).compile_sampler()) == """stim.CompiledMeasurementSampler(stim.Circuit('''
+    """).compile_sampler()) == """deltakit_stim.CompiledMeasurementSampler(deltakit_stim.Circuit('''
     X 0
     M 0
 '''))"""
 
-    assert repr(stim.Circuit("""
+    assert repr(deltakit_stim.Circuit("""
         X 0
         M 0
-    """).compile_sampler(skip_reference_sample=True)) == """stim.CompiledMeasurementSampler(stim.Circuit('''
+    """).compile_sampler(skip_reference_sample=True)) == """deltakit_stim.CompiledMeasurementSampler(deltakit_stim.Circuit('''
     X 0
     M 0
 '''), skip_reference_sample=True)"""
 
 
 def test_circuit_sampler_actually_fills_array():
-    circuit = stim.Circuit('''
+    circuit = deltakit_stim.Circuit('''
        X_ERROR(1) 0
        M 0
        DETECTOR rec[-1]

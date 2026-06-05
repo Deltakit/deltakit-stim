@@ -107,6 +107,7 @@ pybind11::class_<ExposedDemInstruction> stim_pybind::pybind_detector_error_model
     return pybind11::class_<ExposedDemInstruction>(
         m,
         "DemInstruction",
+	pybind11::module_local(),
         clean_doc_string(R"DOC(
             An instruction from a detector error model.
 
