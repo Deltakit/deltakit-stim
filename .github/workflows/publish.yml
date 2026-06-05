@@ -1,0 +1,65 @@
+name: Publish LeStim
+
+on:
+  release:
+    type:
+      [published]
+
+
+concurrency:
+  group: fast-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  publish_private_index:
+    name: Publish package to private Azure index.
+    strategy:
+      matrix:
+        os_dist = [
+          {os: ubuntu-latest, dist: cp39-manylinux_x86_64},
+          {os: ubuntu-latest, dist: cp310-manylinux_x86_64},
+          {os: ubuntu-latest, dist: cp311-manylinux_x86_64},
+          {os: ubuntu-latest, dist: cp312-manylinux_x86_64},
+          {os: ubuntu-latest, dist: cp313-manylinux_x86_64},
+          {os: ubuntu-latest, dist: cp314-manylinux_x86_64},
+          {os: macos-latest, dist: cp39-macosx_x86_64, macosarch: x86_64},
+          {os: macos-latest, dist: cp310-macosx_x86_64, macosarch: x86_64},
+          {os: macos-latest, dist: cp311-macosx_x86_64, macosarch: x86_64},
+          {os: macos-latest, dist: cp312-macosx_x86_64, macosarch: x86_64},
+          {os: macos-latest, dist: cp313-macosx_x86_64, macosarch: x86_64},
+          {os: macos-latest, dist: cp314-macosx_x86_64, macosarch: x86_64},
+          {os: macos-latest, dist: cp39-macosx_arm64, arch: arm64},
+          {os: macos-latest, dist: cp310-macosx_arm64, arch: arm64},
+          {os: macos-latest, dist: cp311-macosx_arm64, arch: arm64},
+          {os: macos-latest, dist: cp312-macosx_arm64, arch: arm64},
+          {os: macos-latest, dist: cp313-macosx_arm64, arch: arm64},
+          {os: macos-latest, dist: cp314-macosx_arm64, arch: arm64},
+        ]
+    runs-on: ${{ matrix.os_dist.os }}
+    # permissions:
+    #   id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
+    env:
+      CIBW_BUILD: "${{ matrix.os_dist.dist }}"
+      CIBW_ARCHS_MACOS: "${{ matrix.os_dist.arch }}"
+    steps:
+      - name: Check out LeStim main code
+        uses: actions/checkout@v6
+      - name: Set up Python
+        uses: actions/setup-python@v6
+      - name: Install dependencies for wheel building
+        run: pip install pybind11 cibuildwheel setuptools wheel
+      - name: Build the wheel
+        run: |
+          python -m cibuildwheel --print-build-identifiers
+          python -m cibuildwheel --output-dir dist
+      # - name: Publish to PyPI
+      #     uses: pypa/gh-action-pypi-publish@release/v1
+      # - name: Confirm deployment
+      #     timeout-minutes: 5
+      #     run: |
+      #       VERSION=${GITHUB_REF#refs/tags/v}
+      #       until pip download maximum-independent-set==$VERSION
+      #       do
+      #           echo "Failed to download from PyPI, will wait for upload and retry."
+      #           sleep 1
+      #       done

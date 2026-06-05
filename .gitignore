@@ -44,3 +44,6 @@ build.ninja
 node_modules
 MODULE.bazel.lock
 .ninja_lock
+# Project specific
+# Ignore Emacs backup files.
+*~

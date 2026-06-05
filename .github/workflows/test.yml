@@ -1,0 +1,38 @@
+name: Test LeStim
+
+on:
+  push:
+    branches:
+      - leakage_simulator
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+  pull_request:
+    branches:
+      - leakage_simulator
+
+concurrency:
+  group: fast-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  unit_tests:
+    name: Run LeStim unit tests
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out main code
+        uses: actions/checkout@v5
+      - name: Set up Bazelisk
+        uses: bazelbuild/setup-bazelisk@v3
+      - name: Build and run unit tests on Linux
+        if: runner.os == 'Linux'
+        run: |
+          bazel build //:stim_test
+          bazel run //:stim_test
+      - name: Build and run unit tests on macOS
+        if: runner.os == 'macOS'
+        run: |
+          bazel build //:stim_test
+          bazel run //:stim_test --test_filter=-"match_graph_drawer_3d.*:circuit_diagram_timeline_3d*"
