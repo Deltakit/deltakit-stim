@@ -1,17 +1,17 @@
 import collections
 
 import pytest
-import stim
+import deltakit_stim
 import numpy as np
 
 
 def test_get_measurement_flips():
-    s = stim.FlipSimulator(batch_size=11)
+    s = deltakit_stim.FlipSimulator(batch_size=11)
     assert s.num_measurements == 0
     assert s.num_qubits == 0
     assert s.batch_size == 11
 
-    s.do(stim.Circuit("""
+    s.do(deltakit_stim.Circuit("""
         X_ERROR(1) 100
         M 100
     """))
@@ -27,16 +27,16 @@ def test_get_measurement_flips():
 
 
 def test_stabilizer_randomization():
-    s = stim.FlipSimulator(
+    s = deltakit_stim.FlipSimulator(
         batch_size=256,
         num_qubits=10,
         disable_stabilizer_randomization=True,
     )
-    assert s.peek_pauli_flips() == [stim.PauliString(10)] * 256
-    s.do(stim.Circuit("R 19"))
-    assert s.peek_pauli_flips() == [stim.PauliString(20)] * 256
+    assert s.peek_pauli_flips() == [deltakit_stim.PauliString(10)] * 256
+    s.do(deltakit_stim.Circuit("R 19"))
+    assert s.peek_pauli_flips() == [deltakit_stim.PauliString(20)] * 256
 
-    s = stim.FlipSimulator(
+    s = deltakit_stim.FlipSimulator(
         batch_size=256,
         num_qubits=10,
     )
@@ -45,7 +45,7 @@ def test_stabilizer_randomization():
     assert np.all((v == 0) | (v == 3))
     assert 0.2 < np.count_nonzero(v == 3) / (256 * 10) < 0.8
 
-    s = stim.FlipSimulator(
+    s = deltakit_stim.FlipSimulator(
         batch_size=256,
         num_qubits=10,
         disable_stabilizer_randomization=False,
@@ -54,7 +54,7 @@ def test_stabilizer_randomization():
     assert v.shape == (256, 10)
     assert np.all((v == 0) | (v == 3))
     assert 0.2 < np.count_nonzero(v == 3) / (256 * 10) < 0.8
-    s.do(stim.Circuit("R 19"))
+    s.do(deltakit_stim.Circuit("R 19"))
     v = np.array([list(p) for p in s.peek_pauli_flips()], dtype=np.uint8)
     assert v.shape == (256, 20)
     assert np.all((v == 0) | (v == 3))
@@ -62,12 +62,12 @@ def test_stabilizer_randomization():
 
 
 def test_get_detector_flips():
-    s = stim.FlipSimulator(batch_size=11)
+    s = deltakit_stim.FlipSimulator(batch_size=11)
     assert s.num_measurements == 0
     assert s.num_qubits == 0
     assert s.batch_size == 11
 
-    s.do(stim.Circuit("""
+    s.do(deltakit_stim.Circuit("""
         X_ERROR(1) 25
         M 24 25
         DETECTOR rec[-1]
@@ -91,13 +91,13 @@ def test_get_detector_flips():
 
 
 def test_get_observable_flips():
-    s = stim.FlipSimulator(batch_size=11)
+    s = deltakit_stim.FlipSimulator(batch_size=11)
     assert s.num_measurements == 0
     assert s.num_qubits == 0
     assert s.batch_size == 11
     assert s.num_observables == 0
 
-    s.do(stim.Circuit("""
+    s.do(deltakit_stim.Circuit("""
         X_ERROR(1) 25
         M 24 25
         OBSERVABLE_INCLUDE(2) rec[-1]
@@ -121,8 +121,8 @@ def test_get_observable_flips():
 
 
 def test_peek_pauli_flips():
-    sim = stim.FlipSimulator(batch_size=500, disable_stabilizer_randomization=True)
-    sim.do(stim.Circuit("""
+    sim = deltakit_stim.FlipSimulator(batch_size=500, disable_stabilizer_randomization=True)
+    sim.do(deltakit_stim.Circuit("""
         X_ERROR(0.3) 1
         Y_ERROR(0.3) 2
         Z_ERROR(0.3) 3
@@ -151,44 +151,44 @@ def test_peek_pauli_flips():
 
 
 def test_set_pauli_flip():
-    sim = stim.FlipSimulator(
+    sim = deltakit_stim.FlipSimulator(
         batch_size=2,
         disable_stabilizer_randomization=True,
         num_qubits=3,
     )
     assert sim.peek_pauli_flips() == [
-        stim.PauliString('___'),
-        stim.PauliString('___'),
+        deltakit_stim.PauliString('___'),
+        deltakit_stim.PauliString('___'),
     ]
 
     sim.set_pauli_flip('X', qubit_index=2, instance_index=0)
     assert sim.peek_pauli_flips() == [
-        stim.PauliString('__X'),
-        stim.PauliString('___'),
+        deltakit_stim.PauliString('__X'),
+        deltakit_stim.PauliString('___'),
     ]
 
     sim.set_pauli_flip(3, qubit_index=1, instance_index=1)
     assert sim.peek_pauli_flips() == [
-        stim.PauliString('__X'),
-        stim.PauliString('_Z_'),
+        deltakit_stim.PauliString('__X'),
+        deltakit_stim.PauliString('_Z_'),
     ]
 
     sim.set_pauli_flip(2, qubit_index=0, instance_index=1)
     assert sim.peek_pauli_flips() == [
-        stim.PauliString('__X'),
-        stim.PauliString('YZ_'),
+        deltakit_stim.PauliString('__X'),
+        deltakit_stim.PauliString('YZ_'),
     ]
 
     sim.set_pauli_flip(1, qubit_index=0, instance_index=-1)
     assert sim.peek_pauli_flips() == [
-        stim.PauliString('__X'),
-        stim.PauliString('XZ_'),
+        deltakit_stim.PauliString('__X'),
+        deltakit_stim.PauliString('XZ_'),
     ]
 
     sim.set_pauli_flip(0, qubit_index=2, instance_index=-2)
     assert sim.peek_pauli_flips() == [
-        stim.PauliString('___'),
-        stim.PauliString('XZ_'),
+        deltakit_stim.PauliString('___'),
+        deltakit_stim.PauliString('XZ_'),
     ]
 
     with pytest.raises(ValueError, match='pauli'):
@@ -212,12 +212,12 @@ def test_set_pauli_flip():
 
     sim.set_pauli_flip('X', qubit_index=4, instance_index=0)
     assert sim.peek_pauli_flips() == [
-        stim.PauliString('____X'),
-        stim.PauliString('XZ___'),
+        deltakit_stim.PauliString('____X'),
+        deltakit_stim.PauliString('XZ___'),
     ]
 
 def test_broadcast_pauli_errors():
-    sim = stim.FlipSimulator(
+    sim = deltakit_stim.FlipSimulator(
         batch_size=2,
         num_qubits=3,
         disable_stabilizer_randomization=True,
@@ -232,8 +232,8 @@ def test_broadcast_pauli_errors():
     )
     peek = sim.peek_pauli_flips()
     assert peek == [
-        stim.PauliString("+X_X"),
-        stim.PauliString("+__X")
+        deltakit_stim.PauliString("+X_X"),
+        deltakit_stim.PauliString("+__X")
     ]
     sim.broadcast_pauli_errors(
         pauli='Z',
@@ -245,8 +245,8 @@ def test_broadcast_pauli_errors():
     )
     peek = sim.peek_pauli_flips()
     assert peek == [
-        stim.PauliString("+YZX"),
-        stim.PauliString("+Z_X")
+        deltakit_stim.PauliString("+YZX"),
+        deltakit_stim.PauliString("+Z_X")
     ]
     sim.broadcast_pauli_errors(
         pauli='Y',
@@ -258,8 +258,8 @@ def test_broadcast_pauli_errors():
     )
     peek = sim.peek_pauli_flips()
     assert peek == [
-        stim.PauliString("+_ZX"),
-        stim.PauliString("+ZYZ")
+        deltakit_stim.PauliString("+_ZX"),
+        deltakit_stim.PauliString("+ZYZ")
     ]
     sim.broadcast_pauli_errors(
         pauli='I',
@@ -271,12 +271,12 @@ def test_broadcast_pauli_errors():
     )
     peek = sim.peek_pauli_flips()
     assert peek == [
-        stim.PauliString("+_ZX"),
-        stim.PauliString("+ZYZ")
+        deltakit_stim.PauliString("+_ZX"),
+        deltakit_stim.PauliString("+ZYZ")
     ]
 
     # do it again with ints
-    sim = stim.FlipSimulator(
+    sim = deltakit_stim.FlipSimulator(
         batch_size=2,
         num_qubits=3,
         disable_stabilizer_randomization=True,
@@ -291,8 +291,8 @@ def test_broadcast_pauli_errors():
     )
     peek = sim.peek_pauli_flips()
     assert peek == [
-        stim.PauliString("+X_X"),
-        stim.PauliString("+__X")
+        deltakit_stim.PauliString("+X_X"),
+        deltakit_stim.PauliString("+__X")
     ]
     sim.broadcast_pauli_errors(
         pauli=3,
@@ -304,8 +304,8 @@ def test_broadcast_pauli_errors():
     )
     peek = sim.peek_pauli_flips()
     assert peek == [
-        stim.PauliString("+YZX"),
-        stim.PauliString("+Z_X")
+        deltakit_stim.PauliString("+YZX"),
+        deltakit_stim.PauliString("+Z_X")
     ]
     sim.broadcast_pauli_errors(
         pauli=2,
@@ -317,8 +317,8 @@ def test_broadcast_pauli_errors():
     )
     peek = sim.peek_pauli_flips()
     assert peek == [
-        stim.PauliString("+_ZX"),
-        stim.PauliString("+ZYZ")
+        deltakit_stim.PauliString("+_ZX"),
+        deltakit_stim.PauliString("+ZYZ")
     ]
     sim.broadcast_pauli_errors(
         pauli=0,
@@ -330,8 +330,8 @@ def test_broadcast_pauli_errors():
     )
     peek = sim.peek_pauli_flips()
     assert peek == [
-        stim.PauliString("+_ZX"),
-        stim.PauliString("+ZYZ")
+        deltakit_stim.PauliString("+_ZX"),
+        deltakit_stim.PauliString("+ZYZ")
     ]
 
     with pytest.raises(ValueError, match='pauli'):
@@ -370,7 +370,7 @@ def test_broadcast_pauli_errors():
                 [True]]
             ),
         )
-    sim = stim.FlipSimulator(
+    sim = deltakit_stim.FlipSimulator(
         batch_size=2,
         num_qubits=3,
         disable_stabilizer_randomization=True,
@@ -386,8 +386,8 @@ def test_broadcast_pauli_errors():
     ) # automatically expands the qubit basis
     peek = sim.peek_pauli_flips()
     assert peek == [
-        stim.PauliString("+X_XX"),
-        stim.PauliString("+__XX")
+        deltakit_stim.PauliString("+X_XX"),
+        deltakit_stim.PauliString("+__XX")
     ]
     sim.broadcast_pauli_errors(
         pauli='X',
@@ -399,13 +399,13 @@ def test_broadcast_pauli_errors():
     )  # tolerates fewer qubits in mask than in simulator
     peek = sim.peek_pauli_flips()
     assert peek == [
-        stim.PauliString("+__XX"),
-        stim.PauliString("+__XX")
+        deltakit_stim.PauliString("+__XX"),
+        deltakit_stim.PauliString("+__XX")
     ]
 
 
 def test_repro_heralded_pauli_channel_1_bug():
-    circuit = stim.Circuit("""
+    circuit = deltakit_stim.Circuit("""
         R 0 1
         HERALDED_PAULI_CHANNEL_1(0.2, 0.2, 0, 0) 1
         M 0
@@ -416,8 +416,8 @@ def test_repro_heralded_pauli_channel_1_bug():
 
 
 def test_to_numpy():
-    sim = stim.FlipSimulator(batch_size=50)
-    sim.do(stim.Circuit.generated(
+    sim = deltakit_stim.FlipSimulator(batch_size=50)
+    sim.do(deltakit_stim.Circuit.generated(
         "surface_code:rotated_memory_x",
         distance=5,
         rounds=3,
@@ -554,7 +554,7 @@ def test_to_numpy():
 
 
 def test_generate_bernoulli_samples():
-    sim = stim.FlipSimulator(batch_size=10)
+    sim = deltakit_stim.FlipSimulator(batch_size=10)
 
     v = sim.generate_bernoulli_samples(1001, p=0, bit_packed=False)
     assert v.shape == (1001,)
@@ -615,8 +615,8 @@ def test_generate_bernoulli_samples():
 
 
 def test_get_measurement_flips_negative_index():
-    sim = stim.FlipSimulator(batch_size=8, disable_stabilizer_randomization=True)
-    sim.do(stim.Circuit("""
+    sim = deltakit_stim.FlipSimulator(batch_size=8, disable_stabilizer_randomization=True)
+    sim.do(deltakit_stim.Circuit("""
         X_ERROR(1) 1
         M 0 1
     """))
