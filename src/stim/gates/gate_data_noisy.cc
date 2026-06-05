@@ -183,13 +183,72 @@ Examples:
     add_gate(
         failed,
         Gate{
-            .name = "II_ERROR",
-            .id = GateType::II_ERROR,
-            .best_candidate_inverse_id = GateType::II_ERROR,
-            .arg_count = ARG_COUNT_SYGIL_ANY,
-            .flags = (GateFlags)(GATE_TARGETS_PAIRS | GATE_IS_NOISY | GATE_ARGS_ARE_DISJOINT_PROBABILITIES),
+            .name = "LEAKAGE",
+            .id = GateType::LEAKAGE,
+            .best_candidate_inverse_id = GateType::LEAKAGE,
+            .arg_count = 1,
+            .flags = (GateFlags)(GATE_IS_SINGLE_QUBIT_GATE | GATE_IS_NOISY | GATE_ARGS_ARE_DISJOINT_PROBABILITIES),
             .category = "F_Noise Channels",
             .help = R"MARKDOWN(
+The single qubit leakage channel.
+
+Whether or not this noise channel fires is recorded in a leakage table
+that tracks across all shots whether or not qubits are leaked at a
+given point in the circuit. When a qubit is leaked a 1 is recorded in
+the leakage table an qubit is moved to the maximally mixed state by
+applying X_ERROR(0.5) and Z_ERROR(0.5). That is, a depolarising model
+of leakage is implemented through this channel.
+
+Leakage events are recorded and tracked so that the influence of leaked
+qubits on unleaked qubits across time and space can be accounted for.
+For example, if qubit 3 leaks and then a CX is performed on qubit 3 and 4,
+qubit 4 will also be fully depolarised
+
+All leakage introduced by the leakage channel is undone by reset gates.
+That is, reset returns qubits to the computational subspace.
+
+This channel would typically be deployed alongside the RELAX channel
+which - in likeness of a reset gate - has the ability return a leaked
+qubit to the computational subspace.
+
+Parens Arguments:
+
+    A single float (p) specifying the leakage probability across each
+    target qubit.
+
+Targets:
+
+    Qubits to apply leakage noise to.
+
+Pauli Mixture:
+
+    1-p: no change to the qubit's energy level, apply I
+    p/4: record that the qubit has left the computational subspace, apply I
+    p/4: record that the qubit has left the computational subspace, apply X
+    p/4: record that the qubit has left the computational subspace, apply Y
+    p/4: record that the qubit has left the computational subspace, apply Z
+
+Examples:
+
+    # Apply leakage to qubit 0 with p=0.1%
+    LEAKAGE(0.001) 0
+
+    # Apply leakage to qubit 2, 3 and 5 with p=0.5%
+    LEAKAGE(0.005) 2 3 5
+
+)MARKDOWN",
+            .unitary_data = {},
+            .flow_data = {},
+            .h_s_cx_m_r_decomposition = nullptr,
+        });
+
+    add_gate(
+        failed,
+        Gate{
+    .name = "II_ERROR", .id = GateType::II_ERROR, .best_candidate_inverse_id = GateType::II_ERROR,
+    .arg_count = ARG_COUNT_SYGIL_ANY,
+    .flags = (GateFlags)(GATE_TARGETS_PAIRS | GATE_IS_NOISY | GATE_ARGS_ARE_DISJOINT_PROBABILITIES),
+    .category = "F_Noise Channels", .help = R"MARKDOWN(
 Applies a two-qubit identity with a given probability.
 
 This gate has no effect. It only exists because it can be useful as a
@@ -223,7 +282,50 @@ Examples:
 
     # checks for you that the disjoint probabilities in the arguments are legal
     II_ERROR[MULTIPLE_TWO_QUBIT_NOISE_MECHANISMS](0.1, 0.2) 0 2 4 6
+)MARKDOWN",
+            .unitary_data = {},
+            .flow_data = {},
+            .h_s_cx_m_r_decomposition = nullptr,
+        });
 
+    add_gate(
+        failed,
+        Gate{
+            .name = "RELAX",
+            .id = GateType::RELAX,
+            .best_candidate_inverse_id = GateType::RELAX,
+            .arg_count = 1,
+            .flags = (GateFlags)(GATE_IS_SINGLE_QUBIT_GATE | GATE_IS_NOISY | GATE_ARGS_ARE_DISJOINT_PROBABILITIES),
+            .category = "F_Noise Channels",
+            .help = R"MARKDOWN(
+The single qubit relaxation channel.
+
+Applies a single-qubit relaxation event with the given probability.
+Note: this is the probability that the target, when leaked, is returned
+to the computational subspace.
+
+If a qubit is relaxed, it is returned to the computational subspace
+and no longer marked as leaked. Once relaxed a qubit will, therefore,
+no longer depolarise qubits that it interacts with.
+
+Parens Arguments:
+
+    A single float (p) specifying the relaxation probability for a
+    leaked qubit.
+
+Targets:
+
+    Qubits to apply the relaxation channel to.
+
+Examples:
+
+    # If 0 is leaked, relax it with 1% probability. If 0 is never leaked
+    # across any shots at the point where this channel is deployed, the
+    # channel does nothing
+    RELAX(0.01) 0
+
+    # If 2, 3 or 5 is leaked, relax them with 2% probability
+    LEAKAGE(0.02) 2 3 5
 )MARKDOWN",
             .unitary_data = {},
             .flow_data = {},
@@ -240,6 +342,7 @@ Examples:
             .flags = (GateFlags)(GATE_IS_SINGLE_QUBIT_GATE | GATE_IS_NOISY | GATE_ARGS_ARE_DISJOINT_PROBABILITIES),
             .category = "F_Noise Channels",
             .help = R"MARKDOWN(
+
 Applies a Pauli X with a given probability.
 
 Parens Arguments:

@@ -24,6 +24,8 @@ TEST(gen_surface_code, unrotated_surface_code_hard_coded_comparison) {
     CircuitGenParameters params(5, 2, "unrotated_memory_z");
     params.after_clifford_depolarization = 0.125;
     params.after_reset_flip_probability = 0.25;
+    params.after_reset_leakage = 0.009;
+    params.after_clifford_leakage_and_relaxation = 0.004;
     params.before_measure_flip_probability = 0.375;
     params.before_round_data_depolarization = 0.0625;
     auto out = generate_surface_code_circuit(params);
@@ -46,31 +48,40 @@ TEST(gen_surface_code, unrotated_surface_code_hard_coded_comparison) {
             QUBIT_COORDS(1, 2) 7
             QUBIT_COORDS(2, 2) 8
             R 0 2 4 6 8
+            LEAKAGE(0.009) 0 2 4 6 8
             X_ERROR(0.25) 0 2 4 6 8
             R 1 3 5 7
+            LEAKAGE(0.009) 1 3 5 7
             X_ERROR(0.25) 1 3 5 7
             TICK
             DEPOLARIZE1(0.0625) 0 2 4 6 8
             H 1 7
             DEPOLARIZE1(0.125) 1 7
+            RELAX(0.004) 1 7
             TICK
             CX 1 2 7 8 4 3
             DEPOLARIZE2(0.125) 1 2 7 8 4 3
+            LEAKAGE(0.004) 1 2 7 8 4 3
             TICK
             CX 1 4 6 3 8 5
             DEPOLARIZE2(0.125) 1 4 6 3 8 5
+            LEAKAGE(0.004) 1 4 6 3 8 5
             TICK
             CX 7 4 0 3 2 5
             DEPOLARIZE2(0.125) 7 4 0 3 2 5
+            LEAKAGE(0.004) 7 4 0 3 2 5
             TICK
             CX 1 0 7 6 4 5
             DEPOLARIZE2(0.125) 1 0 7 6 4 5
+            LEAKAGE(0.004) 1 0 7 6 4 5
             TICK
             H 1 7
             DEPOLARIZE1(0.125) 1 7
+            RELAX(0.004) 1 7
             TICK
             X_ERROR(0.375) 1 3 5 7
             MR 1 3 5 7
+            LEAKAGE(0.009) 1 3 5 7
             X_ERROR(0.25) 1 3 5 7
             DETECTOR(0, 1, 0) rec[-3]
             DETECTOR(2, 1, 0) rec[-2]
@@ -79,24 +90,31 @@ TEST(gen_surface_code, unrotated_surface_code_hard_coded_comparison) {
                 DEPOLARIZE1(0.0625) 0 2 4 6 8
                 H 1 7
                 DEPOLARIZE1(0.125) 1 7
+                RELAX(0.004) 1 7
                 TICK
                 CX 1 2 7 8 4 3
                 DEPOLARIZE2(0.125) 1 2 7 8 4 3
+                LEAKAGE(0.004) 1 2 7 8 4 3
                 TICK
                 CX 1 4 6 3 8 5
                 DEPOLARIZE2(0.125) 1 4 6 3 8 5
+                LEAKAGE(0.004) 1 4 6 3 8 5
                 TICK
                 CX 7 4 0 3 2 5
                 DEPOLARIZE2(0.125) 7 4 0 3 2 5
+                LEAKAGE(0.004) 7 4 0 3 2 5
                 TICK
                 CX 1 0 7 6 4 5
                 DEPOLARIZE2(0.125) 1 0 7 6 4 5
+                LEAKAGE(0.004) 1 0 7 6 4 5
                 TICK
                 H 1 7
                 DEPOLARIZE1(0.125) 1 7
+                RELAX(0.004) 1 7
                 TICK
                 X_ERROR(0.375) 1 3 5 7
                 MR 1 3 5 7
+                LEAKAGE(0.009) 1 3 5 7
                 X_ERROR(0.25) 1 3 5 7
                 SHIFT_COORDS(0, 0, 1)
                 DETECTOR(1, 0, 0) rec[-4] rec[-8]
@@ -134,31 +152,40 @@ TEST(gen_surface_code, unrotated_surface_code_hard_coded_comparison) {
         QUBIT_COORDS(1, 2) 7
         QUBIT_COORDS(2, 2) 8
         RX 0 2 4 6 8
+        LEAKAGE(0.009) 0 2 4 6 8
         Z_ERROR(0.25) 0 2 4 6 8
         R 1 3 5 7
+        LEAKAGE(0.009) 1 3 5 7
         X_ERROR(0.25) 1 3 5 7
         TICK
         DEPOLARIZE1(0.0625) 0 2 4 6 8
         H 1 7
         DEPOLARIZE1(0.125) 1 7
+        RELAX(0.004) 1 7
         TICK
         CX 1 2 7 8 4 3
         DEPOLARIZE2(0.125) 1 2 7 8 4 3
+        LEAKAGE(0.004) 1 2 7 8 4 3
         TICK
         CX 1 4 6 3 8 5
         DEPOLARIZE2(0.125) 1 4 6 3 8 5
+        LEAKAGE(0.004) 1 4 6 3 8 5
         TICK
         CX 7 4 0 3 2 5
         DEPOLARIZE2(0.125) 7 4 0 3 2 5
+        LEAKAGE(0.004) 7 4 0 3 2 5
         TICK
         CX 1 0 7 6 4 5
         DEPOLARIZE2(0.125) 1 0 7 6 4 5
+        LEAKAGE(0.004) 1 0 7 6 4 5
         TICK
         H 1 7
         DEPOLARIZE1(0.125) 1 7
+        RELAX(0.004) 1 7
         TICK
         X_ERROR(0.375) 1 3 5 7
         MR 1 3 5 7
+        LEAKAGE(0.009) 1 3 5 7
         X_ERROR(0.25) 1 3 5 7
         DETECTOR(1, 0, 0) rec[-4]
         DETECTOR(1, 2, 0) rec[-1]
@@ -175,6 +202,8 @@ TEST(gen_surface_code, rotated_surface_code_hard_coded_comparison) {
     CircuitGenParameters params(5, 2, "rotated_memory_z");
     params.after_clifford_depolarization = 0.125;
     params.after_reset_flip_probability = 0.25;
+    params.after_reset_leakage = 0.005;
+    params.after_clifford_leakage_and_relaxation = 0.005;
     params.before_measure_flip_probability = 0.375;
     params.before_round_data_depolarization = 0.0625;
     auto out = generate_surface_code_circuit(params);
@@ -197,31 +226,40 @@ TEST(gen_surface_code, rotated_surface_code_hard_coded_comparison) {
             QUBIT_COORDS(3, 3) 8
             QUBIT_COORDS(2, 4) 12
             R 1 3 6 8
+            LEAKAGE(0.005) 1 3 6 8
             X_ERROR(0.25) 1 3 6 8
             R 2 7 12
+            LEAKAGE(0.005) 2 7 12
             X_ERROR(0.25) 2 7 12
             TICK
             DEPOLARIZE1(0.0625) 1 3 6 8
             H 2 12
             DEPOLARIZE1(0.125) 2 12
+            RELAX(0.005) 2 12
             TICK
             CX 2 3 8 7
             DEPOLARIZE2(0.125) 2 3 8 7
+            LEAKAGE(0.005) 2 3 8 7
             TICK
             CX 2 1 3 7
             DEPOLARIZE2(0.125) 2 1 3 7
+            LEAKAGE(0.005) 2 1 3 7
             TICK
             CX 12 8 6 7
             DEPOLARIZE2(0.125) 12 8 6 7
+            LEAKAGE(0.005) 12 8 6 7
             TICK
             CX 12 6 1 7
             DEPOLARIZE2(0.125) 12 6 1 7
+            LEAKAGE(0.005) 12 6 1 7
             TICK
             H 2 12
             DEPOLARIZE1(0.125) 2 12
+            RELAX(0.005) 2 12
             TICK
             X_ERROR(0.375) 2 7 12
             MR 2 7 12
+            LEAKAGE(0.005) 2 7 12
             X_ERROR(0.25) 2 7 12
             DETECTOR(2, 2, 0) rec[-2]
             REPEAT 4 {
@@ -229,24 +267,31 @@ TEST(gen_surface_code, rotated_surface_code_hard_coded_comparison) {
                 DEPOLARIZE1(0.0625) 1 3 6 8
                 H 2 12
                 DEPOLARIZE1(0.125) 2 12
+                RELAX(0.005) 2 12
                 TICK
                 CX 2 3 8 7
                 DEPOLARIZE2(0.125) 2 3 8 7
+                LEAKAGE(0.005) 2 3 8 7
                 TICK
                 CX 2 1 3 7
                 DEPOLARIZE2(0.125) 2 1 3 7
+                LEAKAGE(0.005) 2 1 3 7
                 TICK
                 CX 12 8 6 7
                 DEPOLARIZE2(0.125) 12 8 6 7
+                LEAKAGE(0.005) 12 8 6 7
                 TICK
                 CX 12 6 1 7
                 DEPOLARIZE2(0.125) 12 6 1 7
+                LEAKAGE(0.005) 12 6 1 7
                 TICK
                 H 2 12
                 DEPOLARIZE1(0.125) 2 12
+                RELAX(0.005) 2 12
                 TICK
                 X_ERROR(0.375) 2 7 12
                 MR 2 7 12
+                LEAKAGE(0.005) 2 7 12
                 X_ERROR(0.25) 2 7 12
                 SHIFT_COORDS(0, 0, 1)
                 DETECTOR(2, 0, 0) rec[-3] rec[-6]

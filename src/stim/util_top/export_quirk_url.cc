@@ -288,6 +288,9 @@ struct QuirkExporter {
                     case GateType::II:
                     case GateType::I_ERROR:
                     case GateType::II_ERROR:
+                    case GateType::LEAKAGE:
+                    case GateType::RELAX:
+                    case GateType::HERALD_LEAKAGE_EVENT:
                         // Ignored.
                         break;
 

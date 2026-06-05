@@ -200,6 +200,7 @@ struct ErrorAnalyzer {
     void undo_MRX(const CircuitInstruction &inst);
     void undo_MRY(const CircuitInstruction &inst);
     void undo_MRZ(const CircuitInstruction &inst);
+    void undo_HERALD_LEAKAGE_EVENT(const CircuitInstruction &inst);
     void undo_H_XZ(const CircuitInstruction &inst);
     void undo_H_XY(const CircuitInstruction &inst);
     void undo_H_YZ(const CircuitInstruction &inst);
@@ -228,6 +229,8 @@ struct ErrorAnalyzer {
     void undo_CORRELATED_ERROR(const CircuitInstruction &inst);
     void undo_DEPOLARIZE1(const CircuitInstruction &inst);
     void undo_DEPOLARIZE2(const CircuitInstruction &inst);
+    void undo_LEAKAGE(const CircuitInstruction &inst);
+    void undo_RELAX(const CircuitInstruction &inst);
     void undo_ELSE_CORRELATED_ERROR(const CircuitInstruction &inst);
     void undo_PAULI_CHANNEL_1(const CircuitInstruction &inst);
     void undo_PAULI_CHANNEL_2(const CircuitInstruction &inst);

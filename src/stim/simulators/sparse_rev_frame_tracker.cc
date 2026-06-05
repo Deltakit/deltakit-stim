@@ -182,15 +182,17 @@ void SparseUnsignedRevFrameTracker::undo_gate(const CircuitInstruction &inst) {
         case GateType::II:
         case GateType::I_ERROR:
         case GateType::II_ERROR:
+        case GateType::LEAKAGE:
+        case GateType::RELAX:
             undo_I(inst);
             break;
 
         case GateType::MPAD:
         case GateType::HERALDED_ERASE:
         case GateType::HERALDED_PAULI_CHANNEL_1:
+        case GateType::HERALD_LEAKAGE_EVENT:
             undo_MPAD(inst);
             break;
-
         default:
             throw std::invalid_argument(
                 "Not implemented by SparseUnsignedRevFrameTracker::undo_gate: " +

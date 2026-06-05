@@ -24,6 +24,8 @@ TEST(gen_color_code, color_code_hard_coded_comparison) {
     CircuitGenParameters params(100, 5, "memory_xyz");
     params.after_clifford_depolarization = 0.125;
     params.after_reset_flip_probability = 0.25;
+    params.after_reset_leakage = 0.2;
+    params.after_clifford_leakage_and_relaxation = 0.003;
     params.before_measure_flip_probability = 0.375;
     params.before_round_data_depolarization = 0.0625;
     auto out = generate_color_code_circuit(params);
@@ -60,33 +62,42 @@ TEST(gen_color_code, color_code_hard_coded_comparison) {
         QUBIT_COORDS(2, 2) 8
         QUBIT_COORDS(1.5, 3) 9
         R 0 1 2 3 4 5 6 7 8 9
+        LEAKAGE(0.2) 0 1 2 3 4 5 6 7 8 9
         X_ERROR(0.25) 0 1 2 3 4 5 6 7 8 9
         REPEAT 2 {
             TICK
             DEPOLARIZE1(0.0625) 0 1 3 5 6 7 9
             C_XYZ 0 1 3 5 6 7 9
             DEPOLARIZE1(0.125) 0 1 3 5 6 7 9
+            RELAX(0.003) 0 1 3 5 6 7 9
             TICK
             CX 5 4 3 2
             DEPOLARIZE2(0.125) 5 4 3 2
+            LEAKAGE(0.003) 5 4 3 2
             TICK
             CX 7 4 6 2
             DEPOLARIZE2(0.125) 7 4 6 2
+            LEAKAGE(0.003) 7 4 6 2
             TICK
             CX 1 4 6 8
             DEPOLARIZE2(0.125) 1 4 6 8
+            LEAKAGE(0.003) 1 4 6 8
             TICK
             CX 1 2 7 8
             DEPOLARIZE2(0.125) 1 2 7 8
+            LEAKAGE(0.003) 1 2 7 8
             TICK
             CX 5 2 9 8
             DEPOLARIZE2(0.125) 5 2 9 8
+            LEAKAGE(0.003) 5 2 9 8
             TICK
             CX 0 4 5 8
             DEPOLARIZE2(0.125) 0 4 5 8
+            LEAKAGE(0.003) 0 4 5 8
             TICK
             X_ERROR(0.375) 2 4 8
             MR 2 4 8
+            LEAKAGE(0.2) 2 4 8
             X_ERROR(0.25) 2 4 8
         }
         DETECTOR(2, 0, 0) rec[-3] rec[-6]
@@ -97,27 +108,35 @@ TEST(gen_color_code, color_code_hard_coded_comparison) {
             DEPOLARIZE1(0.0625) 0 1 3 5 6 7 9
             C_XYZ 0 1 3 5 6 7 9
             DEPOLARIZE1(0.125) 0 1 3 5 6 7 9
+            RELAX(0.003) 0 1 3 5 6 7 9
             TICK
             CX 5 4 3 2
             DEPOLARIZE2(0.125) 5 4 3 2
+            LEAKAGE(0.003) 5 4 3 2
             TICK
             CX 7 4 6 2
             DEPOLARIZE2(0.125) 7 4 6 2
+            LEAKAGE(0.003) 7 4 6 2
             TICK
             CX 1 4 6 8
             DEPOLARIZE2(0.125) 1 4 6 8
+            LEAKAGE(0.003) 1 4 6 8
             TICK
             CX 1 2 7 8
             DEPOLARIZE2(0.125) 1 2 7 8
+            LEAKAGE(0.003) 1 2 7 8
             TICK
             CX 5 2 9 8
             DEPOLARIZE2(0.125) 5 2 9 8
+            LEAKAGE(0.003) 5 2 9 8
             TICK
             CX 0 4 5 8
             DEPOLARIZE2(0.125) 0 4 5 8
+            LEAKAGE(0.003) 0 4 5 8
             TICK
             X_ERROR(0.375) 2 4 8
             MR 2 4 8
+            LEAKAGE(0.2) 2 4 8
             X_ERROR(0.25) 2 4 8
             SHIFT_COORDS(0, 0, 1)
             DETECTOR(2, 0, 0) rec[-3] rec[-6] rec[-9]

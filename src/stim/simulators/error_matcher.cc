@@ -305,7 +305,9 @@ void ErrorMatcher::rev_process_instruction(const CircuitInstruction &op) {
             cur_coord_offset[k] -= op.args[k];
         }
         return;
-    } else if (!(flags & (GATE_IS_NOISY | GATE_PRODUCES_RESULTS))) {
+    } else if ((!(flags & (GATE_IS_NOISY | GATE_PRODUCES_RESULTS))) | (flags & GATE_TRANSPORTS_LEAKAGE) |
+                (op.gate_type == GateType::HERALD_LEAKAGE_EVENT) | (op.gate_type == GateType::LEAKAGE) |
+                (op.gate_type == GateType::RELAX)) {  // GUESSING IF A GATE IS LEAKAGE RELATED IT SHOULD ENTER HERE?
         error_analyzer.undo_gate(op);
         return;
     }

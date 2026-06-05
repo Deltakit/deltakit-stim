@@ -299,8 +299,8 @@ S 0
             .name = "CX",
             .id = GateType::CX,
             .best_candidate_inverse_id = GateType::CX,
-            .arg_count = 0,
-            .flags = (GateFlags)(GATE_IS_UNITARY | GATE_TARGETS_PAIRS | GATE_CAN_TARGET_BITS),
+            .arg_count = ARG_COUNT_SYGIL_ZERO_OR_FOUR,
+            .flags = (GateFlags)(GATE_IS_UNITARY | GATE_TARGETS_PAIRS | GATE_CAN_TARGET_BITS | GATE_IS_NOISY | GATE_TRANSPORTS_LEAKAGE),
             .category = "C_Two Qubit Clifford Gates",
             .help = R"MARKDOWN(
 The Z-controlled X gate.
@@ -330,6 +330,26 @@ Example:
     # Perform CX 2 5 then CX 4 2.
     CX 2 5 4 2
 
+    # Perform CX 2 5 with:
+    #  * 1% probability of spreading leakage from control to target. That is, the gate
+    #    will cause qubit 5 to leak with 1% probability if qubit 2 is leaked
+    #  * 2% probability of spreading leakage from target to control. That is, the gate
+    #    will cause qubit 5 to leak with 1% probability if qubit 2 is leaked
+    #  * 3% probability of leakage mobility from control to target. That is, if the
+    #    target is unleaked and the control is leaked, leak the target and relax the
+    #    control with 5% probability if the control is leaked.
+    #  * 4% probability of leakage mobility from target to control. That is, if the
+    #    target is leaked and the control is unleaked, leak the control and relax the
+    #    target with 4% probability if the target is leaked.
+    # Note: leakage spreading is applied before leakage mobility, meaning spreading will
+    #   dominate if both probabilities are set very high
+    # Note: transport from control to target is handled before transport from target to
+    #   control. This last point means that mobility in direction control -> target could
+    #   (but is unlikely to) be overridden by spreading in the direction of
+    #   target -> control, meaning our control would be "re-leaked".
+    # Note: leakage can be introduced into a circuit via the LEAKAGE channel.
+    CX(0.01, 0.02, 0.03, 0.04) 2 5
+
     # Bit flip qubit 6 if the most recent measurement result was TRUE.
     CX rec[-1] 6
 
@@ -352,8 +372,8 @@ CNOT 0 1
             .name = "CY",
             .id = GateType::CY,
             .best_candidate_inverse_id = GateType::CY,
-            .arg_count = 0,
-            .flags = (GateFlags)(GATE_IS_UNITARY | GATE_TARGETS_PAIRS | GATE_CAN_TARGET_BITS),
+            .arg_count = ARG_COUNT_SYGIL_ZERO_OR_FOUR,
+            .flags = (GateFlags)(GATE_IS_UNITARY | GATE_TARGETS_PAIRS | GATE_CAN_TARGET_BITS | GATE_IS_NOISY | GATE_TRANSPORTS_LEAKAGE),
             .category = "C_Two Qubit Clifford Gates",
             .help = R"MARKDOWN(
 The Z-controlled Y gate.
@@ -383,6 +403,26 @@ Example:
     # Perform CY 2 5 then CY 4 2.
     CY 2 5 4 2
 
+    # Perform CY 2 5 with:
+    #  * 1% probability of spreading leakage from control to target. That is, the gate
+    #    will cause qubit 5 to leak with 1% probability if qubit 2 is leaked
+    #  * 2% probability of spreading leakage from target to control. That is, the gate
+    #    will cause qubit 5 to leak with 1% probability if qubit 2 is leaked
+    #  * 3% probability of leakage mobility from control to target. That is, if the
+    #    target is unleaked and the control is leaked, leak the target and relax the
+    #    control with 5% probability if the control is leaked.
+    #  * 4% probability of leakage mobility from target to control. That is, if the
+    #    target is leaked and the control is unleaked, leak the control and relax the
+    #    target with 4% probability if the target is leaked.
+    # Note: leakage spreading is applied before leakage mobility, meaning spreading will
+    #   dominate if both probabilities are set very high
+    # Note: transport from control to target is handled before transport from target to
+    #   control. This last point means that mobility in direction control -> target could
+    #   (but is unlikely to) be overridden by spreading in the direction of
+    #   target -> control, meaning our control would be "re-leaked".
+    # Note: leakage can be introduced into a circuit via the LEAKAGE channel.
+    CY(0.01, 0.02, 0.03, 0.04) 2 5
+
     # Apply Y to qubit 6 if the most recent measurement result was TRUE.
     CY rec[-1] 6
 
@@ -408,8 +448,8 @@ S 1
             .name = "CZ",
             .id = GateType::CZ,
             .best_candidate_inverse_id = GateType::CZ,
-            .arg_count = 0,
-            .flags = (GateFlags)(GATE_IS_UNITARY | GATE_TARGETS_PAIRS | GATE_CAN_TARGET_BITS),
+            .arg_count = ARG_COUNT_SYGIL_ZERO_OR_FOUR,
+            .flags = (GateFlags)(GATE_IS_UNITARY | GATE_TARGETS_PAIRS | GATE_CAN_TARGET_BITS | GATE_IS_NOISY | GATE_TRANSPORTS_LEAKAGE),
             .category = "C_Two Qubit Clifford Gates",
             .help = R"MARKDOWN(
 The Z-controlled Z gate.
@@ -441,6 +481,26 @@ Example:
 
     # Apply Z to qubit 6 if the most recent measurement result was TRUE.
     CZ rec[-1] 6
+
+    # Perform CZ 2 5 with:
+    #  * 1% probability of spreading leakage from control to target. That is, the gate
+    #    will cause qubit 5 to leak with 1% probability if qubit 2 is leaked
+    #  * 2% probability of spreading leakage from target to control. That is, the gate
+    #    will cause qubit 5 to leak with 1% probability if qubit 2 is leaked
+    #  * 3% probability of leakage mobility from control to target. That is, if the
+    #    target is unleaked and the control is leaked, leak the target and relax the
+    #    control with 5% probability if the control is leaked.
+    #  * 4% probability of leakage mobility from target to control. That is, if the
+    #    target is leaked and the control is unleaked, leak the control and relax the
+    #    target with 4% probability if the target is leaked.
+    # Note: leakage spreading is applied before leakage mobility, meaning spreading will
+    #   dominate if both probabilities are set very high
+    # Note: transport from control to target is handled before transport from target to
+    #   control. This last point means that mobility in direction control -> target could
+    #   (but is unlikely to) be overridden by spreading in the direction of
+    #   target -> control, meaning our control would be "re-leaked".
+    # Note: leakage can be introduced into a circuit via the LEAKAGE channel.
+    CZ(0.01, 0.02, 0.03, 0.04) 2 5
 
     # Apply Z to qubit 7 if the 3rd most recent measurement result was TRUE.
     CZ 7 rec[-3]

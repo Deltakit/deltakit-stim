@@ -461,4 +461,57 @@ R 0
         });
 
     add_gate_alias(failed, "RZ", "R");
+
+    add_gate(
+        failed,
+        Gate{
+            .name = "HERALD_LEAKAGE_EVENT",
+            .id = GateType::HERALD_LEAKAGE_EVENT,
+            .best_candidate_inverse_id = GateType::HERALD_LEAKAGE_EVENT,
+            .arg_count = ARG_COUNT_SYGIL_ZERO_OR_ONE,
+            .flags = (GateFlags)(GATE_IS_SINGLE_QUBIT_GATE | GATE_PRODUCES_RESULTS | GATE_IS_NOISY | GATE_ARGS_ARE_DISJOINT_PROBABILITIES),
+            .category = "L_Collapsing Gates",
+            .help = R"MARKDOWN(
+The single qubit leakage heralding gate
+
+Determines whether or not a qubit is leaked and populates the measurement record with this data.
+
+This gate is only meaningful if the circuit contains `LEAKAGE` and `RELAX` channels. It would
+typically be paired with a measurement gate to reflect the way in which certain platforms can
+herald leakage during measurement.
+
+Parens Arguments:
+
+    If no parens argument is given, the heralding readout is perfect.
+    If one parens argument is given, the heralding readout is noisy.
+    Heralding noise is modelled asymmetrically: it only ever results
+    in a leaked qubit being read as unleaked. That is, it never lifts
+    an unleaked qubit into the leaked state. The argument is the
+    probability of leaked qubits being declared unleaked.
+
+Targets:
+
+    Qubits to apply the relaxation channel to.
+
+Examples:
+
+    # Herald leakage on qubit 0. If 0 is leaked put a 1 in the measurement record, otherwise a 0
+    HERALD_LEAKAGE_EVENT 0
+
+    # Same as above but heralds leakage on both qubit 0 and 1
+    HERALD_LEAKAGE_EVENT 0 1
+
+    # Same as above but leaked qubits will be incorrectly classified as unleaked 3% of the time
+    HERALD_LEAKAGE_EVENT(0.03) 0 1
+
+    # To populate a syndrome with the heralding bit during detector sampling use a DETECTOR annotation
+    # that refers back to this channel
+    HERALD_LEAKAGE_EVENT 0
+    DETECTOR rec[-1]
+
+)MARKDOWN",
+            .unitary_data = {},
+            .flow_data = {},
+            .h_s_cx_m_r_decomposition = nullptr,
+        });
 }

@@ -135,3 +135,36 @@ TEST(circuit_gen_params, append_measure_reset) {
         X_ERROR(0.25) 4
     )CIRCUIT"));
 }
+
+TEST(circuit_gen_params, append_leakage) {
+    CircuitGenParameters params(3, 5, "test");
+    Circuit circuit;
+    params.after_reset_leakage = 0.25;
+
+    params.append_reset(circuit, {2, 3, 5});
+    params.append_measure_reset(circuit, {2, 3, 5});
+    params.append_measure_reset(circuit, {1}, 'X');
+    params.append_measure_reset(circuit, {4}, 'Y');
+
+    ASSERT_EQ(circuit, Circuit(R"CIRCUIT(
+        R 2 3 5
+        LEAKAGE(0.25) 2 3 5
+        MR 2 3 5
+        LEAKAGE(0.25) 2 3 5
+        MRX 1
+        LEAKAGE(0.25) 1
+        MRY 4
+        LEAKAGE(0.25) 4
+    )CIRCUIT"));
+}
+
+TEST(circuit_gen_params, append_after_clifford_leakage_and_relaxation) {
+    CircuitGenParameters params(3, 5, "test");
+    Circuit circuit;
+    params.after_clifford_leakage_and_relaxation = 0.0125;
+
+    params.append_unitary_2(circuit, "CX", {2, 3});
+    ASSERT_EQ(circuit, Circuit("CX 2 3\nLEAKAGE(0.0125) 2 3"));
+    params.append_unitary_1(circuit, "H", {2, 3, 5});
+    ASSERT_EQ(circuit, Circuit("CX 2 3\nLEAKAGE(0.0125) 2 3\nH 2 3 5\nRELAX(0.0125) 2 3 5"));
+}

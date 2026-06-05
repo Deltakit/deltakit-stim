@@ -503,6 +503,7 @@ struct Simplifier {
             case GateType::TICK:
             case GateType::QUBIT_COORDS:
             case GateType::SHIFT_COORDS:
+            case GateType::HERALD_LEAKAGE_EVENT:
                 // Annotations can't be simplified.
                 yield(inst);
                 break;
@@ -520,6 +521,8 @@ struct Simplifier {
             case GateType::ELSE_CORRELATED_ERROR:
             case GateType::HERALDED_ERASE:
             case GateType::HERALDED_PAULI_CHANNEL_1:
+            case GateType::LEAKAGE:
+            case GateType::RELAX:
                 // Noise isn't simplified.
                 yield(inst);
                 break;

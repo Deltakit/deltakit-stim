@@ -16,6 +16,8 @@ struct CircuitGenParameters {
     double before_round_data_depolarization = 0;
     double before_measure_flip_probability = 0;
     double after_reset_flip_probability = 0;
+    double after_reset_leakage = 0;
+    double after_clifford_leakage_and_relaxation = 0;
 
     void validate_params() const;
 

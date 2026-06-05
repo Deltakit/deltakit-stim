@@ -48,6 +48,15 @@ constexpr uint8_t ARG_COUNT_SYGIL_ANY = uint8_t{0xFF};
 /// a noiseless result whereas 1 parens argument is a noisy result.
 constexpr uint8_t ARG_COUNT_SYGIL_ZERO_OR_ONE = uint8_t{0xFE};
 
+/// Used for gates' argument count to indicate that a gate takes 0 parens arguments or 2
+/// parens argument. This is relevant to gates where leakage transport is possible. In
+/// this case 0 parens arguments means no leakage transport while 4 arguments offer
+/// the possibility to specify both leakage spreading asymmetrically and asymmetric leakage
+/// mobility as separate probabilities
+constexpr uint8_t ARG_COUNT_SYGIL_ZERO_OR_FOUR = uint8_t{0xFD};
+
+
+
 constexpr inline uint16_t gate_name_to_hash(std::string_view text) {
     // HACK: A collision is considered to be an error.
     // Just do *anything* that makes all the defined gates have different values.
@@ -88,7 +97,7 @@ constexpr inline uint16_t gate_name_to_hash(std::string_view text) {
     return result & 0x1FF;
 }
 
-constexpr size_t NUM_DEFINED_GATES = 82;
+constexpr const size_t NUM_DEFINED_GATES = 82;
 
 enum class GateType : uint8_t {
     NOT_A_GATE = 0,
@@ -131,6 +140,9 @@ enum class GateType : uint8_t {
     // Noise channels
     DEPOLARIZE1,
     DEPOLARIZE2,
+    LEAKAGE,
+    RELAX,
+    HERALD_LEAKAGE_EVENT,
     X_ERROR,
     Y_ERROR,
     Z_ERROR,
@@ -189,7 +201,7 @@ enum class GateType : uint8_t {
     MZZ,
 };
 
-enum GateFlags : uint16_t {
+enum GateFlags : uint32_t {
     // All gates must have at least one flag set.
     NO_GATE_FLAG = 0,
 
@@ -230,6 +242,9 @@ enum GateFlags : uint16_t {
     GATE_HAS_NO_EFFECT_ON_QUBITS = 1 << 14,
     // Whether or not the gate trivially broadcasts over targets.
     GATE_IS_SINGLE_QUBIT_GATE = 1 << 15,
+    // Whether or not the gate can transport leakage from one qubit to another, be it through leakage
+    // spreading or leakage mobility
+    GATE_TRANSPORTS_LEAKAGE = 1 << 16,
 };
 
 struct Gate {

@@ -504,6 +504,8 @@ std::map<std::string_view, std::shared_ptr<GltfMesh>> stim_draw_internal::make_g
         f("I_ERROR", 15, 8),
         f("DEPOLARIZE1", 3, 9),
         f("DEPOLARIZE2", 4, 9),
+        f("LEAKAGE", 2, 8),
+        f("RELAX", 3, 6),
         f("ISWAP", 5, 9),
         f("ISWAP_DAG", 6, 9),
         f("SWAP", 7, 9),
@@ -515,6 +517,7 @@ std::map<std::string_view, std::shared_ptr<GltfMesh>> stim_draw_internal::make_g
         f("MPAD", 13, 9),
         f("HERALDED_ERASE", 14, 9),
         f("HERALDED_PAULI_CHANNEL_1", 15, 9),
+        f("HERALD_LEAKAGE_EVENT", 2, 8),
 
         f("SPP:X", 0, 10),
         f("SPP:Y", 1, 10),

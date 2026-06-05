@@ -539,6 +539,8 @@ struct QasmExporter {
             case GateType::ELSE_CORRELATED_ERROR:
             case GateType::HERALDED_ERASE:
             case GateType::HERALDED_PAULI_CHANNEL_1:
+            case GateType::LEAKAGE:
+            case GateType::RELAX:
                 throw std::invalid_argument(
                     "The circuit contains noise, but OPENQASM 2 doesn't support noise operations.\n"
                     "Use `stim.Circuit.without_noise` to get a version of the circuit without noise.");

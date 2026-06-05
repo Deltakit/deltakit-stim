@@ -22,6 +22,8 @@ TEST(gen_rep_code, rep_code) {
     CircuitGenParameters params(5000, 4, "memory");
     params.after_clifford_depolarization = 0.125;
     params.after_reset_flip_probability = 0.25;
+    params.after_reset_leakage = 0.012;
+    params.after_clifford_leakage_and_relaxation = 0.002;
     params.before_measure_flip_probability = 0.375;
     params.before_round_data_depolarization = 0.0625;
     auto out = generate_rep_code_circuit(params);
@@ -31,17 +33,21 @@ TEST(gen_rep_code, rep_code) {
         out.circuit.str(),
         Circuit(R"CIRCUIT(
         R 0 1 2 3 4 5 6
+        LEAKAGE(0.012) 0 1 2 3 4 5 6
         X_ERROR(0.25) 0 1 2 3 4 5 6
         TICK
         DEPOLARIZE1(0.0625) 0 2 4 6
         CX 0 1 2 3 4 5
         DEPOLARIZE2(0.125) 0 1 2 3 4 5
+        LEAKAGE(0.002) 0 1 2 3 4 5
         TICK
         CX 2 1 4 3 6 5
         DEPOLARIZE2(0.125) 2 1 4 3 6 5
+        LEAKAGE(0.002) 2 1 4 3 6 5
         TICK
         X_ERROR(0.375) 1 3 5
         MR 1 3 5
+        LEAKAGE(0.012) 1 3 5
         X_ERROR(0.25) 1 3 5
         DETECTOR(1, 0) rec[-3]
         DETECTOR(3, 0) rec[-2]
@@ -51,12 +57,15 @@ TEST(gen_rep_code, rep_code) {
             DEPOLARIZE1(0.0625) 0 2 4 6
             CX 0 1 2 3 4 5
             DEPOLARIZE2(0.125) 0 1 2 3 4 5
+            LEAKAGE(0.002) 0 1 2 3 4 5
             TICK
             CX 2 1 4 3 6 5
             DEPOLARIZE2(0.125) 2 1 4 3 6 5
+            LEAKAGE(0.002) 2 1 4 3 6 5
             TICK
             X_ERROR(0.375) 1 3 5
             MR 1 3 5
+            LEAKAGE(0.012) 1 3 5
             X_ERROR(0.25) 1 3 5
             SHIFT_COORDS(0, 1)
             DETECTOR(1, 0) rec[-3] rec[-6]

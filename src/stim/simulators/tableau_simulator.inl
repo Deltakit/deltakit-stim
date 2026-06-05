@@ -357,6 +357,12 @@ void TableauSimulator<W>::do_MZ(const CircuitInstruction &target_data) {
 }
 
 template <size_t W>
+void TableauSimulator<W>::do_HERALD_LEAKAGE_EVENT(const CircuitInstruction &target_data) {
+    auto nt = target_data.targets.size();
+    measurement_record.storage.insert(measurement_record.storage.end(), nt, false);
+}
+
+template <size_t W>
 bool TableauSimulator<W>::measure_pauli_string(const PauliStringRef<W> pauli_string, double flip_probability) {
     if (!(0 <= flip_probability && flip_probability <= 1)) {
         throw std::invalid_argument("Need 0 <= flip_probability <= 1");
@@ -1080,6 +1086,14 @@ void TableauSimulator<W>::do_HERALDED_PAULI_CHANNEL_1(const CircuitInstruction &
 }
 
 template <size_t W>
+void TableauSimulator<W>::do_LEAKAGE(const CircuitInstruction &target_data) {
+}
+
+template <size_t W>
+void TableauSimulator<W>::do_RELAX(const CircuitInstruction &target_data) {
+}
+
+template <size_t W>
 void TableauSimulator<W>::do_X_ERROR(const CircuitInstruction &target_data) {
     RareErrorIterator::for_samples(target_data.args[0], target_data.targets, rng, [&](GateTarget q) {
         inv_state.zs.signs[q.data] ^= true;
@@ -1635,6 +1649,9 @@ void TableauSimulator<W>::do_gate(const CircuitInstruction &inst) {
         case GateType::MPAD:
             do_MPAD(inst);
             break;
+        case GateType::HERALD_LEAKAGE_EVENT:
+            do_HERALD_LEAKAGE_EVENT(inst);
+            break;
         case GateType::XCX:
             do_XCX(inst);
             break;
@@ -1685,6 +1702,12 @@ void TableauSimulator<W>::do_gate(const CircuitInstruction &inst) {
             break;
         case GateType::DEPOLARIZE2:
             do_DEPOLARIZE2(inst);
+            break;
+        case GateType::LEAKAGE:
+            do_LEAKAGE(inst);
+            break;
+        case GateType::RELAX:
+            do_RELAX(inst);
             break;
         case GateType::X_ERROR:
             do_X_ERROR(inst);

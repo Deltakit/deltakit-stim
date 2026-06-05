@@ -27,6 +27,12 @@ void CircuitGenParameters::validate_params() const {
     if (after_reset_flip_probability < 0 || after_reset_flip_probability > 1) {
         throw std::invalid_argument("not 0 <= after_reset_flip_probability <= 1");
     }
+    if (after_reset_leakage < 0 || after_reset_leakage > 1) {
+        throw std::invalid_argument("not 0 <= after_reset_leakage <= 1");
+    }
+    if (after_clifford_leakage_and_relaxation < 0 || after_clifford_leakage_and_relaxation > 1) {
+        throw std::invalid_argument("not 0 <= after_clifford_leakage_and_relaxation <= 1");
+    }
 }
 
 CircuitGenParameters::CircuitGenParameters(uint64_t rounds, uint32_t distance, std::string task)
@@ -46,6 +52,9 @@ void CircuitGenParameters::append_unitary_1(
     if (after_clifford_depolarization > 0) {
         circuit.safe_append_ua("DEPOLARIZE1", targets, after_clifford_depolarization);
     }
+    if (after_clifford_leakage_and_relaxation > 0) {
+        circuit.safe_append_ua("RELAX", targets, after_clifford_leakage_and_relaxation);
+    }
 }
 
 void CircuitGenParameters::append_unitary_2(
@@ -54,12 +63,18 @@ void CircuitGenParameters::append_unitary_2(
     if (after_clifford_depolarization > 0) {
         circuit.safe_append_ua("DEPOLARIZE2", targets, after_clifford_depolarization);
     }
+    if (after_clifford_leakage_and_relaxation > 0) {
+        circuit.safe_append_ua("LEAKAGE", targets, after_clifford_leakage_and_relaxation);
+    }
 }
 
 void CircuitGenParameters::append_reset(Circuit &circuit, const std::vector<uint32_t> targets, char basis) const {
     std::string gate("R");
     gate.push_back(basis);
     circuit.safe_append_u(gate, targets);
+    if (after_reset_leakage > 0) {
+        circuit.safe_append_ua("LEAKAGE", targets, after_reset_leakage);
+    }
     append_anti_basis_error(circuit, targets, after_reset_flip_probability, basis);
 }
 
@@ -76,6 +91,9 @@ void CircuitGenParameters::append_measure_reset(
     gate.push_back(basis);
     append_anti_basis_error(circuit, targets, before_measure_flip_probability, basis);
     circuit.safe_append_u(gate, targets);
+    if (after_reset_leakage > 0) {
+        circuit.safe_append_ua("LEAKAGE", targets, after_reset_leakage);
+    }
     append_anti_basis_error(circuit, targets, after_reset_flip_probability, basis);
 }
 

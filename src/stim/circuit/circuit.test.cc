@@ -1166,7 +1166,7 @@ TEST(circuit, aliased_noiseless_circuit) {
         M(0.05) 0
         M(0.15) 1
         REPEAT 100 {
-            CNOT 0 1
+            CNOT(0.01, 0.02, 0.03, 0.04) 0 1
             DEPOLARIZE2(0.1) 0 1
             MPP(0.1) X0*X1 Z0 Z1
         }
@@ -1767,6 +1767,8 @@ Circuit stim::generate_test_circuit_with_all_operations() {
         ELSE_CORRELATED_ERROR(0.02) X4 Y7 Z6
         DEPOLARIZE1(0.02) 0
         DEPOLARIZE2(0.03) 1 2
+        LEAKAGE(0.01) 0 1 2
+        RELAX(0.01) 0 1 2
         PAULI_CHANNEL_1(0.01, 0.02, 0.03) 3
         PAULI_CHANNEL_2(0.001, 0.002, 0.003, 0.004, 0.005, 0.006, 0.007, 0.008, 0.009, 0.010, 0.011, 0.012, 0.013, 0.014, 0.015) 4 5
         X_ERROR(0.01) 0
@@ -1783,6 +1785,9 @@ Circuit stim::generate_test_circuit_with_all_operations() {
         SPP X0*Y1*Z2 X3
         SPP_DAG X0*Y1*Z2 X2
         TICK
+
+        # Heralding Gates
+        HERALD_LEAKAGE_EVENT 0 1 2
 
         # Collapsing Gates
         MRX 0

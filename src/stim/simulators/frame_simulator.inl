@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <algorithm>
+#include <bit>
 #include <cstring>
 
 #include "stim/circuit/gate_decomposition.h"
@@ -45,6 +46,7 @@ FrameSimulator<W>::FrameSimulator(
       batch_size(0),
       x_table(0, 0),
       z_table(0, 0),
+      leakage_table(0, 0),
       m_record(0, 0),
       det_record(0, 0),
       obs_record(0, 0),
@@ -76,6 +78,7 @@ void FrameSimulator<W>::configure_for(
     tmp_storage.destructive_resize(batch_size);
     last_correlated_error_occurred.destructive_resize(batch_size);
     sweep_table.destructive_resize(0, batch_size);
+    leakage_table.destructive_resize(new_circuit_stats.num_qubits, batch_size);
 
     uint64_t num_stored_measurements = new_circuit_stats.max_lookback;
     if (storing_all_measurements) {
@@ -157,6 +160,7 @@ void FrameSimulator<W>::reset_all() {
     } else {
         z_table.clear();
     }
+    leakage_table.clear();
     m_record.clear();
     det_record.clear();
     obs_record.clear();
@@ -215,6 +219,8 @@ void FrameSimulator<W>::do_RX(const CircuitInstruction &inst) {
             x_table[q].randomize(z_table[q].num_bits_padded(), rng);
         }
         z_table[q].clear();
+        // Move qubit out of the leaked state across all shots - i.e. back into the computational basis
+        leakage_table[q].clear();
     }
 }
 
@@ -259,6 +265,8 @@ void FrameSimulator<W>::do_RY(const CircuitInstruction &inst) {
             z_table[q].randomize(z_table[q].num_bits_padded(), rng);
         }
         x_table[q] = z_table[q];
+        // Move qubit out of the leaked state across all shots - i.e. back into the computational basis
+        leakage_table[q].clear();
     }
 }
 
@@ -270,6 +278,8 @@ void FrameSimulator<W>::do_RZ(const CircuitInstruction &inst) {
         if (guarantee_anticommutation_via_frame_randomization) {
             z_table[q].randomize(z_table[q].num_bits_padded(), rng);
         }
+        // Move qubit out of the leaked state across all shots - i.e. back into the computational basis
+        leakage_table[q].clear();
     }
 }
 
@@ -284,6 +294,8 @@ void FrameSimulator<W>::do_MRX(const CircuitInstruction &target_data) {
         if (guarantee_anticommutation_via_frame_randomization) {
             x_table[q].randomize(x_table[q].num_bits_padded(), rng);
         }
+        // Move qubit out of the leaked state across all shots - i.e. back into the computational basis
+        leakage_table[q].clear();
     }
 }
 
@@ -299,6 +311,8 @@ void FrameSimulator<W>::do_MRY(const CircuitInstruction &target_data) {
             z_table[q].randomize(z_table[q].num_bits_padded(), rng);
         }
         x_table[q] = z_table[q];
+        // Move qubit out of the leaked state across all shots - i.e. back into the computational basis
+        leakage_table[q].clear();
     }
 }
 
@@ -313,6 +327,21 @@ void FrameSimulator<W>::do_MRZ(const CircuitInstruction &target_data) {
         if (guarantee_anticommutation_via_frame_randomization) {
             z_table[q].randomize(z_table[q].num_bits_padded(), rng);
         }
+        // Move qubit out of the leaked state across all shots - i.e. back into the computational basis
+        leakage_table[q].clear();
+    }
+}
+
+template <size_t W>
+void FrameSimulator<W>::do_HERALD_LEAKAGE_EVENT(const CircuitInstruction &target_data) {
+    m_record.reserve_noisy_space_for_results(target_data, rng);
+    for (auto t : target_data.targets) {
+        // "And" out randomness in unleaked qubit locations. This ensures heralding errors
+        // only bring qubits out of the leaked state (i.e. confuse qubits from the |2> into
+        // the computational basis), not into it. This captures the asymmetry observed in
+        // misclassifying the leaked state in experimental data.
+        m_record.storage[m_record.stored] &= leakage_table[t.qubit_value()];
+        m_record.xor_record_reserved_result(leakage_table[t.qubit_value()]);
     }
 }
 
@@ -428,11 +457,102 @@ void FrameSimulator<W>::single_cy(uint32_t c, uint32_t t) {
 }
 
 template <size_t W>
+void FrameSimulator<W>::propagate_leakage(const uint32_t c, const uint32_t t, const float p_spread_cont_tar, const float p_spread_tar_cont,
+        const float p_mobility_cont_tar, const float p_mobility_tar_cont) {
+    const auto c_leakage_state = leakage_table[c];
+    const auto t_leakage_state = leakage_table[t];
+
+    RareErrorIterator p_spread_cont_tar_skipper(p_spread_cont_tar);
+    RareErrorIterator p_spread_tar_cont_skipper(p_spread_tar_cont);
+    RareErrorIterator p_mobility_cont_tar_skipper(p_mobility_cont_tar);
+    RareErrorIterator p_mobility_tar_cont_skipper(p_mobility_tar_cont);
+
+    // Ternary operator is used to ensure these functions do not consume entropy when probabilities are 0
+    size_t cont_tar_spread_step = p_spread_cont_tar == 0 ? SIZE_MAX : p_spread_cont_tar_skipper.next(rng);
+    size_t tar_cont_spread_step = p_spread_tar_cont == 0 ? SIZE_MAX : p_spread_tar_cont_skipper.next(rng);
+    size_t cont_tar_mobility_step = p_mobility_cont_tar == 0 ? SIZE_MAX : p_mobility_cont_tar_skipper.next(rng);
+    size_t tar_cont_mobility_step = p_mobility_tar_cont == 0 ? SIZE_MAX : p_mobility_tar_cont_skipper.next(rng);
+
+    size_t num_hits_cont_tar = 0;
+    size_t num_hits_tar_cont = 0;
+    uint64_t rng_buf = 0;
+    size_t buf_size = 0;
+
+    for (size_t i = 0; i < c_leakage_state.num_u64_padded(); ++i) {
+        uint64_t n = c_leakage_state.u64[i];
+        while (n) {
+            const int leakage_event = i * 64 + std::countr_zero(n);
+            if (buf_size == 0) {
+                rng_buf = rng();
+                buf_size = 64;
+            }
+            x_table[t][leakage_event] ^= (bool)(rng_buf & 1);
+            z_table[t][leakage_event] ^= (bool)(rng_buf & 2);
+            rng_buf >>= 2;
+            buf_size -= 2;
+
+            // Implements leakage spreading from control to target by leaking the target at a given shot
+            // given p_spread_cont_tar
+            if (num_hits_cont_tar == cont_tar_spread_step) {
+                leakage_table[t][leakage_event] = true;
+                cont_tar_spread_step = p_spread_cont_tar_skipper.next(rng);
+            }
+            // Implements leakage mobility from control to target iff the target is unleaked. Leaks the target
+            // at a given shot and relaxes the control given p_mobility_cont_tar
+            if (num_hits_cont_tar == cont_tar_mobility_step && not leakage_table[t][leakage_event]) {
+                leakage_table[t][leakage_event] = true;
+                leakage_table[c][leakage_event] = false;
+                cont_tar_mobility_step = p_mobility_cont_tar_skipper.next(rng);
+            }
+
+            n &= n - 1;
+            ++num_hits_cont_tar;
+        }
+        n = t_leakage_state.u64[i];
+        while (n) {
+            const int leakage_event = i * 64 + std::countr_zero(n);
+            if (buf_size == 0) {
+                rng_buf = rng();
+                buf_size = 64;
+            }
+            x_table[c][leakage_event] ^= (bool)(rng_buf & 1);
+            z_table[c][leakage_event] ^= (bool)(rng_buf & 2);
+            rng_buf >>= 2;
+            buf_size -= 2;
+
+            // Implements leakage spreading from target to control by leaking the control at a given shot
+            // given p_spread_tar_cont
+            if (num_hits_tar_cont == tar_cont_spread_step) {
+                leakage_table[c][leakage_event] = true;
+                tar_cont_spread_step = p_spread_tar_cont_skipper.next(rng);
+            }
+            // Implements leakage mobility from target to control iff the control is unleaked. Leaks the control
+            // at a given shot and relaxes the target given p_mobility_tar_cont
+            if (num_hits_tar_cont == tar_cont_mobility_step && not leakage_table[c][leakage_event]) {
+                leakage_table[c][leakage_event] = true;
+                leakage_table[t][leakage_event] = false;
+                tar_cont_mobility_step = p_mobility_tar_cont_skipper.next(rng);
+            }
+
+            n &= n - 1;
+            ++num_hits_tar_cont;
+        }
+    }
+}
+
+template <size_t W>
 void FrameSimulator<W>::do_ZCX(const CircuitInstruction &target_data) {
     const auto &targets = target_data.targets;
     assert((targets.size() & 1) == 0);
+    const float p_spread_cont_tar = target_data.args.empty() ? 0 : target_data.args[0];
+    const float p_spread_tar_cont = target_data.args.empty() ? 0 : target_data.args[1];
+    const float p_mobility_cont_tar = target_data.args.empty() ? 0 : target_data.args[2];
+    const float p_mobility_tar_cont = target_data.args.empty() ? 0 : target_data.args[3];
     for (size_t k = 0; k < targets.size(); k += 2) {
         single_cx(targets[k].data, targets[k + 1].data);
+        if (targets[k].is_qubit_target() && targets[k + 1].is_qubit_target()) {
+            propagate_leakage(targets[k].value(), targets[k + 1].value(), p_spread_cont_tar, p_spread_tar_cont, p_mobility_cont_tar, p_mobility_tar_cont);
+        }
     }
 }
 
@@ -440,8 +560,15 @@ template <size_t W>
 void FrameSimulator<W>::do_ZCY(const CircuitInstruction &target_data) {
     const auto &targets = target_data.targets;
     assert((targets.size() & 1) == 0);
+    const float p_spread_cont_tar = target_data.args.empty() ? 0 : target_data.args[0];
+    const float p_spread_tar_cont = target_data.args.empty() ? 0 : target_data.args[1];
+    const float p_mobility_cont_tar = target_data.args.empty() ? 0 : target_data.args[2];
+    const float p_mobility_tar_cont = target_data.args.empty() ? 0 : target_data.args[3];
     for (size_t k = 0; k < targets.size(); k += 2) {
         single_cy(targets[k].data, targets[k + 1].data);
+        if (targets[k].is_qubit_target() && targets[k + 1].is_qubit_target()) {
+            propagate_leakage(targets[k].value(), targets[k + 1].value(), p_spread_cont_tar, p_spread_tar_cont, p_mobility_cont_tar, p_mobility_tar_cont);
+        }
     }
 }
 
@@ -449,6 +576,10 @@ template <size_t W>
 void FrameSimulator<W>::do_ZCZ(const CircuitInstruction &target_data) {
     const auto &targets = target_data.targets;
     assert((targets.size() & 1) == 0);
+    const float p_spread_cont_tar = target_data.args.empty() ? 0 : target_data.args[0];
+    const float p_spread_tar_cont = target_data.args.empty() ? 0 : target_data.args[1];
+    const float p_mobility_cont_tar = target_data.args.empty() ? 0 : target_data.args[2];
+    const float p_mobility_tar_cont = target_data.args.empty() ? 0 : target_data.args[3];
     for (size_t k = 0; k < targets.size(); k += 2) {
         size_t c = targets[k].data;
         size_t t = targets[k + 1].data;
@@ -469,6 +600,10 @@ void FrameSimulator<W>::do_ZCZ(const CircuitInstruction &target_data) {
             xor_control_bit_into(t, z_table[c]);
         } else {
             // Both targets are bits. No effect.
+        }
+
+        if (targets[k].is_qubit_target() && targets[k + 1].is_qubit_target()) {
+            propagate_leakage(targets[k].value(), targets[k + 1].value(), p_spread_cont_tar, p_spread_tar_cont, p_mobility_cont_tar, p_mobility_tar_cont);
         }
     }
 }
@@ -658,6 +793,55 @@ void FrameSimulator<W>::do_DEPOLARIZE2(const CircuitInstruction &target_data) {
         x_table[t2][sample_index] ^= (bool)(p & 4);
         z_table[t2][sample_index] ^= (bool)(p & 8);
     });
+}
+
+template <size_t W>
+void FrameSimulator<W>::do_LEAKAGE(const CircuitInstruction &target_data) {
+    const auto &targets = target_data.targets;
+
+    uint64_t rng_buf = 0;
+    size_t buf_size = 0;
+    RareErrorIterator::for_samples(target_data.args[0], targets.size() * batch_size, rng, [&](size_t s) {
+        auto shot = s % batch_size;
+        auto target = s / batch_size;
+        auto qubit = target_data.targets[target].qubit_value();
+        if (buf_size == 0) {
+            rng_buf = rng();
+            buf_size = 64;
+        }
+        x_table[qubit][shot] ^= (bool)(rng_buf & 1);
+        z_table[qubit][shot] ^= (bool)(rng_buf & 2);
+        rng_buf >>= 2;
+        buf_size -= 2;
+        leakage_table[qubit][shot] = true;
+    });
+}
+
+template <size_t W>
+void FrameSimulator<W>::do_RELAX(const CircuitInstruction &target_data) {
+    if (target_data.args[0] == 0) {
+        return;
+    }
+    RareErrorIterator skipper((float)target_data.args[0]);
+    size_t s = skipper.next(rng);
+    size_t num_hits = 0;
+
+    const auto &targets = target_data.targets;
+    for (size_t k = 0; k < targets.size(); ++k) {
+        const auto leakage_state = leakage_table[targets[k].data];
+        for (size_t i = 0; i < leakage_state.num_u64_padded(); ++i) {
+            uint64_t n = leakage_state.u64[i];
+            while (n) {
+                const int leakage_event = i * 64 + std::countr_zero(n);
+                if (num_hits == s) {
+                    leakage_table[targets[k].data][leakage_event] = false;
+                    s = skipper.next(rng);
+                }
+                n &= n - 1;
+                ++num_hits;
+            }
+        }
+    }
 }
 
 template <size_t W>
@@ -968,6 +1152,9 @@ void FrameSimulator<W>::do_gate(const CircuitInstruction &inst) {
         case GateType::MZZ:
             do_MZZ(inst);
             break;
+        case GateType::HERALD_LEAKAGE_EVENT:
+            do_HERALD_LEAKAGE_EVENT(inst);
+            break;
         case GateType::XCX:
             do_XCX(inst);
             break;
@@ -1000,6 +1187,12 @@ void FrameSimulator<W>::do_gate(const CircuitInstruction &inst) {
             break;
         case GateType::DEPOLARIZE2:
             do_DEPOLARIZE2(inst);
+            break;
+        case GateType::LEAKAGE:
+            do_LEAKAGE(inst);
+            break;
+        case GateType::RELAX:
+            do_RELAX(inst);
             break;
         case GateType::X_ERROR:
             do_X_ERROR(inst);

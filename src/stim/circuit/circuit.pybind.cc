@@ -1311,7 +1311,9 @@ void stim_pybind::pybind_circuit_methods(pybind11::module &, pybind11::class_<Ci
            double after_clifford_depolarization,
            double before_round_data_depolarization,
            double before_measure_flip_probability,
-           double after_reset_flip_probability) {
+           double after_reset_flip_probability,
+           double after_reset_leakage,
+           double after_clifford_leakage_and_relaxation) {
             auto r = type.find(':');
             std::string_view code;
             std::string_view task;
@@ -1328,6 +1330,8 @@ void stim_pybind::pybind_circuit_methods(pybind11::module &, pybind11::class_<Ci
             params.after_reset_flip_probability = after_reset_flip_probability;
             params.before_measure_flip_probability = before_measure_flip_probability;
             params.before_round_data_depolarization = before_round_data_depolarization;
+            params.after_reset_leakage = after_reset_leakage;
+            params.after_clifford_leakage_and_relaxation = after_clifford_leakage_and_relaxation;
             params.validate_params();
 
             if (code == "surface_code") {
@@ -1350,6 +1354,8 @@ void stim_pybind::pybind_circuit_methods(pybind11::module &, pybind11::class_<Ci
         pybind11::arg("before_round_data_depolarization") = 0.0,
         pybind11::arg("before_measure_flip_probability") = 0.0,
         pybind11::arg("after_reset_flip_probability") = 0.0,
+        pybind11::arg("after_reset_leakage") = 0.0,
+        pybind11::arg("after_clifford_leakage_and_relaxation") = 0.0,
         clean_doc_string(R"DOC(
             Generates common circuits.
 
@@ -1395,6 +1401,14 @@ void stim_pybind::pybind_circuit_methods(pybind11::module &, pybind11::class_<Ci
                     `X_ERROR(p)` operations applied to qubits after each reset (X basis
                     resets use `Z_ERROR(p)` instead). The after-reset flips are only
                     included if this probability is not 0.
+                after_reset_leakage: Defaults to 0. The probability (p) of a LEAKAGE(p)
+                    operation after each reset gate. LEAKAGE channels are only included
+                    if this probability is not 0.
+                after_clifford_leakage_and_relaxation: Defaults to 0. The probability (p) of
+                    `RELAX(p)` operations to add after every single-qubit Clifford
+                    operation and `LEAKAGE(p)` operations to add after every two-qubit
+                    Clifford operation. The after-Clifford leakage and relaxation operations
+                    are only included if this probability is not 0.
 
             Returns:
                 The generated circuit.

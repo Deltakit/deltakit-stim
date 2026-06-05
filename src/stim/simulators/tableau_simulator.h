@@ -155,6 +155,9 @@ struct TableauSimulator {
     void do_DEPOLARIZE2(const CircuitInstruction &inst);
     void do_HERALDED_ERASE(const CircuitInstruction &inst);
     void do_HERALDED_PAULI_CHANNEL_1(const CircuitInstruction &inst);
+    void do_HERALD_LEAKAGE_EVENT(const CircuitInstruction &inst);
+    void do_LEAKAGE(const CircuitInstruction &inst);
+    void do_RELAX(const CircuitInstruction &inst);
     void do_X_ERROR(const CircuitInstruction &inst);
     void do_Y_ERROR(const CircuitInstruction &inst);
     void do_Z_ERROR(const CircuitInstruction &inst);

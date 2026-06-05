@@ -49,6 +49,7 @@ struct FrameSimulator {
     size_t batch_size;                 // Number of instances being tracked.
     simd_bit_table<W> x_table;         // x_table[q][k] is whether or not there's an X error on qubit q in instance k.
     simd_bit_table<W> z_table;         // z_table[q][k] is whether or not there's a Z error on qubit q in instance k.
+    simd_bit_table<W> leakage_table;  // leakage_table[q][k] is whether or not qubit q in instance k is leaked at a given point in time.
     MeasureRecordBatch<W> m_record;    // The measurement record.
     MeasureRecordBatch<W> det_record;  // Detection event record.
     simd_bit_table<W> obs_record;      // Accumulating observable flip record.
@@ -129,6 +130,7 @@ struct FrameSimulator {
     void do_MYY(const CircuitInstruction &inst);
     void do_MZZ(const CircuitInstruction &inst);
     void do_MPAD(const CircuitInstruction &inst);
+    void do_HERALD_LEAKAGE_EVENT(const CircuitInstruction &inst);
 
     void do_SQRT_XX(const CircuitInstruction &inst);
     void do_SQRT_YY(const CircuitInstruction &inst);
@@ -136,6 +138,8 @@ struct FrameSimulator {
 
     void do_DEPOLARIZE1(const CircuitInstruction &inst);
     void do_DEPOLARIZE2(const CircuitInstruction &inst);
+    void do_LEAKAGE(const CircuitInstruction &inst);
+    void do_RELAX(const CircuitInstruction &inst);
     void do_X_ERROR(const CircuitInstruction &inst);
     void do_Y_ERROR(const CircuitInstruction &inst);
     void do_Z_ERROR(const CircuitInstruction &inst);
@@ -153,6 +157,10 @@ struct FrameSimulator {
     void xor_control_bit_into(uint32_t control, simd_bits_range_ref<W> target);
     void single_cx(uint32_t c, uint32_t t);
     void single_cy(uint32_t c, uint32_t t);
+
+    void propagate_leakage(const uint32_t c, const uint32_t t, const float p_spread_cont_tar, const float p_spread_tar_cont,
+        const float p_mobility_cont_tar, const float p_mobility_tar_cont);
+
 };
 
 }  // namespace stim

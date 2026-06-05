@@ -84,9 +84,12 @@ std::map<std::string_view, SvgGateData> SvgGateData::make_gate_data_map() {
     result.insert({"DEPOLARIZE1", {1, "DEP", "1", "", "pink", "black", 0, 10, 0}});
     result.insert({"DEPOLARIZE2", {1, "DEP", "2", "", "pink", "black", 0, 10, 0}});
 
-    result.insert({"PAULI_CHANNEL_1", {4, "PAULI_CHANNEL_1", "", "", "pink", "black", 0, 10, 0}});
-    result.insert({"PAULI_CHANNEL_2[0]", {16, "PAULI_CHANNEL_2", "0", "", "pink", "black", 0, 10, 0}});
-    result.insert({"PAULI_CHANNEL_2[1]", {16, "PAULI_CHANNEL_2", "1", "", "pink", "black", 0, 10, 0}});
+    result.insert({"LEAKAGE", {1, "LEAK", "1", "", "red", "black", 0, 10}});
+    result.insert({"RELAX", {1, "RELAX", "1", "", "green", "black", 0, 10}});
+
+    result.insert({"PAULI_CHANNEL_1", {4, "PAULI_CHANNEL_1", "", "", "pink", "black", 0, 10}});
+    result.insert({"PAULI_CHANNEL_2[0]", {16, "PAULI_CHANNEL_2", "0", "", "pink", "black", 0, 10}});
+    result.insert({"PAULI_CHANNEL_2[1]", {16, "PAULI_CHANNEL_2", "1", "", "pink", "black", 0, 10}});
 
     result.insert({"MXX", {1, "M", "XX", "", "black", "white", 18, 18, -6}});
     result.insert({"MYY", {1, "M", "YY", "", "black", "white", 18, 18, -6}});
@@ -94,6 +97,8 @@ std::map<std::string_view, SvgGateData> SvgGateData::make_gate_data_map() {
     result.insert({"MPAD", {1, "M", "PAD", "", "gray", "white", 18, 12, -6}});
     result.insert({"HERALDED_ERASE", {1, "HErase", "", "", "#800000", "white", 8, 10}});
     result.insert({"HERALDED_PAULI_CHANNEL_1", {4, "HERALDED_PAULI_CHANNEL_1", "", "", "#800000", "white", 14, 10}});
+    result.insert({"HERALDED_ERASE", {1, "HErase", "", "", "#800000", "white", 8, 8}});
+    result.insert({"HERALD_LEAKAGE_EVENT", {1, "HLeak", "1", "", "orange", "black", 0, 10}});
 
     return result;
 }
