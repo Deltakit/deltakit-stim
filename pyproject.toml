@@ -19,7 +19,7 @@ CC=/opt/rh/gcc-toolset-11/root/usr/bin/gcc
 [tool.cibuildwheel.macos]
 archs = "arm64"
 environment = """\
-MACOSX_DEPLOYMENT_TARGET=14.0 \
+MACOSX_DEPLOYMENT_TARGET=15.0 \
 LDFLAGS="-L/opt/homebrew/opt/llvm@16/lib/c++ -Wl,-rpath,/opt/homebrew/opt/llvm@16/lib/c++" \
 PATH="/usr/local/opt/llvm@16/bin:$PATH" \
 CPPFLAGS="-I/opt/homebrew/opt/llvm@16/include"

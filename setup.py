@@ -3,7 +3,6 @@
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-#
 #      http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
@@ -12,6 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import sys
+import platform
 
 from setuptools import setup, Extension
 import glob
@@ -27,14 +27,27 @@ RELEVANT_SOURCE_FILES = sorted(set(ALL_SOURCE_FILES) - set(TEST_FILES + PERF_FIL
 
 __version__ = '1.16.0'
 
+# Detect architecture
+def is_arm_architecture():
+    """Detect if we're building for ARM/ARM64 architecture."""
+    machine = platform.machine().lower()
+    return machine.startswith('arm') or machine.startswith('aarch64') or machine == 'arm64'
+
+IS_ARM = is_arm_architecture()
+
 if sys.platform.startswith('win'):
     common_compile_args = [
         '/std:c++20',
         '/O2',
         f'/DVERSION_INFO={__version__}',
     ]
-    arch_avx = ['/arch:AVX2']
-    arch_sse = ['/arch:SSE2']
+    if not IS_ARM:
+        arch_avx = ['/arch:AVX2']
+        arch_sse = ['/arch:SSE2']
+    else:
+        # Windows on ARM - no SSE/AVX support
+        arch_avx = []
+        arch_sse = []
     arch_basic = []
 else:
     common_compile_args = [
@@ -44,9 +57,18 @@ else:
         '-g0',
         f'-DVERSION_INFO={__version__}',
     ]
-    arch_avx = ['-mavx2']
-    arch_sse = ['-msse2', '-mno-avx2']
+    if not IS_ARM:
+        # x86/x86_64 architecture
+        arch_avx = ['-mavx2']
+        arch_sse = ['-msse2', '-mno-avx2']
+    else:
+        # ARM/ARM64 architecture - no SSE/AVX, but we can use ARM-specific optimizations
+        arch_avx = []
+        arch_sse = []
     arch_basic = []
+
+# Always build the basic extensions
+ext_modules = []
 
 stim_detect_machine_architecture = Extension(
     'lestim._detect_machine_architecture',
@@ -58,6 +80,8 @@ stim_detect_machine_architecture = Extension(
         *arch_basic,
     ],
 )
+ext_modules.append(stim_detect_machine_architecture)
+
 stim_polyfill = Extension(
     'lestim._stim_polyfill',
     sources=RELEVANT_SOURCE_FILES,
@@ -69,30 +93,40 @@ stim_polyfill = Extension(
         '-DSTIM_PYBIND11_MODULE_NAME=_stim_polyfill',
     ],
 )
-stim_sse2 = Extension(
-    'lestim._stim_sse2',
-    sources=RELEVANT_SOURCE_FILES,
-    include_dirs=[pybind11.get_include(), "src"],
-    language='c++',
-    extra_compile_args=[
-        *common_compile_args,
-        *arch_sse,
-        '-DSTIM_PYBIND11_MODULE_NAME=_stim_sse2',
-    ],
-)
+ext_modules.append(stim_polyfill)
+
+# Only build SSE2 extension on x86/x86_64 architectures
+if not IS_ARM:
+    stim_sse2 = Extension(
+        'lestim._stim_sse2',
+        sources=RELEVANT_SOURCE_FILES,
+        include_dirs=[pybind11.get_include(), "src"],
+        language='c++',
+        extra_compile_args=[
+            *common_compile_args,
+            *arch_sse,
+            '-DSTIM_PYBIND11_MODULE_NAME=_stim_sse2',
+        ],
+    )
+    ext_modules.append(stim_sse2)
+else:
+    # On ARM, we could create an ARM-optimized version or just skip the SSE2 variant
+    print("Note: Skipping SSE2 extension on ARM architecture")
 
 # NOTE: disabled until https://github.com/quantumlib/Stim/issues/432 is fixed
-# stim_avx2 = Extension(
-#     'stim._stim_avx2',
-#     sources=RELEVANT_SOURCE_FILES,
-#     include_dirs=[pybind11.get_include(), "src"],
-#     language='c++',
-#     extra_compile_args=[
-#         *common_compile_args,
-#         *arch_avx,
-#         '-DSTIM_PYBIND11_MODULE_NAME=_stim_avx2',
-#     ],
-# )
+# if not IS_ARM:
+#     stim_avx2 = Extension(
+#         'lestim._stim_avx2',
+#         sources=RELEVANT_SOURCE_FILES,
+#         include_dirs=[pybind11.get_include(), "src"],
+#         language='c++',
+#         extra_compile_args=[
+#             *common_compile_args,
+#             *arch_avx,
+#             '-DSTIM_PYBIND11_MODULE_NAME=_stim_avx2',
+#         ],
+#     )
+#     ext_modules.append(stim_avx2)
 
 with open('glue/python/README.md', encoding='UTF-8') as f:
     long_description = f.read()
@@ -107,13 +141,7 @@ setup(
     description='A fast library for analyzing with quantum stabilizer circuits.',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    ext_modules=[
-        stim_detect_machine_architecture,
-        stim_polyfill,
-        stim_sse2,
-        # NOTE: disabled until https://github.com/quantumlib/Stim/issues/432 is fixed
-        # stim_avx2,
-    ],
+    ext_modules=ext_modules,
     python_requires='>=3.8.0',
     packages=['deltakit_stim'],
     package_dir={'deltakit_stim': 'glue/python/src/deltakit_stim'},
