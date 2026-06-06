@@ -1,7 +1,7 @@
 """Deltakit_stim (Development Version): a fast quantum stabilizer circuit library."""
 # (This is a stubs file describing the classes and methods in deltakit_stim.)
 from __future__ import annotations
-from typing import overload, TYPE_CHECKING, List, Dict, Tuple, Any, Union, Iterable, Optional, Sequence, Literal
+from typing import overload, TYPE_CHECKING, List, Dict, Tuple, Any, Union, Iterable, Optional
 if TYPE_CHECKING:
     import io
     import pathlib
@@ -5678,19 +5678,19 @@ class DemTarget:
         arg: object,
         /,
     ) -> None:
-        """Creates a lestim.DemTarge from the given object.
+        """Creates a deltakit_stim.DemTarget from the given object.
 
         Args:
-            arg: A string to parse as a lestim.DemTarget, or some other object to
-                convert into a lestim.DemTarget.
+            arg: A string to parse as a deltakit_stim.DemTarget, or some other object to
+                convert into a deltakit_stim.DemTarget.
 
         Examples:
-            >>> import lestim
-            >>> lestim.DemTarget("D5") == lestim.target_relative_detector_id(5)
+            >>> import deltakit_stim
+            >>> deltakit_stim.DemTarget("D5") == deltakit_stim.target_relative_detector_id(5)
             True
-            >>> lestim.DemTarget("L2") == lestim.target_logical_observable_id(2)
+            >>> deltakit_stim.DemTarget("L2") == deltakit_stim.target_logical_observable_id(2)
             True
-            >>> lestim.DemTarget("^") == lestim.target_separator()
+            >>> deltakit_stim.DemTarget("^") == deltakit_stim.target_separator()
             True
         """
     def __ne__(
@@ -6525,6 +6525,9 @@ class DetectorErrorModel:
     ) -> deltakit_stim.DetectorErrorModel:
         """Reads a detector error model from a file.
 
+        The file format is defined at
+        https://github.com/quantumlib/Stim/blob/main/doc/file_format_dem_detector_error_model.md
+
         Args:
             file: A file path or open file object to read from.
 
@@ -6796,6 +6799,9 @@ class DetectorErrorModel:
         file: Union[io.TextIOBase, str, pathlib.Path],
     ) -> None:
         """Writes the detector error model to a file.
+
+        The file format is defined at
+        https://github.com/quantumlib/Stim/blob/main/doc/file_format_dem_detector_error_model.md
 
         Args:
             file: A file path or an open file to write to.
@@ -7137,9 +7143,9 @@ class FlipSimulator:
                     dtype=np.uint8
 
         Examples:
-            >>> import stim
+            >>> import deltakit_stim
             >>> import numpy as np
-            >>> sim = stim.FlipSimulator(batch_size=9)
+            >>> sim = deltakit_stim.FlipSimulator(batch_size=9)
             >>> sim.append_measurement_flips(np.array(
             ...     [0, 1, 0, 0, 1, 0, 0, 1, 1],
             ...     dtype=np.bool_,
@@ -7364,9 +7370,9 @@ class FlipSimulator:
         than allocating a new simulator each time (by avoiding re-allocations).
 
         Examples:
-            >>> import stim
-            >>> sim = stim.FlipSimulator(batch_size=256)
-            >>> sim.do(stim.Circuit("M(0.1) 9"))
+            >>> import deltakit_stim
+            >>> sim = deltakit_stim.FlipSimulator(batch_size=256)
+            >>> sim.do(deltakit_stim.Circuit("M(0.1) 9"))
             >>> sim.num_qubits
             10
             >>> sim.get_measurement_flips().shape
@@ -7430,10 +7436,10 @@ class FlipSimulator:
             The copy of the simulator.
 
         Examples:
-            >>> import stim
+            >>> import deltakit_stim
             >>> import numpy as np
 
-            >>> s1 = stim.FlipSimulator(batch_size=256)
+            >>> s1 = deltakit_stim.FlipSimulator(batch_size=256)
             >>> s1.set_pauli_flip('X', qubit_index=2, instance_index=3)
             >>> s2 = s1.copy()
             >>> s2 is s1
@@ -7441,10 +7447,10 @@ class FlipSimulator:
             >>> s2.peek_pauli_flips() == s1.peek_pauli_flips()
             True
 
-            >>> s1 = stim.FlipSimulator(batch_size=256)
+            >>> s1 = deltakit_stim.FlipSimulator(batch_size=256)
             >>> s2 = s1.copy(copy_rng=True)
-            >>> s1.do(stim.Circuit("X_ERROR(0.25) 0 \n M 0"))
-            >>> s2.do(stim.Circuit("X_ERROR(0.25) 0 \n M 0"))
+            >>> s1.do(deltakit_stim.Circuit("X_ERROR(0.25) 0 \n M 0"))
+            >>> s2.do(deltakit_stim.Circuit("X_ERROR(0.25) 0 \n M 0"))
             >>> np.array_equal(s1.get_measurement_flips(), s2.get_measurement_flips())
             True
         """
@@ -7591,8 +7597,8 @@ class FlipSimulator:
                 requested data.
 
         Examples:
-            >>> import stim
-            >>> sim = stim.FlipSimulator(batch_size=256)
+            >>> import deltakit_stim
+            >>> sim = deltakit_stim.FlipSimulator(batch_size=256)
             >>> r = sim.generate_bernoulli_samples(1001, p=0.25)
             >>> r.dtype
             dtype('bool')
@@ -8243,10 +8249,10 @@ class FlipSimulator:
                 had a shape or dtype inconsistent with the requested data.
 
         Examples:
-            >>> import stim
+            >>> import deltakit_stim
             >>> import numpy as np
-            >>> sim = stim.FlipSimulator(batch_size=9)
-            >>> sim.do(stim.Circuit('M(1) 0 1 2'))
+            >>> sim = deltakit_stim.FlipSimulator(batch_size=9)
+            >>> sim.do(deltakit_stim.Circuit('M(1) 0 1 2'))
 
             >>> ms_buf = np.empty(shape=(9, 1), dtype=np.uint8)
             >>> xs, zs, ms, ds, os = sim.to_numpy(
@@ -8774,14 +8780,14 @@ class GateData:
         self,
         *,
         unsigned: bool = False,
-    ) -> Optional[lestim.GateData]:
-        """Returns a lestim gate equivalent to this gate conjugated by Hadamard gates.
+    ) -> Optional[stim.GateData]:
+        """Returns a deltakit_stim gate equivalent to this gate conjugated by Hadamard gates.
 
         The Hadamard conjugate can be thought of as the XZ dual of the gate; the gate
         you get by exchanging the X and Z bases. For example, a SQRT_X will become a
         SQRT_Z and a CX gate will switch directions into an XCZ.
 
-        If lestim doesn't define a gate equivalent to conjugating this gate by Hadamards,
+        If deltakit_stim doesn't define a gate equivalent to conjugating this gate by Hadamards,
         the value `None` is returned.
 
         Args:
@@ -8792,37 +8798,37 @@ class GateData:
                 differences).
 
         Returns:
-            A lestim.GateData instance of the Hadamard conjugate, if it exists in lestim.
+            A deltakit_stim.GateData instance of the Hadamard conjugate, if it exists in deltakit_stim.
 
-            None, if lestim doesn't define a gate equal to the Hadamard conjugate.
+            None, if deltakit_stim doesn't define a gate equal to the Hadamard conjugate.
 
         Examples:
-            >>> import lestim
+            >>> import deltakit_stim
 
-            >>> lestim.gate_data('X').hadamard_conjugated()
-            lestim.gate_data('Z')
-            >>> lestim.gate_data('CX').hadamard_conjugated()
-            lestim.gate_data('XCZ')
-            >>> lestim.gate_data('RY').hadamard_conjugated() is None
+            >>> deltakit_stim.gate_data('X').hadamard_conjugated()
+            deltakit_stim.gate_data('Z')
+            >>> deltakit_stim.gate_data('CX').hadamard_conjugated()
+            deltakit_stim.gate_data('XCZ')
+            >>> deltakit_stim.gate_data('RY').hadamard_conjugated() is None
             True
-            >>> lestim.gate_data('RY').hadamard_conjugated(unsigned=True)
-            lestim.gate_data('RY')
-            >>> lestim.gate_data('ISWAP').hadamard_conjugated(unsigned=True) is None
+            >>> deltakit_stim.gate_data('RY').hadamard_conjugated(unsigned=True)
+            deltakit_stim.gate_data('RY')
+            >>> deltakit_stim.gate_data('ISWAP').hadamard_conjugated(unsigned=True) is None
             True
-            >>> lestim.gate_data('SWAP').hadamard_conjugated()
-            lestim.gate_data('SWAP')
-            >>> lestim.gate_data('CXSWAP').hadamard_conjugated()
-            lestim.gate_data('SWAPCX')
-            >>> lestim.gate_data('MXX').hadamard_conjugated()
-            lestim.gate_data('MZZ')
-            >>> lestim.gate_data('DEPOLARIZE1').hadamard_conjugated()
-            lestim.gate_data('DEPOLARIZE1')
-            >>> lestim.gate_data('X_ERROR').hadamard_conjugated()
-            lestim.gate_data('Z_ERROR')
-            >>> lestim.gate_data('H_XY').hadamard_conjugated()
-            lestim.gate_data('H_NYZ')
-            >>> lestim.gate_data('DETECTOR').hadamard_conjugated(unsigned=True)
-            lestim.gate_data('DETECTOR')
+            >>> deltakit_stim.gate_data('SWAP').hadamard_conjugated()
+            deltakit_stim.gate_data('SWAP')
+            >>> deltakit_stim.gate_data('CXSWAP').hadamard_conjugated()
+            deltakit_stim.gate_data('SWAPCX')
+            >>> deltakit_stim.gate_data('MXX').hadamard_conjugated()
+            deltakit_stim.gate_data('MZZ')
+            >>> deltakit_stim.gate_data('DEPOLARIZE1').hadamard_conjugated()
+            deltakit_stim.gate_data('DEPOLARIZE1')
+            >>> deltakit_stim.gate_data('X_ERROR').hadamard_conjugated()
+            deltakit_stim.gate_data('Z_ERROR')
+            >>> deltakit_stim.gate_data('H_XY').hadamard_conjugated()
+            deltakit_stim.gate_data('H_NYZ')
+            >>> deltakit_stim.gate_data('DETECTOR').hadamard_conjugated(unsigned=True)
+            deltakit_stim.gate_data('DETECTOR')
         """
     @property
     def inverse(
@@ -9041,33 +9047,33 @@ class GateData:
             False if the gate isn't symmetric.
 
         Examples:
-            >>> import lestim
+            >>> import deltakit_stim
 
-            >>> lestim.gate_data('CX').is_symmetric_gate
+            >>> deltakit_stim.gate_data('CX').is_symmetric_gate
             False
-            >>> lestim.gate_data('CZ').is_symmetric_gate
+            >>> deltakit_stim.gate_data('CZ').is_symmetric_gate
             True
-            >>> lestim.gate_data('ISWAP').is_symmetric_gate
+            >>> deltakit_stim.gate_data('ISWAP').is_symmetric_gate
             True
-            >>> lestim.gate_data('CXSWAP').is_symmetric_gate
+            >>> deltakit_stim.gate_data('CXSWAP').is_symmetric_gate
             False
-            >>> lestim.gate_data('MXX').is_symmetric_gate
+            >>> deltakit_stim.gate_data('MXX').is_symmetric_gate
             True
-            >>> lestim.gate_data('DEPOLARIZE2').is_symmetric_gate
+            >>> deltakit_stim.gate_data('DEPOLARIZE2').is_symmetric_gate
             True
-            >>> lestim.gate_data('PAULI_CHANNEL_2').is_symmetric_gate
+            >>> deltakit_stim.gate_data('PAULI_CHANNEL_2').is_symmetric_gate
             False
-            >>> lestim.gate_data('H').is_symmetric_gate
+            >>> deltakit_stim.gate_data('H').is_symmetric_gate
             True
-            >>> lestim.gate_data('R').is_symmetric_gate
+            >>> deltakit_stim.gate_data('R').is_symmetric_gate
             True
-            >>> lestim.gate_data('X_ERROR').is_symmetric_gate
+            >>> deltakit_stim.gate_data('X_ERROR').is_symmetric_gate
             True
-            >>> lestim.gate_data('CORRELATED_ERROR').is_symmetric_gate
+            >>> deltakit_stim.gate_data('CORRELATED_ERROR').is_symmetric_gate
             False
-            >>> lestim.gate_data('MPP').is_symmetric_gate
+            >>> deltakit_stim.gate_data('MPP').is_symmetric_gate
             False
-            >>> lestim.gate_data('DETECTOR').is_symmetric_gate
+            >>> deltakit_stim.gate_data('DETECTOR').is_symmetric_gate
             False
         """
     @property
@@ -12699,7 +12705,11 @@ class TableauSimulator:
         *,
         copy_rng: bool = False,
         seed: Optional[int] = None,
+<<<<<<< HEAD
     ) -> deltakit_stim.TableauSimulator:
+=======
+    ) -> stim.TableauSimulator:
+>>>>>>> 3f7e2b66 (First pass at renaming across repo, from lestim to deltakit-stim)
         """Returns a simulator with the same internal state, except perhaps its prng.
 
         Args:
@@ -12719,11 +12729,19 @@ class TableauSimulator:
                 copy_rng argument.
 
                 When set to an integer, making the exact same series calls on the exact
+<<<<<<< HEAD
                 same machine with the exact same version of deltakit_stim will produce the exact
                 same simulation results.
 
                 CAUTION: simulation results *WILL NOT* be consistent between versions of
                 deltakit_stim. This restriction is present to make it possible to have future
+=======
+                same machine with the exact same version of Stim will produce the exact
+                same simulation results.
+
+                CAUTION: simulation results *WILL NOT* be consistent between versions of
+                Stim. This restriction is present to make it possible to have future
+>>>>>>> 3f7e2b66 (First pass at renaming across repo, from lestim to deltakit-stim)
                 optimizations to the random sampling, and is enforced by introducing
                 intentional differences in the seeding strategy from version to version.
 
@@ -12770,7 +12788,11 @@ class TableauSimulator:
         """
     def current_inverse_tableau(
         self,
+<<<<<<< HEAD
     ) -> deltakit_stim.Tableau:
+=======
+    ) -> deltakit_stim._stim_polyfill.Tableau:
+>>>>>>> 3f7e2b66 (First pass at renaming across repo, from lestim to deltakit-stim)
         """Returns a copy of the internal state of the simulator as a deltakit_stim.Tableau.
 
         Returns:
@@ -12934,7 +12956,11 @@ class TableauSimulator:
         """
     def do(
         self,
+<<<<<<< HEAD
         circuit_or_pauli_string: Union[deltakit_stim.Circuit, deltakit_stim.PauliString, deltakit_stim.CircuitInstruction, deltakit_stim.CircuitRepeatBlock],
+=======
+        circuit_or_pauli_string: Union[stim.Circuit, stim.PauliString, stim.CircuitInstruction, stim.CircuitRepeatBlock],
+>>>>>>> 3f7e2b66 (First pass at renaming across repo, from lestim to deltakit-stim)
     ) -> None:
         """Applies a circuit or pauli string to the simulator's state.
 
@@ -12960,7 +12986,11 @@ class TableauSimulator:
         """
     def do_circuit(
         self,
+<<<<<<< HEAD
         circuit: deltakit_stim.Circuit,
+=======
+        circuit: deltakit_stim._stim_polyfill.Circuit,
+>>>>>>> 3f7e2b66 (First pass at renaming across repo, from lestim to deltakit-stim)
     ) -> None:
         """Applies a circuit to the simulator's state.
 
@@ -12979,7 +13009,11 @@ class TableauSimulator:
         """
     def do_pauli_string(
         self,
+<<<<<<< HEAD
         pauli_string: deltakit_stim.PauliString,
+=======
+        pauli_string: deltakit_stim._stim_polyfill.PauliString,
+>>>>>>> 3f7e2b66 (First pass at renaming across repo, from lestim to deltakit-stim)
     ) -> None:
         """Applies the paulis from a pauli string to the simulator's state.
 
@@ -14983,6 +15017,7 @@ def write_shot_data_file(
                     (num_measurements + num_detectors + num_observables) / 8)).
         path: The path to the file to write the data to.
         format: The format that the data is stored in, such as 'b8'.
+            See https://github.com/quantumlib/Stim/blob/main/doc/result_formats.md
         num_measurements: How many measurements there are per shot.
         num_detectors: How many detectors there are per shot.
         num_observables: How many observables there are per shot.

@@ -71,7 +71,7 @@ else:
 ext_modules = []
 
 stim_detect_machine_architecture = Extension(
-    'lestim._detect_machine_architecture',
+    'deltakit_stim._detect_machine_architecture',
     sources=MUX_SOURCE_FILES,
     include_dirs=[pybind11.get_include(), "src"],
     language='c++',
@@ -83,7 +83,7 @@ stim_detect_machine_architecture = Extension(
 ext_modules.append(stim_detect_machine_architecture)
 
 stim_polyfill = Extension(
-    'lestim._stim_polyfill',
+    'deltakit_stim._stim_polyfill',
     sources=RELEVANT_SOURCE_FILES,
     include_dirs=[pybind11.get_include(), "src"],
     language='c++',
@@ -98,7 +98,7 @@ ext_modules.append(stim_polyfill)
 # Only build SSE2 extension on x86/x86_64 architectures
 if not IS_ARM:
     stim_sse2 = Extension(
-        'lestim._stim_sse2',
+        'deltakit_stim._stim_sse2',
         sources=RELEVANT_SOURCE_FILES,
         include_dirs=[pybind11.get_include(), "src"],
         language='c++',
@@ -116,7 +116,7 @@ else:
 # NOTE: disabled until https://github.com/quantumlib/Stim/issues/432 is fixed
 # if not IS_ARM:
 #     stim_avx2 = Extension(
-#         'lestim._stim_avx2',
+#         'deltakit_stim._stim_avx2',
 #         sources=RELEVANT_SOURCE_FILES,
 #         include_dirs=[pybind11.get_include(), "src"],
 #         language='c++',
@@ -132,7 +132,7 @@ with open('glue/python/README.md', encoding='UTF-8') as f:
     long_description = f.read()
 
 setup(
-    name='lestim',
+    name='deltakit-stim',
     version=__version__,
     author='Craig Gidney',
     author_email='craig.gidney@gmail.com',
