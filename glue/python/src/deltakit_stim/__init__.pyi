@@ -12705,11 +12705,7 @@ class TableauSimulator:
         *,
         copy_rng: bool = False,
         seed: Optional[int] = None,
-<<<<<<< HEAD
     ) -> deltakit_stim.TableauSimulator:
-=======
-    ) -> stim.TableauSimulator:
->>>>>>> 3f7e2b66 (First pass at renaming across repo, from lestim to deltakit-stim)
         """Returns a simulator with the same internal state, except perhaps its prng.
 
         Args:
@@ -12729,19 +12725,16 @@ class TableauSimulator:
                 copy_rng argument.
 
                 When set to an integer, making the exact same series calls on the exact
-<<<<<<< HEAD
                 same machine with the exact same version of deltakit_stim will produce the exact
                 same simulation results.
 
                 CAUTION: simulation results *WILL NOT* be consistent between versions of
                 deltakit_stim. This restriction is present to make it possible to have future
-=======
                 same machine with the exact same version of Stim will produce the exact
                 same simulation results.
 
                 CAUTION: simulation results *WILL NOT* be consistent between versions of
                 Stim. This restriction is present to make it possible to have future
->>>>>>> 3f7e2b66 (First pass at renaming across repo, from lestim to deltakit-stim)
                 optimizations to the random sampling, and is enforced by introducing
                 intentional differences in the seeding strategy from version to version.
 
@@ -12788,11 +12781,7 @@ class TableauSimulator:
         """
     def current_inverse_tableau(
         self,
-<<<<<<< HEAD
     ) -> deltakit_stim.Tableau:
-=======
-    ) -> deltakit_stim._stim_polyfill.Tableau:
->>>>>>> 3f7e2b66 (First pass at renaming across repo, from lestim to deltakit-stim)
         """Returns a copy of the internal state of the simulator as a deltakit_stim.Tableau.
 
         Returns:
@@ -12956,11 +12945,7 @@ class TableauSimulator:
         """
     def do(
         self,
-<<<<<<< HEAD
         circuit_or_pauli_string: Union[deltakit_stim.Circuit, deltakit_stim.PauliString, deltakit_stim.CircuitInstruction, deltakit_stim.CircuitRepeatBlock],
-=======
-        circuit_or_pauli_string: Union[stim.Circuit, stim.PauliString, stim.CircuitInstruction, stim.CircuitRepeatBlock],
->>>>>>> 3f7e2b66 (First pass at renaming across repo, from lestim to deltakit-stim)
     ) -> None:
         """Applies a circuit or pauli string to the simulator's state.
 
@@ -12986,11 +12971,7 @@ class TableauSimulator:
         """
     def do_circuit(
         self,
-<<<<<<< HEAD
         circuit: deltakit_stim.Circuit,
-=======
-        circuit: deltakit_stim._stim_polyfill.Circuit,
->>>>>>> 3f7e2b66 (First pass at renaming across repo, from lestim to deltakit-stim)
     ) -> None:
         """Applies a circuit to the simulator's state.
 
@@ -13009,11 +12990,7 @@ class TableauSimulator:
         """
     def do_pauli_string(
         self,
-<<<<<<< HEAD
         pauli_string: deltakit_stim.PauliString,
-=======
-        pauli_string: deltakit_stim._stim_polyfill.PauliString,
->>>>>>> 3f7e2b66 (First pass at renaming across repo, from lestim to deltakit-stim)
     ) -> None:
         """Applies the paulis from a pauli string to the simulator's state.
 

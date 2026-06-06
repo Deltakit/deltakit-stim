@@ -684,6 +684,18 @@ std::string stim_draw_internal::make_crumble_html() {
 )CRUMBLE_PART");
     result.append(R"CRUMBLE_PART(        </div>
 )CRUMBLE_PART");
+    result.append(R"CRUMBLE_PART(        <div style="display: inline-block">
+)CRUMBLE_PART");
+    result.append(R"CRUMBLE_PART(            <div>
+)CRUMBLE_PART");
+    result.append(R"CRUMBLE_PART(                <button id="btnInsertLayer">Insert Layer (ctrl+insert)</button><br>
+)CRUMBLE_PART");
+    result.append(R"CRUMBLE_PART(                <button id="btnDeleteLayer">Delete Layer (ctrl+delete)</button>
+)CRUMBLE_PART");
+    result.append(R"CRUMBLE_PART(            </div>
+)CRUMBLE_PART");
+    result.append(R"CRUMBLE_PART(        </div>
+)CRUMBLE_PART");
     result.append(R"CRUMBLE_PART(        <textarea id="txtDefaultCircuit" style="display: none">[[[DEFAULT_CIRCUIT_CONTENT_LITERAL]]]</textarea>
 )CRUMBLE_PART");
     result.append(R"CRUMBLE_PART(    </div>
