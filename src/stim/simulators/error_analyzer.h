@@ -336,7 +336,7 @@ struct ErrorAnalyzer {
         std::array<SpanRef<const DemTarget>, s> basis_errors,
         bool probabilities_are_disjoint,
         std::string_view tag,
-	bool exclude_errors_solely_made_up_of_final_basis_error = false);
+        bool exclude_errors_solely_made_up_of_final_basis_error = false);
 
     /// Handles local decomposition of errors.
     /// When an error has multiple channels, eg. a DEPOLARIZE2 error, this method attempts to express the more complex
