@@ -105,12 +105,8 @@ def main():
             if '\n' in v.strip() and 'examples:' not in v and 'example:' not in v and '[deprecated]' not in v:
                 if k.split('.')[-1] not in ['__format__', '__next__', '__iter__', '__init_subclass__', '__module__', '__eq__', '__ne__', '__str__', '__repr__']:
                     if all(not (e.startswith('_') and not e.startswith('__')) for e in k.split('.')):
-<<<<<<< HEAD
                         if all(not k.startswith(prefix) for prefix in args.suppress_examples_warning_for):
                             print(f"    Warning: Missing 'examples:' section in docstring of {k!r}", file=sys.stderr)
-=======
-                        print(f"    Warning: Missing 'examples:' section in docstring of {k!r}", file=sys.stderr)
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
 
         module.__test__ = {k: v for k, v in out.items()}
         if doctest.testmod(module, globs=globs).failed:

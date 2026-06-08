@@ -227,11 +227,8 @@ class CollectionManager:
 
             shots_left = options.max_shots
             errors_left = options.max_errors
-<<<<<<< HEAD
             if shots_left is None:
                 raise ValueError("Didn't specify --max_shots.")
-=======
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
             if errors_left is None:
                 errors_left = shots_left
             errors_left = min(errors_left, shots_left)

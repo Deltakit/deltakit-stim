@@ -426,7 +426,6 @@ def test_round_trip_example_circuit():
     cirq_circuit = stimcirq.stim_circuit_to_cirq_circuit(stim_circuit.flattened())
     circuit_back = stimcirq.cirq_circuit_to_stim_circuit(cirq_circuit)
     assert len(circuit_back.shortest_graphlike_error()) == 3
-<<<<<<< HEAD
 
 
 def test_xor_feedback():
@@ -454,5 +453,3 @@ def test_xor_feedback():
         CX rec[-4] 4 rec[-3] 4 rec[-2] 4 rec[-1] 4
         TICK
     """)
-=======
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))

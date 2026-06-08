@@ -342,11 +342,7 @@ TEST(gate_data, hadamard_conjugated_vs_flow_generators_of_two_qubit_gates) {
     std::map<std::string, std::vector<GateType>> known_flows_u;
 
     for (const auto &g : GATE_DATA.items) {
-<<<<<<< HEAD
         if (g.id == GateType::II || g.id == GateType::II_ERROR || g.id == GateType::I_ERROR) {
-=======
-      if (g.id == GateType::II || g.id == GateType::II_ERROR || g.id == GateType::I_ERROR) {
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
             ASSERT_EQ(g.hadamard_conjugated(false), g.id);
             ASSERT_EQ(g.hadamard_conjugated(true), g.id);
             continue;
@@ -398,24 +394,6 @@ TEST(gate_data, hadamard_conjugated_vs_flow_generators_of_two_qubit_gates) {
             EXPECT_TRUE(found) << "unsigned " << g.name << " -> " << GATE_DATA[actual_u].name << " not in "
                                << GATE_DATA[other_us[0]].name;
         }
-<<<<<<< HEAD
-    }
-}
-}
-TEST(gates, opcode_supporting_gates) {
-    for (const auto &g : GATE_DATA.items) {
-        if (!(g.flags & GATE_LAST_ARG_IS_OPCODE)) {
-            continue;
-        }
-        // Test that gate has correct properties for new leakage model
-        ASSERT_EQ(g.arg_count, ARG_COUNT_SYGIL_ZERO_OR_FOUR_OR_FIVE);
-        // Test basic parsing works for all argument patterns
-        ASSERT_NO_THROW({ Circuit(std::string(g.name) + " 0 1"); });
-        ASSERT_NO_THROW({ Circuit(std::string(g.name) + "(0.1, 0.2, 0.3, 0.4) 0 1"); });
-        ASSERT_NO_THROW({ Circuit(std::string(g.name) + "(0.1, 0.2, 0.3, 0.4, 0) 0 1"); });
-        ASSERT_NO_THROW({ Circuit(std::string(g.name) + "(0.1, 0.2, 0.3, 0.4, 1) 0 1"); });
-=======
 	}
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
     }
 }

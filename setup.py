@@ -142,7 +142,7 @@ setup(
     python_requires='>=3.10,<3.14',
     packages=['deltakit_stim'],
     package_dir={'deltakit_stim': 'glue/python/src/deltakit_stim'},
-    package_data={'': [*HEADER_FILES, 'glue/python/src/stim/__init__.pyi', 'glue/python/README.md', 'pyproject.toml']},
+    package_data={'': [*HEADER_FILES, 'glue/python/src/deltakit_stim/__init__.pyi', 'glue/python/README.md', 'pyproject.toml']},
     include_package_data=True,
     install_requires=['numpy'],
     entry_points={

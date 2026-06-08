@@ -256,11 +256,7 @@ class CircuitTranslationTracker:
 
             obs = _stim_targets_to_dense_pauli_string(group)
             qubits = [cirq.LineQubit(t.value) for t in group]
-<<<<<<< HEAD
             key = self.get_next_measure_key()
-=======
-            key = str(self.get_next_measure_id())
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
             self.append_operation(cirq.PauliMeasurementGate(obs, key=key).on(*qubits).with_tags(*tags))
 
     def process_spp_dag(self, instruction: stim.CircuitInstruction) -> None:
@@ -302,11 +298,7 @@ class CircuitTranslationTracker:
             if targets[0].is_inverted_result_target ^ targets[1].is_inverted_result_target:
                 obs *= -1
             qubits = [cirq.LineQubit(targets[0].value), cirq.LineQubit(targets[1].value)]
-<<<<<<< HEAD
             key = self.get_next_measure_key()
-=======
-            key = str(self.get_next_measure_id())
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
             self.append_operation(cirq.PauliMeasurementGate(obs, key=key).on(*qubits).with_tags(*tags))
 
     def process_mxx(self, instruction: stim.CircuitInstruction) -> None:
@@ -364,11 +356,7 @@ class CircuitTranslationTracker:
             else:
                 pauli_targets.append(f'{t.pauli_type}{t.value}')
 
-<<<<<<< HEAD
         if self.have_seen_loop or self.single_measure_key:
-=======
-        if self.have_seen_loop:
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
             return [], [t.value for t in meas_targets], pauli_targets
         else:
             return [str(self.num_measurements_seen + t.value) for t in meas_targets], [], pauli_targets
@@ -460,7 +448,6 @@ class CircuitTranslationTracker:
                             cirq_sweep_symbol=f'sweep[{a.value}]',
                             pauli=self.pauli_gate,
                         ).on(cirq.LineQubit(b.value)).with_tags(*tags)
-<<<<<<< HEAD
                     )
                 elif a.is_measurement_record_target or b.is_measurement_record_target:
                     if b.is_measurement_record_target:
@@ -471,8 +458,6 @@ class CircuitTranslationTracker:
                             relative_measurement_index=a.value,
                             pauli=self.pauli_gate,
                         ).on(cirq.LineQubit(b.value)).with_tags(*tags)
-=======
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
                     )
                 else:
                     if not a.is_qubit_target or not b.is_qubit_target:

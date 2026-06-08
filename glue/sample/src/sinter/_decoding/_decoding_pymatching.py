@@ -22,6 +22,24 @@ def check_pymatching_version_for_correlated_decoding(pymatching):
 >>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
 
 
+def check_pymatching_version_for_correlated_decoding(pymatching):
+    v = pymatching.__version__.split('.')
+    try:
+        a = int(v[0])
+        b = int(v[1])
+        c = int(''.join(e for e in v[2] if e in '0123456789'))  # In case dev version
+    except (ValueError, IndexError):
+        return  # Probably it's the future.
+
+    if (a, b, c) < (2, 3, 1):
+        raise ValueError(
+            "PyMatching version must be at least 2.3.1 for correlated decoding.\n"
+            f"Installed version: {pymatching.__version__}\n"
+            "To fix this, install a newer version of pymatching into your environment.\n"
+            "For example, if you are using pip, run `pip install pymatching --upgrade`.\n"
+        )
+
+
 class PyMatchingCompiledDecoder(CompiledDecoder):
     def __init__(self, matcher: 'pymatching.Matching', use_correlated_decoding: bool):
         self.matcher = matcher

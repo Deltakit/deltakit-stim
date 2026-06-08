@@ -31,12 +31,8 @@ const btnTimelineFocus = /** @type{!HTMLButtonElement} */ document.getElementByI
 const btnClearTimelineFocus = /** @type{!HTMLButtonElement} */ document.getElementById('btnClearTimelineFocus');
 const btnClearSelectedMarkers = /** @type{!HTMLButtonElement} */ document.getElementById('btnClearSelectedMarkers');
 const btnShowExamples = /** @type {!HTMLButtonElement} */ document.getElementById('btnShowExamples');
-<<<<<<< HEAD
 const dialogExamples = /** @type{!HTMLDialogElement} */ document.getElementById('examples-dialog');
 const btnDialogClose = /** @type{!HTMLDivElement} */ document.getElementById('examples-close-button');
-=======
-const divExamples = /** @type{!HTMLDivElement} */ document.getElementById('examples-div');
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
 
 // Prevent typing in the import/export text editor from causing changes in the main circuit editor.
 txtStimCircuit.addEventListener('keyup', ev => ev.stopPropagation());
@@ -96,7 +92,6 @@ btnClearSelectedMarkers.addEventListener('click', _ev => {
 });
 
 btnShowExamples.addEventListener('click', _ev => {
-<<<<<<< HEAD
     if (dialogExamples.open) {
         dialogExamples.close();
     } else {
@@ -111,14 +106,6 @@ btnDialogClose.addEventListener('click', _ev => {
 dialogExamples.addEventListener('click', ev => {
     if (ev.target === dialogExamples) {
         dialogExamples.close();
-=======
-    if (divExamples.style.display === 'none') {
-        divExamples.style.display = 'block';
-        btnShowExamples.textContent = "Hide Example Circuits";
-    } else {
-        divExamples.style.display = 'none';
-        btnShowExamples.textContent = "Show Example Circuits";
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
     }
 });
 
@@ -177,11 +164,7 @@ editorState.canvas.addEventListener('mousemove', ev => {
     editorState.curMouseY = ev.offsetY + OFFSET_Y;
 
     // Scrubber.
-<<<<<<< HEAD
     let w = editorState.canvas.scrollWidth / 2;
-=======
-    let w = editorState.canvas.width / 2;
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
     if (isInScrubber && ev.buttons === 1) {
         editorState.changeCurLayerTo(Math.floor((ev.offsetX - w) / 8));
         return;
@@ -198,11 +181,7 @@ editorState.canvas.addEventListener('mousedown', ev => {
     editorState.mouseDownY = ev.offsetY + OFFSET_Y;
 
     // Scrubber.
-<<<<<<< HEAD
     let w = editorState.canvas.scrollWidth / 2;
-=======
-    let w = editorState.canvas.width / 2;
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
     isInScrubber = ev.offsetY < 20 && ev.offsetX > w && ev.buttons === 1;
     if (isInScrubber) {
         editorState.changeCurLayerTo(Math.floor((ev.offsetX - w) / 8));
@@ -232,11 +211,7 @@ function makeChordHandlers() {
 
     res.set('shift+t', preview => editorState.rotate45(-1, preview));
     res.set('t', preview => editorState.rotate45(+1, preview));
-<<<<<<< HEAD
     res.set('escape', () => {if (dialogExamples.open) dialogExamples.close(); else editorState.clearFocus()});
-=======
-    res.set('escape', () => editorState.clearFocus());
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
     res.set('delete', preview => editorState.deleteAtFocus(preview));
     res.set('backspace', preview => editorState.deleteAtFocus(preview));
     res.set('ctrl+delete', preview => editorState.deleteCurLayer(preview));
@@ -317,10 +292,7 @@ function makeChordHandlers() {
     res.set('v', preview => editorState.applyCoordinateTransform((x, y) => [x, y + 1], preview, false));
     res.set('^', preview => editorState.applyCoordinateTransform((x, y) => [x, y - 1], preview, false));
     res.set('.', preview => editorState.applyCoordinateTransform((x, y) => [x + 0.5, y + 0.5], preview, false));
-<<<<<<< HEAD
     res.set('b', preview => editorState.applyQubitLocationSwap(preview));
-=======
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
 
     /**
      * @param {!Array<!string>} chords
@@ -566,10 +538,7 @@ for (let anchor of document.getElementById('examples-div').querySelectorAll('a')
         let circuitText = anchor.href.split('#circuit=')[1];
 
         editorState.rev.commit(circuitText);
-<<<<<<< HEAD
         dialogExamples.close();
-=======
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
         return false;
     };
 }

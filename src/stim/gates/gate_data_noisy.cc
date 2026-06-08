@@ -329,7 +329,6 @@ Examples:
 
     # If 2, 3 or 5 is leaked, relax them with 2% probability
     LEAKAGE(0.02) 2 3 5
-
 )MARKDOWN",
             .unitary_data = {},
             .flow_data = {},

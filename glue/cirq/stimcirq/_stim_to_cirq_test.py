@@ -778,7 +778,6 @@ def test_round_trip_with_pauli_obs():
     """)
     cirq_circuit = stimcirq.stim_circuit_to_cirq_circuit(stim_circuit)
     restored_circuit = stimcirq.cirq_circuit_to_stim_circuit(cirq_circuit)
-<<<<<<< HEAD
     assert restored_circuit == stim_circuit
 
 
@@ -826,6 +825,3 @@ def test_single_measure_key_order():
                 assert len(op.qubits) == 1
                 actual_order.append(op.qubits[0])
         assert expected_order == actual_order
-=======
-    assert restored_circuit == stim_circuit
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))

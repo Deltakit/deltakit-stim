@@ -12,10 +12,7 @@ from sinter._decoding._decoding_mwpf import HyperUFDecoder, MwpfDecoder
 BUILT_IN_DECODERS: Dict[str, Decoder] = {
     'vacuous': VacuousDecoder(),
     'pymatching': PyMatchingDecoder(),
-<<<<<<< HEAD
     'pymatching-correlated': PyMatchingDecoder(use_correlated_decoding=True),
-=======
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
     'fusion_blossom': FusionBlossomDecoder(),
     # an implementation of (weighted) hypergraph UF decoder (https://arxiv.org/abs/2103.08049)
     'hypergraph_union_find': HyperUFDecoder(),

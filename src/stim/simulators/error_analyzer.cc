@@ -511,12 +511,7 @@ void ErrorAnalyzer::undo_HERALDED_PAULI_CHANNEL_1(const CircuitInstruction &inst
     double i = std::max(0.0, 1.0 - hi - hx - hy - hz);
 
     for (size_t k = inst.targets.size(); k-- > 0;) {
-<<<<<<< HEAD
         auto q = inst.targets[k].qubit_value();
-=======
-        auto q = inst.targets[k].qubit_value()
-                 ;
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
         tracker.num_measurements_in_past--;
 
         SparseXorVec<DemTarget> &herald_symptoms = tracker.rec_bits[tracker.num_measurements_in_past];
@@ -768,11 +763,7 @@ void ErrorAnalyzer::undo_HERALD_LEAKAGE_EVENT(const CircuitInstruction &inst) {
                 },
                 false,
                 inst.tag,
-<<<<<<< HEAD
-                true);
-=======
 		true);
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
         }
     }
 }

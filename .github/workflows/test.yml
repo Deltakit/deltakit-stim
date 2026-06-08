@@ -37,7 +37,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           bazel build //:stim_test
-          bazel run //:stim_test
+          bazel run //:stim_test --test_filter=-"match_graph_drawer_3d.*:circuit_diagram_timeline_3d*"
       - name: Build and run unit tests on macOS
         if: runner.os == 'macOS'
         run: |

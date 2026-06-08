@@ -4,10 +4,7 @@ import {drawTimeline} from "./timeline_viewer.js";
 import {PropagatedPauliFrames} from "../circuit/propagated_pauli_frames.js";
 import {stroke_connector_to} from "../gates/gate_draw_util.js"
 import {beginPathPolygon} from './draw_util.js';
-<<<<<<< HEAD
-import {minXY} from "../circuit/layer.js";
-=======
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
+Import {minXY} from "../circuit/layer.js";
 
 /**
  * @param {!number|undefined} x
@@ -403,11 +400,7 @@ function draw(ctx, snap) {
     ctx.save();
     try {
         ctx.strokeStyle = 'black';
-<<<<<<< HEAD
         ctx.translate(Math.floor(ctx.canvas.clientWidth / 2), 0);
-=======
-        ctx.translate(Math.floor(ctx.canvas.width / 2), 0);
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
         for (let k = 0; k < circuit.layers.length; k++) {
             let hasPolygons = false;
             let hasXMarker = false;
@@ -502,10 +495,7 @@ function draw(ctx, snap) {
     } finally {
         ctx.restore();
     }
-<<<<<<< HEAD
     ctx.restore(); // restore devicePixelRatio scale
-=======
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
 }
 
 export {xyToPos, draw, setDefensiveDrawEnabled, OFFSET_X, OFFSET_Y}

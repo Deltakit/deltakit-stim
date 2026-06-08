@@ -1,4 +1,4 @@
-"""Deltakit-Stim (Development Version): a fast quantum stabilizer circuit library."""
+"""Deltakit_stim (Development Version): a fast quantum stabilizer circuit library."""
 # (This is a stubs file describing the classes and methods in deltakit_stim.)
 from __future__ import annotations
 from typing import overload, TYPE_CHECKING, List, Dict, Tuple, Any, Union, Iterable, Optional
@@ -43,8 +43,8 @@ class Circuit:
     """
     def __add__(
         self,
-        second: deltakit_stim._stim_polyfill.Circuit,
-    ) -> deltakit_stim._stim_polyfill.Circuit:
+        second: deltakit_stim.Circuit,
+    ) -> deltakit_stim.Circuit:
         """Creates a circuit by appending two circuits.
 
         Examples:
@@ -65,7 +65,7 @@ class Circuit:
         """
     def __eq__(
         self,
-        arg0: deltakit_stim._stim_polyfill.Circuit,
+        arg0: deltakit_stim.Circuit,
     ) -> bool:
         """Determines if two circuits have identical contents.
         """
@@ -73,13 +73,13 @@ class Circuit:
     def __getitem__(
         self,
         index_or_slice: int,
-    ) -> Union[stim.CircuitInstruction, stim.CircuitRepeatBlock]:
+    ) -> Union[deltakit_stim.CircuitInstruction, deltakit_stim.CircuitRepeatBlock]:
         pass
     @overload
     def __getitem__(
         self,
         index_or_slice: slice,
-    ) -> stim.Circuit:
+    ) -> deltakit_stim.Circuit:
         pass
     def __getitem__(
         self,
@@ -125,8 +125,8 @@ class Circuit:
         """
     def __iadd__(
         self,
-        second: deltakit_stim._stim_polyfill.Circuit,
-    ) -> deltakit_stim._stim_polyfill.Circuit:
+        second: deltakit_stim.Circuit,
+    ) -> deltakit_stim.Circuit:
         """Appends a circuit into the receiving circuit (mutating it).
 
         Examples:
@@ -149,7 +149,7 @@ class Circuit:
     def __imul__(
         self,
         repetitions: int,
-    ) -> deltakit_stim._stim_polyfill.Circuit:
+    ) -> deltakit_stim.Circuit:
         """Mutates the circuit by putting its contents into a REPEAT block.
 
         Special case: if the repetition count is 0, the circuit is cleared.
@@ -175,7 +175,7 @@ class Circuit:
         """
     def __init__(
         self,
-        stim_program_text: str = '',
+        deltakit_stim_program_text: str = '',
     ) -> None:
         """Creates a deltakit_stim.Circuit.
 
@@ -222,7 +222,7 @@ class Circuit:
     def __mul__(
         self,
         repetitions: int,
-    ) -> deltakit_stim._stim_polyfill.Circuit:
+    ) -> deltakit_stim.Circuit:
         """Repeats the circuit using a REPEAT block.
 
         Has special cases for 0 repetitions and 1 repetitions.
@@ -252,7 +252,7 @@ class Circuit:
         """
     def __ne__(
         self,
-        arg0: deltakit_stim._stim_polyfill.Circuit,
+        arg0: deltakit_stim.Circuit,
     ) -> bool:
         """Determines if two circuits have non-identical contents.
         """
@@ -264,7 +264,7 @@ class Circuit:
     def __rmul__(
         self,
         repetitions: int,
-    ) -> deltakit_stim._stim_polyfill.Circuit:
+    ) -> deltakit_stim.Circuit:
         """Repeats the circuit using a REPEAT block.
 
         Has special cases for 0 repetitions and 1 repetitions.
@@ -301,7 +301,7 @@ class Circuit:
     def append(
         self,
         name: str,
-        targets: Union[int, stim.GateTarget, stim.PauliString, Iterable[Union[int, stim.GateTarget, stim.PauliString]]],
+        targets: Union[int, deltakit_stim.GateTarget, deltakit_stim.PauliString, Iterable[Union[int, deltakit_stim.GateTarget, deltakit_stim.PauliString]]],
         arg: Union[float, Iterable[float], None] = None,
         *,
         tag: str = "",
@@ -310,7 +310,7 @@ class Circuit:
     @overload
     def append(
         self,
-        name: Union[stim.CircuitInstruction, stim.CircuitRepeatBlock, stim.Circuit],
+        name: Union[deltakit_stim.CircuitInstruction, deltakit_stim.CircuitRepeatBlock, deltakit_stim.Circuit],
     ) -> None:
         pass
     def append(
@@ -324,6 +324,25 @@ class Circuit:
         """Appends an operation into the circuit.
 
         Note: `deltakit_stim.Circuit.append_operation` is an alias of `deltakit_stim.Circuit.append`.
+
+        Examples:
+            >>> import deltakit_stim
+            >>> c = deltakit_stim.Circuit()
+            >>> c.append("X", 0)
+            >>> c.append("H", [0, 1])
+            >>> c.append("M", [0, deltakit_stim.target_inv(1)])
+            >>> c.append("CNOT", [deltakit_stim.target_rec(-1), 0])
+            >>> c.append("X_ERROR", [0], 0.125)
+            >>> c.append("CORRELATED_ERROR", [deltakit_stim.target_x(0), deltakit_stim.target_y(2)], 0.25)
+            >>> print(repr(c))
+            deltakit_stim.Circuit('''
+                X 0
+                H 0 1
+                M 0 !1
+                CX rec[-1] 0
+                X_ERROR(0.125) 0
+                E(0.25) X0 Y2
+            ''')
 
         Args:
             name: The name of the operation's gate (e.g. "H" or "M" or "CNOT").
@@ -378,9 +397,9 @@ class Circuit:
                 MPP X1*Y2 Z3
             ''')
         """
-    def append_from_stim_program_text(
+    def append_from_deltakit_stim_program_text(
         self,
-        stim_program_text: str,
+        deltakit_stim_program_text: str,
     ) -> None:
         """Appends operations described by a STIM format program into the circuit.
 
@@ -490,7 +509,7 @@ class Circuit:
         self,
         *,
         seed: object = None,
-    ) -> deltakit_stim._stim_polyfill.CompiledDetectorSampler:
+    ) -> deltakit_stim.CompiledDetectorSampler:
         """Returns an object that can batch sample detection events from the circuit.
 
         Args:
@@ -502,11 +521,11 @@ class Circuit:
                 Defaults to None. When None, the prng is seeded from system entropy.
 
                 When set to an integer, making the exact same series calls on the exact
-                same machine with the exact same version of Stim will produce the exact
+                same machine with the exact same version of deltakit_stim will produce the exact
                 same simulation results.
 
                 CAUTION: simulation results *WILL NOT* be consistent between versions of
-                Stim. This restriction is present to make it possible to have future
+                deltakit_stim. This restriction is present to make it possible to have future
                 optimizations to the random sampling, and is enforced by introducing
                 intentional differences in the seeding strategy from version to version.
 
@@ -535,7 +554,7 @@ class Circuit:
         self,
         *,
         skip_reference_sample: bool = False,
-    ) -> deltakit_stim._stim_polyfill.CompiledMeasurementsToDetectionEventsConverter:
+    ) -> deltakit_stim.CompiledMeasurementsToDetectionEventsConverter:
         """Creates a measurement-to-detection-event converter for the given circuit.
 
         The converter can efficiently compute detection events and observable flips
@@ -547,7 +566,7 @@ class Circuit:
 
         Note that the expected behavior of gauge detectors (detectors that are not
         actually deterministic under noiseless execution) can vary depending on the
-        reference sample. Stim mitigates this by always generating the same reference
+        reference sample. deltakit_stim mitigates this by always generating the same reference
         sample for a given circuit.
 
         Args:
@@ -581,7 +600,7 @@ class Circuit:
         skip_reference_sample: bool = False,
         seed: Optional[int] = None,
         reference_sample: Optional[np.ndarray] = None,
-    ) -> stim.CompiledMeasurementSampler:
+    ) -> deltakit_stim.CompiledMeasurementSampler:
         """Returns an object that can quickly batch sample measurements from the circuit.
 
         Args:
@@ -608,11 +627,11 @@ class Circuit:
                 Defaults to None. When None, the prng is seeded from system entropy.
 
                 When set to an integer, making the exact same series calls on the exact
-                same machine with the exact same version of Stim will produce the exact
+                same machine with the exact same version of deltakit_stim will produce the exact
                 same simulation results.
 
                 CAUTION: simulation results *WILL NOT* be consistent between versions of
-                Stim. This restriction is present to make it possible to have future
+                deltakit_stim. This restriction is present to make it possible to have future
                 optimizations to the random sampling, and is enforced by introducing
                 intentional differences in the seeding strategy from version to version.
 
@@ -649,7 +668,7 @@ class Circuit:
         """
     def copy(
         self,
-    ) -> deltakit_stim._stim_polyfill.Circuit:
+    ) -> deltakit_stim.Circuit:
         """Returns a copy of the circuit. An independent circuit with the same contents.
 
         Examples:
@@ -761,7 +780,7 @@ class Circuit:
         """
     def decomposed(
         self,
-    ) -> deltakit_stim._stim_polyfill.Circuit:
+    ) -> deltakit_stim.Circuit:
         """Recreates the circuit using (mostly) the {H,S,CX,M,R} gate set.
 
         The intent of this method is to simplify the circuit to use fewer gate types,
@@ -827,9 +846,9 @@ class Circuit:
     def detecting_regions(
         self,
         *,
-        targets: Optional[Iterable[stim.DemTarget | str | Iterable[float]]] = None,
+        targets: Optional[Iterable[deltakit_stim.DemTarget | str | Iterable[float]]] = None,
         ticks: Optional[Iterable[int]] = None,
-    ) -> Dict[stim.DemTarget, Dict[int, stim.PauliString]]:
+    ) -> Dict[deltakit_stim.DemTarget, Dict[int, deltakit_stim.PauliString]]:
         """Records where detectors and observables are sensitive to errors over time.
 
         The result of this method is a nested dictionary, mapping detectors/observables
@@ -961,7 +980,7 @@ class Circuit:
         approximate_disjoint_errors: float = False,
         ignore_decomposition_failures: bool = False,
         block_decomposition_from_introducing_remnant_edges: bool = False,
-    ) -> deltakit_stim._stim_polyfill.DetectorErrorModel:
+    ) -> deltakit_stim.DetectorErrorModel:
         """Returns a deltakit_stim.DetectorErrorModel describing the error processes in the circuit.
 
         Args:
@@ -1052,9 +1071,9 @@ class Circuit:
         type: Literal["timeline-text", "timeline-svg", "timeline-svg-html", "timeline-3d", "timeline-3d-html", "detslice-text", "detslice-svg", "detslice-svg-html", "matchgraph-svg", "matchgraph-svg-html", "matchgraph-3d", "matchgraph-3d-html", "timeslice-svg", "timeslice-svg-html", "detslice-with-ops-svg", "detslice-with-ops-svg-html", "interactive", "interactive-html"] = 'timeline-text',
         *,
         tick: Union[None, int, range] = None,
-        filter_coords: Iterable[Union[Iterable[float], stim.DemTarget]] = ((),),
+        filter_coords: Iterable[Union[Iterable[float], deltakit_stim.DemTarget]] = ((),),
         rows: int | None = None,
-    ) -> 'stim._DiagramHelper':
+    ) -> 'deltakit_stim._DiagramHelper':
         """Returns a diagram of the circuit, from a variety of options.
 
         Args:
@@ -1181,7 +1200,7 @@ class Circuit:
         *,
         dem_filter: object = None,
         reduce_to_one_representative_error: bool = False,
-    ) -> List[deltakit_stim._stim_polyfill.ExplainedError]:
+    ) -> List[deltakit_stim.ExplainedError]:
         """Explains how detector error model errors are produced by circuit errors.
 
         Args:
@@ -1234,7 +1253,7 @@ class Circuit:
         """
     def flattened(
         self,
-    ) -> deltakit_stim._stim_polyfill.Circuit:
+    ) -> deltakit_stim.Circuit:
         """Creates an equivalent circuit without REPEAT or SHIFT_COORDS.
 
         Returns:
@@ -1297,8 +1316,10 @@ class Circuit:
         """
     def flow_generators(
         self,
-    ) -> List[lestim.Flow]:
-        """Returns a list of flows that generate all of the circuit's flows. Every stabilizer flow that the circuit implements is a product of some
+    ) -> List[deltakit_stim.Flow]:
+        """Returns a list of flows that generate all of the circuit's flows.
+
+        Every stabilizer flow that the circuit implements is a product of some
         subset of the returned generators. Every returned flow will be a flow
         of the circuit.
 
@@ -1347,7 +1368,7 @@ class Circuit:
     @staticmethod
     def from_file(
         file: Union[io.TextIOBase, str, pathlib.Path],
-    ) -> stim.Circuit:
+    ) -> deltakit_stim.Circuit:
         """Reads a deltakit_stim circuit from a file.
 
         The file format is defined at
@@ -1396,7 +1417,7 @@ class Circuit:
         after_reset_flip_probability: float = 0.0,
         after_reset_leakage: float = 0.0,
         after_clifford_leakage_and_relaxation: float = 0.0,
-    ) -> deltakit_stim._stim_polyfill.Circuit:
+    ) -> deltakit_stim.Circuit:
         """Generates common circuits.
 
         The generated circuits can include configurable noise.
@@ -1550,7 +1571,7 @@ class Circuit:
         """
     def has_all_flows(
         self,
-        flows: Iterable[stim.Flow],
+        flows: Iterable[deltakit_stim.Flow],
         *,
         unsigned: bool = False,
     ) -> bool:
@@ -1605,7 +1626,7 @@ class Circuit:
         """
     def has_flow(
         self,
-        flow: stim.Flow,
+        flow: deltakit_stim.Flow,
         *,
         unsigned: bool = False,
     ) -> bool:
@@ -1726,7 +1747,7 @@ class Circuit:
     def insert(
         self,
         index: int,
-        operation: Union[lestim.CircuitInstruction, lestim.Circuit],
+        operation: Union[deltakit_stim.CircuitInstruction, deltakit_stim.Circuit],
     ) -> None:
         """Inserts an operation at the given index, pushing existing operations forward.
 
@@ -1779,7 +1800,7 @@ class Circuit:
         """
     def inverse(
         self,
-    ) -> deltakit_stim._stim_polyfill.Circuit:
+    ) -> deltakit_stim.Circuit:
         """Returns a circuit that applies the same operations but inverted and in reverse.
 
         If circuit starts with QUBIT_COORDS instructions, the returned circuit will
@@ -2108,7 +2129,7 @@ class Circuit:
     def pop(
         self,
         index: int = -1,
-    ) -> Union[lestim.CircuitInstruction, lestim.CircuitRepeatBlock]:
+    ) -> Union[deltakit_stim.CircuitInstruction, deltakit_stim.CircuitRepeatBlock]:
         """Pops an operation from the end of the circuit, or at the given index.
 
         Args:
@@ -2225,7 +2246,7 @@ class Circuit:
         dont_explore_edges_with_degree_above: int,
         dont_explore_edges_increasing_symptom_degree: bool,
         canonicalize_circuit_errors: bool = False,
-    ) -> List[deltakit_stim._stim_polyfill.ExplainedError]:
+    ) -> List[deltakit_stim.ExplainedError]:
         """Searches for small sets of errors that form an undetectable logical error.
 
         THIS IS A HEURISTIC METHOD. It does not guarantee that it will find errors of
@@ -2383,7 +2404,7 @@ class Circuit:
         *,
         ignore_ungraphlike_errors: bool = True,
         canonicalize_circuit_errors: bool = False,
-    ) -> List[deltakit_stim._stim_polyfill.ExplainedError]:
+    ) -> List[deltakit_stim.ExplainedError]:
         """Finds a minimum set of graphlike errors to produce an undetected logical error.
 
         A "graphlike error" is an error that creates at most two detection events
@@ -2450,7 +2471,7 @@ class Circuit:
         """
     def solve_flow_measurements(
         self,
-        flows: List[stim.Flow],
+        flows: List[deltakit_stim.Flow],
     ) -> List[Optional[List[int]]]:
         """Finds measurements to explain the starts/ends of the given flows, ignoring sign.
 
@@ -2541,10 +2562,10 @@ class Circuit:
         """
     def time_reversed_for_flows(
         self,
-        flows: Iterable[stim.Flow],
+        flows: Iterable[deltakit_stim.Flow],
         *,
         dont_turn_measurements_into_resets: bool = False,
-    ) -> Tuple[stim.Circuit, List[stim.Flow]]:
+    ) -> Tuple[deltakit_stim.Circuit, List[deltakit_stim.Flow]]:
         """Time-reverses the circuit while preserving error correction structure.
 
         This method returns a circuit that has the same internal detecting regions
@@ -2746,7 +2767,7 @@ class Circuit:
         self,
         *,
         skip_detectors: bool = False,
-        mark: Optional[Dict[int, List[lestim.ExplainedError]]] = None,
+        mark: Optional[Dict[int, List[deltakit_stim.ExplainedError]]] = None,
     ) -> str:
         """Returns a URL that opens up crumble and loads this circuit into it.
 
@@ -2913,7 +2934,7 @@ class Circuit:
         ignore_noise: bool = False,
         ignore_measurement: bool = False,
         ignore_reset: bool = False,
-    ) -> stim.Tableau:
+    ) -> deltakit_stim.Tableau:
         """Converts the circuit into an equivalent stabilizer tableau.
 
         Args:
@@ -2961,7 +2982,7 @@ class Circuit:
         """
     def with_inlined_feedback(
         self,
-    ) -> deltakit_stim._stim_polyfill.Circuit:
+    ) -> deltakit_stim.Circuit:
         """Returns a circuit without feedback with rewritten detectors/observables.
 
         When a feedback operation affects the expected parity of a detector or
@@ -3015,7 +3036,7 @@ class Circuit:
         """
     def without_noise(
         self,
-    ) -> deltakit_stim._stim_polyfill.Circuit:
+    ) -> deltakit_stim.Circuit:
         """Returns a copy of the circuit with all noise processes removed.
 
         Pure noise instructions, such as X_ERROR and DEPOLARIZE2, are not
@@ -3042,7 +3063,7 @@ class Circuit:
         """
     def without_tags(
         self,
-    ) -> deltakit_stim._stim_polyfill.Circuit:
+    ) -> deltakit_stim.Circuit:
         """Returns a copy of the circuit with all tags removed.
 
         Returns:
@@ -3087,10 +3108,10 @@ class CircuitErrorLocation:
         self,
         *,
         tick_offset: int,
-        flipped_pauli_product: List[deltakit_stim._stim_polyfill.GateTargetWithCoords],
+        flipped_pauli_product: List[deltakit_stim.GateTargetWithCoords],
         flipped_measurement: object,
-        instruction_targets: deltakit_stim._stim_polyfill.CircuitTargetsInsideInstruction,
-        stack_frames: List[deltakit_stim._stim_polyfill.CircuitErrorLocationStackFrame],
+        instruction_targets: deltakit_stim.CircuitTargetsInsideInstruction,
+        stack_frames: List[deltakit_stim.CircuitErrorLocationStackFrame],
         noise_tag: str = '',
     ) -> None:
         """Creates a deltakit_stim.CircuitErrorLocation.
@@ -3142,7 +3163,7 @@ class CircuitErrorLocation:
     @property
     def flipped_measurement(
         self,
-    ) -> Optional[lestim.FlippedMeasurement]:
+    ) -> Optional[deltakit_stim.FlippedMeasurement]:
         """The measurement that was flipped by the error mechanism.
 
         If the error isn't a measurement error, this will be None.
@@ -3163,7 +3184,7 @@ class CircuitErrorLocation:
     @property
     def flipped_pauli_product(
         self,
-    ) -> List[deltakit_stim._stim_polyfill.GateTargetWithCoords]:
+    ) -> List[deltakit_stim.GateTargetWithCoords]:
         """The Pauli errors that the error mechanism applied to qubits.
 
         When the error is a measurement error, this will be an empty list.
@@ -3182,7 +3203,7 @@ class CircuitErrorLocation:
     @property
     def instruction_targets(
         self,
-    ) -> deltakit_stim._stim_polyfill.CircuitTargetsInsideInstruction:
+    ) -> deltakit_stim.CircuitTargetsInsideInstruction:
         """Within the error instruction, which may have hundreds of
         targets, which specific targets were being executed to
         produce the error.
@@ -3226,7 +3247,7 @@ class CircuitErrorLocation:
     @property
     def stack_frames(
         self,
-    ) -> List[deltakit_stim._stim_polyfill.CircuitErrorLocationStackFrame]:
+    ) -> List[deltakit_stim.CircuitErrorLocationStackFrame]:
         """Describes where in the circuit's execution the error happened.
 
         Multiple frames are needed because the error may occur within a loop,
@@ -3410,14 +3431,14 @@ class CircuitInstruction:
     """
     def __eq__(
         self,
-        arg0: deltakit_stim._stim_polyfill.CircuitInstruction,
+        arg0: deltakit_stim.CircuitInstruction,
     ) -> bool:
         """Determines if two `deltakit_stim.CircuitInstruction`s are identical.
         """
     def __init__(
         self,
         name: str,
-        targets: Optional[Iterable[Union[int, stim.GateTarget]]] = None,
+        targets: Optional[Iterable[Union[int, deltakit_stim.GateTarget]]] = None,
         gate_args: Optional[Iterable[float]] = None,
         *,
         tag: str = "",
@@ -3454,7 +3475,7 @@ class CircuitInstruction:
         """
     def __ne__(
         self,
-        arg0: deltakit_stim._stim_polyfill.CircuitInstruction,
+        arg0: deltakit_stim.CircuitInstruction,
     ) -> bool:
         """Determines if two `deltakit_stim.CircuitInstruction`s are different.
         """
@@ -3533,7 +3554,7 @@ class CircuitInstruction:
         """
     def target_groups(
         self,
-    ) -> List[List[stim.GateTarget]]:
+    ) -> List[List[deltakit_stim.GateTarget]]:
         """Splits the instruction's targets into groups depending on the type of gate.
 
         Single qubit gates like H get one group per target.
@@ -3572,7 +3593,7 @@ class CircuitInstruction:
         """
     def targets_copy(
         self,
-    ) -> List[deltakit_stim._stim_polyfill.GateTarget]:
+    ) -> List[deltakit_stim.GateTarget]:
         """Returns a copy of the targets of the instruction.
 
         Examples:
@@ -3609,14 +3630,14 @@ class CircuitRepeatBlock:
     """
     def __eq__(
         self,
-        arg0: deltakit_stim._stim_polyfill.CircuitRepeatBlock,
+        arg0: deltakit_stim.CircuitRepeatBlock,
     ) -> bool:
         """Determines if two `deltakit_stim.CircuitRepeatBlock`s are identical.
         """
     def __init__(
         self,
         repeat_count: int,
-        body: deltakit_stim._stim_polyfill.Circuit,
+        body: deltakit_stim.Circuit,
         *,
         tag: str = '',
     ) -> None:
@@ -3640,7 +3661,7 @@ class CircuitRepeatBlock:
         """
     def __ne__(
         self,
-        arg0: deltakit_stim._stim_polyfill.CircuitRepeatBlock,
+        arg0: deltakit_stim.CircuitRepeatBlock,
     ) -> bool:
         """Determines if two `deltakit_stim.CircuitRepeatBlock`s are different.
         """
@@ -3651,7 +3672,7 @@ class CircuitRepeatBlock:
         """
     def body_copy(
         self,
-    ) -> deltakit_stim._stim_polyfill.Circuit:
+    ) -> deltakit_stim.Circuit:
         """Returns a copy of the body of the repeat block.
 
         (Making a copy is enforced to make it clear that editing the result won't change
@@ -3765,7 +3786,7 @@ class CircuitTargetsInsideInstruction:
         args: List[float],
         target_range_start: int,
         target_range_end: int,
-        targets_in_range: List[deltakit_stim._stim_polyfill.GateTargetWithCoords],
+        targets_in_range: List[deltakit_stim.GateTargetWithCoords],
     ) -> None:
         """Creates a deltakit_stim.CircuitTargetsInsideInstruction.
 
@@ -3884,7 +3905,7 @@ class CircuitTargetsInsideInstruction:
     @property
     def targets_in_range(
         self,
-    ) -> List[deltakit_stim._stim_polyfill.GateTargetWithCoords]:
+    ) -> List[deltakit_stim.GateTargetWithCoords]:
         """Returns the subset of targets of the gate/instruction that were being executed.
 
         Includes coordinate data with the targets.
@@ -3915,8 +3936,8 @@ class CliffordString:
     """
     def __add__(
         self,
-        rhs: deltakit_stim._stim_polyfill.CliffordString,
-    ) -> deltakit_stim._stim_polyfill.CliffordString:
+        rhs: deltakit_stim.CliffordString,
+    ) -> deltakit_stim.CliffordString:
         """Concatenates two CliffordStrings.
 
         Args:
@@ -3932,7 +3953,7 @@ class CliffordString:
         """
     def __eq__(
         self,
-        arg0: deltakit_stim._stim_polyfill.CliffordString,
+        arg0: deltakit_stim.CliffordString,
     ) -> bool:
         """Determines if two Clifford strings have identical contents.
         """
@@ -3940,18 +3961,18 @@ class CliffordString:
     def __getitem__(
         self,
         index_or_slice: int,
-    ) -> stim.GateData:
+    ) -> deltakit_stim.GateData:
         pass
     @overload
     def __getitem__(
         self,
         index_or_slice: slice,
-    ) -> stim.CliffordString:
+    ) -> deltakit_stim.CliffordString:
         pass
     def __getitem__(
         self,
         index_or_slice: Union[int, slice],
-    ) -> Union[stim.GateData, stim.CliffordString]:
+    ) -> Union[deltakit_stim.GateData, deltakit_stim.CliffordString]:
         """Returns a Clifford or substring from the CliffordString.
 
         Args:
@@ -3980,8 +4001,8 @@ class CliffordString:
         """
     def __iadd__(
         self,
-        rhs: deltakit_stim._stim_polyfill.CliffordString,
-    ) -> deltakit_stim._stim_polyfill.CliffordString:
+        rhs: deltakit_stim.CliffordString,
+    ) -> deltakit_stim.CliffordString:
         """Mutates the CliffordString by concatenating onto it.
 
         Args:
@@ -4000,8 +4021,8 @@ class CliffordString:
         """
     def __imul__(
         self,
-        rhs: Union[stim.CliffordString, int],
-    ) -> stim.CliffordString:
+        rhs: Union[deltakit_stim.CliffordString, int],
+    ) -> deltakit_stim.CliffordString:
         """Inplace CliffordString multiplication.
 
         Mutates the CliffordString into itself multiplied by another CliffordString
@@ -4034,7 +4055,7 @@ class CliffordString:
         """
     def __init__(
         self,
-        arg: Union[int, str, stim.CliffordString, stim.PauliString, stim.Circuit],
+        arg: Union[int, str, deltakit_stim.CliffordString, deltakit_stim.PauliString, deltakit_stim.Circuit],
         /,
     ) -> None:
         """Initializes a deltakit_stim.CliffordString from the given argument.
@@ -4122,8 +4143,8 @@ class CliffordString:
         """
     def __mul__(
         self,
-        rhs: Union[stim.CliffordString, int],
-    ) -> stim.CliffordString:
+        rhs: Union[deltakit_stim.CliffordString, int],
+    ) -> deltakit_stim.CliffordString:
         """CliffordString multiplication.
 
         Args:
@@ -4143,14 +4164,14 @@ class CliffordString:
         """
     def __ne__(
         self,
-        arg0: deltakit_stim._stim_polyfill.CliffordString,
+        arg0: deltakit_stim.CliffordString,
     ) -> bool:
         """Determines if two Clifford strings have non-identical contents.
         """
     def __pow__(
         self,
         power: int,
-    ) -> deltakit_stim._stim_polyfill.CliffordString:
+    ) -> deltakit_stim.CliffordString:
         """Returns the CliffordString raised to a power.
 
         Args:
@@ -4191,7 +4212,7 @@ class CliffordString:
     def __rmul__(
         self,
         lhs: int,
-    ) -> deltakit_stim._stim_polyfill.CliffordString:
+    ) -> deltakit_stim.CliffordString:
         """CliffordString left-multiplication.
 
         Args:
@@ -4215,7 +4236,7 @@ class CliffordString:
     def __setitem__(
         self,
         index_or_slice: Union[int, slice],
-        new_value: Union[str, stim.GateData, stim.CliffordString, stim.PauliString, stim.Tableau],
+        new_value: Union[str, deltakit_stim.GateData, deltakit_stim.CliffordString, deltakit_stim.PauliString, deltakit_stim.Tableau],
     ) -> None:
         """Overwrites an indexed Clifford, or slice of Cliffords, with the given value.
 
@@ -4276,7 +4297,7 @@ class CliffordString:
         """
     @staticmethod
     def all_cliffords_string(
-    ) -> deltakit_stim._stim_polyfill.CliffordString:
+    ) -> deltakit_stim.CliffordString:
         """Returns a deltakit_stim.CliffordString containing each single qubit Clifford once.
 
         Useful for things like testing that a method works on every single Clifford.
@@ -4298,7 +4319,7 @@ class CliffordString:
         """
     def copy(
         self,
-    ) -> deltakit_stim._stim_polyfill.CliffordString:
+    ) -> deltakit_stim.CliffordString:
         """Returns a copy of the CliffordString.
 
         Returns:
@@ -4318,7 +4339,7 @@ class CliffordString:
     @staticmethod
     def random(
         num_qubits: int,
-    ) -> deltakit_stim._stim_polyfill.CliffordString:
+    ) -> deltakit_stim.CliffordString:
         """Samples a uniformly random CliffordString.
 
         Args:
@@ -4337,7 +4358,7 @@ class CliffordString:
         self,
         *,
         bit_packed_signs: bool = False,
-    ) -> Tuple[stim.PauliString, np.ndarray]:
+    ) -> Tuple[deltakit_stim.PauliString, np.ndarray]:
         """Returns what each Clifford in the CliffordString conjugates an X input into.
 
         For example, H conjugates X into +Z and S_DAG conjugates X into -Y.
@@ -4379,7 +4400,7 @@ class CliffordString:
         self,
         *,
         bit_packed_signs: bool = False,
-    ) -> Tuple[stim.PauliString, np.ndarray]:
+    ) -> Tuple[deltakit_stim.PauliString, np.ndarray]:
         """Returns what each Clifford in the CliffordString conjugates a Y input into.
 
         For example, H conjugates Y into -Y and S_DAG conjugates Y into +X.
@@ -4418,7 +4439,7 @@ class CliffordString:
         self,
         *,
         bit_packed_signs: bool = False,
-    ) -> Tuple[stim.PauliString, np.ndarray]:
+    ) -> Tuple[deltakit_stim.PauliString, np.ndarray]:
         """Returns what each Clifford in the CliffordString conjugates a Z input into.
 
         For example, H conjugates Z into +X and SQRT_X conjugates Z into -Y.
@@ -4718,7 +4739,7 @@ class CompiledDetectorSampler:
     """
     def __init__(
         self,
-        circuit: deltakit_stim._stim_polyfill.Circuit,
+        circuit: deltakit_stim.Circuit,
         *,
         seed: object = None,
     ) -> None:
@@ -4976,7 +4997,7 @@ class CompiledMeasurementSampler:
     """
     def __init__(
         self,
-        circuit: deltakit_stim._stim_polyfill.Circuit,
+        circuit: deltakit_stim.Circuit,
         *,
         skip_reference_sample: bool = False,
         seed: object = None,
@@ -5013,11 +5034,11 @@ class CompiledMeasurementSampler:
                 Defaults to None. When None, the prng is seeded from system entropy.
 
                 When set to an integer, making the exact same series calls on the exact
-                same machine with the exact same version of Stim will produce the exact
+                same machine with the exact same version of deltakit_stim will produce the exact
                 same simulation results.
 
                 CAUTION: simulation results *WILL NOT* be consistent between versions of
-                Stim. This restriction is present to make it possible to have future
+                deltakit_stim. This restriction is present to make it possible to have future
                 optimizations to the random sampling, and is enforced by introducing
                 intentional differences in the seeding strategy from version to version.
 
@@ -5164,7 +5185,7 @@ class CompiledMeasurementsToDetectionEventsConverter:
     """
     def __init__(
         self,
-        circuit: deltakit_stim._stim_polyfill.Circuit,
+        circuit: deltakit_stim.Circuit,
         *,
         skip_reference_sample: bool = False,
     ) -> None:
@@ -5176,7 +5197,7 @@ class CompiledMeasurementsToDetectionEventsConverter:
 
         Note that the expected behavior of gauge detectors (detectors that are not
         actually deterministic under noiseless execution) can vary depending on the
-        reference sample. Stim mitigates this by always generating the same reference
+        reference sample. deltakit_stim mitigates this by always generating the same reference
         sample for a given circuit.
 
         Args:
@@ -5399,7 +5420,7 @@ class DemInstruction:
     """
     def __eq__(
         self,
-        arg0: deltakit_stim._stim_polyfill.DemInstruction,
+        arg0: deltakit_stim.DemInstruction,
     ) -> bool:
         """Determines if two instructions have identical contents.
         """
@@ -5407,7 +5428,7 @@ class DemInstruction:
         self,
         type: str,
         args: Optional[Iterable[float]] = None,
-        targets: Optional[Iterable[lestim.DemTarget]] = None,
+        targets: Optional[Iterable[deltakit_stim.DemTarget]] = None,
         *,
         tag: str = "",
     ) -> None:
@@ -5439,7 +5460,7 @@ class DemInstruction:
         """
     def __ne__(
         self,
-        arg0: deltakit_stim._stim_polyfill.DemInstruction,
+        arg0: deltakit_stim.DemInstruction,
     ) -> bool:
         """Determines if two instructions have non-identical contents.
         """
@@ -5494,7 +5515,7 @@ class DemInstruction:
         """
     def target_groups(
         self,
-    ) -> List[List[stim.DemTarget]]:
+    ) -> List[List[deltakit_stim.DemTarget]]:
         """Returns a copy of the instruction's targets, split by target separators.
 
         When a detector error model instruction contains a suggested decomposition,
@@ -5523,7 +5544,7 @@ class DemInstruction:
         """
     def targets_copy(
         self,
-    ) -> List[Union[int, stim.DemTarget]]:
+    ) -> List[Union[int, deltakit_stim.DemTarget]]:
         """Returns a copy of the instruction's targets.
 
         The result is a copy, meaning that editing it won't change the instruction's
@@ -5567,14 +5588,14 @@ class DemRepeatBlock:
     """
     def __eq__(
         self,
-        arg0: deltakit_stim._stim_polyfill.DemRepeatBlock,
+        arg0: deltakit_stim.DemRepeatBlock,
     ) -> bool:
         """Determines if two repeat blocks are identical.
         """
     def __init__(
         self,
         repeat_count: int,
-        block: deltakit_stim._stim_polyfill.DetectorErrorModel,
+        block: deltakit_stim.DetectorErrorModel,
     ) -> None:
         """Creates a deltakit_stim.DemRepeatBlock.
 
@@ -5593,7 +5614,7 @@ class DemRepeatBlock:
         """
     def __ne__(
         self,
-        arg0: deltakit_stim._stim_polyfill.DemRepeatBlock,
+        arg0: deltakit_stim.DemRepeatBlock,
     ) -> bool:
         """Determines if two repeat blocks are different.
         """
@@ -5604,7 +5625,7 @@ class DemRepeatBlock:
         """
     def body_copy(
         self,
-    ) -> deltakit_stim._stim_polyfill.DetectorErrorModel:
+    ) -> deltakit_stim.DetectorErrorModel:
         """Returns a copy of the block's body, as a deltakit_stim.DetectorErrorModel.
 
         Examples:
@@ -5653,7 +5674,7 @@ class DemTarget:
     """
     def __eq__(
         self,
-        arg0: deltakit_stim._stim_polyfill.DemTarget,
+        arg0: deltakit_stim.DemTarget,
     ) -> bool:
         """Determines if two `deltakit_stim.DemTarget`s are identical.
         """
@@ -5677,9 +5698,29 @@ class DemTarget:
             >>> deltakit_stim.DemTarget("^") == deltakit_stim.target_separator()
             True
         """
+    def __init__(
+        self,
+        arg: object,
+        /,
+    ) -> None:
+        """Creates a deltakit_stim.DemTarget from the given object.
+
+        Args:
+            arg: A string to parse as a deltakit_stim.DemTarget, or some other object to
+                convert into a deltakit_stim.DemTarget.
+
+        Examples:
+            >>> import deltakit_stim
+            >>> deltakit_stim.DemTarget("D5") == deltakit_stim.target_relative_detector_id(5)
+            True
+            >>> deltakit_stim.DemTarget("L2") == deltakit_stim.target_logical_observable_id(2)
+            True
+            >>> deltakit_stim.DemTarget("^") == deltakit_stim.target_separator()
+            True
+        """
     def __ne__(
         self,
-        arg0: deltakit_stim._stim_polyfill.DemTarget,
+        arg0: deltakit_stim.DemTarget,
     ) -> bool:
         """Determines if two `deltakit_stim.DemTarget`s are different.
         """
@@ -5747,7 +5788,7 @@ class DemTarget:
     @staticmethod
     def logical_observable_id(
         index: int,
-    ) -> deltakit_stim._stim_polyfill.DemTarget:
+    ) -> deltakit_stim.DemTarget:
         """Returns a logical observable id identifying a frame change.
 
         Args:
@@ -5770,7 +5811,7 @@ class DemTarget:
     @staticmethod
     def relative_detector_id(
         index: int,
-    ) -> deltakit_stim._stim_polyfill.DemTarget:
+    ) -> deltakit_stim.DemTarget:
         """Returns a relative detector id (e.g. "D5" in a .dem file).
 
         Args:
@@ -5792,7 +5833,7 @@ class DemTarget:
         """
     @staticmethod
     def separator(
-    ) -> deltakit_stim._stim_polyfill.DemTarget:
+    ) -> deltakit_stim.DemTarget:
         """Returns a target separator (e.g. "^" in a .dem file).
 
         Examples:
@@ -5847,7 +5888,7 @@ class DemTargetWithCoords:
     """
     def __init__(
         self,
-        dem_target: deltakit_stim._stim_polyfill.DemTarget,
+        dem_target: deltakit_stim.DemTarget,
         coords: List[float],
     ) -> None:
         """Creates a deltakit_stim.DemTargetWithCoords.
@@ -5887,7 +5928,7 @@ class DemTargetWithCoords:
     @property
     def dem_target(
         self,
-    ) -> deltakit_stim._stim_polyfill.DemTarget:
+    ) -> deltakit_stim.DemTarget:
         """Returns the actual DEM target as a `deltakit_stim.DemTarget`.
 
         Examples:
@@ -5965,8 +6006,8 @@ class DetectorErrorModel:
     """
     def __add__(
         self,
-        second: deltakit_stim._stim_polyfill.DetectorErrorModel,
-    ) -> deltakit_stim._stim_polyfill.DetectorErrorModel:
+        second: deltakit_stim.DetectorErrorModel,
+    ) -> deltakit_stim.DetectorErrorModel:
         """Creates a detector error model by appending two models.
 
         Examples:
@@ -5985,7 +6026,7 @@ class DetectorErrorModel:
         """
     def __eq__(
         self,
-        arg0: deltakit_stim._stim_polyfill.DetectorErrorModel,
+        arg0: deltakit_stim.DetectorErrorModel,
     ) -> bool:
         """Determines if two detector error models have identical contents.
         """
@@ -5993,13 +6034,13 @@ class DetectorErrorModel:
     def __getitem__(
         self,
         index_or_slice: int,
-    ) -> Union[lestim.DemInstruction, lestim.DemRepeatBlock]:
+    ) -> Union[deltakit_stim.DemInstruction, deltakit_stim.DemRepeatBlock]:
         pass
     @overload
     def __getitem__(
         self,
         index_or_slice: slice,
-    ) -> lestim.DetectorErrorModel:
+    ) -> deltakit_stim.DetectorErrorModel:
         pass
     def __getitem__(
         self,
@@ -6041,8 +6082,8 @@ class DetectorErrorModel:
         """
     def __iadd__(
         self,
-        second: deltakit_stim._stim_polyfill.DetectorErrorModel,
-    ) -> deltakit_stim._stim_polyfill.DetectorErrorModel:
+        second: deltakit_stim.DetectorErrorModel,
+    ) -> deltakit_stim.DetectorErrorModel:
         """Appends a detector error model into the receiving model (mutating it).
 
         Examples:
@@ -6063,7 +6104,7 @@ class DetectorErrorModel:
     def __imul__(
         self,
         repetitions: int,
-    ) -> deltakit_stim._stim_polyfill.DetectorErrorModel:
+    ) -> deltakit_stim.DetectorErrorModel:
         """Mutates the detector error model by putting its contents into a repeat block.
 
         Special case: if the repetition count is 0, the model is cleared.
@@ -6130,7 +6171,7 @@ class DetectorErrorModel:
     def __mul__(
         self,
         repetitions: int,
-    ) -> deltakit_stim._stim_polyfill.DetectorErrorModel:
+    ) -> deltakit_stim.DetectorErrorModel:
         """Repeats the detector error model using a repeat block.
 
         Has special cases for 0 repetitions and 1 repetitions.
@@ -6160,7 +6201,7 @@ class DetectorErrorModel:
         """
     def __ne__(
         self,
-        arg0: deltakit_stim._stim_polyfill.DetectorErrorModel,
+        arg0: deltakit_stim.DetectorErrorModel,
     ) -> bool:
         """Determines if two detector error models have non-identical contents.
         """
@@ -6172,7 +6213,7 @@ class DetectorErrorModel:
     def __rmul__(
         self,
         repetitions: int,
-    ) -> deltakit_stim._stim_polyfill.DetectorErrorModel:
+    ) -> deltakit_stim.DetectorErrorModel:
         """Repeats the detector error model using a repeat block.
 
         Has special cases for 0 repetitions and 1 repetitions.
@@ -6344,7 +6385,7 @@ class DetectorErrorModel:
         self,
         *,
         seed: object = None,
-    ) -> deltakit_stim._stim_polyfill.CompiledDemSampler:
+    ) -> deltakit_stim.CompiledDemSampler:
         """Returns a CompiledDemSampler that can batch sample from detector error models.
 
         Args:
@@ -6356,11 +6397,11 @@ class DetectorErrorModel:
                 Defaults to None. When None, the prng is seeded from system entropy.
 
                 When set to an integer, making the exact same series calls on the exact
-                same machine with the exact same version of Stim will produce the exact
+                same machine with the exact same version of deltakit_stim will produce the exact
                 same simulation results.
 
                 CAUTION: simulation results *WILL NOT* be consistent between versions of
-                Stim. This restriction is present to make it possible to have future
+                deltakit_stim. This restriction is present to make it possible to have future
                 optimizations to the random sampling, and is enforced by introducing
                 intentional differences in the seeding strategy from version to version.
 
@@ -6404,7 +6445,7 @@ class DetectorErrorModel:
         """
     def copy(
         self,
-    ) -> deltakit_stim._stim_polyfill.DetectorErrorModel:
+    ) -> deltakit_stim.DetectorErrorModel:
         """Returns a copy of the detector error model.
 
         The copy is an independent detector error model with the same contents.
@@ -6475,7 +6516,7 @@ class DetectorErrorModel:
         """
     def flattened(
         self,
-    ) -> deltakit_stim._stim_polyfill.DetectorErrorModel:
+    ) -> deltakit_stim.DetectorErrorModel:
         """Returns the detector error model without repeat or detector_shift instructions.
 
         Returns:
@@ -6506,7 +6547,7 @@ class DetectorErrorModel:
     @staticmethod
     def from_file(
         file: Union[io.TextIOBase, str, pathlib.Path],
-    ) -> stim.DetectorErrorModel:
+    ) -> deltakit_stim.DetectorErrorModel:
         """Reads a detector error model from a file.
 
         The file format is defined at
@@ -6656,7 +6697,7 @@ class DetectorErrorModel:
     def rounded(
         self,
         arg0: int,
-    ) -> deltakit_stim._stim_polyfill.DetectorErrorModel:
+    ) -> deltakit_stim.DetectorErrorModel:
         """Creates an equivalent detector error model but with rounded error probabilities.
 
         Args:
@@ -6692,7 +6733,7 @@ class DetectorErrorModel:
     def shortest_graphlike_error(
         self,
         ignore_ungraphlike_errors: bool = True,
-    ) -> deltakit_stim._stim_polyfill.DetectorErrorModel:
+    ) -> deltakit_stim.DetectorErrorModel:
         """Finds a minimum set of graphlike errors to produce an undetected logical error.
 
         Note that this method does not pay attention to error probabilities (other than
@@ -6814,7 +6855,7 @@ class DetectorErrorModel:
         """
     def without_tags(
         self,
-    ) -> deltakit_stim._stim_polyfill.DetectorErrorModel:
+    ) -> deltakit_stim.DetectorErrorModel:
         """Returns a copy of the detector error model with all tags removed.
 
         Returns:
@@ -6858,8 +6899,8 @@ class ExplainedError:
     def __init__(
         self,
         *,
-        dem_error_terms: List[deltakit_stim._stim_polyfill.DemTargetWithCoords],
-        circuit_error_locations: List[deltakit_stim._stim_polyfill.CircuitErrorLocation],
+        dem_error_terms: List[deltakit_stim.DemTargetWithCoords],
+        circuit_error_locations: List[deltakit_stim.CircuitErrorLocation],
     ) -> None:
         """Creates a deltakit_stim.ExplainedError.
 
@@ -6888,7 +6929,7 @@ class ExplainedError:
     @property
     def circuit_error_locations(
         self,
-    ) -> List[deltakit_stim._stim_polyfill.CircuitErrorLocation]:
+    ) -> List[deltakit_stim.CircuitErrorLocation]:
         """The locations of circuit errors that produce the symptoms in dem_error_terms.
 
         Note: if this list contains a single entry, it may be because a result
@@ -6921,7 +6962,7 @@ class ExplainedError:
     @property
     def dem_error_terms(
         self,
-    ) -> List[deltakit_stim._stim_polyfill.DemTargetWithCoords]:
+    ) -> List[deltakit_stim.DemTargetWithCoords]:
         """The detectors and observables flipped by this error mechanism.
         """
 class FlipSimulator:
@@ -7001,11 +7042,11 @@ class FlipSimulator:
                 Defaults to None. When None, the prng is seeded from system entropy.
 
                 When set to an integer, making the exact same series calls on the exact
-                same machine with the exact same version of Stim will produce the exact
+                same machine with the exact same version of deltakit_stim will produce the exact
                 same simulation results.
 
                 CAUTION: simulation results *WILL NOT* be consistent between versions of
-                Stim. This restriction is present to make it possible to have future
+                deltakit_stim. This restriction is present to make it possible to have future
                 optimizations to the random sampling, and is enforced by introducing
                 intentional differences in the seeding strategy from version to version.
 
@@ -7026,6 +7067,79 @@ class FlipSimulator:
         Examples:
             >>> import deltakit_stim
             >>> sim = deltakit_stim.FlipSimulator(batch_size=256)
+        """
+    def append_measurement_flips(
+        self,
+        measurement_flip_data: np.ndarray,
+    ) -> None:
+        """Appends measurement flip data to the simulator's measurement record.
+
+        Args:
+            measurement_flip_data: The flip data to append. The following shape/dtype
+                combinations are supported.
+
+                Single measurement without bit packing:
+                    shape=(self.batch_size,)
+                    dtype=np.bool_
+
+                Single measurement with bit packing:
+                    shape=(math.ceil(self.batch_size / 8),)
+                    dtype=np.uint8
+
+                Multiple measurements without bit packing:
+                    shape=(num_measurements, self.batch_size)
+                    dtype=np.bool_
+
+                Multiple measurements with bit packing:
+                    shape=(num_measurements, math.ceil(self.batch_size / 8))
+                    dtype=np.uint8
+
+        Examples:
+            >>> import deltakit_stim
+            >>> import numpy as np
+            >>> sim = deltakit_stim.FlipSimulator(batch_size=9)
+            >>> sim.append_measurement_flips(np.array(
+            ...     [0, 1, 0, 0, 1, 0, 0, 1, 1],
+            ...     dtype=np.bool_,
+            ... ))
+
+            >>> sim.get_measurement_flips()
+            array([[False,  True, False, False,  True, False, False,  True,  True]])
+
+            >>> sim.append_measurement_flips(np.array(
+            ...     [0b11001001, 0],
+            ...     dtype=np.uint8,
+            ... ))
+
+            >>> sim.get_measurement_flips()
+            array([[False,  True, False, False,  True, False, False,  True,  True],
+                   [ True, False, False,  True, False, False,  True,  True, False]])
+
+            >>> sim.append_measurement_flips(np.array(
+            ...     [[0b11111111, 0b1], [0b00000000, 0b0], [0b11111111, 0b1]],
+            ...     dtype=np.uint8,
+            ... ))
+
+            >>> sim.get_measurement_flips()
+            array([[False,  True, False, False,  True, False, False,  True,  True],
+                   [ True, False, False,  True, False, False,  True,  True, False],
+                   [ True,  True,  True,  True,  True,  True,  True,  True,  True],
+                   [False, False, False, False, False, False, False, False, False],
+                   [ True,  True,  True,  True,  True,  True,  True,  True,  True]])
+
+            >>> sim.append_measurement_flips(np.array(
+            ...     [[1, 0, 1, 0, 1, 0, 1, 0, 1], [0, 1, 0, 1, 0, 1, 0, 1, 0]],
+            ...     dtype=np.bool_,
+            ... ))
+
+            >>> sim.get_measurement_flips()
+            array([[False,  True, False, False,  True, False, False,  True,  True],
+                   [ True, False, False,  True, False, False,  True,  True, False],
+                   [ True,  True,  True,  True,  True,  True,  True,  True,  True],
+                   [False, False, False, False, False, False, False, False, False],
+                   [ True,  True,  True,  True,  True,  True,  True,  True,  True],
+                   [ True, False,  True, False,  True, False,  True, False,  True],
+                   [False,  True, False,  True, False,  True, False,  True, False]])
         """
     def append_measurement_flips(
         self,
@@ -7201,7 +7315,106 @@ class FlipSimulator:
         *,
         copy_rng: bool = False,
         seed: Optional[int] = None,
-    ) -> lestim.FlipSimulator:
+    ) -> deltakit_stim.FlipSimulator:
+        """Returns a simulator with the same internal state, except perhaps its prng.
+
+        Args:
+            copy_rng: Defaults to False. When False, the copy's pseudo random number
+                generator is reinitialized with a random seed instead of being a copy
+                of the original simulator's pseudo random number generator. This
+                causes the copy and the original to sample independent randomness,
+                instead of identical randomness, for future random operations. When set
+                to true, the copy will have the exact same pseudo random number
+                generator state as the original, and so will produce identical results
+                if told to do the same noisy operations. This argument is incompatible
+                with the `seed` argument.
+
+            seed: PARTIALLY determines simulation results by deterministically seeding
+                the random number generator.
+
+                Must be None or an integer in range(2**64).
+
+                Defaults to None. When None, the prng state is either copied from the
+                original simulator or reseeded from system entropy, depending on the
+                copy_rng argument.
+
+                When set to an integer, making the exact same series calls on the exact
+                same machine with the exact same version of Stim will produce the exact
+                same simulation results.
+
+                CAUTION: simulation results *WILL NOT* be consistent between versions of
+                Stim. This restriction is present to make it possible to have future
+                optimizations to the random sampling, and is enforced by introducing
+                intentional differences in the seeding strategy from version to version.
+
+                CAUTION: simulation results *MAY NOT* be consistent across machines that
+                differ in the width of supported SIMD instructions. For example, using
+                the same seed on a machine that supports AVX instructions and one that
+                only supports SSE instructions may produce different simulation results.
+
+                CAUTION: simulation results *MAY NOT* be consistent if you vary how the
+                circuit is executed. For example, reordering whether a reset on one
+                qubit happens before or after a reset on another qubit can result in
+                different measurement results being observed starting from the same
+                seed.
+
+        Returns:
+            The copy of the simulator.
+
+        Examples:
+            >>> import deltakit_stim
+            >>> import numpy as np
+
+            >>> s1 = deltakit_stim.FlipSimulator(batch_size=256)
+            >>> s1.set_pauli_flip('X', qubit_index=2, instance_index=3)
+            >>> s2 = s1.copy()
+            >>> s2 is s1
+            False
+            >>> s2.peek_pauli_flips() == s1.peek_pauli_flips()
+            True
+
+            >>> s1 = deltakit_stim.FlipSimulator(batch_size=256)
+            >>> s2 = s1.copy(copy_rng=True)
+            >>> s1.do(deltakit_stim.Circuit("X_ERROR(0.25) 0 \n M 0"))
+            >>> s2.do(deltakit_stim.Circuit("X_ERROR(0.25) 0 \n M 0"))
+            >>> np.array_equal(s1.get_measurement_flips(), s2.get_measurement_flips())
+            True
+        """
+    def clear(
+        self,
+    ) -> None:
+        """Clears the simulator's state, so it can be reused for another simulation.
+
+        This clears the measurement flip history, clears the detector flip history,
+        and zeroes the observable flip state. It also resets all qubits to |0>. If
+        stabilizer randomization is disabled, this zeros all pauli flip data. Otherwise
+        it randomizes all pauli flips to be I or Z with equal probability.
+
+        Behind the scenes, this doesn't free memory or resize the simulator. So,
+        repeating the same simulation with calls to `clear` in between will be faster
+        than allocating a new simulator each time (by avoiding re-allocations).
+
+        Examples:
+            >>> import deltakit_stim
+            >>> sim = deltakit_stim.FlipSimulator(batch_size=256)
+            >>> sim.do(deltakit_stim.Circuit("M(0.1) 9"))
+            >>> sim.num_qubits
+            10
+            >>> sim.get_measurement_flips().shape
+            (1, 256)
+
+            >>> sim.clear()
+            >>> sim.num_qubits
+            10
+            >>> sim.get_measurement_flips().shape
+            (0, 256)
+        """
+    def copy(
+        self,
+        *,
+        copy_rng: bool = False,
+        seed: Optional[int] = None,
+    ) -> stim.FlipSimulator:
         """Returns a simulator with the same internal state, except perhaps its prng.
 
         Args:
@@ -7268,7 +7481,7 @@ class FlipSimulator:
         """
     def do(
         self,
-        obj: Union[stim.Circuit, stim.CircuitInstruction, stim.CircuitRepeatBlock],
+        obj: Union[deltakit_stim.Circuit, deltakit_stim.CircuitInstruction, deltakit_stim.CircuitRepeatBlock],
     ) -> None:
         """Applies a circuit or circuit instruction to the simulator's state.
 
@@ -7302,6 +7515,69 @@ class FlipSimulator:
             >>> sim.do(circuit[1])
             >>> sim.peek_pauli_flips()
             [deltakit_stim.PauliString("+YX__")]
+        """
+    def generate_bernoulli_samples(
+        self,
+        num_samples: int,
+        *,
+        p: float,
+        bit_packed: bool = False,
+        out: Optional[np.ndarray] = None,
+    ) -> np.ndarray:
+        """Uses the simulator's random number generator to produce biased coin flips.
+
+        This method has best performance when specifying `bit_packed=True` and
+        when specifying an `out=` parameter pointing to a numpy array that has
+        contiguous data aligned to a 64 bit boundary. (If `out` isn't specified,
+        the returned numpy array will have this property.)
+
+        Args:
+            num_samples: The number of samples to produce.
+            p: The probability of each sample being True instead of False.
+            bit_packed: Defaults to False (no bit packing). When True, the result
+                has type np.uint8 instead of np.bool_ and 8 samples are packed into
+                each byte as if by np.packbits(bitorder='little'). (The bit order
+                is relevant when producing a number of samples that isn't a multiple
+                of 8.)
+            out: Defaults to None (allocate new). A numpy array to write the samples
+                into. Must have the correct size and dtype.
+
+        Returns:
+            A numpy array containing the samples. The shape and dtype depends on
+            the bit_packed argument:
+
+                if not bit_packed:
+                    shape = (num_samples,)
+                    dtype = np.bool_
+                elif not transpose and bit_packed:
+                    shape = (math.ceil(num_samples / 8),)
+                    dtype = np.uint8
+
+        Raises:
+            ValueError:
+                The given `out` argument had a shape or dtype inconsistent with the
+                requested data.
+
+        Examples:
+            >>> import deltakit_stim
+            >>> sim = deltakit_stim.FlipSimulator(batch_size=256)
+            >>> r = sim.generate_bernoulli_samples(1001, p=0.25)
+            >>> r.dtype
+            dtype('bool')
+            >>> r.shape
+            (1001,)
+
+            >>> r = sim.generate_bernoulli_samples(53, p=0.1, bit_packed=True)
+            >>> r.dtype
+            dtype('uint8')
+            >>> r.shape
+            (7,)
+            >>> r[6] & 0b1110_0000  # zero'd padding bits
+            np.uint8(0)
+
+            >>> r2 = sim.generate_bernoulli_samples(53, p=0.2, bit_packed=True, out=r)
+            >>> r is r2  # Check request to reuse r worked.
+            True
         """
     def generate_bernoulli_samples(
         self,
@@ -7643,20 +7919,20 @@ class FlipSimulator:
     @overload
     def peek_pauli_flips(
         self,
-    ) -> List[stim.PauliString]:
+    ) -> List[deltakit_stim.PauliString]:
         pass
     @overload
     def peek_pauli_flips(
         self,
         *,
         instance_index: int,
-    ) -> stim.PauliString:
+    ) -> deltakit_stim.PauliString:
         pass
     def peek_pauli_flips(
         self,
         *,
         instance_index: Optional[int] = None,
-    ) -> Union[stim.PauliString, List[stim.PauliString]]:
+    ) -> Union[deltakit_stim.PauliString, List[deltakit_stim.PauliString]]:
         """Returns the current pauli errors packed into deltakit_stim.PauliString instances.
 
         Args:
@@ -7883,6 +8159,158 @@ class FlipSimulator:
             >>> ds
             >>> os
         """
+    def to_numpy(
+        self,
+        *,
+        bit_packed: bool = False,
+        transpose: bool = False,
+        output_xs: Union[bool, np.ndarray] = False,
+        output_zs: Union[bool, np.ndarray] = False,
+        output_measure_flips: Union[bool, np.ndarray] = False,
+        output_detector_flips: Union[bool, np.ndarray] = False,
+        output_observable_flips: Union[bool, np.ndarray] = False,
+    ) -> Optional[Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]]:
+        """Writes the simulator state into numpy arrays.
+
+        Args:
+            bit_packed: Whether or not the result is bit packed, storing 8 bits per
+                byte instead of 1 bit per byte. Bit packing always applies to
+                the second index of the result. Bits are packed in little endian
+                order (as if by `np.packbits(X, axis=1, order='little')`).
+            transpose: Defaults to False. When set to False, the second index of the
+                returned array (the index affected by bit packing) is the shot index
+                (meaning the first index is the qubit index or measurement index or
+                etc). When set to True, results are transposed so that the first
+                index is the shot index.
+            output_xs: Defaults to False. When set to False, the X flip data is not
+                generated and the corresponding array in the result tuple is set to
+                None. When set to True, a new array is allocated to hold the X flip
+                data and this array is returned via the result tuple. When set to
+                a numpy array, the results are written into that array (the shape and
+                dtype of the array must be exactly correct).
+            output_zs: Defaults to False. When set to False, the Z flip data is not
+                generated and the corresponding array in the result tuple is set to
+                None. When set to True, a new array is allocated to hold the Z flip
+                data and this array is returned via the result tuple. When set to
+                a numpy array, the results are written into that array (the shape and
+                dtype of the array must be exactly correct).
+            output_measure_flips: Defaults to False. When set to False, the measure
+                flip data is not generated and the corresponding array in the result
+                tuple is set to None. When set to True, a new array is allocated to
+                hold the measure flip data and this array is returned via the result
+                tuple. When set to a numpy array, the results are written into that
+                array (the shape and dtype of the array must be exactly correct).
+            output_detector_flips: Defaults to False. When set to False, the detector
+                flip data is not generated and the corresponding array in the result
+                tuple is set to None. When set to True, a new array is allocated to
+                hold the detector flip data and this array is returned via the result
+                tuple. When set to a numpy array, the results are written into that
+                array (the shape and dtype of the array must be exactly correct).
+            output_observable_flips: Defaults to False. When set to False, the obs
+                flip data is not generated and the corresponding array in the result
+                tuple is set to None. When set to True, a new array is allocated to
+                hold the obs flip data and this array is returned via the result
+                tuple. When set to a numpy array, the results are written into that
+                array (the shape and dtype of the array must be exactly correct).
+
+        Returns:
+            A tuple (xs, zs, ms, ds, os) of numpy arrays. The xs and zs arrays are
+            the pauli flip data specified using XZ encoding (00=I, 10=X, 11=Y, 01=Z).
+            The ms array is the measure flip data, the ds array is the detector flip
+            data, and the os array is the obs flip data. The arrays default to
+            `None` when the corresponding `output_*` argument was left False.
+
+            The shape and dtype of the data depends on arguments given to the function.
+            The following specifies each array's shape and dtype for each case:
+
+                if not transpose and not bit_packed:
+                    xs.shape = (sim.batch_size, sim.num_qubits)
+                    zs.shape = (sim.batch_size, sim.num_qubits)
+                    ms.shape = (sim.batch_size, sim.num_measurements)
+                    ds.shape = (sim.batch_size, sim.num_detectors)
+                    os.shape = (sim.batch_size, sim.num_observables)
+                    xs.dtype = np.bool_
+                    zs.dtype = np.bool_
+                    ms.dtype = np.bool_
+                    ds.dtype = np.bool_
+                    os.dtype = np.bool_
+                elif not transpose and bit_packed:
+                    xs.shape = (sim.batch_size, math.ceil(sim.num_qubits / 8))
+                    zs.shape = (sim.batch_size, math.ceil(sim.num_qubits / 8))
+                    ms.shape = (sim.batch_size, math.ceil(sim.num_measurements / 8))
+                    ds.shape = (sim.batch_size, math.ceil(sim.num_detectors / 8))
+                    os.shape = (sim.batch_size, math.ceil(sim.num_observables / 8))
+                    xs.dtype = np.uint8
+                    zs.dtype = np.uint8
+                    ms.dtype = np.uint8
+                    ds.dtype = np.uint8
+                    os.dtype = np.uint8
+                elif transpose and not bit_packed:
+                    xs.shape = (sim.num_qubits, sim.batch_size)
+                    zs.shape = (sim.num_qubits, sim.batch_size)
+                    ms.shape = (sim.num_measurements, sim.batch_size)
+                    ds.shape = (sim.num_detectors, sim.batch_size)
+                    os.shape = (sim.num_observables, sim.batch_size)
+                    xs.dtype = np.bool_
+                    zs.dtype = np.bool_
+                    ms.dtype = np.bool_
+                    ds.dtype = np.bool_
+                    os.dtype = np.bool_
+                elif transpose and bit_packed:
+                    xs.shape = (sim.num_qubits, math.ceil(sim.batch_size / 8))
+                    zs.shape = (sim.num_qubits, math.ceil(sim.batch_size / 8))
+                    ms.shape = (sim.num_measurements, math.ceil(sim.batch_size / 8))
+                    ds.shape = (sim.num_detectors, math.ceil(sim.batch_size / 8))
+                    os.shape = (sim.num_observables, math.ceil(sim.batch_size / 8))
+                    xs.dtype = np.uint8
+                    zs.dtype = np.uint8
+                    ms.dtype = np.uint8
+                    ds.dtype = np.uint8
+                    os.dtype = np.uint8
+
+        Raises:
+            ValueError:
+                All the `output_*` arguments were False, or an `output_*` argument
+                had a shape or dtype inconsistent with the requested data.
+
+        Examples:
+            >>> import deltakit_stim
+            >>> import numpy as np
+            >>> sim = deltakit_stim.FlipSimulator(batch_size=9)
+            >>> sim.do(deltakit_stim.Circuit('M(1) 0 1 2'))
+
+            >>> ms_buf = np.empty(shape=(9, 1), dtype=np.uint8)
+            >>> xs, zs, ms, ds, os = sim.to_numpy(
+            ...     transpose=True,
+            ...     bit_packed=True,
+            ...     output_xs=True,
+            ...     output_measure_flips=ms_buf,
+            ... )
+            >>> assert ms is ms_buf
+            >>> xs
+            array([[0],
+                   [0],
+                   [0],
+                   [0],
+                   [0],
+                   [0],
+                   [0],
+                   [0],
+                   [0]], dtype=uint8)
+            >>> zs
+            >>> ms
+            array([[7],
+                   [7],
+                   [7],
+                   [7],
+                   [7],
+                   [7],
+                   [7],
+                   [7],
+                   [7]], dtype=uint8)
+            >>> ds
+            >>> os
+        """
 class FlippedMeasurement:
     """Describes a measurement that was flipped.
 
@@ -7904,7 +8332,7 @@ class FlippedMeasurement:
     def __init__(
         self,
         measurement_record_index: Optional[int],
-        measured_observable: Iterable[stim.GateTargetWithCoords],
+        measured_observable: Iterable[deltakit_stim.GateTargetWithCoords],
     ):
         """Creates a deltakit_stim.FlippedMeasurement.
 
@@ -7922,7 +8350,7 @@ class FlippedMeasurement:
     @property
     def observable(
         self,
-    ) -> List[deltakit_stim._stim_polyfill.GateTargetWithCoords]:
+    ) -> List[deltakit_stim.GateTargetWithCoords]:
         """Returns the observable of the flipped measurement.
 
         For example, an `MX 5` measurement will have the observable X5.
@@ -7974,7 +8402,7 @@ class Flow:
     A flow like 1 -> 1 means the circuit contains a check (could be a DETECTOR).
 
     References:
-        Stim's gate documentation includes the stabilizer flows of each gate.
+        deltakit_stim's gate documentation includes the stabilizer flows of each gate.
 
         Appendix A of https://arxiv.org/abs/2302.02192 describes how flows are
         defined and provides a circuit construction for experimentally verifying
@@ -7995,17 +8423,17 @@ class Flow:
     """
     def __eq__(
         self,
-        arg0: deltakit_stim._stim_polyfill.Flow,
+        arg0: deltakit_stim.Flow,
     ) -> bool:
         """Determines if two flows have identical contents.
         """
     def __init__(
         self,
-        arg: Union[None, str, stim.Flow] = None,
+        arg: Union[None, str, deltakit_stim.Flow] = None,
         /,
         *,
-        input: Optional[stim.PauliString] = None,
-        output: Optional[stim.PauliString] = None,
+        input: Optional[deltakit_stim.PauliString] = None,
+        output: Optional[deltakit_stim.PauliString] = None,
         measurements: Optional[Iterable[Union[int, GateTarget]]] = None,
         included_observables: Optional[Iterable[int]] = None,
     ) -> None:
@@ -8062,8 +8490,8 @@ class Flow:
         """
     def __mul__(
         self,
-        rhs: deltakit_stim._stim_polyfill.Flow,
-    ) -> deltakit_stim._stim_polyfill.Flow:
+        rhs: deltakit_stim.Flow,
+    ) -> deltakit_stim.Flow:
         """Computes the product of two flows.
 
         Args:
@@ -8089,7 +8517,7 @@ class Flow:
         """
     def __ne__(
         self,
-        arg0: deltakit_stim._stim_polyfill.Flow,
+        arg0: deltakit_stim.Flow,
     ) -> bool:
         """Determines if two flows have non-identical contents.
         """
@@ -8129,7 +8557,7 @@ class Flow:
         """
     def input_copy(
         self,
-    ) -> deltakit_stim._stim_polyfill.PauliString:
+    ) -> deltakit_stim.PauliString:
         """Returns a copy of the flow's input stabilizer.
 
         Examples:
@@ -8157,7 +8585,7 @@ class Flow:
         """
     def output_copy(
         self,
-    ) -> deltakit_stim._stim_polyfill.PauliString:
+    ) -> deltakit_stim.PauliString:
         """Returns a copy of the flow's output stabilizer.
 
         Examples:
@@ -8190,7 +8618,7 @@ class GateData:
     """
     def __eq__(
         self,
-        arg0: deltakit_stim._stim_polyfill.GateData,
+        arg0: deltakit_stim.GateData,
     ) -> bool:
         """Determines if two GateData instances are identical.
         """
@@ -8207,7 +8635,7 @@ class GateData:
         """
     def __ne__(
         self,
-        arg0: deltakit_stim._stim_polyfill.GateData,
+        arg0: deltakit_stim.GateData,
     ) -> bool:
         """Determines if two GateData instances are not identical.
         """
@@ -8240,7 +8668,7 @@ class GateData:
     @property
     def flows(
         self,
-    ) -> Optional[List[stim.Flow]]:
+    ) -> Optional[List[deltakit_stim.Flow]]:
         """Returns stabilizer flow generators for the gate, or else None.
 
         A stabilizer flow describes an input-output relationship that the gate
@@ -8277,7 +8705,7 @@ class GateData:
     @property
     def generalized_inverse(
         self,
-    ) -> deltakit_stim._stim_polyfill.GateData:
+    ) -> deltakit_stim.GateData:
         """The closest-thing-to-an-inverse for the gate, if forced to pick something.
 
         The generalized inverse of a unitary gate U is its actual inverse U^-1.
@@ -8318,6 +8746,60 @@ class GateData:
 
             >>> deltakit_stim.gate_data('TICK').generalized_inverse
             deltakit_stim.gate_data('TICK')
+        """
+    def hadamard_conjugated(
+        self,
+        *,
+        unsigned: bool = False,
+    ) -> Optional[deltakit_stim.GateData]:
+        """Returns a deltakit_stim gate equivalent to this gate conjugated by Hadamard gates.
+
+        The Hadamard conjugate can be thought of as the XZ dual of the gate; the gate
+        you get by exchanging the X and Z bases. For example, a SQRT_X will become a
+        SQRT_Z and a CX gate will switch directions into an XCZ.
+
+        If deltakit_stim doesn't define a gate equivalent to conjugating this gate by Hadamards,
+        the value `None` is returned.
+
+        Args:
+            unsigned: Defaults to False. When False, the returned gate must be *exactly*
+                the Hadamard conjugation of this gate. When True, the returned gate must
+                have the same flows but the sign of the flows can be different (i.e.
+                the returned gate must be the Hadamard conjugate up to Pauli gate
+                differences).
+
+        Returns:
+            A deltakit_stim.GateData instance of the Hadamard conjugate, if it exists in deltakit_stim.
+
+            None, if deltakit_stim doesn't define a gate equal to the Hadamard conjugate.
+
+        Examples:
+            >>> import deltakit_stim
+
+            >>> deltakit_stim.gate_data('X').hadamard_conjugated()
+            deltakit_stim.gate_data('Z')
+            >>> deltakit_stim.gate_data('CX').hadamard_conjugated()
+            deltakit_stim.gate_data('XCZ')
+            >>> deltakit_stim.gate_data('RY').hadamard_conjugated() is None
+            True
+            >>> deltakit_stim.gate_data('RY').hadamard_conjugated(unsigned=True)
+            deltakit_stim.gate_data('RY')
+            >>> deltakit_stim.gate_data('ISWAP').hadamard_conjugated(unsigned=True) is None
+            True
+            >>> deltakit_stim.gate_data('SWAP').hadamard_conjugated()
+            deltakit_stim.gate_data('SWAP')
+            >>> deltakit_stim.gate_data('CXSWAP').hadamard_conjugated()
+            deltakit_stim.gate_data('SWAPCX')
+            >>> deltakit_stim.gate_data('MXX').hadamard_conjugated()
+            deltakit_stim.gate_data('MZZ')
+            >>> deltakit_stim.gate_data('DEPOLARIZE1').hadamard_conjugated()
+            deltakit_stim.gate_data('DEPOLARIZE1')
+            >>> deltakit_stim.gate_data('X_ERROR').hadamard_conjugated()
+            deltakit_stim.gate_data('Z_ERROR')
+            >>> deltakit_stim.gate_data('H_XY').hadamard_conjugated()
+            deltakit_stim.gate_data('H_NYZ')
+            >>> deltakit_stim.gate_data('DETECTOR').hadamard_conjugated(unsigned=True)
+            deltakit_stim.gate_data('DETECTOR')
         """
     def hadamard_conjugated(
         self,
@@ -8376,7 +8858,7 @@ class GateData:
     @property
     def inverse(
         self,
-    ) -> Optional[stim.GateData]:
+    ) -> Optional[deltakit_stim.GateData]:
         """The inverse of the gate, or None if it has no inverse.
 
         The inverse V of a gate U must have the property that V undoes the effects of U
@@ -8519,6 +9001,55 @@ class GateData:
             >>> deltakit_stim.gate_data('TICK').is_single_qubit_gate
             False
             >>> deltakit_stim.gate_data('REPEAT').is_single_qubit_gate
+            False
+        """
+    @property
+    def is_symmetric_gate(
+        self,
+    ) -> bool:
+        """Returns whether or not the gate is the same when its targets are swapped.
+
+        A two qubit gate is symmetric if it doesn't matter if you swap its targets. It
+        is unaffected when conjugated by the SWAP gate.
+
+        Single qubit gates are vacuously symmetric. A multi-qubit gate is symmetric if
+        swapping any two of its targets has no effect.
+
+        Note that this method is for symmetry *without broadcasting*. For example, SWAP
+        is symmetric even though SWAP 1 2 3 4 isn't equal to SWAP 1 3 2 4.
+
+        Returns:
+            True if the gate is symmetric.
+            False if the gate isn't symmetric.
+
+        Examples:
+            >>> import deltakit_stim
+
+            >>> deltakit_stim.gate_data('CX').is_symmetric_gate
+            False
+            >>> deltakit_stim.gate_data('CZ').is_symmetric_gate
+            True
+            >>> deltakit_stim.gate_data('ISWAP').is_symmetric_gate
+            True
+            >>> deltakit_stim.gate_data('CXSWAP').is_symmetric_gate
+            False
+            >>> deltakit_stim.gate_data('MXX').is_symmetric_gate
+            True
+            >>> deltakit_stim.gate_data('DEPOLARIZE2').is_symmetric_gate
+            True
+            >>> deltakit_stim.gate_data('PAULI_CHANNEL_2').is_symmetric_gate
+            False
+            >>> deltakit_stim.gate_data('H').is_symmetric_gate
+            True
+            >>> deltakit_stim.gate_data('R').is_symmetric_gate
+            True
+            >>> deltakit_stim.gate_data('X_ERROR').is_symmetric_gate
+            True
+            >>> deltakit_stim.gate_data('CORRELATED_ERROR').is_symmetric_gate
+            False
+            >>> deltakit_stim.gate_data('MPP').is_symmetric_gate
+            False
+            >>> deltakit_stim.gate_data('DETECTOR').is_symmetric_gate
             False
         """
     @property
@@ -8714,7 +9245,7 @@ class GateData:
     @property
     def tableau(
         self,
-    ) -> Optional[stim.Tableau]:
+    ) -> Optional[deltakit_stim.Tableau]:
         """Returns the gate's tableau, or None if the gate has no tableau.
 
         Examples:
@@ -8849,7 +9380,7 @@ class GateTarget:
     """
     def __eq__(
         self,
-        arg0: deltakit_stim._stim_polyfill.GateTarget,
+        arg0: deltakit_stim.GateTarget,
     ) -> bool:
         """Determines if two `deltakit_stim.GateTarget`s are identical.
         """
@@ -8878,7 +9409,7 @@ class GateTarget:
         """
     def __ne__(
         self,
-        arg0: deltakit_stim._stim_polyfill.GateTarget,
+        arg0: deltakit_stim.GateTarget,
     ) -> bool:
         """Determines if two `deltakit_stim.GateTarget`s are different.
         """
@@ -9201,7 +9732,7 @@ class GateTargetWithCoords:
     @property
     def gate_target(
         self,
-    ) -> deltakit_stim._stim_polyfill.GateTarget:
+    ) -> deltakit_stim.GateTarget:
         """Returns the actual gate target as a `deltakit_stim.GateTarget`.
 
         Examples:
@@ -9225,8 +9756,8 @@ class PauliString:
     """
     def __add__(
         self,
-        rhs: deltakit_stim._stim_polyfill.PauliString,
-    ) -> deltakit_stim._stim_polyfill.PauliString:
+        rhs: deltakit_stim.PauliString,
+    ) -> deltakit_stim.PauliString:
         """Returns the tensor product of two Pauli strings.
 
         Concatenates the Pauli strings and multiplies their signs.
@@ -9248,7 +9779,7 @@ class PauliString:
         """
     def __eq__(
         self,
-        arg0: deltakit_stim._stim_polyfill.PauliString,
+        arg0: deltakit_stim.PauliString,
     ) -> bool:
         """Determines if two Pauli strings have identical contents.
         """
@@ -9262,7 +9793,7 @@ class PauliString:
     def __getitem__(
         self,
         index_or_slice: slice,
-    ) -> stim.PauliString:
+    ) -> deltakit_stim.PauliString:
         pass
     def __getitem__(
         self,
@@ -9297,8 +9828,8 @@ class PauliString:
         """
     def __iadd__(
         self,
-        rhs: deltakit_stim._stim_polyfill.PauliString,
-    ) -> deltakit_stim._stim_polyfill.PauliString:
+        rhs: deltakit_stim.PauliString,
+    ) -> deltakit_stim.PauliString:
         """Performs an inplace tensor product.
 
         Concatenates the given Pauli string onto the receiving string and multiplies
@@ -9324,7 +9855,7 @@ class PauliString:
     def __imul__(
         self,
         rhs: object,
-    ) -> deltakit_stim._stim_polyfill.PauliString:
+    ) -> deltakit_stim.PauliString:
         """Inplace right-multiplies the Pauli string.
 
         Can multiply by another Pauli string, a complex unit, or a tensor power.
@@ -9367,7 +9898,7 @@ class PauliString:
         """
     def __init__(
         self,
-        arg: Union[None, int, str, stim.PauliString, Iterable[Union[int, Literal["_", "I", "X", "Y", "Z"]]]] = None,
+        arg: Union[None, int, str, deltakit_stim.PauliString, Iterable[Union[int, Literal["_", "I", "X", "Y", "Z"]]]] = None,
         /,
     ) -> None:
         """Initializes a deltakit_stim.PauliString from the given argument.
@@ -9437,7 +9968,7 @@ class PauliString:
     def __itruediv__(
         self,
         rhs: complex,
-    ) -> deltakit_stim._stim_polyfill.PauliString:
+    ) -> deltakit_stim.PauliString:
         """Inplace divides the Pauli string by a complex unit.
 
         Args:
@@ -9472,7 +10003,7 @@ class PauliString:
     def __mul__(
         self,
         rhs: object,
-    ) -> deltakit_stim._stim_polyfill.PauliString:
+    ) -> deltakit_stim.PauliString:
         """Right-multiplies the Pauli string.
 
         Can multiply by another Pauli string, a complex unit, or a tensor power.
@@ -9523,13 +10054,13 @@ class PauliString:
         """
     def __ne__(
         self,
-        arg0: deltakit_stim._stim_polyfill.PauliString,
+        arg0: deltakit_stim.PauliString,
     ) -> bool:
         """Determines if two Pauli strings have non-identical contents.
         """
     def __neg__(
         self,
-    ) -> deltakit_stim._stim_polyfill.PauliString:
+    ) -> deltakit_stim.PauliString:
         """Returns the negation of the pauli string.
 
         Examples:
@@ -9543,7 +10074,7 @@ class PauliString:
         """
     def __pos__(
         self,
-    ) -> deltakit_stim._stim_polyfill.PauliString:
+    ) -> deltakit_stim.PauliString:
         """Returns a pauli string with the same contents.
 
         Examples:
@@ -9563,7 +10094,7 @@ class PauliString:
     def __rmul__(
         self,
         lhs: object,
-    ) -> deltakit_stim._stim_polyfill.PauliString:
+    ) -> deltakit_stim.PauliString:
         """Left-multiplies the Pauli string.
 
         Can multiply by another Pauli string, a complex unit, or a tensor power.
@@ -9651,7 +10182,7 @@ class PauliString:
     def __truediv__(
         self,
         rhs: complex,
-    ) -> deltakit_stim._stim_polyfill.PauliString:
+    ) -> deltakit_stim.PauliString:
         """Divides the Pauli string by a complex unit.
 
         Args:
@@ -9672,21 +10203,21 @@ class PauliString:
     @overload
     def after(
         self,
-        operation: Union[stim.Circuit, stim.CircuitInstruction],
-    ) -> stim.PauliString:
+        operation: Union[deltakit_stim.Circuit, deltakit_stim.CircuitInstruction],
+    ) -> deltakit_stim.PauliString:
         pass
     @overload
     def after(
         self,
-        operation: stim.Tableau,
+        operation: deltakit_stim.Tableau,
         targets: Iterable[int],
-    ) -> stim.PauliString:
+    ) -> deltakit_stim.PauliString:
         pass
     def after(
         self,
-        operation: Union[stim.Circuit, stim.Tableau, stim.CircuitInstruction],
+        operation: Union[deltakit_stim.Circuit, deltakit_stim.Tableau, deltakit_stim.CircuitInstruction],
         targets: Optional[Iterable[int]] = None,
-    ) -> stim.PauliString:
+    ) -> deltakit_stim.PauliString:
         """Returns the result of conjugating the Pauli string by an operation.
 
         Args:
@@ -9720,21 +10251,21 @@ class PauliString:
     @overload
     def before(
         self,
-        operation: Union[stim.Circuit, stim.CircuitInstruction],
-    ) -> stim.PauliString:
+        operation: Union[deltakit_stim.Circuit, deltakit_stim.CircuitInstruction],
+    ) -> deltakit_stim.PauliString:
         pass
     @overload
     def before(
         self,
-        operation: stim.Tableau,
+        operation: deltakit_stim.Tableau,
         targets: Iterable[int],
-    ) -> stim.PauliString:
+    ) -> deltakit_stim.PauliString:
         pass
     def before(
         self,
-        operation: Union[stim.Circuit, stim.Tableau, stim.CircuitInstruction],
+        operation: Union[deltakit_stim.Circuit, deltakit_stim.Tableau, deltakit_stim.CircuitInstruction],
         targets: Optional[Iterable[int]] = None,
-    ) -> stim.PauliString:
+    ) -> deltakit_stim.PauliString:
         """Returns the result of conjugating the Pauli string by an operation.
 
         Args:
@@ -9767,7 +10298,7 @@ class PauliString:
         """
     def commutes(
         self,
-        other: deltakit_stim._stim_polyfill.PauliString,
+        other: deltakit_stim.PauliString,
     ) -> bool:
         """Determines if two Pauli strings commute or not.
 
@@ -9800,7 +10331,7 @@ class PauliString:
         """
     def copy(
         self,
-    ) -> deltakit_stim._stim_polyfill.PauliString:
+    ) -> deltakit_stim.PauliString:
         """Returns a copy of the pauli string.
 
         The copy is an independent pauli string with the same contents.
@@ -9816,8 +10347,8 @@ class PauliString:
         """
     def extended_product(
         self,
-        other: deltakit_stim._stim_polyfill.PauliString,
-    ) -> Tuple[complex, deltakit_stim._stim_polyfill.PauliString]:
+        other: deltakit_stim.PauliString,
+    ) -> Tuple[complex, deltakit_stim.PauliString]:
         """[DEPRECATED] Use multiplication (__mul__ or *) instead.
         """
     @staticmethod
@@ -9827,7 +10358,7 @@ class PauliString:
         zs: np.ndarray,
         sign: Union[int, float, complex] = +1,
         num_qubits: Optional[int] = None,
-    ) -> stim.PauliString:
+    ) -> deltakit_stim.PauliString:
         """Creates a pauli string from X bit and Z bit numpy arrays, using the encoding:
 
             x=0 and z=0 -> P=I
@@ -9876,7 +10407,7 @@ class PauliString:
         *,
         endian: Literal["little", "big"] = 'little',
         unsigned: bool = False,
-    ) -> stim.PauliString:
+    ) -> deltakit_stim.PauliString:
         """Creates a deltakit_stim.PauliString from the unitary matrix of a Pauli group member.
 
         Args:
@@ -9930,7 +10461,7 @@ class PauliString:
         min_weight: int = 0,
         max_weight: object = None,
         allowed_paulis: str = 'XYZ',
-    ) -> deltakit_stim._stim_polyfill.PauliStringIterator:
+    ) -> deltakit_stim.PauliStringIterator:
         """Returns an iterator that iterates over all matching pauli strings.
 
         Args:
@@ -10020,7 +10551,7 @@ class PauliString:
         num_qubits: int,
         *,
         allow_imaginary: bool = False,
-    ) -> deltakit_stim._stim_polyfill.PauliString:
+    ) -> deltakit_stim.PauliString:
         """Samples a uniformly random Hermitian Pauli string.
 
         Args:
@@ -10120,7 +10651,7 @@ class PauliString:
         """
     def to_tableau(
         self,
-    ) -> deltakit_stim._stim_polyfill.Tableau:
+    ) -> deltakit_stim.Tableau:
         """Creates a Tableau equivalent to this Pauli string.
 
         The tableau represents a Clifford operation that multiplies qubits
@@ -10224,7 +10755,7 @@ class PauliStringIterator:
     """
     def __iter__(
         self,
-    ) -> deltakit_stim._stim_polyfill.PauliStringIterator:
+    ) -> deltakit_stim.PauliStringIterator:
         """Returns an independent copy of the pauli string iterator.
 
         Since for-loops and loop-comprehensions call `iter` on things they
@@ -10233,7 +10764,7 @@ class PauliStringIterator:
         """
     def __next__(
         self,
-    ) -> deltakit_stim._stim_polyfill.PauliString:
+    ) -> deltakit_stim.PauliString:
         """Returns the next iterated pauli string.
         """
 class Tableau:
@@ -10271,8 +10802,8 @@ class Tableau:
     """
     def __add__(
         self,
-        rhs: deltakit_stim._stim_polyfill.Tableau,
-    ) -> deltakit_stim._stim_polyfill.Tableau:
+        rhs: deltakit_stim.Tableau,
+    ) -> deltakit_stim.Tableau:
         """Returns the direct sum (diagonal concatenation) of two Tableaus.
 
         Args:
@@ -10295,8 +10826,8 @@ class Tableau:
         """
     def __call__(
         self,
-        pauli_string: deltakit_stim._stim_polyfill.PauliString,
-    ) -> deltakit_stim._stim_polyfill.PauliString:
+        pauli_string: deltakit_stim.PauliString,
+    ) -> deltakit_stim.PauliString:
         """Returns the equivalent PauliString after the Tableau's Clifford operation.
 
         If P is a Pauli product before a Clifford operation C, then this method returns
@@ -10327,14 +10858,14 @@ class Tableau:
         """
     def __eq__(
         self,
-        arg0: deltakit_stim._stim_polyfill.Tableau,
+        arg0: deltakit_stim.Tableau,
     ) -> bool:
         """Determines if two tableaus have identical contents.
         """
     def __iadd__(
         self,
-        rhs: deltakit_stim._stim_polyfill.Tableau,
-    ) -> deltakit_stim._stim_polyfill.Tableau:
+        rhs: deltakit_stim.Tableau,
+    ) -> deltakit_stim.Tableau:
         """Performs an inplace direct sum (diagonal concatenation).
 
         Args:
@@ -10391,8 +10922,8 @@ class Tableau:
         """
     def __mul__(
         self,
-        rhs: deltakit_stim._stim_polyfill.Tableau,
-    ) -> deltakit_stim._stim_polyfill.Tableau:
+        rhs: deltakit_stim.Tableau,
+    ) -> deltakit_stim.Tableau:
         """Returns the product of two tableaus.
 
         If the tableau T1 represents the Clifford operation with unitary C1,
@@ -10413,14 +10944,14 @@ class Tableau:
         """
     def __ne__(
         self,
-        arg0: deltakit_stim._stim_polyfill.Tableau,
+        arg0: deltakit_stim.Tableau,
     ) -> bool:
         """Determines if two tableaus have non-identical contents.
         """
     def __pow__(
         self,
         exponent: int,
-    ) -> deltakit_stim._stim_polyfill.Tableau:
+    ) -> deltakit_stim.Tableau:
         """Raises the tableau to an integer power.
 
         Large powers are reached efficiently using repeated squaring.
@@ -10459,7 +10990,7 @@ class Tableau:
         """
     def append(
         self,
-        gate: stim.Tableau,
+        gate: deltakit_stim.Tableau,
         targets: Sequence[int],
     ) -> None:
         """Appends an operation's effect into this tableau, mutating this tableau.
@@ -10482,7 +11013,7 @@ class Tableau:
         """
     def copy(
         self,
-    ) -> deltakit_stim._stim_polyfill.Tableau:
+    ) -> deltakit_stim.Tableau:
         """Returns a copy of the tableau. An independent tableau with the same contents.
 
         Examples:
@@ -10496,12 +11027,12 @@ class Tableau:
         """
     @staticmethod
     def from_circuit(
-        circuit: stim.Circuit,
+        circuit: deltakit_stim.Circuit,
         *,
         ignore_noise: bool = False,
         ignore_measurement: bool = False,
         ignore_reset: bool = False,
-    ) -> stim.Tableau:
+    ) -> deltakit_stim.Tableau:
         """Converts a circuit into an equivalent stabilizer tableau.
 
         Args:
@@ -10551,9 +11082,9 @@ class Tableau:
     @staticmethod
     def from_conjugated_generators(
         *,
-        xs: List[deltakit_stim._stim_polyfill.PauliString],
-        zs: List[deltakit_stim._stim_polyfill.PauliString],
-    ) -> deltakit_stim._stim_polyfill.Tableau:
+        xs: List[deltakit_stim.PauliString],
+        zs: List[deltakit_stim.PauliString],
+    ) -> deltakit_stim.Tableau:
         """Creates a tableau from the given outputs for each generator.
 
         Verifies that the tableau is well formed.
@@ -10589,7 +11120,7 @@ class Tableau:
     @staticmethod
     def from_named_gate(
         name: str,
-    ) -> deltakit_stim._stim_polyfill.Tableau:
+    ) -> deltakit_stim.Tableau:
         """Returns the tableau of a named Clifford gate.
 
         Args:
@@ -10623,7 +11154,7 @@ class Tableau:
         z2z: np.ndarray,
         x_signs: Optional[np.ndarray] = None,
         z_signs: Optional[np.ndarray] = None,
-    ) -> stim.Tableau:
+    ) -> deltakit_stim.Tableau:
         """Creates a tableau from numpy arrays x2x, x2z, z2x, z2z, x_signs, and z_signs.
 
         The x2x, x2z, z2x, z2z arrays are the four quadrants of the table defined in
@@ -10714,11 +11245,11 @@ class Tableau:
         """
     @staticmethod
     def from_stabilizers(
-        stabilizers: Iterable[lestim.PauliString],
+        stabilizers: Iterable[deltakit_stim.PauliString],
         *,
         allow_redundant: bool = False,
         allow_underconstrained: bool = False,
-    ) -> stim.Tableau:
+    ) -> deltakit_stim.Tableau:
         """Creates a tableau representing a state with the given stabilizers.
 
         Args:
@@ -10800,7 +11331,7 @@ class Tableau:
         state_vector: Iterable[float],
         *,
         endian: Literal["little", "big"],
-    ) -> stim.Tableau:
+    ) -> deltakit_stim.Tableau:
         """Creates a tableau representing the stabilizer state of the given state vector.
 
         Args:
@@ -10861,7 +11392,7 @@ class Tableau:
         matrix: Iterable[Iterable[float]],
         *,
         endian: Literal["little", "big"] = 'little',
-    ) -> stim.Tableau:
+    ) -> deltakit_stim.Tableau:
         """Creates a tableau from the unitary matrix of a Clifford operation.
 
         Args:
@@ -10916,7 +11447,7 @@ class Tableau:
         self,
         *,
         unsigned: bool = False,
-    ) -> deltakit_stim._stim_polyfill.Tableau:
+    ) -> deltakit_stim.Tableau:
         """Computes the inverse of the tableau.
 
         The inverse T^-1 of a tableau T is the unique tableau with the property that
@@ -10983,7 +11514,7 @@ class Tableau:
         input_index: int,
         *,
         unsigned: bool = False,
-    ) -> deltakit_stim._stim_polyfill.PauliString:
+    ) -> deltakit_stim.PauliString:
         """Conjugates a single-qubit X Pauli generator by the inverse of the tableau.
 
         A faster version of `tableau.inverse(unsigned).x_output(input_index)`.
@@ -11053,7 +11584,7 @@ class Tableau:
         input_index: int,
         *,
         unsigned: bool = False,
-    ) -> deltakit_stim._stim_polyfill.PauliString:
+    ) -> deltakit_stim.PauliString:
         """Conjugates a single-qubit Y Pauli generator by the inverse of the tableau.
 
         A faster version of `tableau.inverse(unsigned).y_output(input_index)`.
@@ -11123,7 +11654,7 @@ class Tableau:
         input_index: int,
         *,
         unsigned: bool = False,
-    ) -> deltakit_stim._stim_polyfill.PauliString:
+    ) -> deltakit_stim.PauliString:
         """Conjugates a single-qubit Z Pauli generator by the inverse of the tableau.
 
         A faster version of `tableau.inverse(unsigned).z_output(input_index)`.
@@ -11195,7 +11726,7 @@ class Tableau:
         num_qubits: int,
         *,
         unsigned: bool = False,
-    ) -> deltakit_stim._stim_polyfill.TableauIterator:
+    ) -> deltakit_stim.TableauIterator:
         """Returns an iterator that iterates over all Tableaus of a given size.
 
         Args:
@@ -11224,7 +11755,7 @@ class Tableau:
         """
     def prepend(
         self,
-        gate: stim.Tableau,
+        gate: deltakit_stim.Tableau,
         targets: Sequence[int],
     ) -> None:
         """Prepends an operation's effect into this tableau, mutating this tableau.
@@ -11245,7 +11776,7 @@ class Tableau:
     @staticmethod
     def random(
         num_qubits: int,
-    ) -> deltakit_stim._stim_polyfill.Tableau:
+    ) -> deltakit_stim.Tableau:
         """Samples a uniformly random Clifford operation and returns its tableau.
 
         Args:
@@ -11265,8 +11796,8 @@ class Tableau:
         """
     def then(
         self,
-        second: deltakit_stim._stim_polyfill.Tableau,
-    ) -> deltakit_stim._stim_polyfill.Tableau:
+        second: deltakit_stim.Tableau,
+    ) -> deltakit_stim.Tableau:
         """Returns the result of composing two tableaus.
 
         If the tableau T1 represents the Clifford operation with unitary C1,
@@ -11290,7 +11821,7 @@ class Tableau:
     def to_circuit(
         self,
         method: Literal["elimination", "graph_state"] = 'elimination',
-    ) -> stim.Circuit:
+    ) -> deltakit_stim.Circuit:
         """Synthesizes a circuit that implements the tableau's Clifford operation.
 
         The circuits returned by this method are not guaranteed to be stable
@@ -11576,7 +12107,7 @@ class Tableau:
         """
     def to_pauli_string(
         self,
-    ) -> deltakit_stim._stim_polyfill.PauliString:
+    ) -> deltakit_stim.PauliString:
         """Return a Pauli string equivalent to the tableau.
 
         If the tableau is equivalent to a pauli product, creates
@@ -11608,7 +12139,7 @@ class Tableau:
         self,
         *,
         canonicalize: bool = False,
-    ) -> List[deltakit_stim._stim_polyfill.PauliString]:
+    ) -> List[deltakit_stim.PauliString]:
         """Returns the stabilizer generators of the tableau, optionally canonicalized.
 
         The stabilizer generators of the tableau are its Z outputs. Canonicalizing
@@ -11753,7 +12284,7 @@ class Tableau:
     def x_output(
         self,
         target: int,
-    ) -> deltakit_stim._stim_polyfill.PauliString:
+    ) -> deltakit_stim.PauliString:
         """Returns the result of conjugating a Pauli X by the tableau's Clifford operation.
 
         Args:
@@ -11828,7 +12359,7 @@ class Tableau:
     def y_output(
         self,
         target: int,
-    ) -> deltakit_stim._stim_polyfill.PauliString:
+    ) -> deltakit_stim.PauliString:
         """Returns the result of conjugating a Pauli Y by the tableau's Clifford operation.
 
         Args:
@@ -11905,7 +12436,7 @@ class Tableau:
     def z_output(
         self,
         target: int,
-    ) -> deltakit_stim._stim_polyfill.PauliString:
+    ) -> deltakit_stim.PauliString:
         """Returns the result of conjugating a Pauli Z by the tableau's Clifford operation.
 
         Args:
@@ -11991,7 +12522,7 @@ class TableauIterator:
     """
     def __iter__(
         self,
-    ) -> deltakit_stim._stim_polyfill.TableauIterator:
+    ) -> deltakit_stim.TableauIterator:
         """Returns an independent copy of the tableau iterator.
 
         Since for-loops and loop-comprehensions call `iter` on things they
@@ -12000,7 +12531,7 @@ class TableauIterator:
         """
     def __next__(
         self,
-    ) -> deltakit_stim._stim_polyfill.Tableau:
+    ) -> deltakit_stim.Tableau:
         """Returns the next iterated tableau.
         """
 class TableauSimulator:
@@ -12124,7 +12655,7 @@ class TableauSimulator:
         """
     def canonical_stabilizers(
         self,
-    ) -> List[deltakit_stim._stim_polyfill.PauliString]:
+    ) -> List[deltakit_stim.PauliString]:
         """Returns a standardized list of the simulator's current stabilizer generators.
 
         Two simulators have the same canonical stabilizers if and only if their current
@@ -12199,7 +12730,7 @@ class TableauSimulator:
         *,
         copy_rng: bool = False,
         seed: Optional[int] = None,
-    ) -> stim.TableauSimulator:
+    ) -> deltakit_stim.TableauSimulator:
         """Returns a simulator with the same internal state, except perhaps its prng.
 
         Args:
@@ -12219,6 +12750,11 @@ class TableauSimulator:
                 copy_rng argument.
 
                 When set to an integer, making the exact same series calls on the exact
+                same machine with the exact same version of deltakit_stim will produce the exact
+                same simulation results.
+
+                CAUTION: simulation results *WILL NOT* be consistent between versions of
+                deltakit_stim. This restriction is present to make it possible to have future
                 same machine with the exact same version of Stim will produce the exact
                 same simulation results.
 
@@ -12270,7 +12806,7 @@ class TableauSimulator:
         """
     def current_inverse_tableau(
         self,
-    ) -> deltakit_stim._stim_polyfill.Tableau:
+    ) -> deltakit_stim.Tableau:
         """Returns a copy of the internal state of the simulator as a deltakit_stim.Tableau.
 
         Returns:
@@ -12434,7 +12970,7 @@ class TableauSimulator:
         """
     def do(
         self,
-        circuit_or_pauli_string: Union[stim.Circuit, stim.PauliString, stim.CircuitInstruction, stim.CircuitRepeatBlock],
+        circuit_or_pauli_string: Union[deltakit_stim.Circuit, deltakit_stim.PauliString, deltakit_stim.CircuitInstruction, deltakit_stim.CircuitRepeatBlock],
     ) -> None:
         """Applies a circuit or pauli string to the simulator's state.
 
@@ -12460,7 +12996,7 @@ class TableauSimulator:
         """
     def do_circuit(
         self,
-        circuit: deltakit_stim._stim_polyfill.Circuit,
+        circuit: deltakit_stim.Circuit,
     ) -> None:
         """Applies a circuit to the simulator's state.
 
@@ -12479,7 +13015,7 @@ class TableauSimulator:
         """
     def do_pauli_string(
         self,
-        pauli_string: deltakit_stim._stim_polyfill.PauliString,
+        pauli_string: deltakit_stim.PauliString,
     ) -> None:
         """Applies the paulis from a pauli string to the simulator's state.
 
@@ -12495,7 +13031,7 @@ class TableauSimulator:
         """
     def do_tableau(
         self,
-        tableau: deltakit_stim._stim_polyfill.Tableau,
+        tableau: deltakit_stim.Tableau,
         targets: List[int],
     ) -> None:
         """Applies a custom tableau operation to qubits in the simulator.
@@ -12768,7 +13304,7 @@ class TableauSimulator:
         """
     def measure_observable(
         self,
-        observable: deltakit_stim._stim_polyfill.PauliString,
+        observable: deltakit_stim.PauliString,
         *,
         flip_probability: float = 0.0,
     ) -> bool:
@@ -12825,7 +13361,7 @@ class TableauSimulator:
     def peek_bloch(
         self,
         target: int,
-    ) -> deltakit_stim._stim_polyfill.PauliString:
+    ) -> deltakit_stim.PauliString:
         """Returns the state of the qubit as a single-qubit deltakit_stim.PauliString stabilizer.
 
         This is a non-physical operation. It reports information about the qubit without
@@ -12870,7 +13406,7 @@ class TableauSimulator:
         """
     def peek_observable_expectation(
         self,
-        observable: deltakit_stim._stim_polyfill.PauliString,
+        observable: deltakit_stim.PauliString,
     ) -> int:
         """Determines the expected value of an observable.
 
@@ -13015,7 +13551,7 @@ class TableauSimulator:
         """
     def postselect_observable(
         self,
-        observable: deltakit_stim._stim_polyfill.PauliString,
+        observable: deltakit_stim.PauliString,
         *,
         desired_value: bool = False,
     ) -> None:
@@ -13274,7 +13810,7 @@ class TableauSimulator:
         """
     def set_inverse_tableau(
         self,
-        new_inverse_tableau: deltakit_stim._stim_polyfill.Tableau,
+        new_inverse_tableau: deltakit_stim.Tableau,
     ) -> None:
         """Overwrites the simulator's internal state with the given inverse tableau.
 
@@ -13338,7 +13874,7 @@ class TableauSimulator:
         """
     def set_state_from_stabilizers(
         self,
-        stabilizers: Iterable[lestim.PauliString],
+        stabilizers: Iterable[deltakit_stim.PauliString],
         *,
         allow_redundant: bool = False,
         allow_underconstrained: bool = False,
@@ -13971,15 +14507,15 @@ class TableauSimulator:
 @overload
 def gate_data(
     name: str,
-) -> stim.GateData:
+) -> deltakit_stim.GateData:
     pass
 @overload
 def gate_data(
-) -> Dict[str, stim.GateData]:
+) -> Dict[str, deltakit_stim.GateData]:
     pass
 def gate_data(
     name: Optional[str] = None,
-) -> Union[str, Dict[str, stim.GateData]]:
+) -> Union[str, Dict[str, deltakit_stim.GateData]]:
     """Returns gate data for the given named gate, or all gates.
 
     Examples:
@@ -14171,9 +14707,9 @@ def read_shot_data_file(
                [False,  True, False,  True]])
     """
 def target_combined_paulis(
-    paulis: Union[stim.PauliString, List[stim.GateTarget]],
+    paulis: Union[deltakit_stim.PauliString, List[deltakit_stim.GateTarget]],
     invert: bool = False,
-) -> stim.GateTarget:
+) -> deltakit_stim.GateTarget:
     """Returns a list of targets encoding a pauli product for instructions like MPP.
 
     Args:
@@ -14198,7 +14734,7 @@ def target_combined_paulis(
         ''')
     """
 def target_combiner(
-) -> deltakit_stim._stim_polyfill.GateTarget:
+) -> deltakit_stim.GateTarget:
     """Returns a target combiner that can be used to build Pauli products.
 
     Examples:
@@ -14217,8 +14753,8 @@ def target_combiner(
         ''')
     """
 def target_inv(
-    qubit_index: Union[int, lestim.GateTarget],
-) -> lestim.GateTarget:
+    qubit_index: Union[int, deltakit_stim.GateTarget],
+) -> deltakit_stim.GateTarget:
     """Returns a target flagged as inverted.
 
     Inverted targets are used to indicate measurement results should be flipped.
@@ -14240,7 +14776,7 @@ def target_inv(
     """
 def target_logical_observable_id(
     index: int,
-) -> deltakit_stim._stim_polyfill.DemTarget:
+) -> deltakit_stim.DemTarget:
     """Returns a logical observable id identifying a frame change.
 
     Args:
@@ -14264,7 +14800,7 @@ def target_pauli(
     qubit_index: int,
     pauli: Union[str, int],
     invert: bool = False,
-) -> stim.GateTarget:
+) -> deltakit_stim.GateTarget:
     """Returns a pauli target that can be passed into `deltakit_stim.Circuit.append`.
 
     Args:
@@ -14301,7 +14837,7 @@ def target_pauli(
     """
 def target_rec(
     lookback_index: int,
-) -> deltakit_stim._stim_polyfill.GateTarget:
+) -> deltakit_stim.GateTarget:
     """Returns a measurement record target with the given lookback.
 
     Measurement record targets are used to refer back to the measurement record;
@@ -14328,7 +14864,7 @@ def target_rec(
     """
 def target_relative_detector_id(
     index: int,
-) -> deltakit_stim._stim_polyfill.DemTarget:
+) -> deltakit_stim.DemTarget:
     """Returns a relative detector id (e.g. "D5" in a .dem file).
 
     Args:
@@ -14349,7 +14885,7 @@ def target_relative_detector_id(
         ''')
     """
 def target_separator(
-) -> deltakit_stim._stim_polyfill.DemTarget:
+) -> deltakit_stim.DemTarget:
     """Returns a target separator (e.g. "^" in a .dem file).
 
     Examples:
@@ -14367,7 +14903,7 @@ def target_separator(
     """
 def target_sweep_bit(
     sweep_bit_index: int,
-) -> deltakit_stim._stim_polyfill.GateTarget:
+) -> deltakit_stim.GateTarget:
     """Returns a sweep bit target that can be passed into `deltakit_stim.Circuit.append`.
 
     Args:
@@ -14383,9 +14919,9 @@ def target_sweep_bit(
         ''')
     """
 def target_x(
-    qubit_index: Union[int, stim.GateTarget],
+    qubit_index: Union[int, deltakit_stim.GateTarget],
     invert: bool = False,
-) -> stim.GateTarget:
+) -> deltakit_stim.GateTarget:
     """Returns a Pauli X target that can be passed into `deltakit_stim.Circuit.append`.
 
     Args:
@@ -14409,9 +14945,9 @@ def target_x(
         ''')
     """
 def target_y(
-    qubit_index: Union[int, stim.GateTarget],
+    qubit_index: Union[int, deltakit_stim.GateTarget],
     invert: bool = False,
-) -> stim.GateTarget:
+) -> deltakit_stim.GateTarget:
     """Returns a Pauli Y target that can be passed into `deltakit_stim.Circuit.append`.
 
     Args:
@@ -14435,9 +14971,9 @@ def target_y(
         ''')
     """
 def target_z(
-    qubit_index: Union[int, stim.GateTarget],
+    qubit_index: Union[int, deltakit_stim.GateTarget],
     invert: bool = False,
-) -> stim.GateTarget:
+) -> deltakit_stim.GateTarget:
     """Returns a Pauli Z target that can be passed into `deltakit_stim.Circuit.append`.
 
     Args:

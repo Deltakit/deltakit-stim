@@ -362,11 +362,7 @@ struct CliffordString {
         for (size_t k = 0; k < x_signs.num_simd_words; k++) {
             auto delta = word_at(k);
             CliffordWord<bitword<W>> total{};
-<<<<<<< HEAD
             for (size_t step = 0; step < (size_t)power; step++) {
-=======
-            for (size_t step = 0; step < power; step++) {
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
                 total = total * delta;
             }
             set_word_at(k, total);
