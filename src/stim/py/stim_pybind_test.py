@@ -142,7 +142,7 @@ def test_main_help(capsys):
     assert deltakit_stim.main(command_line_args=["help"]) == 0
     captured = capsys.readouterr()
     assert captured.err == ""
-    assert 'Available deltakit_stim commands' in captured.out
+    assert 'Available stim commands' in captured.out
 
 
 def test_main_redirects_stdout(capsys):

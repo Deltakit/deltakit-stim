@@ -62,9 +62,9 @@ def test_str():
 
 def test_repr():
     v = deltakit_stim.DemInstruction("error", [0.25], [deltakit_stim.target_relative_detector_id(3), deltakit_stim.target_logical_observable_id(6)])
-    assert eval(repr(v), {"deltakit_stim": deltakit_stim}) == v
+    assert eval(repr(v), {"stim": deltakit_stim}) == v
     v = deltakit_stim.DemInstruction("shift_detectors", [1.5, 2.5, 5.5], [6])
-    assert eval(repr(v), {"deltakit_stim": deltakit_stim}) == v
+    assert eval(repr(v), {"stim": deltakit_stim}) == v
 
 
 def test_hashable():

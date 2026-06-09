@@ -172,11 +172,11 @@ def test_circuit_repr():
         M 0
     """)
     r = repr(v)
-    assert r == """deltakit_stim.Circuit('''
+    assert r == """stim.Circuit('''
     X 0
     M 0
 ''')"""
-    assert eval(r, {'deltakit_stim': deltakit_stim}) == v
+    assert eval(r, {'stim': deltakit_stim}) == v
 
 
 def test_circuit_eq():
@@ -217,10 +217,10 @@ def test_circuit_compile_sampler():
     c = deltakit_stim.Circuit()
     s = c.compile_sampler()
     c.append_operation("M", [0])
-    assert repr(s) == "deltakit_stim.CompiledMeasurementSampler(deltakit_stim.Circuit())"
+    assert repr(s) == "stim.CompiledMeasurementSampler(stim.Circuit())"
     s = c.compile_sampler()
     assert repr(s) == """
-deltakit_stim.CompiledMeasurementSampler(deltakit_stim.Circuit('''
+stim.CompiledMeasurementSampler(stim.Circuit('''
     M 0
 '''))
     """.strip()
@@ -230,7 +230,7 @@ deltakit_stim.CompiledMeasurementSampler(deltakit_stim.Circuit('''
     s = c.compile_sampler()
     r = repr(s)
     assert r == """
-deltakit_stim.CompiledMeasurementSampler(deltakit_stim.Circuit('''
+stim.CompiledMeasurementSampler(stim.Circuit('''
     M 0
     H 0 1 2 3 4
     M 0 1 2 3 4
@@ -238,26 +238,26 @@ deltakit_stim.CompiledMeasurementSampler(deltakit_stim.Circuit('''
     """.strip() == str(deltakit_stim.CompiledMeasurementSampler(c))
 
     # Check that expression can be evaluated.
-    _ = eval(r, {"deltakit_stim": deltakit_stim})
+    _ = eval(r, {"stim": deltakit_stim})
 
 
 def test_circuit_compile_detector_sampler():
     c = deltakit_stim.Circuit()
     s = c.compile_detector_sampler()
     c.append_operation("M", [0])
-    assert repr(s) == "deltakit_stim.CompiledDetectorSampler(deltakit_stim.Circuit())"
+    assert repr(s) == "stim.CompiledDetectorSampler(stim.Circuit())"
     c.append_operation("DETECTOR", [deltakit_stim.target_rec(-1)])
     s = c.compile_detector_sampler()
     r = repr(s)
     assert r == """
-deltakit_stim.CompiledDetectorSampler(deltakit_stim.Circuit('''
+stim.CompiledDetectorSampler(stim.Circuit('''
     M 0
     DETECTOR rec[-1]
 '''))
     """.strip()
 
     # Check that expression can be evaluated.
-    _ = eval(r, {"deltakit_stim": deltakit_stim})
+    _ = eval(r, {"stim": deltakit_stim})
 
 
 def test_circuit_flattened_operations():
@@ -2057,7 +2057,7 @@ def test_tags_append():
 
 def test_tags_append_from_deltakit_stim_program_text():
     c = deltakit_stim.Circuit()
-    c.append_from_deltakit_stim_program_text("""
+    c.append_from_stim_program_text("""
         H[test] 0
         CX[test2] 1 2
     """)
@@ -2330,11 +2330,11 @@ def test_append_pauli_string():
         MPP X1*Y2*Z3 Y4 Z5 X1*X2
     """)
 
-    with pytest.raises(ValueError, match="empty deltakit_stim.PauliString"):
+    with pytest.raises(ValueError, match="empty stim.PauliString"):
         c.append("MPP", deltakit_stim.PauliString(""))
-    with pytest.raises(ValueError, match="empty deltakit_stim.PauliString"):
+    with pytest.raises(ValueError, match="empty stim.PauliString"):
         c.append("MPP", [deltakit_stim.PauliString("")])
-    with pytest.raises(ValueError, match="empty deltakit_stim.PauliString"):
+    with pytest.raises(ValueError, match="empty stim.PauliString"):
         c.append("MPP", [deltakit_stim.PauliString("X1"), deltakit_stim.PauliString("")])
     assert c == deltakit_stim.Circuit("""
         MPP X1*Y2*Z3 Y4 Z5 X1*X2

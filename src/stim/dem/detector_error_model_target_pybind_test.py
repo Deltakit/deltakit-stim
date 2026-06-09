@@ -56,11 +56,11 @@ def test_properties():
 
 def test_repr():
     v = deltakit_stim.target_relative_detector_id(5)
-    assert eval(repr(v), {"deltakit_stim": deltakit_stim}) == v
+    assert eval(repr(v), {"stim": deltakit_stim}) == v
     v = deltakit_stim.target_logical_observable_id(6)
-    assert eval(repr(v), {"deltakit_stim": deltakit_stim}) == v
+    assert eval(repr(v), {"stim": deltakit_stim}) == v
     v = deltakit_stim.target_separator()
-    assert eval(repr(v), {"deltakit_stim": deltakit_stim}) == v
+    assert eval(repr(v), {"stim": deltakit_stim}) == v
 
 
 def test_static_constructors():

@@ -117,8 +117,8 @@ def test_str():
 
 
 def test_repr():
-    assert repr(deltakit_stim.PauliString(3)) == 'deltakit_stim.PauliString("+___")'
-    assert repr(deltakit_stim.PauliString("-XYZ")) == 'deltakit_stim.PauliString("-XYZ")'
+    assert repr(deltakit_stim.PauliString(3)) == 'stim.PauliString("+___")'
+    assert repr(deltakit_stim.PauliString("-XYZ")) == 'stim.PauliString("-XYZ")'
     vs = [
         deltakit_stim.PauliString(""),
         deltakit_stim.PauliString("ZXYZZ"),
@@ -129,7 +129,7 @@ def test_repr():
     ]
     for v in vs:
         r = repr(v)
-        assert eval(r, {'deltakit_stim': deltakit_stim}) == v
+        assert eval(r, {'stim': deltakit_stim}) == v
 
 def test_to_tableau():
     p = deltakit_stim.PauliString("XZ_Y")
