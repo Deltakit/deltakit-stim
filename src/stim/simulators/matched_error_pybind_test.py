@@ -19,8 +19,8 @@ def test_CircuitErrorLocationStackFrame():
     assert v1 != v2
     assert v1 == v1
     assert len({v1, v1, v2}) == 2  # Check hashable.
-    assert eval(repr(v1), {"deltakit_stim": deltakit_stim}) == v1
-    assert eval(repr(v2), {"deltakit_stim": deltakit_stim}) == v2
+    assert eval(repr(v1), {"stim": deltakit_stim}) == v1
+    assert eval(repr(v2), {"stim": deltakit_stim}) == v2
     assert str(v1) == repr(v1)
 
 
@@ -38,8 +38,8 @@ def test_GateTargetWithCoords():
     assert v1 != v2
     assert v1 == v1
     assert len({v1, v1, v2}) == 2  # Check hashable.
-    assert eval(repr(v1), {"deltakit_stim": deltakit_stim}) == v1
-    assert eval(repr(v2), {"deltakit_stim": deltakit_stim}) == v2
+    assert eval(repr(v1), {"stim": deltakit_stim}) == v1
+    assert eval(repr(v2), {"stim": deltakit_stim}) == v2
     assert str(v1) == 'X5[coords 1,2,3]'
 
 
@@ -57,8 +57,8 @@ def test_DemTargetWithCoords():
     assert v1 != v2
     assert v1 == v1
     assert len({v1, v1, v2}) == 2  # Check hashable.
-    assert eval(repr(v1), {"deltakit_stim": deltakit_stim}) == v1
-    assert eval(repr(v2), {"deltakit_stim": deltakit_stim}) == v2
+    assert eval(repr(v1), {"stim": deltakit_stim}) == v1
+    assert eval(repr(v2), {"stim": deltakit_stim}) == v2
     assert str(v1) == 'D5[coords 1,2,3]'
 
 
@@ -84,8 +84,8 @@ def test_FlippedMeasurement():
     assert v1 != v2
     assert v1 == v1
     assert len({v1, v1, v2}) == 2  # Check hashable.
-    assert eval(repr(v1), {"deltakit_stim": deltakit_stim}) == v1
-    assert eval(repr(v2), {"deltakit_stim": deltakit_stim}) == v2
+    assert eval(repr(v1), {"stim": deltakit_stim}) == v1
+    assert eval(repr(v2), {"stim": deltakit_stim}) == v2
     assert str(v1) == repr(v1)
 
 
@@ -120,8 +120,8 @@ def test_CircuitTargetsInsideInstruction():
     assert v1 != v2
     assert v1 == v1
     assert len({v1, v1, v2}) == 2  # Check hashable.
-    assert eval(repr(v1), {"deltakit_stim": deltakit_stim}) == v1
-    assert eval(repr(v2), {"deltakit_stim": deltakit_stim}) == v2
+    assert eval(repr(v1), {"stim": deltakit_stim}) == v1
+    assert eval(repr(v2), {"stim": deltakit_stim}) == v2
     assert str(v1) == "X_ERROR(0.25) 5[coords 1,2] 6[coords 1,3] 7"
 
 
@@ -180,8 +180,8 @@ def test_CircuitErrorLocation():
     assert v1 != v2
     assert v1 == v1
     assert len({v1, v1, v2}) == 2  # Check hashable.
-    assert eval(repr(v1), {"deltakit_stim": deltakit_stim}) == v1
-    assert eval(repr(v2), {"deltakit_stim": deltakit_stim}) == v2
+    assert eval(repr(v1), {"stim": deltakit_stim}) == v1
+    assert eval(repr(v2), {"stim": deltakit_stim}) == v2
     assert str(v1) == """CircuitErrorLocation {
     flipped_pauli_product: Y6[coords 1,2,3]
     flipped_measurement.measurement_record_index: 5
@@ -254,8 +254,8 @@ def test_MatchedError():
     assert v1 != v2
     assert v1 == v1
     assert len({v1, v1, v2}) == 2  # Check hashable.
-    assert eval(repr(v1), {"deltakit_stim": deltakit_stim}) == v1
-    assert eval(repr(v2), {"deltakit_stim": deltakit_stim}) == v2
+    assert eval(repr(v1), {"stim": deltakit_stim}) == v1
+    assert eval(repr(v2), {"stim": deltakit_stim}) == v2
     assert str(v1) == """ExplainedError {
     dem_error_terms: D5[coords 1,2,3]
     CircuitErrorLocation {
