@@ -34,7 +34,7 @@ def test_equality():
 
 def test_repr():
     v = deltakit_stim.DemRepeatBlock(5, deltakit_stim.DetectorErrorModel('error(0.125) D1 L2'))
-    assert eval(repr(v), {"deltakit_stim": deltakit_stim}) == v
+    assert eval(repr(v), {"stim": deltakit_stim}) == v
 
 
 def test_type():

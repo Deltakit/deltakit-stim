@@ -167,7 +167,7 @@ def test_repr():
     assert repr(deltakit_stim.Circuit("""
         X 0
         M 0
-    """).compile_sampler()) == """deltakit_stim.CompiledMeasurementSampler(deltakit_stim.Circuit('''
+    """).compile_sampler()) == """stim.CompiledMeasurementSampler(stim.Circuit('''
     X 0
     M 0
 '''))"""
@@ -175,7 +175,7 @@ def test_repr():
     assert repr(deltakit_stim.Circuit("""
         X 0
         M 0
-    """).compile_sampler(skip_reference_sample=True)) == """deltakit_stim.CompiledMeasurementSampler(deltakit_stim.Circuit('''
+    """).compile_sampler(skip_reference_sample=True)) == """stim.CompiledMeasurementSampler(stim.Circuit('''
     X 0
     M 0
 '''), skip_reference_sample=True)"""

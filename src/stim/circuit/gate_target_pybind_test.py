@@ -116,8 +116,8 @@ def test_properties():
     deltakit_stim.GateTarget(deltakit_stim.target_inv(5)),
 ])
 def test_repr(value):
-    assert eval(repr(value), {'deltakit_stim': deltakit_stim}) == value
-    assert repr(eval(repr(value), {'deltakit_stim': deltakit_stim})) == repr(value)
+    assert eval(repr(value), {'stim': deltakit_stim}) == value
+    assert repr(eval(repr(value), {'stim': deltakit_stim})) == repr(value)
 
 
 def test_hashable():

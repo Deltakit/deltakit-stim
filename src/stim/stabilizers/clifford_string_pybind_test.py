@@ -19,7 +19,7 @@ import deltakit_stim
 
 def test_trivial():
     p = deltakit_stim.CliffordString(3)
-    assert repr(p) == 'deltakit_stim.CliffordString("I,I,I")'
+    assert repr(p) == 'stim.CliffordString("I,I,I")'
     assert len(p) == 3
     assert p[1:] == deltakit_stim.CliffordString(2)
     assert p[0] == deltakit_stim.gate_data('I')
@@ -28,7 +28,7 @@ def test_trivial():
 def test_simple():
     assert deltakit_stim.CliffordString("X,Y,Z,H,SQRT_X,C_XYZ,H_NXZ") == deltakit_stim.CliffordString("  X  ,   Y  ,  Z  , H_XZ , SQRT_X,C_XYZ,H_NXZ,   ")
     p = deltakit_stim.CliffordString("X,Y,Z,H,SQRT_X,C_XYZ,H_NXZ")
-    assert repr(p) == 'deltakit_stim.CliffordString("X,Y,Z,H,SQRT_X,C_XYZ,H_NXZ")'
+    assert repr(p) == 'stim.CliffordString("X,Y,Z,H,SQRT_X,C_XYZ,H_NXZ")'
     assert str(p) == 'X,Y,Z,H,SQRT_X,C_XYZ,H_NXZ'
     assert len(p) == 7
     assert p != deltakit_stim.CliffordString("Y,Y,Z,H,SQRT_X,C_XYZ,H_NXZ")

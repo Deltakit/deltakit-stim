@@ -11,7 +11,7 @@ def test_gate_data_eq():
 
 def test_gate_data_str():
     assert str(deltakit_stim.GateData('MXX')) == '''
-deltakit_stim.GateData {
+stim.GateData {
     .name = 'MXX'
     .aliases = ['MXX']
     .is_noisy_gate = True
@@ -26,7 +26,7 @@ deltakit_stim.GateData {
 }
     '''.strip()
     assert str(deltakit_stim.GateData('H')) == '''
-deltakit_stim.GateData {
+stim.GateData {
     .name = 'H'
     .aliases = ['H', 'H_XZ']
     .is_noisy_gate = False
@@ -38,12 +38,12 @@ deltakit_stim.GateData {
     .produces_measurements = False
     .takes_measurement_record_targets = False
     .takes_pauli_targets = False
-    .tableau = deltakit_stim.Tableau.from_conjugated_generators(
+    .tableau = stim.Tableau.from_conjugated_generators(
         xs=[
-            deltakit_stim.PauliString("+Z"),
+            stim.PauliString("+Z"),
         ],
         zs=[
-            deltakit_stim.PauliString("+X"),
+            stim.PauliString("+X"),
         ],
     )
     .unitary_matrix = np.array([[(0.7071067690849304+0j), (0.7071067690849304+0j)], [(0.7071067690849304+0j), (-0.7071067690849304-0j)]], dtype=np.complex64)
@@ -102,7 +102,7 @@ def test_name():
 
 def test_gate_data_repr():
     val = deltakit_stim.GateData('MPP')
-    assert eval(repr(val), {"deltakit_stim": deltakit_stim}) == val
+    assert eval(repr(val), {"stim": deltakit_stim}) == val
 
 
 def test_takes_measurement_record_targets():
