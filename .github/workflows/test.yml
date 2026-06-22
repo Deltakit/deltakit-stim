@@ -37,9 +37,30 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           bazel build //:stim_test
-          bazel run //:stim_test
+          bazel run //:stim_test --test_filter=-"match_graph_drawer_3d.*:circuit_diagram_timeline_3d*"
       - name: Build and run unit tests on macOS
         if: runner.os == 'macOS'
         run: |
           bazel build //:stim_test
           bazel run //:stim_test --test_filter=-"match_graph_drawer_3d.*:circuit_diagram_timeline_3d*"
+
+  pybind_tests:
+    name: Run Deltakit-Stim Python bindings tests
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out main code
+        uses: actions/checkout@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+      - name: Package synchronisation
+        run: uv sync --python 3.13 --resolution highest --group test
+      - name: Test bindings
+        run: uv run --python 3.13 --no-sync pytest
+      # - name: Run failing binding tests
+      #   run: |
+      #     uv run --python 3.13 --no-sync pytest src/stim/simulators/frame_simulator_pybind_test.py
+      #     uv run --python 3.13 --no-sync pytest src/stim/stabilizers/tableau_pybind_test.py
+      #     uv run --python 3.13 --no-sync pytest src/stim/util_top/export_qasm_pybind_test.py

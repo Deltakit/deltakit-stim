@@ -342,7 +342,7 @@ TEST(gate_data, hadamard_conjugated_vs_flow_generators_of_two_qubit_gates) {
     std::map<std::string, std::vector<GateType>> known_flows_u;
 
     for (const auto &g : GATE_DATA.items) {
-      if (g.id == GateType::II || g.id == GateType::II_ERROR || g.id == GateType::I_ERROR) {
+        if (g.id == GateType::II || g.id == GateType::II_ERROR || g.id == GateType::I_ERROR) {
             ASSERT_EQ(g.hadamard_conjugated(false), g.id);
             ASSERT_EQ(g.hadamard_conjugated(true), g.id);
             continue;

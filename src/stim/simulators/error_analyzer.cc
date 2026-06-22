@@ -408,8 +408,7 @@ void ErrorAnalyzer::undo_HERALDED_PAULI_CHANNEL_1(const CircuitInstruction &inst
     double i = std::max(0.0, 1.0 - hi - hx - hy - hz);
 
     for (size_t k = inst.targets.size(); k-- > 0;) {
-        auto q = inst.targets[k].qubit_value()
-                 ;
+        auto q = inst.targets[k].qubit_value();
         tracker.num_measurements_in_past--;
 
         SparseXorVec<DemTarget> &herald_symptoms = tracker.rec_bits[tracker.num_measurements_in_past];
