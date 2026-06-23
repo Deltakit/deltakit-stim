@@ -33,8 +33,6 @@ MAIN_FILES = glob.glob("src/**/main.cc", recursive=True)
 HEADER_FILES = glob.glob("src/**/*.h", recursive=True) + glob.glob("src/**/*.inl", recursive=True)
 RELEVANT_SOURCE_FILES = sorted(set(ALL_SOURCE_FILES) - set(TEST_FILES + PERF_FILES + MAIN_FILES + MUX_SOURCE_FILES))
 
-__version__ = '0.2.0'
-
 # Detect architecture
 def is_arm_architecture():
     """Detect if we're building for ARM/ARM64 architecture."""
@@ -144,9 +142,6 @@ setup(
     package_data={'': [*HEADER_FILES, 'glue/python/src/deltakit_stim/__init__.pyi', 'glue/python/README.md', 'pyproject.toml']},
     include_package_data=True,
     install_requires=['numpy'],
-    entry_points={
-        'console_scripts': ['stim=stim._main_argv:main_argv'],
-    },
     # Needed on Windows to avoid the default `build` colliding with Bazel's `BUILD`.
     options={'build': {'build_base': 'python_build_stim'}},
 )

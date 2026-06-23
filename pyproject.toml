@@ -43,7 +43,7 @@ Issues = "https://github.com/Deltakit/deltakit/issues"
 Changelog = "https://github.com/Deltakit/deltakit-stim/releases"
 
 [project.scripts]
-stim = "stim._main_argv:main_argv"
+stim = "deltakit_stim._main_argv:main_argv"
 
 [dependency-groups]
 tests_extras = [
