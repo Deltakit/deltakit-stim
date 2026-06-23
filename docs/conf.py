@@ -13,7 +13,7 @@ from __future__ import annotations
 
 project = "Deltakit-Stim"
 # version = deltakit_stim.__version__
-version = "0.1.3"
+version = "0.2.0"
 copyright = "2020-2025, Riverlane"  # noqa: A001
 author = "Riverlane Ltd and contributors"
 
