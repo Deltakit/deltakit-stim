@@ -51,6 +51,7 @@ There is a known issue when both `stim` and `lestim` are installed in the same P
 
 For any reference to Stim, please consider using the citation:
 
+```
 @article{gidney2021stim,
   doi = {10.22331/q-2021-07-06-497},
   url = {https://doi.org/10.22331/q-2021-07-06-497},
