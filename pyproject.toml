@@ -220,6 +220,3 @@ include-package-data = true
 
 [tool.setuptools.packages.find]
 where = ["glue/python/src"]
-
-[tool.setuptools.options.build]
-build_base = "python_build_stim"
