@@ -1,65 +1,126 @@
-name: Publish LeStim
+# Copyright 2021 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
+name: Build and publish wheels
 on:
   release:
-    type:
-      [published]
-
-
-concurrency:
-  group: fast-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+    types: [published]
+  workflow_dispatch:
 
 jobs:
-  publish_private_index:
-    name: Publish package to private Azure index.
-    strategy:
-      matrix:
-        os_dist = [
-          {os: ubuntu-latest, dist: cp39-manylinux_x86_64},
-          {os: ubuntu-latest, dist: cp310-manylinux_x86_64},
-          {os: ubuntu-latest, dist: cp311-manylinux_x86_64},
-          {os: ubuntu-latest, dist: cp312-manylinux_x86_64},
-          {os: ubuntu-latest, dist: cp313-manylinux_x86_64},
-          {os: ubuntu-latest, dist: cp314-manylinux_x86_64},
-          {os: macos-latest, dist: cp39-macosx_x86_64, macosarch: x86_64},
-          {os: macos-latest, dist: cp310-macosx_x86_64, macosarch: x86_64},
-          {os: macos-latest, dist: cp311-macosx_x86_64, macosarch: x86_64},
-          {os: macos-latest, dist: cp312-macosx_x86_64, macosarch: x86_64},
-          {os: macos-latest, dist: cp313-macosx_x86_64, macosarch: x86_64},
-          {os: macos-latest, dist: cp314-macosx_x86_64, macosarch: x86_64},
-          {os: macos-latest, dist: cp39-macosx_arm64, arch: arm64},
-          {os: macos-latest, dist: cp310-macosx_arm64, arch: arm64},
-          {os: macos-latest, dist: cp311-macosx_arm64, arch: arm64},
-          {os: macos-latest, dist: cp312-macosx_arm64, arch: arm64},
-          {os: macos-latest, dist: cp313-macosx_arm64, arch: arm64},
-          {os: macos-latest, dist: cp314-macosx_arm64, arch: arm64},
-        ]
+  build_wheel:
     runs-on: ${{ matrix.os_dist.os }}
-    # permissions:
-    #   id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
+    strategy:
+      fail-fast: true
+      matrix:
+        os_dist: [
+          {os: ubuntu-24.04, dist: cp310-manylinux_x86_64},
+          {os: ubuntu-24.04, dist: cp311-manylinux_x86_64},
+          {os: ubuntu-24.04, dist: cp312-manylinux_x86_64},
+          {os: ubuntu-24.04, dist: cp313-manylinux_x86_64},
+          {os: ubuntu-24.04, dist: cp314-manylinux_x86_64},
+
+          {os: macos-14, dist: cp310-macosx_x86_64, macosarch: x86_64},
+          {os: macos-14, dist: cp311-macosx_x86_64, macosarch: x86_64},
+          {os: macos-14, dist: cp312-macosx_x86_64, macosarch: x86_64},
+          {os: macos-14, dist: cp313-macosx_x86_64, macosarch: x86_64},
+          {os: macos-14, dist: cp314-macosx_x86_64, macosarch: x86_64},
+
+          {os: macos-14, dist: cp310-macosx_arm64, macosarch: arm64},
+          {os: macos-14, dist: cp311-macosx_arm64, macosarch: arm64},
+          {os: macos-14, dist: cp312-macosx_arm64, macosarch: arm64},
+          {os: macos-14, dist: cp313-macosx_arm64, macosarch: arm64},
+          {os: macos-14, dist: cp314-macosx_arm64, macosarch: arm64},
+        ]
     env:
       CIBW_BUILD: "${{ matrix.os_dist.dist }}"
-      CIBW_ARCHS_MACOS: "${{ matrix.os_dist.arch }}"
+      CIBW_ARCHS_MACOS: "${{ matrix.os_dist.macosarch }}"
+      # Optional: Configure repair command to handle deployment target issues
+      CIBW_REPAIR_WHEEL_COMMAND_MACOS: >
+        delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel}
+        --ignore-missing-dependencies
+      ### Skip tests
+      # CIBW_TEST_REQUIRES: cirq-core pytest
+      # CIBW_TEST_COMMAND: pytest {project}/src {project}/glue/cirq && stim help
     steps:
-      - name: Check out LeStim main code
-        uses: actions/checkout@v6
-      - name: Set up Python
-        uses: actions/setup-python@v6
-      - name: Install dependencies for wheel building
-        run: pip install pybind11 cibuildwheel setuptools wheel
-      - name: Build the wheel
-        run: |
-          python -m cibuildwheel --print-build-identifiers
-          python -m cibuildwheel --output-dir dist
-      # - name: Publish to PyPI
-      #     uses: pypa/gh-action-pypi-publish@release/v1
-      # - name: Confirm deployment
-      #     timeout-minutes: 5
-      #     run: |
-      #       VERSION=${GITHUB_REF#refs/tags/v}
-      #       until pip download maximum-independent-set==$VERSION
-      #       do
-      #           echo "Failed to download from PyPI, will wait for upload and retry."
-      #           sleep 1
-      #       done
+      - uses: actions/checkout@v7
+
+      - name: build wheels
+        uses: pypa/cibuildwheel@v4.1.0
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: "dist-${{ matrix.os_dist.dist }}"
+          path: ./wheelhouse/*.whl
+
+  build_sdist:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.10.*'
+      - run: python -m pip install setuptools
+      - run: python -m pip install pybind11==2.9.2
+      - run: mkdir -p output/stimcirq
+      - run: mkdir -p output/sinter
+      - run: python setup.py sdist
+      - run: cd glue/cirq && python setup.py sdist
+      - run: cd glue/cirq && python setup.py bdist_wheel
+      - run: cd glue/sample && python setup.py sdist
+      - run: mv glue/cirq/dist/* output/stimcirq
+      - run: mv glue/sample/dist/* output/sinter
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist-sdist
+          path: ./dist/*.tar.gz
+
+  check_sdist_installs:
+    name: Check sdist is installable and refresh docs.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+      - run: python -m pip install setuptools
+      - run: python -m pip install pybind11==2.9.2
+      - run: python setup.py sdist
+      - run: python -m pip install dist/*.tar.gz
+      - run: bash ./dev/regen_lestim_docs.sh
+
+  upload_dev_release_to_pypi:
+    needs: [build_wheel, build_sdist, check_sdist_installs]
+    # if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.10.*'
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: dist-*
+          path: dist
+          merge-multiple: true
+      - run: python -m pip install twine
+      - name: Grant access to private repo
+        uses: riverlane/devops-resources/.github/actions/private-repo-access@dev
+        with:
+          username: ${{ secrets.CI_RUNNER_USERNAME }}
+          password: ${{ secrets.CI_RUNNER_PASSWORD }}
+      - run: |
+            ls -lah dist/
+            twine upload \
+              --repository-url https://riv-pypi.azurewebsites.net/home \
+              -u '${{ secrets.CI_RUNNER_USERNAME }}' \
+              -p '${{ secrets.CI_RUNNER_PASSWORD }}' \
+              dist/*

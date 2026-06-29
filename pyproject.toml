@@ -192,6 +192,10 @@ before-build = "bash cibw_before_build.sh"
 
 [tool.cibuildwheel.linux]
 manylinux-x86_64-image = "manylinux_2_28"
+container-engine = { name = "docker", create-args = [
+  "--volume=/home/runner/.ssh:/host-ssh:ro",
+  "--volume=/home/runner/.gitconfig:/host-gitconfig:ro",
+] }
 environment = """\
 SSH_AUTH_SOCK="/host$SSH_AUTH_SOCK" \
 CXX=/opt/rh/gcc-toolset-11/root/usr/bin/g++ \
