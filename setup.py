@@ -17,6 +17,14 @@ from setuptools import setup, Extension
 import glob
 import pybind11
 
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib
+
+with open("pyproject.toml", "rb") as f:
+    __version__ = tomllib.load(f)["project"]["version"]
+
 ALL_SOURCE_FILES = glob.glob("src/**/*.cc", recursive=True)
 MUX_SOURCE_FILES = glob.glob("src/**/march.pybind.cc", recursive=True)
 TEST_FILES = glob.glob("src/**/*.test.cc", recursive=True)
@@ -24,8 +32,6 @@ PERF_FILES = glob.glob("src/**/*.perf.cc", recursive=True)
 MAIN_FILES = glob.glob("src/**/main.cc", recursive=True)
 HEADER_FILES = glob.glob("src/**/*.h", recursive=True) + glob.glob("src/**/*.inl", recursive=True)
 RELEVANT_SOURCE_FILES = sorted(set(ALL_SOURCE_FILES) - set(TEST_FILES + PERF_FILES + MAIN_FILES + MUX_SOURCE_FILES))
-
-__version__ = '0.2.0'
 
 # Detect architecture
 def is_arm_architecture():
@@ -128,16 +134,7 @@ else:
 #     )
 #     ext_modules.append(stim_avx2)
 
-with open('glue/python/README.md', encoding='UTF-8') as f:
-    long_description = f.read()
-
 setup(
-    name='deltakit-stim',
-    version=__version__,
-    license='Apache 2',
-    description='A Stim extension package to account for non-computational errors.',
-    long_description=long_description,
-    long_description_content_type='text/markdown',
     ext_modules=ext_modules,
     python_requires='>=3.10,<3.14',
     packages=['deltakit_stim'],
@@ -145,9 +142,6 @@ setup(
     package_data={'': [*HEADER_FILES, 'glue/python/src/deltakit_stim/__init__.pyi', 'glue/python/README.md', 'pyproject.toml']},
     include_package_data=True,
     install_requires=['numpy'],
-    entry_points={
-        'console_scripts': ['stim=stim._main_argv:main_argv'],
-    },
     # Needed on Windows to avoid the default `build` colliding with Bazel's `BUILD`.
     options={'build': {'build_base': 'python_build_stim'}},
 )

@@ -7,13 +7,20 @@
 # -- Path setup --------------------------------------------------------------
 from __future__ import annotations
 
+import sys
+
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib  # type: ignore[no-redef]
+
 # import deltakit_stim
 
 # -- Project information -----------------------------------------------------
 
 project = "Deltakit-Stim"
-# version = deltakit_stim.__version__
-version = "1.15"
+with open("../pyproject.toml", "rb") as f:
+    version = tomllib.load(f)["project"]["version"]
 copyright = "2020-2025, Riverlane"  # noqa: A001
 author = "Riverlane Ltd and contributors"
 
