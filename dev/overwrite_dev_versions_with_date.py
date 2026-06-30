@@ -12,8 +12,13 @@
 
 import os
 import pathlib
-import re
 import subprocess
+import sys
+
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib
 
 
 def main():
@@ -23,17 +28,17 @@ def main():
     # Generate dev version starting from major.minor version.
     # (Requires the existing version to have a 'dev' suffix.)
     # (Uses the timestamp of the HEAD commit, to ensure consistency when run multiple times.)
-    with open('setup.py') as f:
-        maj_min_version_line, = [line for line in f.read().splitlines() if re.match("^__version__ = '[^']+'", line)]
-        maj_version, min_version, patch = maj_min_version_line.split()[-1].strip("'").split('.')
-        if 'dev' not in patch:
-            return  # Do nothing for non-dev versions.
-    timestamp = subprocess.check_output(['git', 'show', '-s', '--format=%ct', 'HEAD']).decode().strip()
+    with open("pyproject.toml", "rb") as f:
+        version = tomllib.load(f)["project"]["version"]
+    maj_version, min_version, patch = version.split(".", 2)
+    if "dev" not in patch:
+        return  # Do nothing for non-dev versions.
+    timestamp = subprocess.check_output(["git", "show", "-s", "--format=%ct", "HEAD"]).decode().strip()
     new_version = f"{maj_version}.{min_version}.dev{timestamp}"
 
     # Overwrite existing versions.
     package_setup_files = [
-        "setup.py",
+        "pyproject.toml",
         "glue/cirq/setup.py",
         "glue/cirq/stimcirq/__init__.py",
         "glue/zx/stimzx/__init__.py",
@@ -44,10 +49,16 @@ def main():
     for path in package_setup_files:
         with open(path) as f:
             content = f.read()
-        assert maj_min_version_line in content
-        content = content.replace(maj_min_version_line, f"__version__ = '{new_version}'")
-        with open(path, 'w') as f:
-            print(content, file=f, end='')
+        if path.endswith(".toml"):
+            old_line = f'version = "{version}"'
+            new_line = f'version = "{new_version}"'
+        else:
+            old_line = f"__version__ = '{version}'"
+            new_line = f"__version__ = '{new_version}'"
+        assert old_line in content, f"{old_line!r} not found in {path}"
+        content = content.replace(old_line, new_line)
+        with open(path, "w") as f:
+            print(content, file=f, end="")
 
 
 if __name__ == '__main__':

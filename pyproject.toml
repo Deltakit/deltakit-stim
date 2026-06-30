@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=80", "wheel", "pybind11~=2.11.1"]
+requires = ["setuptools>=80", "wheel", "pybind11~=2.11.1", 'tomli; python_version < "3.11"']
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -33,7 +33,7 @@ classifiers = [
   "Typing :: Typed",
 ]
 
-dependencies = []
+dependencies = ["numpy"]
 
 [project.urls]
 Homepage = "https://github.com/Deltakit/deltakit-stim"
@@ -41,6 +41,9 @@ Source = "https://github.com/Deltakit/deltakit-stim"
 Documentation = "https://deltakit.riverlane.com/"
 Issues = "https://github.com/Deltakit/deltakit/issues"
 Changelog = "https://github.com/Deltakit/deltakit-stim/releases"
+
+[project.scripts]
+stim = "deltakit_stim._main_argv:main_argv"
 
 [dependency-groups]
 tests_extras = [
@@ -211,3 +214,9 @@ LDFLAGS="-L/opt/homebrew/opt/llvm@16/lib/c++ -Wl,-rpath,/opt/homebrew/opt/llvm@1
 PATH="/usr/local/opt/llvm@16/bin:$PATH" \
 CPPFLAGS="-I/opt/homebrew/opt/llvm@16/include"
 """
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["glue/python/src"]
