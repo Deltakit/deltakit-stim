@@ -1,7 +1,7 @@
 """Lestim (Development Version): a fast quantum stabilizer circuit library."""
 # (This is a stubs file describing the classes and methods in lestim.)
 from __future__ import annotations
-from typing import overload, TYPE_CHECKING, List, Dict, Tuple, Any, Union, Iterable, Optional, Sequence, Literal
+from typing import overload, TYPE_CHECKING, List, Dict, Tuple, Any, Union, Iterable, Optional
 if TYPE_CHECKING:
     import io
     import pathlib
@@ -12,11 +12,11 @@ class Circuit:
 
     The lestim.Circuit class is arguably the most important object in the
     entire library. It is the interface through which you explain a
-    noisy quantum computation to Stim, in order to do fast bulk sampling
+    noisy quantum computation to Lestim, in order to do fast bulk sampling
     or fast error analysis.
 
     For example, suppose you want to use a matching-based decoder on a
-    new quantum error correction construction. Stim can help you do this
+    new quantum error correction construction. Lestim can help you do this
     but the very first step is to create a circuit implementing the
     construction. Once you have the circuit you can then use methods like
     lestim.Circuit.detector_error_model() to create an object that can be
@@ -175,7 +175,7 @@ class Circuit:
         """
     def __init__(
         self,
-        lestim_program_text: str = '',
+        stim_program_text: str = '',
     ) -> None:
         """Creates a lestim.Circuit.
 
@@ -325,25 +325,6 @@ class Circuit:
 
         Note: `lestim.Circuit.append_operation` is an alias of `lestim.Circuit.append`.
 
-        Examples:
-            >>> import lestim
-            >>> c = lestim.Circuit()
-            >>> c.append("X", 0)
-            >>> c.append("H", [0, 1])
-            >>> c.append("M", [0, lestim.target_inv(1)])
-            >>> c.append("CNOT", [lestim.target_rec(-1), 0])
-            >>> c.append("X_ERROR", [0], 0.125)
-            >>> c.append("CORRELATED_ERROR", [lestim.target_x(0), lestim.target_y(2)], 0.25)
-            >>> print(repr(c))
-            lestim.Circuit('''
-                X 0
-                H 0 1
-                M 0 !1
-                CX rec[-1] 0
-                X_ERROR(0.125) 0
-                E(0.25) X0 Y2
-            ''')
-
         Args:
             name: The name of the operation's gate (e.g. "H" or "M" or "CNOT").
 
@@ -399,7 +380,7 @@ class Circuit:
         """
     def append_from_stim_program_text(
         self,
-        lestim_program_text: str,
+        stim_program_text: str,
     ) -> None:
         """Appends operations described by a STIM format program into the circuit.
 
@@ -1316,7 +1297,7 @@ class Circuit:
         """
     def flow_generators(
         self,
-    ) -> List[stim.Flow]:
+    ) -> List[lestim.Flow]:
         """Returns a list of flows that generate all of the circuit's flows.
 
         Every stabilizer flow that the circuit implements is a product of some
@@ -1327,25 +1308,25 @@ class Circuit:
             A list of flow generators for the circuit.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> stim.Circuit("H 0").flow_generators()
-            [stim.Flow("X -> Z"), stim.Flow("Z -> X")]
+            >>> lestim.Circuit("H 0").flow_generators()
+            [lestim.Flow("X -> Z"), lestim.Flow("Z -> X")]
 
-            >>> stim.Circuit("M 0").flow_generators()
-            [stim.Flow("1 -> Z xor rec[0]"), stim.Flow("Z -> rec[0]")]
+            >>> lestim.Circuit("M 0").flow_generators()
+            [lestim.Flow("1 -> Z xor rec[0]"), lestim.Flow("Z -> rec[0]")]
 
-            >>> stim.Circuit("RX 0").flow_generators()
-            [stim.Flow("1 -> X")]
+            >>> lestim.Circuit("RX 0").flow_generators()
+            [lestim.Flow("1 -> X")]
 
-            >>> for flow in stim.Circuit("MXX 0 1").flow_generators():
+            >>> for flow in lestim.Circuit("MXX 0 1").flow_generators():
             ...     print(flow)
             1 -> XX xor rec[0]
             _X -> _X
             X_ -> _X xor rec[0]
             ZZ -> ZZ
 
-            >>> for flow in stim.Circuit.generated(
+            >>> for flow in lestim.Circuit.generated(
             ...     "repetition_code:memory",
             ...     rounds=2,
             ...     distance=3,
@@ -1372,7 +1353,7 @@ class Circuit:
         """Reads a lestim circuit from a file.
 
         The file format is defined at
-        https://github.com/quantumlib/Stim/blob/main/doc/file_format_lestim_circuit.md
+        https://github.com/quantumlib/Stim/blob/main/doc/file_format_stim_circuit.md
 
         Args:
             file: A file path or open file object to read from.
@@ -1696,13 +1677,6 @@ class Circuit:
             >>> lestim.Circuit('''
             ...     RY 0
             ... ''').has_flow(lestim.Flow(
-            ...     output=lestim.PauliString("Y"),
-            ... ))
-            True
-
-            >>> lestim.Circuit('''
-            ...     RY 0
-            ... ''').has_flow(stim.Flow(
             ...     output=lestim.PauliString("X"),
             ... ))
             False
@@ -1754,7 +1728,7 @@ class Circuit:
     def insert(
         self,
         index: int,
-        operation: Union[stim.CircuitInstruction, stim.Circuit],
+        operation: Union[lestim.CircuitInstruction, lestim.Circuit],
     ) -> None:
         """Inserts an operation at the given index, pushing existing operations forward.
 
@@ -1772,26 +1746,26 @@ class Circuit:
                 Instructions before the index are not shifted. Instructions that
                 were at or after the index are shifted forwards as needed.
             operation: The object to insert. This can be a single
-                stim.CircuitInstruction or an entire stim.Circuit.
+                lestim.CircuitInstruction or an entire lestim.Circuit.
 
         Examples:
-            >>> import stim
-            >>> c = stim.Circuit('''
+            >>> import lestim
+            >>> c = lestim.Circuit('''
             ...     H 0
             ...     S 1
             ...     X 2
             ... ''')
-            >>> c.insert(1, stim.CircuitInstruction("Y", [3, 4, 5]))
+            >>> c.insert(1, lestim.CircuitInstruction("Y", [3, 4, 5]))
             >>> c
-            stim.Circuit('''
+            lestim.Circuit('''
                 H 0
                 Y 3 4 5
                 S 1
                 X 2
             ''')
-            >>> c.insert(-1, stim.Circuit("S 999\nCX 0 1\nCZ 2 3"))
+            >>> c.insert(-1, lestim.Circuit("S 999\nCX 0 1\nCZ 2 3"))
             >>> c
-            stim.Circuit('''
+            lestim.Circuit('''
                 H 0
                 Y 3 4 5
                 S 1 999
@@ -1964,17 +1938,17 @@ class Circuit:
             get a circuit with no missing detectors.
 
         Examples:
-            >>> import stim
+            >>> import lestim
 
-            >>> stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     R 0
             ...     M 0
             ... ''').missing_detectors()
-            stim.Circuit('''
+            lestim.Circuit('''
                 DETECTOR rec[-1]
             ''')
 
-            >>> stim.Circuit('''
+            >>> lestim.Circuit('''
             ...     MZZ 0 1
             ...     MYY 0 1
             ...     MXX 0 1
@@ -1986,7 +1960,7 @@ class Circuit:
             ...     DETECTOR rec[-2] rec[-5]
             ...     DETECTOR rec[-3] rec[-6]
             ... ''').missing_detectors(unknown_input=True)
-            stim.Circuit('''
+            lestim.Circuit('''
                 DETECTOR rec[-3] rec[-2] rec[-1]
             ''')
         """
@@ -2131,7 +2105,7 @@ class Circuit:
     def pop(
         self,
         index: int = -1,
-    ) -> Union[stim.CircuitInstruction, stim.CircuitRepeatBlock]:
+    ) -> Union[lestim.CircuitInstruction, lestim.CircuitRepeatBlock]:
         """Pops an operation from the end of the circuit, or at the given index.
 
         Args:
@@ -2144,19 +2118,19 @@ class Circuit:
             IndexError: The given index is outside the bounds of the circuit.
 
         Examples:
-            >>> import stim
-            >>> c = stim.Circuit('''
+            >>> import lestim
+            >>> c = lestim.Circuit('''
             ...     H 0
             ...     S 1
             ...     X 2
             ...     Y 3
             ... ''')
             >>> c.pop()
-            stim.CircuitInstruction('Y', [stim.GateTarget(3)], [])
+            lestim.CircuitInstruction('Y', [lestim.GateTarget(3)], [])
             >>> c.pop(1)
-            stim.CircuitInstruction('S', [stim.GateTarget(1)], [])
+            lestim.CircuitInstruction('S', [lestim.GateTarget(1)], [])
             >>> c
-            stim.Circuit('''
+            lestim.Circuit('''
                 H 0
                 X 2
             ''')
@@ -2169,7 +2143,7 @@ class Circuit:
         """Determines noiseless parities of the measurement sets of detectors/observables.
 
         BEWARE: the returned values are NOT the "expected value of the
-        detector/observable". Stim consistently defines the value of a
+        detector/observable". Lestim consistently defines the value of a
         detector/observable as whether or not it flipped, so the expected value of a
         detector/observable is vacuously always 0 (not flipped). This method instead
         returns the "sign"; the expected parity of the measurement set declared by the
@@ -2199,8 +2173,8 @@ class Circuit:
                 obs.dtype == np.bool_
 
         Examples:
-            >>> import stim
-            >>> stim.Circuit('''
+            >>> import lestim
+            >>> lestim.Circuit('''
             ...     X 1
             ...     M 0 1
             ...     DETECTOR rec[-1]
@@ -2769,7 +2743,7 @@ class Circuit:
         self,
         *,
         skip_detectors: bool = False,
-        mark: Optional[Dict[int, List[stim.ExplainedError]]] = None,
+        mark: Optional[Dict[int, List[lestim.ExplainedError]]] = None,
     ) -> str:
         """Returns a URL that opens up crumble and loads this circuit into it.
 
@@ -2817,7 +2791,7 @@ class Circuit:
         """Writes the lestim circuit to a file.
 
         The file format is defined at
-        https://github.com/quantumlib/Stim/blob/main/doc/file_format_lestim_circuit.md
+        https://github.com/quantumlib/Stim/blob/main/doc/file_format_stim_circuit.md
 
         Args:
             file: A file path or an open file to write to.
@@ -3165,7 +3139,7 @@ class CircuitErrorLocation:
     @property
     def flipped_measurement(
         self,
-    ) -> Optional[stim.FlippedMeasurement]:
+    ) -> Optional[lestim.FlippedMeasurement]:
         """The measurement that was flipped by the error mechanism.
 
         If the error isn't a measurement error, this will be None.
@@ -3450,7 +3424,7 @@ class CircuitInstruction:
         Args:
             name: The name of the instruction being applied.
                 If `targets` and `gate_args` aren't specified, this can be a full
-                instruction line from a stim Circuit file, like "CX 0 1".
+                instruction line from a lestim Circuit file, like "CX 0 1".
             targets: The targets the instruction is being applied to. These can be raw
                 values like `0` and `lestim.target_rec(-1)`, or instances of
                 `lestim.GateTarget`.
@@ -4483,8 +4457,8 @@ class CompiledDemSampler:
     """A helper class for efficiently sampler from a detector error model.
 
     Examples:
-        >>> import lelestim
-        >>> dem = lelestim.DetectorErrorModel('''
+        >>> import lestim
+        >>> dem = lestim.DetectorErrorModel('''
         ...    error(0) D0
         ...    error(1) D1 D2 L0
         ... ''')
@@ -4757,11 +4731,11 @@ class CompiledDetectorSampler:
                 Defaults to None. When None, the prng is seeded from system entropy.
 
                 When set to an integer, making the exact same series calls on the exact
-                same machine with the exact same version of Stim will produce the exact
+                same machine with the exact same version of Lestim will produce the exact
                 same simulation results.
 
                 CAUTION: simulation results *WILL NOT* be consistent between versions of
-                Stim. This restriction is present to make it possible to have future
+                Lestim. This restriction is present to make it possible to have future
                 optimizations to the random sampling, and is enforced by introducing
                 intentional differences in the seeding strategy from version to version.
 
@@ -4795,26 +4769,6 @@ class CompiledDetectorSampler:
     ) -> str:
         """Returns valid python code evaluating to an equivalent `lestim.CompiledDetectorSampler`.
         """
-    @overload
-    def sample(
-        self,
-        shots: int,
-        *,
-        prepend_observables: bool = False,
-        append_observables: bool = False,
-        bit_packed: bool = False,
-    ) -> np.ndarray:
-        pass
-    @overload
-    def sample(
-        self,
-        shots: int,
-        *,
-        separate_observables: Literal[True],
-        bit_packed: bool = False,
-    ) -> Tuple[np.ndarray, np.ndarray]:
-        pass
-
     def sample(
         self,
         shots: int,
@@ -5430,7 +5384,7 @@ class DemInstruction:
         self,
         type: str,
         args: Optional[Iterable[float]] = None,
-        targets: Optional[Iterable[stim.DemTarget]] = None,
+        targets: Optional[Iterable[lestim.DemTarget]] = None,
         *,
         tag: str = "",
     ) -> None:
@@ -5457,7 +5411,7 @@ class DemInstruction:
             >>> print(instruction)
             error[test-tag](0.125) D5
 
-            >>> print(stim.DemInstruction('error(0.125) D5 L6 ^ D4  # comment'))
+            >>> print(lestim.DemInstruction('error(0.125) D5 L6 ^ D4  # comment'))
             error(0.125) D5 L6 ^ D4
         """
     def __ne__(
@@ -5685,7 +5639,7 @@ class DemTarget:
         arg: object,
         /,
     ) -> None:
-        """Creates a lestim.DemTarge from the given object.
+        """Creates a lestim.DemTarget from the given object.
 
         Args:
             arg: A string to parse as a lestim.DemTarget, or some other object to
@@ -5885,7 +5839,7 @@ class DemTargetWithCoords:
             ...     OBSERVABLE_INCLUDE(0) rec[-1]
             ... ''').shortest_graphlike_error()
             >>> err[0].dem_error_terms[0]
-            lestim.DemTargetWithCoords(dem_target=stim.DemTarget('D0'), coords=[2, 3])
+            lestim.DemTargetWithCoords(dem_target=lestim.DemTarget('D0'), coords=[2, 3])
         """
     @property
     def coords(
@@ -5928,7 +5882,7 @@ class DemTargetWithCoords:
 class DetectorErrorModel:
     """An error model built out of independent error mechanics.
 
-    This class is one of the most important classes in Stim, because it is the
+    This class is one of the most important classes in Lestim, because it is the
     mechanism used to explain circuits to decoders. A typical workflow would
     look something like:
 
@@ -6016,13 +5970,13 @@ class DetectorErrorModel:
     def __getitem__(
         self,
         index_or_slice: int,
-    ) -> Union[stim.DemInstruction, stim.DemRepeatBlock]:
+    ) -> Union[lestim.DemInstruction, lestim.DemRepeatBlock]:
         pass
     @overload
     def __getitem__(
         self,
         index_or_slice: slice,
-    ) -> stim.DetectorErrorModel:
+    ) -> lestim.DetectorErrorModel:
         pass
     def __getitem__(
         self,
@@ -6262,10 +6216,6 @@ class DetectorErrorModel:
             ...     lestim.DemTarget.relative_detector_id(2),
             ...     lestim.DemTarget.logical_observable_id(3),
             ... ], tag='test-tag')
-            >>> print(repr(m))
-            lestim.DetectorErrorModel('''
-                error(0.125) D1
-                error(0.25) D1 ^ D2 L3
             >>> print(repr(m))
             lestim.DetectorErrorModel('''
                 error(0.125) D1
@@ -6535,6 +6485,9 @@ class DetectorErrorModel:
         file: Union[io.TextIOBase, str, pathlib.Path],
     ) -> lestim.DetectorErrorModel:
         """Reads a detector error model from a file.
+
+        The file format is defined at
+        https://github.com/quantumlib/Stim/blob/main/doc/file_format_dem_detector_error_model.md
 
         Args:
             file: A file path or open file object to read from.
@@ -6808,6 +6761,9 @@ class DetectorErrorModel:
     ) -> None:
         """Writes the detector error model to a file.
 
+        The file format is defined at
+        https://github.com/quantumlib/Stim/blob/main/doc/file_format_dem_detector_error_model.md
+
         Args:
             file: A file path or an open file to write to.
 
@@ -7075,9 +7031,9 @@ class FlipSimulator:
                     dtype=np.uint8
 
         Examples:
-            >>> import stim
+            >>> import lestim
             >>> import numpy as np
-            >>> sim = stim.FlipSimulator(batch_size=9)
+            >>> sim = lestim.FlipSimulator(batch_size=9)
             >>> sim.append_measurement_flips(np.array(
             ...     [0, 1, 0, 0, 1, 0, 0, 1, 1],
             ...     dtype=np.bool_,
@@ -7203,9 +7159,9 @@ class FlipSimulator:
         than allocating a new simulator each time (by avoiding re-allocations).
 
         Examples:
-            >>> import stim
-            >>> sim = stim.FlipSimulator(batch_size=256)
-            >>> sim.do(stim.Circuit("M(0.1) 9"))
+            >>> import lestim
+            >>> sim = lestim.FlipSimulator(batch_size=256)
+            >>> sim.do(lestim.Circuit("M(0.1) 9"))
             >>> sim.num_qubits
             10
             >>> sim.get_measurement_flips().shape
@@ -7222,7 +7178,7 @@ class FlipSimulator:
         *,
         copy_rng: bool = False,
         seed: Optional[int] = None,
-    ) -> stim.FlipSimulator:
+    ) -> lestim.FlipSimulator:
         """Returns a simulator with the same internal state, except perhaps its prng.
 
         Args:
@@ -7246,11 +7202,11 @@ class FlipSimulator:
                 copy_rng argument.
 
                 When set to an integer, making the exact same series calls on the exact
-                same machine with the exact same version of Stim will produce the exact
+                same machine with the exact same version of Lestim will produce the exact
                 same simulation results.
 
                 CAUTION: simulation results *WILL NOT* be consistent between versions of
-                Stim. This restriction is present to make it possible to have future
+                Lestim. This restriction is present to make it possible to have future
                 optimizations to the random sampling, and is enforced by introducing
                 intentional differences in the seeding strategy from version to version.
 
@@ -7269,10 +7225,10 @@ class FlipSimulator:
             The copy of the simulator.
 
         Examples:
-            >>> import stim
+            >>> import lestim
             >>> import numpy as np
 
-            >>> s1 = stim.FlipSimulator(batch_size=256)
+            >>> s1 = lestim.FlipSimulator(batch_size=256)
             >>> s1.set_pauli_flip('X', qubit_index=2, instance_index=3)
             >>> s2 = s1.copy()
             >>> s2 is s1
@@ -7280,10 +7236,10 @@ class FlipSimulator:
             >>> s2.peek_pauli_flips() == s1.peek_pauli_flips()
             True
 
-            >>> s1 = stim.FlipSimulator(batch_size=256)
+            >>> s1 = lestim.FlipSimulator(batch_size=256)
             >>> s2 = s1.copy(copy_rng=True)
-            >>> s1.do(stim.Circuit("X_ERROR(0.25) 0 \n M 0"))
-            >>> s2.do(stim.Circuit("X_ERROR(0.25) 0 \n M 0"))
+            >>> s1.do(lestim.Circuit("X_ERROR(0.25) 0 \n M 0"))
+            >>> s2.do(lestim.Circuit("X_ERROR(0.25) 0 \n M 0"))
             >>> np.array_equal(s1.get_measurement_flips(), s2.get_measurement_flips())
             True
         """
@@ -7367,8 +7323,8 @@ class FlipSimulator:
                 requested data.
 
         Examples:
-            >>> import stim
-            >>> sim = stim.FlipSimulator(batch_size=256)
+            >>> import lestim
+            >>> sim = lestim.FlipSimulator(batch_size=256)
             >>> r = sim.generate_bernoulli_samples(1001, p=0.25)
             >>> r.dtype
             dtype('bool')
@@ -7867,10 +7823,10 @@ class FlipSimulator:
                 had a shape or dtype inconsistent with the requested data.
 
         Examples:
-            >>> import stim
+            >>> import lestim
             >>> import numpy as np
-            >>> sim = stim.FlipSimulator(batch_size=9)
-            >>> sim.do(stim.Circuit('M(1) 0 1 2'))
+            >>> sim = lestim.FlipSimulator(batch_size=9)
+            >>> sim.do(lestim.Circuit('M(1) 0 1 2'))
 
             >>> ms_buf = np.empty(shape=(9, 1), dtype=np.uint8)
             >>> xs, zs, ms, ds, os = sim.to_numpy(
@@ -8134,18 +8090,18 @@ class Flow:
         that observable index.
 
         Examples:
-            >>> import stim
-            >>> f = stim.Flow(included_observables=[3, 2])
+            >>> import lestim
+            >>> f = lestim.Flow(included_observables=[3, 2])
             >>> f.included_observables_copy()
             [2, 3]
 
             >>> f.included_observables_copy() is f.included_observables_copy()
             False
 
-            >>> f = stim.Flow("X2 -> obs[3]")
+            >>> f = lestim.Flow("X2 -> obs[3]")
             >>> f.included_observables_copy()
             [3]
-            >>> stim.Circuit("OBSERVABLE_INCLUDE(3) X2").has_flow(f)
+            >>> lestim.Circuit("OBSERVABLE_INCLUDE(3) X2").has_flow(f)
             True
         """
     def input_copy(
@@ -9183,10 +9139,10 @@ class GateTargetWithCoords:
     what is happening.
 
     Examples:
-        >>> import stim
-        >>> t = stim.GateTargetWithCoords(0, [1.5, 2.0])
+        >>> import lestim
+        >>> t = lestim.GateTargetWithCoords(0, [1.5, 2.0])
         >>> t.gate_target
-        stim.GateTarget(0)
+        lestim.GateTarget(0)
         >>> t.coords
         [1.5, 2.0]
     """
@@ -10735,7 +10691,7 @@ class Tableau:
         """
     @staticmethod
     def from_stabilizers(
-        stabilizers: Iterable[stim.PauliString],
+        stabilizers: Iterable[lestim.PauliString],
         *,
         allow_redundant: bool = False,
         allow_underconstrained: bool = False,
@@ -12070,11 +12026,11 @@ class TableauSimulator:
                 Defaults to None. When None, the prng is seeded from system entropy.
 
                 When set to an integer, making the exact same series calls on the exact
-                same machine with the exact same version of Stim will produce the exact
+                same machine with the exact same version of Lestim will produce the exact
                 same simulation results.
 
                 CAUTION: simulation results *WILL NOT* be consistent between versions of
-                Stim. This restriction is present to make it possible to have future
+                Lestim. This restriction is present to make it possible to have future
                 optimizations to the random sampling, and is enforced by introducing
                 intentional differences in the seeding strategy from version to version.
 
@@ -12705,8 +12661,8 @@ class TableauSimulator:
             The measurement result as a bool.
 
         Examples:
-            >>> import stim
-            >>> s = stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.x(1)
             >>> s.measure(0)
             False
@@ -13359,7 +13315,7 @@ class TableauSimulator:
         """
     def set_state_from_stabilizers(
         self,
-        stabilizers: Iterable[stim.PauliString],
+        stabilizers: Iterable[lestim.PauliString],
         *,
         allow_redundant: bool = False,
         allow_underconstrained: bool = False,
@@ -13764,8 +13720,8 @@ class TableauSimulator:
                 and so forth. There must be an even number of targets.
 
         Examples:
-            >>> import stim
-            >>> s = stim.TableauSimulator()
+            >>> import lestim
+            >>> s = lestim.TableauSimulator()
             >>> s.reset_x(0, 3)
             >>> s.reset_y(1)
 
@@ -14238,8 +14194,8 @@ def target_combiner(
         ''')
     """
 def target_inv(
-    qubit_index: Union[int, stim.GateTarget],
-) -> stim.GateTarget:
+    qubit_index: Union[int, lestim.GateTarget],
+) -> lestim.GateTarget:
     """Returns a target flagged as inverted.
 
     Inverted targets are used to indicate measurement results should be flipped.
@@ -14504,6 +14460,7 @@ def write_shot_data_file(
                     (num_measurements + num_detectors + num_observables) / 8)).
         path: The path to the file to write the data to.
         format: The format that the data is stored in, such as 'b8'.
+            See https://github.com/quantumlib/Stim/blob/main/doc/result_formats.md
         num_measurements: How many measurements there are per shot.
         num_detectors: How many detectors there are per shot.
         num_observables: How many observables there are per shot.

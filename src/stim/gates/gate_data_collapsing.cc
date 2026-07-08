@@ -514,6 +514,28 @@ This gate is only meaningful if the circuit contains `LEAKAGE` and `RELAX` chann
 typically be paired with a measurement gate to reflect the way in which certain platforms can
 herald leakage during measurement.
 
+Defining leakage heralds on a qubit also means conditional error mechanisms are output in the DEM.
+For example, consider the following circuit:
+
+    LEAKAGE(0.1) 1
+    HERALD_LEAKAGE_EVENT 1
+    MZ 1
+    DETECTOR rec[-2]
+    DETECTOR rec[-1]
+
+The Z basis measurement of qubit 1 is sensitive to leakage. If leakage occurs the measurement result is random.
+That is, if the first detector is triggered (i.e. we have heralded leakage) the second detector will be triggered
+with 50% probability. This is reflected with the following DEM output:
+
+error(0.5) D0 ^ D1
+
+This statement should be read as "if D0 is on, then D1 is on with 50% probability" so interpreting this conditional DEM relies on
+knowledge of which detectors are heralding detectors and which are not.
+
+Crucially, for correct output to the DEM, the heralding gate must be placed *before* the measurement gate it should correspond to.
+This ensures the correct detectors are in scope during the DEM transform. Herald gates can also be placed freely during a circuit
+if the intention is that they should occur in a way that is fully detached from the measurement cadence itself.
+
 Parens Arguments:
 
     If no parens arguments are given, the heralding readout has no heralding noise.
@@ -546,6 +568,13 @@ Examples:
     # To populate a syndrome with the heralding bit during detector sampling use a DETECTOR annotation
     # that refers back to this channel
     HERALD_LEAKAGE_EVENT 0
+    DETECTOR rec[-1]
+
+    # To output heralded error mechanisms in the DEM, preceed a measurement gate with the heralding statement
+    # and define detectors on both.
+    HERALD_LEAKAGE_EVENT 0
+    MZ 0
+    DETECTOR rec[-2]
     DETECTOR rec[-1]
 
 )MARKDOWN",

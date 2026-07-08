@@ -1,4 +1,4 @@
-# Lestim (Development Version) API Reference
+# LeStim (Development Version) API Reference
 
 *CAUTION*: this API reference is for the in-development version of lestim.
 Methods and arguments mentioned here may not be accessible in stable versions, yet.
@@ -18,7 +18,7 @@ Methods and arguments mentioned here may not be accessible in stable versions, y
     - [`lestim.Circuit.__rmul__`](#lestim.Circuit.__rmul__)
     - [`lestim.Circuit.__str__`](#lestim.Circuit.__str__)
     - [`lestim.Circuit.append`](#lestim.Circuit.append)
-    - [`lestim.Circuit.append_from_stim_program_text`](#lestim.Circuit.append_from_stim_program_text)
+    - [`lestim.Circuit.append_from_lestim_program_text`](#lestim.Circuit.append_from_stim_program_text)
     - [`lestim.Circuit.approx_equals`](#lestim.Circuit.approx_equals)
     - [`lestim.Circuit.clear`](#lestim.Circuit.clear)
     - [`lestim.Circuit.compile_detector_sampler`](#lestim.Circuit.compile_detector_sampler)
@@ -32,24 +32,30 @@ Methods and arguments mentioned here may not be accessible in stable versions, y
     - [`lestim.Circuit.diagram`](#lestim.Circuit.diagram)
     - [`lestim.Circuit.explain_detector_error_model_errors`](#lestim.Circuit.explain_detector_error_model_errors)
     - [`lestim.Circuit.flattened`](#lestim.Circuit.flattened)
+    - [`lestim.Circuit.flow_generators`](#lestim.Circuit.flow_generators)
     - [`lestim.Circuit.from_file`](#lestim.Circuit.from_file)
     - [`lestim.Circuit.generated`](#lestim.Circuit.generated)
     - [`lestim.Circuit.get_detector_coordinates`](#lestim.Circuit.get_detector_coordinates)
     - [`lestim.Circuit.get_final_qubit_coordinates`](#lestim.Circuit.get_final_qubit_coordinates)
     - [`lestim.Circuit.has_all_flows`](#lestim.Circuit.has_all_flows)
     - [`lestim.Circuit.has_flow`](#lestim.Circuit.has_flow)
+    - [`lestim.Circuit.insert`](#lestim.Circuit.insert)
     - [`lestim.Circuit.inverse`](#lestim.Circuit.inverse)
     - [`lestim.Circuit.likeliest_error_sat_problem`](#lestim.Circuit.likeliest_error_sat_problem)
+    - [`lestim.Circuit.missing_detectors`](#lestim.Circuit.missing_detectors)
     - [`lestim.Circuit.num_detectors`](#lestim.Circuit.num_detectors)
     - [`lestim.Circuit.num_measurements`](#lestim.Circuit.num_measurements)
     - [`lestim.Circuit.num_observables`](#lestim.Circuit.num_observables)
     - [`lestim.Circuit.num_qubits`](#lestim.Circuit.num_qubits)
     - [`lestim.Circuit.num_sweep_bits`](#lestim.Circuit.num_sweep_bits)
     - [`lestim.Circuit.num_ticks`](#lestim.Circuit.num_ticks)
+    - [`lestim.Circuit.pop`](#lestim.Circuit.pop)
+    - [`lestim.Circuit.reference_detector_and_observable_signs`](#lestim.Circuit.reference_detector_and_observable_signs)
     - [`lestim.Circuit.reference_sample`](#lestim.Circuit.reference_sample)
     - [`lestim.Circuit.search_for_undetectable_logical_errors`](#lestim.Circuit.search_for_undetectable_logical_errors)
     - [`lestim.Circuit.shortest_error_sat_problem`](#lestim.Circuit.shortest_error_sat_problem)
     - [`lestim.Circuit.shortest_graphlike_error`](#lestim.Circuit.shortest_graphlike_error)
+    - [`lestim.Circuit.solve_flow_measurements`](#lestim.Circuit.solve_flow_measurements)
     - [`lestim.Circuit.time_reversed_for_flows`](#lestim.Circuit.time_reversed_for_flows)
     - [`lestim.Circuit.to_crumble_url`](#lestim.Circuit.to_crumble_url)
     - [`lestim.Circuit.to_file`](#lestim.Circuit.to_file)
@@ -58,11 +64,13 @@ Methods and arguments mentioned here may not be accessible in stable versions, y
     - [`lestim.Circuit.to_tableau`](#lestim.Circuit.to_tableau)
     - [`lestim.Circuit.with_inlined_feedback`](#lestim.Circuit.with_inlined_feedback)
     - [`lestim.Circuit.without_noise`](#lestim.Circuit.without_noise)
+    - [`lestim.Circuit.without_tags`](#lestim.Circuit.without_tags)
 - [`lestim.CircuitErrorLocation`](#lestim.CircuitErrorLocation)
     - [`lestim.CircuitErrorLocation.__init__`](#lestim.CircuitErrorLocation.__init__)
     - [`lestim.CircuitErrorLocation.flipped_measurement`](#lestim.CircuitErrorLocation.flipped_measurement)
     - [`lestim.CircuitErrorLocation.flipped_pauli_product`](#lestim.CircuitErrorLocation.flipped_pauli_product)
     - [`lestim.CircuitErrorLocation.instruction_targets`](#lestim.CircuitErrorLocation.instruction_targets)
+    - [`lestim.CircuitErrorLocation.noise_tag`](#lestim.CircuitErrorLocation.noise_tag)
     - [`lestim.CircuitErrorLocation.stack_frames`](#lestim.CircuitErrorLocation.stack_frames)
     - [`lestim.CircuitErrorLocation.tick_offset`](#lestim.CircuitErrorLocation.tick_offset)
 - [`lestim.CircuitErrorLocationStackFrame`](#lestim.CircuitErrorLocationStackFrame)
@@ -78,6 +86,9 @@ Methods and arguments mentioned here may not be accessible in stable versions, y
     - [`lestim.CircuitInstruction.__str__`](#lestim.CircuitInstruction.__str__)
     - [`lestim.CircuitInstruction.gate_args_copy`](#lestim.CircuitInstruction.gate_args_copy)
     - [`lestim.CircuitInstruction.name`](#lestim.CircuitInstruction.name)
+    - [`lestim.CircuitInstruction.num_measurements`](#lestim.CircuitInstruction.num_measurements)
+    - [`lestim.CircuitInstruction.tag`](#lestim.CircuitInstruction.tag)
+    - [`lestim.CircuitInstruction.target_groups`](#lestim.CircuitInstruction.target_groups)
     - [`lestim.CircuitInstruction.targets_copy`](#lestim.CircuitInstruction.targets_copy)
 - [`lestim.CircuitRepeatBlock`](#lestim.CircuitRepeatBlock)
     - [`lestim.CircuitRepeatBlock.__eq__`](#lestim.CircuitRepeatBlock.__eq__)
@@ -86,14 +97,39 @@ Methods and arguments mentioned here may not be accessible in stable versions, y
     - [`lestim.CircuitRepeatBlock.__repr__`](#lestim.CircuitRepeatBlock.__repr__)
     - [`lestim.CircuitRepeatBlock.body_copy`](#lestim.CircuitRepeatBlock.body_copy)
     - [`lestim.CircuitRepeatBlock.name`](#lestim.CircuitRepeatBlock.name)
+    - [`lestim.CircuitRepeatBlock.num_measurements`](#lestim.CircuitRepeatBlock.num_measurements)
     - [`lestim.CircuitRepeatBlock.repeat_count`](#lestim.CircuitRepeatBlock.repeat_count)
+    - [`lestim.CircuitRepeatBlock.tag`](#lestim.CircuitRepeatBlock.tag)
 - [`lestim.CircuitTargetsInsideInstruction`](#lestim.CircuitTargetsInsideInstruction)
     - [`lestim.CircuitTargetsInsideInstruction.__init__`](#lestim.CircuitTargetsInsideInstruction.__init__)
     - [`lestim.CircuitTargetsInsideInstruction.args`](#lestim.CircuitTargetsInsideInstruction.args)
     - [`lestim.CircuitTargetsInsideInstruction.gate`](#lestim.CircuitTargetsInsideInstruction.gate)
+    - [`lestim.CircuitTargetsInsideInstruction.tag`](#lestim.CircuitTargetsInsideInstruction.tag)
     - [`lestim.CircuitTargetsInsideInstruction.target_range_end`](#lestim.CircuitTargetsInsideInstruction.target_range_end)
     - [`lestim.CircuitTargetsInsideInstruction.target_range_start`](#lestim.CircuitTargetsInsideInstruction.target_range_start)
     - [`lestim.CircuitTargetsInsideInstruction.targets_in_range`](#lestim.CircuitTargetsInsideInstruction.targets_in_range)
+- [`lestim.CliffordString`](#lestim.CliffordString)
+    - [`lestim.CliffordString.__add__`](#lestim.CliffordString.__add__)
+    - [`lestim.CliffordString.__eq__`](#lestim.CliffordString.__eq__)
+    - [`lestim.CliffordString.__getitem__`](#lestim.CliffordString.__getitem__)
+    - [`lestim.CliffordString.__iadd__`](#lestim.CliffordString.__iadd__)
+    - [`lestim.CliffordString.__imul__`](#lestim.CliffordString.__imul__)
+    - [`lestim.CliffordString.__init__`](#lestim.CliffordString.__init__)
+    - [`lestim.CliffordString.__ipow__`](#lestim.CliffordString.__ipow__)
+    - [`lestim.CliffordString.__len__`](#lestim.CliffordString.__len__)
+    - [`lestim.CliffordString.__mul__`](#lestim.CliffordString.__mul__)
+    - [`lestim.CliffordString.__ne__`](#lestim.CliffordString.__ne__)
+    - [`lestim.CliffordString.__pow__`](#lestim.CliffordString.__pow__)
+    - [`lestim.CliffordString.__repr__`](#lestim.CliffordString.__repr__)
+    - [`lestim.CliffordString.__rmul__`](#lestim.CliffordString.__rmul__)
+    - [`lestim.CliffordString.__setitem__`](#lestim.CliffordString.__setitem__)
+    - [`lestim.CliffordString.__str__`](#lestim.CliffordString.__str__)
+    - [`lestim.CliffordString.all_cliffords_string`](#lestim.CliffordString.all_cliffords_string)
+    - [`lestim.CliffordString.copy`](#lestim.CliffordString.copy)
+    - [`lestim.CliffordString.random`](#lestim.CliffordString.random)
+    - [`lestim.CliffordString.x_outputs`](#lestim.CliffordString.x_outputs)
+    - [`lestim.CliffordString.y_outputs`](#lestim.CliffordString.y_outputs)
+    - [`lestim.CliffordString.z_outputs`](#lestim.CliffordString.z_outputs)
 - [`lestim.CompiledDemSampler`](#lestim.CompiledDemSampler)
     - [`lestim.CompiledDemSampler.sample`](#lestim.CompiledDemSampler.sample)
     - [`lestim.CompiledDemSampler.sample_write`](#lestim.CompiledDemSampler.sample_write)
@@ -119,6 +155,8 @@ Methods and arguments mentioned here may not be accessible in stable versions, y
     - [`lestim.DemInstruction.__repr__`](#lestim.DemInstruction.__repr__)
     - [`lestim.DemInstruction.__str__`](#lestim.DemInstruction.__str__)
     - [`lestim.DemInstruction.args_copy`](#lestim.DemInstruction.args_copy)
+    - [`lestim.DemInstruction.tag`](#lestim.DemInstruction.tag)
+    - [`lestim.DemInstruction.target_groups`](#lestim.DemInstruction.target_groups)
     - [`lestim.DemInstruction.targets_copy`](#lestim.DemInstruction.targets_copy)
     - [`lestim.DemInstruction.type`](#lestim.DemInstruction.type)
 - [`lestim.DemRepeatBlock`](#lestim.DemRepeatBlock)
@@ -131,6 +169,7 @@ Methods and arguments mentioned here may not be accessible in stable versions, y
     - [`lestim.DemRepeatBlock.type`](#lestim.DemRepeatBlock.type)
 - [`lestim.DemTarget`](#lestim.DemTarget)
     - [`lestim.DemTarget.__eq__`](#lestim.DemTarget.__eq__)
+    - [`lestim.DemTarget.__init__`](#lestim.DemTarget.__init__)
     - [`lestim.DemTarget.__ne__`](#lestim.DemTarget.__ne__)
     - [`lestim.DemTarget.__repr__`](#lestim.DemTarget.__repr__)
     - [`lestim.DemTarget.__str__`](#lestim.DemTarget.__str__)
@@ -173,15 +212,20 @@ Methods and arguments mentioned here may not be accessible in stable versions, y
     - [`lestim.DetectorErrorModel.rounded`](#lestim.DetectorErrorModel.rounded)
     - [`lestim.DetectorErrorModel.shortest_graphlike_error`](#lestim.DetectorErrorModel.shortest_graphlike_error)
     - [`lestim.DetectorErrorModel.to_file`](#lestim.DetectorErrorModel.to_file)
+    - [`lestim.DetectorErrorModel.without_tags`](#lestim.DetectorErrorModel.without_tags)
 - [`lestim.ExplainedError`](#lestim.ExplainedError)
     - [`lestim.ExplainedError.__init__`](#lestim.ExplainedError.__init__)
     - [`lestim.ExplainedError.circuit_error_locations`](#lestim.ExplainedError.circuit_error_locations)
     - [`lestim.ExplainedError.dem_error_terms`](#lestim.ExplainedError.dem_error_terms)
 - [`lestim.FlipSimulator`](#lestim.FlipSimulator)
     - [`lestim.FlipSimulator.__init__`](#lestim.FlipSimulator.__init__)
+    - [`lestim.FlipSimulator.append_measurement_flips`](#lestim.FlipSimulator.append_measurement_flips)
     - [`lestim.FlipSimulator.batch_size`](#lestim.FlipSimulator.batch_size)
     - [`lestim.FlipSimulator.broadcast_pauli_errors`](#lestim.FlipSimulator.broadcast_pauli_errors)
+    - [`lestim.FlipSimulator.clear`](#lestim.FlipSimulator.clear)
+    - [`lestim.FlipSimulator.copy`](#lestim.FlipSimulator.copy)
     - [`lestim.FlipSimulator.do`](#lestim.FlipSimulator.do)
+    - [`lestim.FlipSimulator.generate_bernoulli_samples`](#lestim.FlipSimulator.generate_bernoulli_samples)
     - [`lestim.FlipSimulator.get_detector_flips`](#lestim.FlipSimulator.get_detector_flips)
     - [`lestim.FlipSimulator.get_measurement_flips`](#lestim.FlipSimulator.get_measurement_flips)
     - [`lestim.FlipSimulator.get_observable_flips`](#lestim.FlipSimulator.get_observable_flips)
@@ -191,6 +235,7 @@ Methods and arguments mentioned here may not be accessible in stable versions, y
     - [`lestim.FlipSimulator.num_qubits`](#lestim.FlipSimulator.num_qubits)
     - [`lestim.FlipSimulator.peek_pauli_flips`](#lestim.FlipSimulator.peek_pauli_flips)
     - [`lestim.FlipSimulator.set_pauli_flip`](#lestim.FlipSimulator.set_pauli_flip)
+    - [`lestim.FlipSimulator.to_numpy`](#lestim.FlipSimulator.to_numpy)
 - [`lestim.FlippedMeasurement`](#lestim.FlippedMeasurement)
     - [`lestim.FlippedMeasurement.__init__`](#lestim.FlippedMeasurement.__init__)
     - [`lestim.FlippedMeasurement.observable`](#lestim.FlippedMeasurement.observable)
@@ -198,9 +243,11 @@ Methods and arguments mentioned here may not be accessible in stable versions, y
 - [`lestim.Flow`](#lestim.Flow)
     - [`lestim.Flow.__eq__`](#lestim.Flow.__eq__)
     - [`lestim.Flow.__init__`](#lestim.Flow.__init__)
+    - [`lestim.Flow.__mul__`](#lestim.Flow.__mul__)
     - [`lestim.Flow.__ne__`](#lestim.Flow.__ne__)
     - [`lestim.Flow.__repr__`](#lestim.Flow.__repr__)
     - [`lestim.Flow.__str__`](#lestim.Flow.__str__)
+    - [`lestim.Flow.included_observables_copy`](#lestim.Flow.included_observables_copy)
     - [`lestim.Flow.input_copy`](#lestim.Flow.input_copy)
     - [`lestim.Flow.measurements_copy`](#lestim.Flow.measurements_copy)
     - [`lestim.Flow.output_copy`](#lestim.Flow.output_copy)
@@ -213,10 +260,12 @@ Methods and arguments mentioned here may not be accessible in stable versions, y
     - [`lestim.GateData.aliases`](#lestim.GateData.aliases)
     - [`lestim.GateData.flows`](#lestim.GateData.flows)
     - [`lestim.GateData.generalized_inverse`](#lestim.GateData.generalized_inverse)
+    - [`lestim.GateData.hadamard_conjugated`](#lestim.GateData.hadamard_conjugated)
     - [`lestim.GateData.inverse`](#lestim.GateData.inverse)
     - [`lestim.GateData.is_noisy_gate`](#lestim.GateData.is_noisy_gate)
     - [`lestim.GateData.is_reset`](#lestim.GateData.is_reset)
     - [`lestim.GateData.is_single_qubit_gate`](#lestim.GateData.is_single_qubit_gate)
+    - [`lestim.GateData.is_symmetric_gate`](#lestim.GateData.is_symmetric_gate)
     - [`lestim.GateData.is_two_qubit_gate`](#lestim.GateData.is_two_qubit_gate)
     - [`lestim.GateData.is_unitary`](#lestim.GateData.is_unitary)
     - [`lestim.GateData.name`](#lestim.GateData.name)
@@ -472,8 +521,8 @@ class Circuit:
 # (in class lestim.Circuit)
 def __add__(
     self,
-    second: lestim._stim_polyfill.Circuit,
-) -> lestim._stim_polyfill.Circuit:
+    second: lestim.Circuit,
+) -> lestim.Circuit:
     """Creates a circuit by appending two circuits.
 
     Examples:
@@ -501,7 +550,7 @@ def __add__(
 # (in class lestim.Circuit)
 def __eq__(
     self,
-    arg0: lestim._stim_polyfill.Circuit,
+    arg0: lestim.Circuit,
 ) -> bool:
     """Determines if two circuits have identical contents.
     """
@@ -516,13 +565,13 @@ def __eq__(
 def __getitem__(
     self,
     index_or_slice: int,
-) -> Union[stim.CircuitInstruction, stim.CircuitRepeatBlock]:
+) -> Union[lestim.CircuitInstruction, lestim.CircuitRepeatBlock]:
     pass
 @overload
 def __getitem__(
     self,
     index_or_slice: slice,
-) -> stim.Circuit:
+) -> lestim.Circuit:
     pass
 def __getitem__(
     self,
@@ -575,8 +624,8 @@ def __getitem__(
 # (in class lestim.Circuit)
 def __iadd__(
     self,
-    second: lestim._stim_polyfill.Circuit,
-) -> lestim._stim_polyfill.Circuit:
+    second: lestim.Circuit,
+) -> lestim.Circuit:
     """Appends a circuit into the receiving circuit (mutating it).
 
     Examples:
@@ -606,7 +655,7 @@ def __iadd__(
 def __imul__(
     self,
     repetitions: int,
-) -> lestim._stim_polyfill.Circuit:
+) -> lestim.Circuit:
     """Mutates the circuit by putting its contents into a REPEAT block.
 
     Special case: if the repetition count is 0, the circuit is cleared.
@@ -700,7 +749,7 @@ def __len__(
 def __mul__(
     self,
     repetitions: int,
-) -> lestim._stim_polyfill.Circuit:
+) -> lestim.Circuit:
     """Repeats the circuit using a REPEAT block.
 
     Has special cases for 0 repetitions and 1 repetitions.
@@ -737,7 +786,7 @@ def __mul__(
 # (in class lestim.Circuit)
 def __ne__(
     self,
-    arg0: lestim._stim_polyfill.Circuit,
+    arg0: lestim.Circuit,
 ) -> bool:
     """Determines if two circuits have non-identical contents.
     """
@@ -763,7 +812,7 @@ def __repr__(
 def __rmul__(
     self,
     repetitions: int,
-) -> lestim._stim_polyfill.Circuit:
+) -> lestim.Circuit:
     """Repeats the circuit using a REPEAT block.
 
     Has special cases for 0 repetitions and 1 repetitions.
@@ -814,14 +863,16 @@ def __str__(
 def append(
     self,
     name: str,
-    targets: Union[int, stim.GateTarget, Iterable[Union[int, stim.GateTarget]]],
-    arg: Union[float, Iterable[float]],
+    targets: Union[int, lestim.GateTarget, lestim.PauliString, Iterable[Union[int, lestim.GateTarget, lestim.PauliString]]],
+    arg: Union[float, Iterable[float], None] = None,
+    *,
+    tag: str = "",
 ) -> None:
     pass
 @overload
 def append(
     self,
-    name: Union[stim.CircuitOperation, stim.CircuitRepeatBlock],
+    name: Union[lestim.CircuitInstruction, lestim.CircuitRepeatBlock, lestim.Circuit],
 ) -> None:
     pass
 def append(
@@ -829,29 +880,12 @@ def append(
     name: object,
     targets: object = (),
     arg: object = None,
+    *,
+    tag: str = '',
 ) -> None:
     """Appends an operation into the circuit.
 
     Note: `lestim.Circuit.append_operation` is an alias of `lestim.Circuit.append`.
-
-    Examples:
-        >>> import lestim
-        >>> c = lestim.Circuit()
-        >>> c.append("X", 0)
-        >>> c.append("H", [0, 1])
-        >>> c.append("M", [0, lestim.target_inv(1)])
-        >>> c.append("CNOT", [lestim.target_rec(-1), 0])
-        >>> c.append("X_ERROR", [0], 0.125)
-        >>> c.append("CORRELATED_ERROR", [lestim.target_x(0), lestim.target_y(2)], 0.25)
-        >>> print(repr(c))
-        lestim.Circuit('''
-            X 0
-            H 0 1
-            M 0 !1
-            CX rec[-1] 0
-            X_ERROR(0.125) 0
-            E(0.25) X0 Y2
-        ''')
 
     Args:
         name: The name of the operation's gate (e.g. "H" or "M" or "CNOT").
@@ -864,11 +898,15 @@ def append(
             (The argument being called `name` is no longer quite right, but
             is being kept for backwards compatibility.)
         targets: The objects operated on by the gate. This can be either a
-            single target or an iterable of multiple targets to broadcast the
-            gate over. Each target can be an integer (a qubit), a
-            lestim.GateTarget, or a special target from one of the `lestim.target_*`
-            methods (such as a measurement record target like `rec[-1]` from
-            `lestim.target_rec(-1)`).
+            single target or an iterable of multiple targets.
+
+            Each target can be:
+                An int: The index of a targeted qubit.
+                A `lestim.GateTarget`: Could be a variety of things. Methods like
+                    `lestim.target_rec`, `lestim.target_sweet`, `lestim.target_x`, and
+                    `lestim.CircuitInstruction.__getitem__` all return this type.
+                A `lestim.PauliString`: This will automatically be expanded into
+                    a product of pauli targets like `X1*Y2*Z3`.
         arg: The "parens arguments" for the gate, such as the probability for a
             noise operation. A double or list of doubles parameterizing the
             gate. Different gates take different parens arguments. For example,
@@ -879,6 +917,28 @@ def append(
             compatibility reasons, `cirq.append_operation` (but not
             `cirq.append`) will default to a single 0.0 argument for gates that
             take exactly one argument.
+        tag: A customizable string attached to the instruction.
+
+    Examples:
+        >>> import lestim
+        >>> c = lestim.Circuit()
+        >>> c.append("X", 0)
+        >>> c.append("H", [0, 1])
+        >>> c.append("M", [0, lestim.target_inv(1)])
+        >>> c.append("CNOT", [lestim.target_rec(-1), 0])
+        >>> c.append("X_ERROR", [0], 0.125)
+        >>> c.append("CORRELATED_ERROR", [lestim.target_x(0), lestim.target_y(2)], 0.25)
+        >>> c.append("MPP", [lestim.PauliString("X1*Y2"), lestim.GateTarget("Z3")])
+        >>> print(repr(c))
+        lestim.Circuit('''
+            X 0
+            H 0 1
+            M 0 !1
+            CX rec[-1] 0
+            X_ERROR(0.125) 0
+            E(0.25) X0 Y2
+            MPP X1*Y2 Z3
+        ''')
     """
 ```
 
@@ -896,7 +956,7 @@ def append_from_stim_program_text(
     Examples:
         >>> import lestim
         >>> c = lestim.Circuit()
-        >>> c.append_from_lestim_program_text('''
+        >>> c.append_from_stim_program_text('''
         ...    H 0  # comment
         ...    CNOT 0 2
         ...
@@ -1010,7 +1070,7 @@ def compile_detector_sampler(
     self,
     *,
     seed: object = None,
-) -> lestim._stim_polyfill.CompiledDetectorSampler:
+) -> lestim.CompiledDetectorSampler:
     """Returns an object that can batch sample detection events from the circuit.
 
     Args:
@@ -1062,8 +1122,11 @@ def compile_m2d_converter(
     self,
     *,
     skip_reference_sample: bool = False,
-) -> lestim._stim_polyfill.CompiledMeasurementsToDetectionEventsConverter:
+) -> lestim.CompiledMeasurementsToDetectionEventsConverter:
     """Creates a measurement-to-detection-event converter for the given circuit.
+
+    The converter can efficiently compute detection events and observable flips
+    from raw measurement data.
 
     The converter uses a noiseless reference sample, collected from the circuit
     using lestim's Tableau simulator during initialization of the converter, as a
@@ -1112,7 +1175,7 @@ def compile_sampler(
     skip_reference_sample: bool = False,
     seed: Optional[int] = None,
     reference_sample: Optional[np.ndarray] = None,
-) -> stim.CompiledMeasurementSampler:
+) -> lestim.CompiledMeasurementSampler:
     """Returns an object that can quickly batch sample measurements from the circuit.
 
     Args:
@@ -1187,7 +1250,7 @@ def compile_sampler(
 # (in class lestim.Circuit)
 def copy(
     self,
-) -> lestim._stim_polyfill.Circuit:
+) -> lestim.Circuit:
     """Returns a copy of the circuit. An independent circuit with the same contents.
 
     Examples:
@@ -1209,6 +1272,8 @@ def copy(
 # (in class lestim.Circuit)
 def count_determined_measurements(
     self,
+    *,
+    unknown_input: bool = False,
 ) -> int:
     """Counts the number of predictable measurements in the circuit.
 
@@ -1240,6 +1305,13 @@ def count_determined_measurements(
     the Z basis. Typically this relationship is not declared as a detector, because
     it's not local, or as an observable, because it doesn't store a qubit.
 
+    Args:
+        unknown_input: Defaults to False (inputs assumed to be in the |0> state).
+            When set to True, the inputs are instead treated as being in unknown
+            random states. For example, this means that Z-basis measurements at
+            the very beginning of the circuit will be considered random rather
+            than determined.
+
     Returns:
         The number of measurements that were predictable.
 
@@ -1258,6 +1330,24 @@ def count_determined_measurements(
         ...     M 0
         ... ''').count_determined_measurements()
         0
+
+        >>> lestim.Circuit('''
+        ...     M 0
+        ... ''').count_determined_measurements()
+        1
+
+        >>> lestim.Circuit('''
+        ...     M 0
+        ... ''').count_determined_measurements(unknown_input=True)
+        0
+
+        >>> lestim.Circuit('''
+        ...     M 0
+        ...     M 0 1
+        ...     M 0 1 2
+        ...     M 0 1 2 3
+        ... ''').count_determined_measurements(unknown_input=True)
+        6
 
         >>> lestim.Circuit('''
         ...     R 0 1
@@ -1286,7 +1376,7 @@ def count_determined_measurements(
 # (in class lestim.Circuit)
 def decomposed(
     self,
-) -> lestim._stim_polyfill.Circuit:
+) -> lestim.Circuit:
     """Recreates the circuit using (mostly) the {H,S,CX,M,R} gate set.
 
     The intent of this method is to simplify the circuit to use fewer gate types,
@@ -1359,9 +1449,9 @@ def decomposed(
 def detecting_regions(
     self,
     *,
-    targets: Optional[Iterable[stim.DemTarget | str | Iterable[float]]] = None,
+    targets: Optional[Iterable[lestim.DemTarget | str | Iterable[float]]] = None,
     ticks: Optional[Iterable[int]] = None,
-) -> Dict[stim.DemTarget, Dict[int, stim.PauliString]]:
+) -> Dict[lestim.DemTarget, Dict[int, lestim.PauliString]]:
     """Records where detectors and observables are sensitive to errors over time.
 
     The result of this method is a nested dictionary, mapping detectors/observables
@@ -1500,7 +1590,7 @@ def detector_error_model(
     approximate_disjoint_errors: float = False,
     ignore_decomposition_failures: bool = False,
     block_decomposition_from_introducing_remnant_edges: bool = False,
-) -> lestim._stim_polyfill.DetectorErrorModel:
+) -> lestim.DetectorErrorModel:
     """Returns a lestim.DetectorErrorModel describing the error processes in the circuit.
 
     Args:
@@ -1595,11 +1685,12 @@ def detector_error_model(
 # (in class lestim.Circuit)
 def diagram(
     self,
-    type: str = 'timeline-text',
+    type: Literal["timeline-text", "timeline-svg", "timeline-svg-html", "timeline-3d", "timeline-3d-html", "detslice-text", "detslice-svg", "detslice-svg-html", "matchgraph-svg", "matchgraph-svg-html", "matchgraph-3d", "matchgraph-3d-html", "timeslice-svg", "timeslice-svg-html", "detslice-with-ops-svg", "detslice-with-ops-svg-html", "interactive", "interactive-html"] = 'timeline-text',
     *,
     tick: Union[None, int, range] = None,
-    filter_coords: Iterable[Union[Iterable[float], stim.DemTarget]] = ((),),
-) -> 'stim._DiagramHelper':
+    filter_coords: Iterable[Union[Iterable[float], lestim.DemTarget]] = ((),),
+    rows: int | None = None,
+) -> 'lestim._DiagramHelper':
     """Returns a diagram of the circuit, from a variety of options.
 
     Args:
@@ -1673,11 +1764,19 @@ def diagram(
 
             Passing `range(A, B)` for a time slice will show the
             operations between tick A and tick B.
-        filter_coords: A set of acceptable coordinate prefixes, or
-            desired lestim.DemTargets. For detector slice diagrams, only
-            detectors match one of the filters are included. If no filter
-            is specified, all detectors are included (but no observables).
-            To include an observable, add it as one of the filters.
+        rows: In diagrams that have multiple separate pieces, such as timeslice
+            diagrams and detslice diagrams, this controls how many rows of
+            pieces there will be. If not specified, a number of rows that creates
+            a roughly square layout will be chosen.
+        filter_coords: A list of things to include in the diagram. Different
+            effects depending on the diagram.
+
+            For detslice diagrams, the filter defaults to showing all detectors
+            and no observables. When specified, each list entry can be a collection
+            of floats (detectors whose coordinates start with the same numbers will
+            be included), a lestim.DemTarget (specifying a detector or observable
+            to include), a string like "D5" or "L0" specifying a detector or
+            observable to include.
 
     Returns:
         An object whose `__str__` method returns the diagram, so that
@@ -1725,7 +1824,7 @@ def explain_detector_error_model_errors(
     *,
     dem_filter: object = None,
     reduce_to_one_representative_error: bool = False,
-) -> List[lestim._stim_polyfill.ExplainedError]:
+) -> List[lestim.ExplainedError]:
     """Explains how detector error model errors are produced by circuit errors.
 
     Args:
@@ -1785,7 +1884,7 @@ def explain_detector_error_model_errors(
 # (in class lestim.Circuit)
 def flattened(
     self,
-) -> lestim._stim_polyfill.Circuit:
+) -> lestim.Circuit:
     """Creates an equivalent circuit without REPEAT or SHIFT_COORDS.
 
     Returns:
@@ -1823,6 +1922,64 @@ def flattened(
     """
 ```
 
+<a name="lestim.Circuit.flow_generators"></a>
+```python
+# lestim.Circuit.flow_generators
+
+# (in class lestim.Circuit)
+def flow_generators(
+    self,
+) -> List[lestim.Flow]:
+    """Returns a list of flows that generate all of the circuit's flows.
+
+    Every stabilizer flow that the circuit implements is a product of some
+    subset of the returned generators. Every returned flow will be a flow
+    of the circuit.
+
+    Returns:
+        A list of flow generators for the circuit.
+
+    Examples:
+        >>> import lestim
+
+        >>> lestim.Circuit("H 0").flow_generators()
+        [lestim.Flow("X -> Z"), lestim.Flow("Z -> X")]
+
+        >>> lestim.Circuit("M 0").flow_generators()
+        [lestim.Flow("1 -> Z xor rec[0]"), lestim.Flow("Z -> rec[0]")]
+
+        >>> lestim.Circuit("RX 0").flow_generators()
+        [lestim.Flow("1 -> X")]
+
+        >>> for flow in lestim.Circuit("MXX 0 1").flow_generators():
+        ...     print(flow)
+        1 -> XX xor rec[0]
+        _X -> _X
+        X_ -> _X xor rec[0]
+        ZZ -> ZZ
+
+        >>> for flow in lestim.Circuit.generated(
+        ...     "repetition_code:memory",
+        ...     rounds=2,
+        ...     distance=3,
+        ...     after_clifford_depolarization=1e-3,
+        ... ).flow_generators():
+        ...     print(flow)
+        1 -> rec[0]
+        1 -> rec[1]
+        1 -> rec[2]
+        1 -> rec[3]
+        1 -> rec[4]
+        1 -> rec[5]
+        1 -> rec[6]
+        1 -> ____Z
+        1 -> ___Z_
+        1 -> __Z__
+        1 -> _Z___
+        1 -> Z____
+    """
+```
+
 <a name="lestim.Circuit.from_file"></a>
 ```python
 # lestim.Circuit.from_file
@@ -1831,7 +1988,7 @@ def flattened(
 @staticmethod
 def from_file(
     file: Union[io.TextIOBase, str, pathlib.Path],
-) -> stim.Circuit:
+) -> lestim.Circuit:
     """Reads a lestim circuit from a file.
 
     The file format is defined at
@@ -1862,7 +2019,7 @@ def from_file(
         ...     with open(path, 'w') as f:
         ...         print('CNOT 4 5', file=f)
         ...     with open(path) as f:
-        ...         circuit = lestim.Circuit.from_file(path)
+        ...         circuit = lestim.Circuit.from_file(f)
         >>> circuit
         lestim.Circuit('''
             CX 4 5
@@ -1887,7 +2044,7 @@ def generated(
     after_reset_flip_probability: float = 0.0,
     after_reset_leakage: float = 0.0,
     after_clifford_leakage_and_relaxation: float = 0.0,
-) -> lestim._stim_polyfill.Circuit:
+) -> lestim.Circuit:
     """Generates common circuits.
 
     The generated circuits can include configurable noise.
@@ -2062,7 +2219,7 @@ def get_final_qubit_coordinates(
 # (in class lestim.Circuit)
 def has_all_flows(
     self,
-    flows: Iterable[stim.Flow],
+    flows: Iterable[lestim.Flow],
     *,
     unsigned: bool = False,
 ) -> bool:
@@ -2071,6 +2228,8 @@ def has_all_flows(
     This is a faster version of `all(c.has_flow(f) for f in flows)`. It's faster
     because, behind the scenes, the circuit can be iterated once instead of once
     per flow.
+
+    This method ignores any noise in the circuit.
 
     Args:
         flows: An iterable of `lestim.Flow` instances representing the flows to check.
@@ -2122,7 +2281,7 @@ def has_all_flows(
 # (in class lestim.Circuit)
 def has_flow(
     self,
-    flow: stim.Flow,
+    flow: lestim.Flow,
     *,
     unsigned: bool = False,
 ) -> bool:
@@ -2138,6 +2297,8 @@ def has_flow(
     A flow like 1 -> P means the circuit prepares P.
     A flow like P -> 1 means the circuit measures P.
     A flow like 1 -> 1 means the circuit contains a check (could be a DETECTOR).
+
+    This method ignores any noise in the circuit.
 
     Args:
         flow: The flow to check for.
@@ -2174,6 +2335,14 @@ def has_flow(
 
         >>> lestim.Circuit('''
         ...     RY 0
+        ... ''').has_flow(lestim.Flow(
+        ...     output=lestim.PauliString("Y"),
+        ... ))
+        True
+
+        >>> lestim.Circuit('''
+        ...     RY 0
+        ...     X_ERROR(0.1) 0
         ... ''').has_flow(lestim.Flow(
         ...     output=lestim.PauliString("Y"),
         ... ))
@@ -2232,6 +2401,62 @@ def has_flow(
     """
 ```
 
+<a name="lestim.Circuit.insert"></a>
+```python
+# lestim.Circuit.insert
+
+# (in class lestim.Circuit)
+def insert(
+    self,
+    index: int,
+    operation: Union[lestim.CircuitInstruction, lestim.Circuit],
+) -> None:
+    """Inserts an operation at the given index, pushing existing operations forward.
+
+    Beware that inserted operations are automatically fused with the preceding
+    and following operations, if possible. This can make it complex to reason
+    about how the indices of operations change in response to insertions.
+
+    Args:
+        index: The index to insert at.
+
+            Must satisfy -len(circuit) <= index < len(circuit). Negative indices
+            are made non-negative by adding len(circuit) to them, so they refer to
+            indices relative to the end of the circuit instead of the start.
+
+            Instructions before the index are not shifted. Instructions that
+            were at or after the index are shifted forwards as needed.
+        operation: The object to insert. This can be a single
+            lestim.CircuitInstruction or an entire lestim.Circuit.
+
+    Examples:
+        >>> import lestim
+        >>> c = lestim.Circuit('''
+        ...     H 0
+        ...     S 1
+        ...     X 2
+        ... ''')
+        >>> c.insert(1, lestim.CircuitInstruction("Y", [3, 4, 5]))
+        >>> c
+        lestim.Circuit('''
+            H 0
+            Y 3 4 5
+            S 1
+            X 2
+        ''')
+        >>> c.insert(-1, lestim.Circuit("S 999\nCX 0 1\nCZ 2 3"))
+        >>> c
+        lestim.Circuit('''
+            H 0
+            Y 3 4 5
+            S 1 999
+            CX 0 1
+            CZ 2 3
+            X 2
+        ''')
+    """
+```
+
 <a name="lestim.Circuit.inverse"></a>
 ```python
 # lestim.Circuit.inverse
@@ -2239,7 +2464,7 @@ def has_flow(
 # (in class lestim.Circuit)
 def inverse(
     self,
-) -> lestim._stim_polyfill.Circuit:
+) -> lestim.Circuit:
     """Returns a circuit that applies the same operations but inverted and in reverse.
 
     If circuit starts with QUBIT_COORDS instructions, the returned circuit will
@@ -2304,9 +2529,10 @@ def likeliest_error_sat_problem(
     """Makes a maxSAT problem for the circuit's likeliest undetectable logical error.
 
     The output is a string describing the maxSAT problem in WDIMACS format
-    (see https://maxhs.org/docs/wdimacs.html). The optimal solution to the
-    problem is the highest likelihood set of error mechanisms that combine to
-    flip any logical observable while producing no detection events).
+    (see https://jix.github.io/varisat/manual/0.2.0/formats/dimacs.html). The
+    optimal solution to the problem is the highest likelihood set of error
+    mechanisms that combine to flip any logical observable while producing no
+    detection events).
 
     If there are any errors with probability p > 0.5, they are inverted so
     that the resulting weight ends up being positive. If there are errors
@@ -2373,6 +2599,72 @@ def likeliest_error_sat_problem(
         1000 -2 0
         4001 -1 0
         4001 2 0
+    """
+```
+
+<a name="lestim.Circuit.missing_detectors"></a>
+```python
+# lestim.Circuit.missing_detectors
+
+# (in class lestim.Circuit)
+def missing_detectors(
+    self,
+    *,
+    unknown_input: bool = False,
+) -> int:
+    """Finds deterministic measurements independent of declared detectors/observables.
+
+    This method is useful for debugging missing detectors in a circuit, because it
+    identifies generators for uncovered degrees of freedom.
+
+    It's not recommended to use this method to solve for the detectors of a circuit.
+    The returned detectors are not guaranteed to be stable across versions, and
+    aren't optimized to be "good" (e.g. form a low weight basis or be matchable
+    if possible). It will also identify things that are technically determined
+    but that the user may not want to use as a detector, such as the fact that
+    in the first round after transversal Z basis initialization of a toric code
+    the product of all X stabilizer measurements is deterministic even though the
+    individual measurements are all random.
+
+    Args:
+        unknown_input: Defaults to False (inputs assumed to be in the |0> state).
+            When set to True, the inputs are instead treated as being in unknown
+            random states. For example, this means that Z-basis measurements at
+            the very beginning of the circuit will be considered random rather
+            than determined.
+
+    Returns:
+        A circuit containing DETECTOR instructions that specify the uncovered
+        degrees of freedom in the deterministic measurement sets of the input
+        circuit. The returned circuit can be appended to the input circuit to
+        get a circuit with no missing detectors.
+
+    Examples:
+        >>> import lestim
+
+        >>> lestim.Circuit('''
+        ...     R 0
+        ...     M 0
+        ... ''').missing_detectors()
+        lestim.Circuit('''
+            DETECTOR rec[-1]
+        ''')
+
+        >>> lestim.Circuit('''
+        ...     MZZ 0 1
+        ...     MYY 0 1
+        ...     MXX 0 1
+        ...     DEPOLARIZE1(0.1) 0 1
+        ...     MZZ 0 1
+        ...     MYY 0 1
+        ...     MXX 0 1
+        ...     DETECTOR rec[-1] rec[-4]
+        ...     DETECTOR rec[-2] rec[-5]
+        ...     DETECTOR rec[-3] rec[-6]
+        ... ''').missing_detectors(unknown_input=True)
+        lestim.Circuit('''
+            DETECTOR rec[-3] rec[-2] rec[-1]
+        ''')
     """
 ```
 
@@ -2556,6 +2848,101 @@ def num_ticks(
     """
 ```
 
+<a name="lestim.Circuit.pop"></a>
+```python
+# lestim.Circuit.pop
+
+# (in class lestim.Circuit)
+def pop(
+    self,
+    index: int = -1,
+) -> Union[lestim.CircuitInstruction, lestim.CircuitRepeatBlock]:
+    """Pops an operation from the end of the circuit, or at the given index.
+
+    Args:
+        index: Defaults to -1 (end of circuit). The index to pop from.
+
+    Returns:
+        The popped instruction.
+
+    Raises:
+        IndexError: The given index is outside the bounds of the circuit.
+
+    Examples:
+        >>> import lestim
+        >>> c = lestim.Circuit('''
+        ...     H 0
+        ...     S 1
+        ...     X 2
+        ...     Y 3
+        ... ''')
+        >>> c.pop()
+        lestim.CircuitInstruction('Y', [lestim.GateTarget(3)], [])
+        >>> c.pop(1)
+        lestim.CircuitInstruction('S', [lestim.GateTarget(1)], [])
+        >>> c
+        lestim.Circuit('''
+            H 0
+            X 2
+        ''')
+    """
+```
+
+<a name="lestim.Circuit.reference_detector_and_observable_signs"></a>
+```python
+# lestim.Circuit.reference_detector_and_observable_signs
+
+# (in class lestim.Circuit)
+def reference_detector_and_observable_signs(
+    self,
+    *,
+    bit_packed: bool = False,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Determines noiseless parities of the measurement sets of detectors/observables.
+
+    BEWARE: the returned values are NOT the "expected value of the
+    detector/observable". Stim consistently defines the value of a
+    detector/observable as whether or not it flipped, so the expected value of a
+    detector/observable is vacuously always 0 (not flipped). This method instead
+    returns the "sign"; the expected parity of the measurement set declared by the
+    detector/observable. The sign is the baseline used to determine if a flip
+    occurred. A detector/observable's value is whether its sign disagrees with the
+    measured parity of its measurement set.
+
+    Note that this method doesn't account for sweep bits. It will effectively ignore
+    instructions like `CX sweep[0] 0`.
+
+    Args:
+        bit_packed: Defaults to False. Determines whether the output numpy arrays
+            use dtype=bool_ or dtype=uint8 with 8 bools packed into each byte.
+
+    Returns:
+        A (det, obs) tuple with numpy arrays containing the reference parities.
+
+        if bit_packed:
+            det.shape == (math.ceil(num_detectors / 8),)
+            det.dtype == np.uint8
+            obs.shape == (math.ceil(num_observables / 8),)
+            obs.dtype == np.uint8
+        else:
+            det.shape == (num_detectors,)
+            det.dtype == np.bool_
+            obs.shape == (num_observables,)
+            obs.dtype == np.bool_
+
+    Examples:
+        >>> import lestim
+        >>> lestim.Circuit('''
+        ...     X 1
+        ...     M 0 1
+        ...     DETECTOR rec[-1]
+        ...     DETECTOR rec[-2]
+        ...     OBSERVABLE_INCLUDE(3) rec[-1] rec[-2]
+        ... ''').reference_detector_and_observable_signs()
+        (array([ True, False]), array([False, False, False,  True]))
+    """
+```
+
 <a name="lestim.Circuit.reference_sample"></a>
 ```python
 # lestim.Circuit.reference_sample
@@ -2572,12 +2959,26 @@ def reference_sample(
     towards +Z instead of randomly +Z/-Z.
 
     Args:
-        circuit: The circuit to "sample" from.
         bit_packed: Defaults to False. Determines whether the output numpy arrays
             use dtype=bool_ or dtype=uint8 with 8 bools packed into each byte.
 
     Returns:
-        reference_sample: reference sample sampled from the given circuit.
+        A numpy array containing the reference sample.
+
+        if bit_packed:
+            shape == (math.ceil(num_measurements / 8),)
+            dtype == np.uint8
+        else:
+            shape == (num_measurements,)
+            dtype == np.bool_
+
+    Examples:
+        >>> import lestim
+        >>> lestim.Circuit('''
+        ...     X 1
+        ...     M 0 1
+        ... ''').reference_sample()
+        array([False,  True])
     """
 ```
 
@@ -2593,7 +2994,7 @@ def search_for_undetectable_logical_errors(
     dont_explore_edges_with_degree_above: int,
     dont_explore_edges_increasing_symptom_degree: bool,
     canonicalize_circuit_errors: bool = False,
-) -> List[lestim._stim_polyfill.ExplainedError]:
+) -> List[lestim.ExplainedError]:
     """Searches for small sets of errors that form an undetectable logical error.
 
     THIS IS A HEURISTIC METHOD. It does not guarantee that it will find errors of
@@ -2694,11 +3095,11 @@ def shortest_error_sat_problem(
     """Makes a maxSAT problem of the circuit's distance, that other tools can solve.
 
     The output is a string describing the maxSAT problem in WDIMACS format
-    (see https://maxhs.org/docs/wdimacs.html). The optimal solution to the
-    problem is the fault distance of the circuit (the minimum number of error
-    mechanisms that combine to flip any logical observable while producing no
-    detection events). This method ignores the probabilities of the error
-    mechanisms since it only cares about minimizing the number of errors
+    (see https://jix.github.io/varisat/manual/0.2.0/formats/dimacs.html). The
+    optimal solution to the problem is the fault distance of the circuit (the
+    minimum number of error mechanisms that combine to flip any logical observable
+    while producing no detection events). This method ignores the probabilities of
+    the error mechanisms since it only cares about minimizing the number of errors
     triggered.
 
     There are many tools that can solve maxSAT problems in WDIMACS format.
@@ -2765,7 +3166,7 @@ def shortest_graphlike_error(
     *,
     ignore_ungraphlike_errors: bool = True,
     canonicalize_circuit_errors: bool = False,
-) -> List[lestim._stim_polyfill.ExplainedError]:
+) -> List[lestim.ExplainedError]:
     """Finds a minimum set of graphlike errors to produce an undetected logical error.
 
     A "graphlike error" is an error that creates at most two detection events
@@ -2832,6 +3233,104 @@ def shortest_graphlike_error(
     """
 ```
 
+<a name="lestim.Circuit.solve_flow_measurements"></a>
+```python
+# lestim.Circuit.solve_flow_measurements
+
+# (in class lestim.Circuit)
+def solve_flow_measurements(
+    self,
+    flows: List[lestim.Flow],
+) -> List[Optional[List[int]]]:
+    """Finds measurements to explain the starts/ends of the given flows, ignoring sign.
+
+    CAUTION: it's not guaranteed that the solutions returned by this method are
+    minimal. It may use 20 measurements when only 2 are needed. The method applies
+    some simple heuristics that attempt to reduce the size, but these heuristics
+    aren't perfect and don't make any strong guarantees.
+
+    The recommended way to use this method is on small parts of a circuit, such as a
+    single surface code round. The ideal use case is when there is exactly one
+    solution for each flow, because then the method behaves predictably and
+    consistently. When there are multiple solutions, the method has no real way to
+    pick out a "good" solution rather than a "cataclysmic trash fire of a" solution.
+    For example, if you have a multi-round surface code circuit with open time
+    boundaries and solve the flow 1 -> Z1*Z2*Z3*Z4, then there's a good solution
+    (the Z1*Z2*Z3*Z4 measurement from the last round), various mediocre solutions
+    (a Z1*Z2*Z3*Z4 measurement from a different round), and lots of terrible
+    solutions (a combination of multiple Z1*Z2*Z3*Z4 measurements from an odd number
+    of rounds, times a random combination of unrelated detectors). The method is
+    permitted to return any of those solutions.
+
+    Args:
+        flows: A list of flows, each of which to be solved. Measurements and signs
+            are entirely ignored.
+
+            An error is raised if one of the given flows has an identity pauli
+            string as its input and as its output, despite the fact that this case
+            has a vacuous solution (no measurements). This error is only present as
+            a safety check that catches some possible bugs in the calling code, such
+            as accidentally applying this method to detector flows. This error may
+            be removed in the future, so that the vacuous case succeeds vacuously.
+
+    Returns:
+        A list of solutions for each given flow.
+
+        If no solution exists for flows[k], then solutions[k] is None.
+        Otherwise, solutions[k] is a list of measurement indices for flows[k].
+
+        When solutions[k] is not None, it's guaranteed that
+
+            circuit.has_flow(lestim.Flow(
+                input=flows[k].input,
+                output=flows[k].output,
+                measurements=solutions[k],
+            ), unsigned=True)
+
+    Raises:
+        ValueError:
+            A flow had an empty input and output.
+
+    Examples:
+        >>> import lestim
+
+        >>> lestim.Circuit('''
+        ...     M 2
+        ... ''').solve_flow_measurements([
+        ...     lestim.Flow("Z2 -> 1"),
+        ... ])
+        [[0]]
+
+        >>> lestim.Circuit('''
+        ...     M 2
+        ... ''').solve_flow_measurements([
+        ...     lestim.Flow("X2 -> X2"),
+        ... ])
+        [None]
+
+        >>> lestim.Circuit('''
+        ...     MXX 0 1
+        ... ''').solve_flow_measurements([
+        ...     lestim.Flow("YY -> ZZ"),
+        ... ])
+        [[0]]
+
+        >>> # Rep code cycle
+        >>> lestim.Circuit('''
+        ...     R 1 3
+        ...     CX 0 1 2 3
+        ...     CX 4 3 2 1
+        ...     M 1 3
+        ... ''').solve_flow_measurements([
+        ...     lestim.Flow("1 -> Z0*Z4"),
+        ...     lestim.Flow("Z0 -> Z2"),
+        ...     lestim.Flow("X0*X2*X4 -> X0*X2*X4"),
+        ...     lestim.Flow("Y0 -> Y0"),
+        ... ])
+        [[0, 1], [0], [], None]
+    """
+```
+
 <a name="lestim.Circuit.time_reversed_for_flows"></a>
 ```python
 # lestim.Circuit.time_reversed_for_flows
@@ -2839,10 +3338,10 @@ def shortest_graphlike_error(
 # (in class lestim.Circuit)
 def time_reversed_for_flows(
     self,
-    flows: Iterable[stim.Flow],
+    flows: Iterable[lestim.Flow],
     *,
     dont_turn_measurements_into_resets: bool = False,
-) -> Tuple[stim.Circuit, List[stim.Flow]]:
+) -> Tuple[lestim.Circuit, List[lestim.Flow]]:
     """Time-reverses the circuit while preserving error correction structure.
 
     This method returns a circuit that has the same internal detecting regions
@@ -3049,6 +3548,9 @@ def time_reversed_for_flows(
 # (in class lestim.Circuit)
 def to_crumble_url(
     self,
+    *,
+    skip_detectors: bool = False,
+    mark: Optional[Dict[int, List[lestim.ExplainedError]]] = None,
 ) -> str:
     """Returns a URL that opens up crumble and loads this circuit into it.
 
@@ -3057,6 +3559,15 @@ def to_crumble_url(
     the lestim code repository on github. A prebuilt version is made available
     at https://algassert.com/crumble, which is what the URL returned by this
     method will point to.
+
+    Args:
+        skip_detectors: Defaults to False. If set to True, detectors from the
+            circuit aren't included in the crumble URL. This can reduce visual
+            clutter in crumble, and improve its performance, since it doesn't
+            need to indicate or track the sensitivity regions of detectors.
+        mark: Defaults to None (no marks). If set to a dictionary from int to
+            errors, such as `mark={1: circuit.shortest_graphlike_error()}`,
+            then the errors will be highlighted and tracked forward by crumble.
 
     Returns:
         A URL that can be opened in a web browser.
@@ -3068,7 +3579,17 @@ def to_crumble_url(
         ...     CNOT 0 1
         ...     S 1
         ... ''').to_crumble_url()
-        'https://algassert.com/crumble#circuit=H_0;CX_0_1;S_1'
+        'https://algassert.com/crumble#circuit=H_0;CX_0_1;S_1_'
+
+        >>> circuit = lestim.Circuit('''
+        ...     M(0.25) 0 1 2
+        ...     DETECTOR rec[-1] rec[-2]
+        ...     DETECTOR rec[-2] rec[-3]
+        ...     OBSERVABLE_INCLUDE(0) rec[-1]
+        ... ''')
+        >>> err = circuit.shortest_graphlike_error(canonicalize_circuit_errors=True)
+        >>> circuit.to_crumble_url(skip_detectors=True, mark={1: err})
+        'https://algassert.com/crumble#circuit=;TICK;MARKX(1)1;MARKX(1)2;MARKX(1)0;TICK;M(0.25)0_1_2;OI(0)rec[-1]_'
     """
 ```
 
@@ -3131,8 +3652,8 @@ def to_qasm(
             This should be set to 2 or to 3.
 
             Differences between the versions are:
-                - Support for operations on classical bits operations (only version
-                    3). This means DETECTOR and OBSERVABLE_INCLUDE only work with
+                - Support for operations on classical bits (only version 3).
+                    This means DETECTOR and OBSERVABLE_INCLUDE only work with
                     version 3.
                 - Support for feedback operations (only version 3).
                 - Support for subroutines (only version 3). Without subroutines,
@@ -3224,7 +3745,7 @@ def to_tableau(
     ignore_noise: bool = False,
     ignore_measurement: bool = False,
     ignore_reset: bool = False,
-) -> stim.Tableau:
+) -> lestim.Tableau:
     """Converts the circuit into an equivalent stabilizer tableau.
 
     Args:
@@ -3279,7 +3800,7 @@ def to_tableau(
 # (in class lestim.Circuit)
 def with_inlined_feedback(
     self,
-) -> lestim._stim_polyfill.Circuit:
+) -> lestim.Circuit:
     """Returns a circuit without feedback with rewritten detectors/observables.
 
     When a feedback operation affects the expected parity of a detector or
@@ -3340,7 +3861,7 @@ def with_inlined_feedback(
 # (in class lestim.Circuit)
 def without_noise(
     self,
-) -> lestim._stim_polyfill.Circuit:
+) -> lestim.Circuit:
     """Returns a copy of the circuit with all noise processes removed.
 
     Pure noise instructions, such as X_ERROR and DEPOLARIZE2, are not
@@ -3367,6 +3888,33 @@ def without_noise(
     """
 ```
 
+<a name="lestim.Circuit.without_tags"></a>
+```python
+# lestim.Circuit.without_tags
+
+# (in class lestim.Circuit)
+def without_tags(
+    self,
+) -> lestim.Circuit:
+    """Returns a copy of the circuit with all tags removed.
+
+    Returns:
+        A `lestim.Circuit` with the same instructions except all tags have been
+        removed.
+
+    Examples:
+        >>> import lestim
+        >>> lestim.Circuit('''
+        ...     X[test-tag] 0
+        ...     M[test-tag-2](0.125) 0
+        ... ''').without_tags()
+        lestim.Circuit('''
+            X 0
+            M(0.125) 0
+        ''')
+    """
+```
+
 <a name="lestim.CircuitErrorLocation"></a>
 ```python
 # lestim.CircuitErrorLocation
@@ -3374,6 +3922,26 @@ def without_noise(
 # (at top-level in the lestim module)
 class CircuitErrorLocation:
     """Describes the location of an error mechanism from a lestim circuit.
+
+    Examples:
+        >>> import lestim
+        >>> circuit = lestim.Circuit.generated(
+        ...     "repetition_code:memory",
+        ...     distance=5,
+        ...     rounds=5,
+        ...     before_round_data_depolarization=1e-3,
+        ... )
+        >>> logical_error = circuit.shortest_graphlike_error()
+        >>> error_location = logical_error[0].circuit_error_locations[0]
+        >>> print(error_location)
+        CircuitErrorLocation {
+            flipped_pauli_product: X0
+            Circuit location stack trace:
+                (after 1 TICKs)
+                at instruction #3 (DEPOLARIZE1) in the circuit
+                at target #1 of the instruction
+                resolving to DEPOLARIZE1(0.001) 0
+        }
     """
 ```
 
@@ -3386,12 +3954,57 @@ def __init__(
     self,
     *,
     tick_offset: int,
-    flipped_pauli_product: List[lestim._stim_polyfill.GateTargetWithCoords],
+    flipped_pauli_product: List[lestim.GateTargetWithCoords],
     flipped_measurement: object,
-    instruction_targets: lestim._stim_polyfill.CircuitTargetsInsideInstruction,
-    stack_frames: List[lestim._stim_polyfill.CircuitErrorLocationStackFrame],
+    instruction_targets: lestim.CircuitTargetsInsideInstruction,
+    stack_frames: List[lestim.CircuitErrorLocationStackFrame],
+    noise_tag: str = '',
 ) -> None:
     """Creates a lestim.CircuitErrorLocation.
+
+    Examples:
+        >>> import lestim
+        >>> err = lestim.CircuitErrorLocation(
+        ...     tick_offset=1,
+        ...     flipped_pauli_product=(
+        ...         lestim.GateTargetWithCoords(
+        ...             gate_target=lestim.target_x(0),
+        ...             coords=[],
+        ...         ),
+        ...     ),
+        ...     flipped_measurement=lestim.FlippedMeasurement(
+        ...         record_index=None,
+        ...         observable=(),
+        ...     ),
+        ...     instruction_targets=lestim.CircuitTargetsInsideInstruction(
+        ...         gate='DEPOLARIZE1',
+        ...         args=[0.001],
+        ...         target_range_start=0,
+        ...         target_range_end=1,
+        ...         targets_in_range=(lestim.GateTargetWithCoords(
+        ...             gate_target=0,
+        ...             coords=[],
+        ...         ),)
+        ...     ),
+        ...     stack_frames=(
+        ...         lestim.CircuitErrorLocationStackFrame(
+        ...             instruction_offset=2,
+        ...             iteration_index=0,
+        ...             instruction_repetitions_arg=0,
+        ...         ),
+        ...     ),
+        ...     noise_tag='test-tag',
+        ... )
+        >>> print(err)
+        CircuitErrorLocation {
+            noise_tag: test-tag
+            flipped_pauli_product: X0
+            Circuit location stack trace:
+                (after 1 TICKs)
+                at instruction #3 (DEPOLARIZE1) in the circuit
+                at target #1 of the instruction
+                resolving to DEPOLARIZE1(0.001) 0
+        }
     """
 ```
 
@@ -3403,9 +4016,23 @@ def __init__(
 @property
 def flipped_measurement(
     self,
-) -> Optional[stim.FlippedMeasurement]:
+) -> Optional[lestim.FlippedMeasurement]:
     """The measurement that was flipped by the error mechanism.
+
     If the error isn't a measurement error, this will be None.
+
+    Examples:
+        >>> import lestim
+        >>> err = lestim.Circuit('''
+        ...     R 0
+        ...     M(0.125) 0
+        ...     OBSERVABLE_INCLUDE(0) rec[-1]
+        ... ''').shortest_graphlike_error()
+        >>> err[0].circuit_error_locations[0].flipped_measurement
+        lestim.FlippedMeasurement(
+            record_index=0,
+            observable=(lestim.GateTargetWithCoords(lestim.target_z(0), []),),
+        )
     """
 ```
 
@@ -3417,9 +4044,21 @@ def flipped_measurement(
 @property
 def flipped_pauli_product(
     self,
-) -> List[lestim._stim_polyfill.GateTargetWithCoords]:
+) -> List[lestim.GateTargetWithCoords]:
     """The Pauli errors that the error mechanism applied to qubits.
+
     When the error is a measurement error, this will be an empty list.
+
+    Examples:
+        >>> import lestim
+        >>> err = lestim.Circuit('''
+        ...     R 0
+        ...     Y_ERROR(0.125) 0
+        ...     M 0
+        ...     OBSERVABLE_INCLUDE(0) rec[-1]
+        ... ''').shortest_graphlike_error()
+        >>> err[0].circuit_error_locations[0].flipped_pauli_product
+        [lestim.GateTargetWithCoords(lestim.target_y(0), [])]
     """
 ```
 
@@ -3431,10 +4070,53 @@ def flipped_pauli_product(
 @property
 def instruction_targets(
     self,
-) -> lestim._stim_polyfill.CircuitTargetsInsideInstruction:
+) -> lestim.CircuitTargetsInsideInstruction:
     """Within the error instruction, which may have hundreds of
     targets, which specific targets were being executed to
     produce the error.
+
+    Examples:
+        >>> import lestim
+        >>> err = lestim.Circuit('''
+        ...     R 0
+        ...     TICK
+        ...     Y_ERROR(0.125) 0
+        ...     M 0
+        ...     OBSERVABLE_INCLUDE(0) rec[-1]
+        ... ''').shortest_graphlike_error()
+        >>> targets = err[0].circuit_error_locations[0].instruction_targets
+        >>> targets == lestim.CircuitTargetsInsideInstruction(
+        ...     gate='Y_ERROR',
+        ...     args=[0.125],
+        ...     target_range_start=0,
+        ...     target_range_end=1,
+        ...     targets_in_range=(lestim.GateTargetWithCoords(0, []),),
+        ... )
+        True
+    """
+```
+
+<a name="lestim.CircuitErrorLocation.noise_tag"></a>
+```python
+# lestim.CircuitErrorLocation.noise_tag
+
+# (in class lestim.CircuitErrorLocation)
+@property
+def noise_tag(
+    self,
+) -> str:
+    """The tag on the noise instruction that caused the error.
+
+    Examples:
+        >>> import lestim
+        >>> err = lestim.Circuit('''
+        ...     R 0
+        ...     Y_ERROR[test-tag](0.125) 0
+        ...     M 0
+        ...     OBSERVABLE_INCLUDE(0) rec[-1]
+        ... ''').shortest_graphlike_error()
+        >>> err[0].circuit_error_locations[0].noise_tag
+        'test-tag'
     """
 ```
 
@@ -3446,9 +4128,27 @@ def instruction_targets(
 @property
 def stack_frames(
     self,
-) -> List[lestim._stim_polyfill.CircuitErrorLocationStackFrame]:
-    """Where in the circuit's execution does the error mechanism occur,
-    accounting for things like nested loops that iterate multiple times.
+) -> List[lestim.CircuitErrorLocationStackFrame]:
+    """Describes where in the circuit's execution the error happened.
+
+    Multiple frames are needed because the error may occur within a loop,
+    or a loop nested inside a loop, or etc.
+
+    Examples:
+        >>> import lestim
+        >>> err = lestim.Circuit('''
+        ...     R 0
+        ...     TICK
+        ...     Y_ERROR(0.125) 0
+        ...     M 0
+        ...     OBSERVABLE_INCLUDE(0) rec[-1]
+        ... ''').shortest_graphlike_error()
+        >>> err[0].circuit_error_locations[0].stack_frames
+        [lestim.CircuitErrorLocationStackFrame(
+            instruction_offset=2,
+            iteration_index=0,
+            instruction_repetitions_arg=0,
+        )]
     """
 ```
 
@@ -3461,8 +4161,23 @@ def stack_frames(
 def tick_offset(
     self,
 ) -> int:
-    """The number of TICKs that executed before the error mechanism being discussed,
-    including TICKs that occurred multiple times during loops.
+    """The number of TICKs that executed before the error happened.
+
+    This counts TICKs occurring multiple times during loops.
+
+    Examples:
+        >>> import lestim
+        >>> err = lestim.Circuit('''
+        ...     R 0
+        ...     TICK
+        ...     TICK
+        ...     TICK
+        ...     Y_ERROR(0.125) 0
+        ...     M 0
+        ...     OBSERVABLE_INCLUDE(0) rec[-1]
+        ... ''').shortest_graphlike_error()
+        >>> err[0].circuit_error_locations[0].tick_offset
+        3
     """
 ```
 
@@ -3478,6 +4193,30 @@ class CircuitErrorLocationStackFrame:
     The full location of an instruction is a list of these frames,
     drilling down from the top level circuit to the inner-most loop
     that the instruction is within.
+
+
+    Examples:
+        >>> import lestim
+        >>> err = lestim.Circuit('''
+        ...     REPEAT 5 {
+        ...         R 0
+        ...         Y_ERROR(0.125) 0
+        ...         M 0
+        ...     }
+        ...     OBSERVABLE_INCLUDE(0) rec[-1]
+        ... ''').shortest_graphlike_error()
+        >>> err[0].circuit_error_locations[0].stack_frames[0]
+        lestim.CircuitErrorLocationStackFrame(
+            instruction_offset=0,
+            iteration_index=0,
+            instruction_repetitions_arg=5,
+        )
+        >>> err[0].circuit_error_locations[0].stack_frames[1]
+        lestim.CircuitErrorLocationStackFrame(
+            instruction_offset=1,
+            iteration_index=4,
+            instruction_repetitions_arg=0,
+        )
     """
 ```
 
@@ -3494,6 +4233,14 @@ def __init__(
     instruction_repetitions_arg: int,
 ) -> None:
     """Creates a lestim.CircuitErrorLocationStackFrame.
+
+    Examples:
+        >>> import lestim
+        >>> frame = lestim.CircuitErrorLocationStackFrame(
+        ...     instruction_offset=1,
+        ...     iteration_index=2,
+        ...     instruction_repetitions_arg=3,
+        ... )
     """
 ```
 
@@ -3511,6 +4258,18 @@ def instruction_offset(
     from the line number, because blank lines and commented lines
     don't count and also because the offset of the first instruction
     is 0 instead of 1.
+
+    Examples:
+        >>> import lestim
+        >>> err = lestim.Circuit('''
+        ...     R 0
+        ...     TICK
+        ...     Y_ERROR(0.125) 0
+        ...     M 0
+        ...     OBSERVABLE_INCLUDE(0) rec[-1]
+        ... ''').shortest_graphlike_error()
+        >>> err[0].circuit_error_locations[0].stack_frames[0].instruction_offset
+        2
     """
 ```
 
@@ -3526,6 +4285,23 @@ def instruction_repetitions_arg(
     """If the instruction being referred to is a REPEAT block,
     this is the repetition count of that REPEAT block. Otherwise
     this field defaults to 0.
+
+    Examples:
+        >>> import lestim
+        >>> err = lestim.Circuit('''
+        ...     REPEAT 5 {
+        ...         R 0
+        ...         Y_ERROR(0.125) 0
+        ...         M 0
+        ...     }
+        ...     OBSERVABLE_INCLUDE(0) rec[-1]
+        ... ''').shortest_graphlike_error()
+        >>> full = err[0].circuit_error_locations[0].stack_frames[0]
+        >>> loop = err[0].circuit_error_locations[0].stack_frames[1]
+        >>> full.instruction_repetitions_arg
+        5
+        >>> loop.instruction_repetitions_arg
+        0
     """
 ```
 
@@ -3541,6 +4317,23 @@ def iteration_index(
     """Disambiguates which iteration of the loop containing this instruction
     is being referred to. If the instruction isn't in a REPEAT block, this
     field defaults to 0.
+
+    Examples:
+        >>> import lestim
+        >>> err = lestim.Circuit('''
+        ...     REPEAT 5 {
+        ...         R 0
+        ...         Y_ERROR(0.125) 0
+        ...         M 0
+        ...     }
+        ...     OBSERVABLE_INCLUDE(0) rec[-1]
+        ... ''').shortest_graphlike_error()
+        >>> full = err[0].circuit_error_locations[0].stack_frames[0]
+        >>> loop = err[0].circuit_error_locations[0].stack_frames[1]
+        >>> full.iteration_index
+        0
+        >>> loop.iteration_index
+        4
     """
 ```
 
@@ -3575,7 +4368,7 @@ class CircuitInstruction:
 # (in class lestim.CircuitInstruction)
 def __eq__(
     self,
-    arg0: lestim._stim_polyfill.CircuitInstruction,
+    arg0: lestim.CircuitInstruction,
 ) -> bool:
     """Determines if two `lestim.CircuitInstruction`s are identical.
     """
@@ -3589,19 +4382,40 @@ def __eq__(
 def __init__(
     self,
     name: str,
-    targets: List[object],
-    gate_args: List[float] = (),
+    targets: Optional[Iterable[Union[int, lestim.GateTarget]]] = None,
+    gate_args: Optional[Iterable[float]] = None,
+    *,
+    tag: str = "",
 ) -> None:
-    """Initializes a `lestim.CircuitInstruction`.
+    """Creates or parses a `lestim.CircuitInstruction`.
 
     Args:
         name: The name of the instruction being applied.
+            If `targets` and `gate_args` aren't specified, this can be a full
+            instruction line from a lestim Circuit file, like "CX 0 1".
         targets: The targets the instruction is being applied to. These can be raw
             values like `0` and `lestim.target_rec(-1)`, or instances of
             `lestim.GateTarget`.
         gate_args: The sequence of numeric arguments parameterizing a gate. For
             noise gates this is their probabilities. For `OBSERVABLE_INCLUDE`
             instructions it's the index of the logical observable to affect.
+        tag: Defaults to "". A custom string attached to the instruction. For
+            example, for a TICK instruction, this could a string specifying an
+            amount of time which is used by custom code for adding noise to a
+            circuit. In general, lestim will attempt to propagate tags across circuit
+            transformations but will otherwise completely ignore them.
+
+    Examples:
+        >>> import lestim
+
+        >>> print(lestim.CircuitInstruction('DEPOLARIZE1', [5], [0.25]))
+        DEPOLARIZE1(0.25) 5
+
+        >>> lestim.CircuitInstruction('CX rec[-1] 5  # comment')
+        lestim.CircuitInstruction('CX', [lestim.target_rec(-1), lestim.GateTarget(5)], [])
+
+        >>> print(lestim.CircuitInstruction('I', [2], tag='100ns'))
+        I[100ns] 2
     """
 ```
 
@@ -3612,7 +4426,7 @@ def __init__(
 # (in class lestim.CircuitInstruction)
 def __ne__(
     self,
-    arg0: lestim._stim_polyfill.CircuitInstruction,
+    arg0: lestim.CircuitInstruction,
 ) -> bool:
     """Determines if two `lestim.CircuitInstruction`s are different.
     """
@@ -3655,6 +4469,17 @@ def gate_args_copy(
     For noisy gates this typically a list of probabilities.
     For OBSERVABLE_INCLUDE it's a singleton list containing the logical observable
     index.
+
+    Examples:
+        >>> import lestim
+        >>> instruction = lestim.CircuitInstruction('X_ERROR', [2, 3], [0.125])
+        >>> instruction.gate_args_copy()
+        [0.125]
+
+        >>> instruction.gate_args_copy() == instruction.gate_args_copy()
+        True
+        >>> instruction.gate_args_copy() is instruction.gate_args_copy()
+        False
     """
 ```
 
@@ -3671,6 +4496,103 @@ def name(
     """
 ```
 
+<a name="lestim.CircuitInstruction.num_measurements"></a>
+```python
+# lestim.CircuitInstruction.num_measurements
+
+# (in class lestim.CircuitInstruction)
+@property
+def num_measurements(
+    self,
+) -> int:
+    """Returns the number of bits produced when running this instruction.
+
+    Examples:
+        >>> import lestim
+        >>> lestim.CircuitInstruction('H', [0]).num_measurements
+        0
+        >>> lestim.CircuitInstruction('M', [0]).num_measurements
+        1
+        >>> lestim.CircuitInstruction('M', [2, 3, 5, 7, 11]).num_measurements
+        5
+        >>> lestim.CircuitInstruction('MXX', [0, 1, 4, 5, 11, 13]).num_measurements
+        3
+        >>> lestim.Circuit('MPP X0*X1 X0*Z1*Y2')[0].num_measurements
+        2
+        >>> lestim.CircuitInstruction('HERALDED_ERASE', [0], [0.25]).num_measurements
+        1
+    """
+```
+
+<a name="lestim.CircuitInstruction.tag"></a>
+```python
+# lestim.CircuitInstruction.tag
+
+# (in class lestim.CircuitInstruction)
+@property
+def tag(
+    self,
+) -> str:
+    """The custom tag attached to the instruction.
+
+    The tag is an arbitrary string.
+    The default tag, when none is specified, is the empty string.
+
+    Examples:
+        >>> import lestim
+        >>> lestim.Circuit("H[test] 0")[0].tag
+        'test'
+        >>> lestim.Circuit("H 0")[0].tag
+        ''
+    """
+```
+
+<a name="lestim.CircuitInstruction.target_groups"></a>
+```python
+# lestim.CircuitInstruction.target_groups
+
+# (in class lestim.CircuitInstruction)
+def target_groups(
+    self,
+) -> List[List[lestim.GateTarget]]:
+    """Splits the instruction's targets into groups depending on the type of gate.
+
+    Single qubit gates like H get one group per target.
+    Two qubit gates like CX get one group per pair of targets.
+    Pauli product gates like MPP get one group per combined product.
+
+    Returns:
+        A list of groups of targets.
+
+    Examples:
+        >>> import lestim
+        >>> for g in lestim.Circuit('H 0 1 2')[0].target_groups():
+        ...     print(repr(g))
+        [lestim.GateTarget(0)]
+        [lestim.GateTarget(1)]
+        [lestim.GateTarget(2)]
+
+        >>> for g in lestim.Circuit('CX 0 1 2 3')[0].target_groups():
+        ...     print(repr(g))
+        [lestim.GateTarget(0), lestim.GateTarget(1)]
+        [lestim.GateTarget(2), lestim.GateTarget(3)]
+
+        >>> for g in lestim.Circuit('MPP X0*Y1*Z2 X5*X6')[0].target_groups():
+        ...     print(repr(g))
+        [lestim.target_x(0), lestim.target_y(1), lestim.target_z(2)]
+        [lestim.target_x(5), lestim.target_x(6)]
+
+        >>> for g in lestim.Circuit('DETECTOR rec[-1] rec[-2]')[0].target_groups():
+        ...     print(repr(g))
+        [lestim.target_rec(-1)]
+        [lestim.target_rec(-2)]
+
+        >>> for g in lestim.Circuit('CORRELATED_ERROR(0.1) X0 Y1')[0].target_groups():
+        ...     print(repr(g))
+        [lestim.target_x(0), lestim.target_y(1)]
+    """
+```
+
 <a name="lestim.CircuitInstruction.targets_copy"></a>
 ```python
 # lestim.CircuitInstruction.targets_copy
@@ -3678,8 +4600,19 @@ def name(
 # (in class lestim.CircuitInstruction)
 def targets_copy(
     self,
-) -> List[lestim._stim_polyfill.GateTarget]:
+) -> List[lestim.GateTarget]:
     """Returns a copy of the targets of the instruction.
+
+    Examples:
+        >>> import lestim
+        >>> instruction = lestim.CircuitInstruction('X_ERROR', [2, 3], [0.125])
+        >>> instruction.targets_copy()
+        [lestim.GateTarget(2), lestim.GateTarget(3)]
+
+        >>> instruction.targets_copy() == instruction.targets_copy()
+        True
+        >>> instruction.targets_copy() is instruction.targets_copy()
+        False
     """
 ```
 
@@ -3718,7 +4651,7 @@ class CircuitRepeatBlock:
 # (in class lestim.CircuitRepeatBlock)
 def __eq__(
     self,
-    arg0: lestim._stim_polyfill.CircuitRepeatBlock,
+    arg0: lestim.CircuitRepeatBlock,
 ) -> bool:
     """Determines if two `lestim.CircuitRepeatBlock`s are identical.
     """
@@ -3732,13 +4665,27 @@ def __eq__(
 def __init__(
     self,
     repeat_count: int,
-    body: lestim._stim_polyfill.Circuit,
+    body: lestim.Circuit,
+    *,
+    tag: str = '',
 ) -> None:
     """Initializes a `lestim.CircuitRepeatBlock`.
 
     Args:
         repeat_count: The number of times to repeat the block.
         body: The body of the block, as a circuit.
+        tag: Defaults to empty. A custom string attached to the REPEAT instruction.
+
+    Examples:
+        >>> import lestim
+        >>> c = lestim.Circuit()
+        >>> c.append(lestim.CircuitRepeatBlock(100, lestim.Circuit("M 0")))
+        >>> c
+        lestim.Circuit('''
+            REPEAT 100 {
+                M 0
+            }
+        ''')
     """
 ```
 
@@ -3749,7 +4696,7 @@ def __init__(
 # (in class lestim.CircuitRepeatBlock)
 def __ne__(
     self,
-    arg0: lestim._stim_polyfill.CircuitRepeatBlock,
+    arg0: lestim.CircuitRepeatBlock,
 ) -> bool:
     """Determines if two `lestim.CircuitRepeatBlock`s are different.
     """
@@ -3774,7 +4721,7 @@ def __repr__(
 # (in class lestim.CircuitRepeatBlock)
 def body_copy(
     self,
-) -> lestim._stim_polyfill.Circuit:
+) -> lestim.Circuit:
     """Returns a copy of the body of the repeat block.
 
     (Making a copy is enforced to make it clear that editing the result won't change
@@ -3806,7 +4753,7 @@ def body_copy(
 @property
 def name(
     self,
-) -> object:
+) -> str:
     """Returns the name "REPEAT".
 
     This is a duck-typing convenience method. It exists so that code that doesn't
@@ -3824,6 +4771,27 @@ def name(
         ... ''')
         >>> [instruction.name for instruction in circuit]
         ['H', 'REPEAT', 'S']
+    """
+```
+
+<a name="lestim.CircuitRepeatBlock.num_measurements"></a>
+```python
+# lestim.CircuitRepeatBlock.num_measurements
+
+# (in class lestim.CircuitRepeatBlock)
+@property
+def num_measurements(
+    self,
+) -> int:
+    """Returns the number of bits produced when running this loop.
+
+    Examples:
+        >>> import lestim
+        >>> lestim.CircuitRepeatBlock(
+        ...     body=lestim.Circuit("M 0 1"),
+        ...     repeat_count=25,
+        ... ).num_measurements
+        50
     """
 ```
 
@@ -3853,6 +4821,39 @@ def repeat_count(
     """
 ```
 
+<a name="lestim.CircuitRepeatBlock.tag"></a>
+```python
+# lestim.CircuitRepeatBlock.tag
+
+# (in class lestim.CircuitRepeatBlock)
+@property
+def tag(
+    self,
+) -> str:
+    """The custom tag attached to the REPEAT instruction.
+
+    The tag is an arbitrary string.
+    The default tag, when none is specified, is the empty string.
+
+    Examples:
+        >>> import lestim
+
+        >>> lestim.Circuit('''
+        ...     REPEAT[test] 5 {
+        ...         H 0
+        ...     }
+        ... ''')[0].tag
+        'test'
+
+        >>> lestim.Circuit('''
+        ...     REPEAT 5 {
+        ...         H 0
+        ...     }
+        ... ''')[0].tag
+        ''
+    """
+```
+
 <a name="lestim.CircuitTargetsInsideInstruction"></a>
 ```python
 # lestim.CircuitTargetsInsideInstruction
@@ -3872,12 +4873,24 @@ def __init__(
     self,
     *,
     gate: str,
+    tag: str = '',
     args: List[float],
     target_range_start: int,
     target_range_end: int,
-    targets_in_range: List[lestim._stim_polyfill.GateTargetWithCoords],
+    targets_in_range: List[lestim.GateTargetWithCoords],
 ) -> None:
     """Creates a lestim.CircuitTargetsInsideInstruction.
+
+    Examples:
+        >>> import lestim
+        >>> val = lestim.CircuitTargetsInsideInstruction(
+        ...     gate='X_ERROR',
+        ...     tag='',
+        ...     args=[0.25],
+        ...     target_range_start=0,
+        ...     target_range_end=1,
+        ...     targets_in_range=[lestim.GateTargetWithCoords(0, [])],
+        ... )
     """
 ```
 
@@ -3891,6 +4904,19 @@ def args(
     self,
 ) -> List[float]:
     """Returns parens arguments of the gate / instruction that was being executed.
+
+    Examples:
+        >>> import lestim
+        >>> err = lestim.Circuit('''
+        ...     R 0 1
+        ...     X_ERROR(0.25) 0 1
+        ...     M 0 1
+        ...     DETECTOR(2, 3) rec[-1] rec[-2]
+        ...     OBSERVABLE_INCLUDE(0) rec[-1]
+        ... ''').shortest_graphlike_error()
+        >>> loc: lestim.CircuitErrorLocation = err[0].circuit_error_locations[0]
+        >>> loc.instruction_targets.args
+        [0.25]
     """
 ```
 
@@ -3904,6 +4930,45 @@ def gate(
     self,
 ) -> Optional[str]:
     """Returns the name of the gate / instruction that was being executed.
+
+    Examples:
+        >>> import lestim
+        >>> err = lestim.Circuit('''
+        ...     R 0 1
+        ...     X_ERROR(0.25) 0 1
+        ...     M 0 1
+        ...     DETECTOR(2, 3) rec[-1] rec[-2]
+        ...     OBSERVABLE_INCLUDE(0) rec[-1]
+        ... ''').shortest_graphlike_error()
+        >>> loc: lestim.CircuitErrorLocation = err[0].circuit_error_locations[0]
+        >>> loc.instruction_targets.gate
+        'X_ERROR'
+    """
+```
+
+<a name="lestim.CircuitTargetsInsideInstruction.tag"></a>
+```python
+# lestim.CircuitTargetsInsideInstruction.tag
+
+# (in class lestim.CircuitTargetsInsideInstruction)
+@property
+def tag(
+    self,
+) -> str:
+    """Returns the tag of the gate / instruction that was being executed.
+
+    Examples:
+        >>> import lestim
+        >>> err = lestim.Circuit('''
+        ...     R 0 1
+        ...     X_ERROR[look-at-me-imma-tag](0.25) 0 1
+        ...     M 0 1
+        ...     DETECTOR(2, 3) rec[-1] rec[-2]
+        ...     OBSERVABLE_INCLUDE(0) rec[-1]
+        ... ''').shortest_graphlike_error()
+        >>> loc: lestim.CircuitErrorLocation = err[0].circuit_error_locations[0]
+        >>> loc.instruction_targets.tag
+        'look-at-me-imma-tag'
     """
 ```
 
@@ -3918,6 +4983,21 @@ def target_range_end(
 ) -> int:
     """Returns the exclusive end of the range of targets that were executing
     within the gate / instruction.
+
+    Examples:
+        >>> import lestim
+        >>> err = lestim.Circuit('''
+        ...     R 0 1
+        ...     X_ERROR(0.25) 0 1
+        ...     M 0 1
+        ...     DETECTOR(2, 3) rec[-1] rec[-2]
+        ...     OBSERVABLE_INCLUDE(0) rec[-1]
+        ... ''').shortest_graphlike_error()
+        >>> loc: lestim.CircuitErrorLocation = err[0].circuit_error_locations[0]
+        >>> loc.instruction_targets.target_range_start
+        0
+        >>> loc.instruction_targets.target_range_end
+        1
     """
 ```
 
@@ -3932,6 +5012,21 @@ def target_range_start(
 ) -> int:
     """Returns the inclusive start of the range of targets that were executing
     within the gate / instruction.
+
+    Examples:
+        >>> import lestim
+        >>> err = lestim.Circuit('''
+        ...     R 0 1
+        ...     X_ERROR(0.25) 0 1
+        ...     M 0 1
+        ...     DETECTOR(2, 3) rec[-1] rec[-2]
+        ...     OBSERVABLE_INCLUDE(0) rec[-1]
+        ... ''').shortest_graphlike_error()
+        >>> loc: lestim.CircuitErrorLocation = err[0].circuit_error_locations[0]
+        >>> loc.instruction_targets.target_range_start
+        0
+        >>> loc.instruction_targets.target_range_end
+        1
     """
 ```
 
@@ -3943,10 +5038,731 @@ def target_range_start(
 @property
 def targets_in_range(
     self,
-) -> List[lestim._stim_polyfill.GateTargetWithCoords]:
+) -> List[lestim.GateTargetWithCoords]:
     """Returns the subset of targets of the gate/instruction that were being executed.
 
     Includes coordinate data with the targets.
+
+    Examples:
+        >>> import lestim
+        >>> err = lestim.Circuit('''
+        ...     R 0 1
+        ...     X_ERROR(0.25) 0 1
+        ...     M 0 1
+        ...     DETECTOR(2, 3) rec[-1] rec[-2]
+        ...     OBSERVABLE_INCLUDE(0) rec[-1]
+        ... ''').shortest_graphlike_error()
+        >>> loc: lestim.CircuitErrorLocation = err[0].circuit_error_locations[0]
+        >>> loc.instruction_targets.targets_in_range
+        [lestim.GateTargetWithCoords(0, [])]
+    """
+```
+
+<a name="lestim.CliffordString"></a>
+```python
+# lestim.CliffordString
+
+# (at top-level in the lestim module)
+class CliffordString:
+    """A tensor product of single qubit Clifford gates (e.g. "H \u2297 X \u2297 S").
+
+    Represents a collection of Clifford operations applied pairwise to a
+    collection of qubits. Ignores global phase.
+
+    Examples:
+        >>> import lestim
+        >>> lestim.CliffordString("H,S,C_XYZ") * lestim.CliffordString("H,H,H")
+        lestim.CliffordString("I,C_ZYX,SQRT_X_DAG")
+    """
+```
+
+<a name="lestim.CliffordString.__add__"></a>
+```python
+# lestim.CliffordString.__add__
+
+# (in class lestim.CliffordString)
+def __add__(
+    self,
+    rhs: lestim.CliffordString,
+) -> lestim.CliffordString:
+    """Concatenates two CliffordStrings.
+
+    Args:
+        rhs: The suffix of the concatenation.
+
+    Returns:
+        The concatenated Clifford string.
+
+    Examples:
+        >>> import lestim
+        >>> lestim.CliffordString("I,X,H") + lestim.CliffordString("Y,S")
+        lestim.CliffordString("I,X,H,Y,S")
+    """
+```
+
+<a name="lestim.CliffordString.__eq__"></a>
+```python
+# lestim.CliffordString.__eq__
+
+# (in class lestim.CliffordString)
+def __eq__(
+    self,
+    arg0: lestim.CliffordString,
+) -> bool:
+    """Determines if two Clifford strings have identical contents.
+    """
+```
+
+<a name="lestim.CliffordString.__getitem__"></a>
+```python
+# lestim.CliffordString.__getitem__
+
+# (in class lestim.CliffordString)
+@overload
+def __getitem__(
+    self,
+    index_or_slice: int,
+) -> lestim.GateData:
+    pass
+@overload
+def __getitem__(
+    self,
+    index_or_slice: slice,
+) -> lestim.CliffordString:
+    pass
+def __getitem__(
+    self,
+    index_or_slice: Union[int, slice],
+) -> Union[lestim.GateData, lestim.CliffordString]:
+    """Returns a Clifford or substring from the CliffordString.
+
+    Args:
+        index_or_slice: The index of the Clifford to return, or the slice
+            corresponding to the sub CliffordString to return.
+
+    Returns:
+        The indexed Clifford (as a lestim.GateData instance) or the sliced
+        CliffordString.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.CliffordString("I,X,Y,Z,H")
+
+        >>> s[2]
+        lestim.gate_data('Y')
+
+        >>> s[-1]
+        lestim.gate_data('H')
+
+        >>> s[:-1]
+        lestim.CliffordString("I,X,Y,Z")
+
+        >>> s[::2]
+        lestim.CliffordString("I,Y,H")
+    """
+```
+
+<a name="lestim.CliffordString.__iadd__"></a>
+```python
+# lestim.CliffordString.__iadd__
+
+# (in class lestim.CliffordString)
+def __iadd__(
+    self,
+    rhs: lestim.CliffordString,
+) -> lestim.CliffordString:
+    """Mutates the CliffordString by concatenating onto it.
+
+    Args:
+        rhs: The suffix to concatenate onto the target CliffordString.
+
+    Returns:
+        The mutated Clifford string.
+
+    Examples:
+        >>> import lestim
+        >>> c = lestim.CliffordString("I,X,H")
+        >>> alias = c
+        >>> alias += lestim.CliffordString("Y,S")
+        >>> c
+        lestim.CliffordString("I,X,H,Y,S")
+    """
+```
+
+<a name="lestim.CliffordString.__imul__"></a>
+```python
+# lestim.CliffordString.__imul__
+
+# (in class lestim.CliffordString)
+def __imul__(
+    self,
+    rhs: Union[lestim.CliffordString, int],
+) -> lestim.CliffordString:
+    """Inplace CliffordString multiplication.
+
+    Mutates the CliffordString into itself multiplied by another CliffordString
+    (via pairwise Clifford multipliation) or by an integer (via repeating the
+    contents).
+
+    Args:
+        rhs: Either a lestim.CliffordString or an int. If rhs is a
+            lestim.CliffordString, then the Cliffords from each string are multiplied
+            pairwise. If rhs is an int, it is the number of times to repeat the
+            Clifford string's contents.
+
+    Returns:
+        The mutated Clifford string.
+
+    Examples:
+        >>> import lestim
+
+        >>> c = lestim.CliffordString("S,X,X")
+        >>> alias = c
+        >>> alias *= lestim.CliffordString("S,Z,H,Z")
+        >>> c
+        lestim.CliffordString("Z,Y,SQRT_Y,Z")
+
+        >>> c = lestim.CliffordString("I,X,H")
+        >>> alias = c
+        >>> alias *= 2
+        >>> c
+        lestim.CliffordString("I,X,H,I,X,H")
+    """
+```
+
+<a name="lestim.CliffordString.__init__"></a>
+```python
+# lestim.CliffordString.__init__
+
+# (in class lestim.CliffordString)
+def __init__(
+    self,
+    arg: Union[int, str, lestim.CliffordString, lestim.PauliString, lestim.Circuit],
+    /,
+) -> None:
+    """Initializes a lestim.CliffordString from the given argument.
+
+    Args:
+        arg [position-only]: This can be a variety of types, including:
+            int: initializes an identity Clifford string of the given length.
+            str: initializes by parsing a comma-separated list of gate names.
+            lestim.CliffordString: initializes by copying the given Clifford string.
+            lestim.PauliString: initializes by copying from the given Pauli string
+                (ignores the sign of the Pauli string).
+            lestim.Circuit: initializes a CliffordString equivalent to the action
+                of the circuit (as long as the circuit only contains single qubit
+                unitary operations and annotations).
+            Iterable: initializes by interpreting each item as a Clifford.
+                Each item can be a single-qubit Clifford gate name (like "SQRT_X")
+                or lestim.GateData instance.
+
+    Examples:
+        >>> import lestim
+
+        >>> lestim.CliffordString(5)
+        lestim.CliffordString("I,I,I,I,I")
+
+        >>> lestim.CliffordString("X,Y,Z,SQRT_X")
+        lestim.CliffordString("X,Y,Z,SQRT_X")
+
+        >>> lestim.CliffordString(["H", lestim.gate_data("S")])
+        lestim.CliffordString("H,S")
+
+        >>> lestim.CliffordString(lestim.PauliString("XYZ"))
+        lestim.CliffordString("X,Y,Z")
+
+        >>> lestim.CliffordString(lestim.CliffordString("X,Y,Z"))
+        lestim.CliffordString("X,Y,Z")
+
+        >>> lestim.CliffordString(lestim.Circuit('''
+        ...     H 0 1 2
+        ...     S 2 3
+        ...     TICK
+        ...     S 3
+        ...     I 6
+        ... '''))
+        lestim.CliffordString("H,H,C_ZYX,Z,I,I,I")
+    """
+```
+
+<a name="lestim.CliffordString.__ipow__"></a>
+```python
+# lestim.CliffordString.__ipow__
+
+# (in class lestim.CliffordString)
+def __ipow__(
+    self,
+    num_qubits: int,
+) -> object:
+    """Mutates the CliffordString into itself raised to a power.
+
+    Args:
+        power: The power to raise the CliffordString's Cliffords to.
+            This value can be negative (e.g. -1 inverts the string).
+
+    Returns:
+        The mutated Clifford string.
+
+    Examples:
+        >>> import lestim
+
+        >>> p = lestim.CliffordString("I,X,H,S,C_XYZ")
+        >>> p **= 3
+        >>> p
+        lestim.CliffordString("I,X,H,S_DAG,I")
+
+        >>> p **= 2
+        >>> p
+        lestim.CliffordString("I,I,I,Z,I")
+
+        >>> alias = p
+        >>> alias **= 2
+        >>> p
+        lestim.CliffordString("I,I,I,I,I")
+    """
+```
+
+<a name="lestim.CliffordString.__len__"></a>
+```python
+# lestim.CliffordString.__len__
+
+# (in class lestim.CliffordString)
+def __len__(
+    self,
+) -> int:
+    """Returns the number of Clifford operations in the string.
+
+    Examples:
+        >>> import lestim
+        >>> len(lestim.CliffordString("I,X,Y,Z,H"))
+        5
+    """
+```
+
+<a name="lestim.CliffordString.__mul__"></a>
+```python
+# lestim.CliffordString.__mul__
+
+# (in class lestim.CliffordString)
+def __mul__(
+    self,
+    rhs: Union[lestim.CliffordString, int],
+) -> lestim.CliffordString:
+    """CliffordString multiplication.
+
+    Args:
+        rhs: Either a lestim.CliffordString or an int. If rhs is a
+            lestim.CliffordString, then the Cliffords from each string are multiplied
+            pairwise. If rhs is an int, it is the number of times to repeat the
+            Clifford string's contents.
+
+    Examples:
+        >>> import lestim
+
+        >>> lestim.CliffordString("S,X,X") * lestim.CliffordString("S,Z,H,Z")
+        lestim.CliffordString("Z,Y,SQRT_Y,Z")
+
+        >>> lestim.CliffordString("I,X,H") * 3
+        lestim.CliffordString("I,X,H,I,X,H,I,X,H")
+    """
+```
+
+<a name="lestim.CliffordString.__ne__"></a>
+```python
+# lestim.CliffordString.__ne__
+
+# (in class lestim.CliffordString)
+def __ne__(
+    self,
+    arg0: lestim.CliffordString,
+) -> bool:
+    """Determines if two Clifford strings have non-identical contents.
+    """
+```
+
+<a name="lestim.CliffordString.__pow__"></a>
+```python
+# lestim.CliffordString.__pow__
+
+# (in class lestim.CliffordString)
+def __pow__(
+    self,
+    power: int,
+) -> lestim.CliffordString:
+    """Returns the CliffordString raised to a power.
+
+    Args:
+        power: The power to raise the CliffordString's Cliffords to.
+            This value can be negative (e.g. -1 returns the inverse string).
+
+    Returns:
+        The Clifford string raised to the power.
+
+    Examples:
+        >>> import lestim
+
+        >>> p = lestim.CliffordString("I,X,H,S,C_XYZ")
+
+        >>> p**0
+        lestim.CliffordString("I,I,I,I,I")
+
+        >>> p**1
+        lestim.CliffordString("I,X,H,S,C_XYZ")
+
+        >>> p**12000001
+        lestim.CliffordString("I,X,H,S,C_XYZ")
+
+        >>> p**2
+        lestim.CliffordString("I,I,I,Z,C_ZYX")
+
+        >>> p**3
+        lestim.CliffordString("I,X,H,S_DAG,I")
+
+        >>> p**-1
+        lestim.CliffordString("I,X,H,S_DAG,C_ZYX")
+    """
+```
+
+<a name="lestim.CliffordString.__repr__"></a>
+```python
+# lestim.CliffordString.__repr__
+
+# (in class lestim.CliffordString)
+def __repr__(
+    self,
+) -> str:
+    """Returns text that is a valid python expression evaluating to an equivalent `lestim.CliffordString`.
+    """
+```
+
+<a name="lestim.CliffordString.__rmul__"></a>
+```python
+# lestim.CliffordString.__rmul__
+
+# (in class lestim.CliffordString)
+def __rmul__(
+    self,
+    lhs: int,
+) -> lestim.CliffordString:
+    """CliffordString left-multiplication.
+
+    Args:
+        lhs: The number of times to repeat the Clifford string's contents.
+
+    Returns:
+        The repeated Clifford string.
+
+    Examples:
+        >>> import lestim
+
+        >>> 2 * lestim.CliffordString("I,X,H")
+        lestim.CliffordString("I,X,H,I,X,H")
+
+        >>> 0 * lestim.CliffordString("I,X,H")
+        lestim.CliffordString("")
+
+        >>> 5 * lestim.CliffordString("I")
+        lestim.CliffordString("I,I,I,I,I")
+    """
+```
+
+<a name="lestim.CliffordString.__setitem__"></a>
+```python
+# lestim.CliffordString.__setitem__
+
+# (in class lestim.CliffordString)
+def __setitem__(
+    self,
+    index_or_slice: Union[int, slice],
+    new_value: Union[str, lestim.GateData, lestim.CliffordString, lestim.PauliString, lestim.Tableau],
+) -> None:
+    """Overwrites an indexed Clifford, or slice of Cliffords, with the given value.
+
+    Args:
+        index_or_slice: The index of the Clifford to overwrite, or the slice
+            of Cliffords to overwrite.
+        new_value: Specifies the value to write into the Clifford string. This can
+            be set to a few different types of values:
+            - str: Name of the single qubit Clifford gate to write to the index or
+                broadcast over the slice.
+            - lestim.GateData: The single qubit Clifford gate to write to the index
+                or broadcast over the slice.
+            - lestim.Tableau: Must be a single qubit tableau. Specifies the single
+                qubit Clifford gate to write to the index or broadcast over the
+                slice.
+            - lestim.CliffordString: String of Cliffords to write into the slice.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.CliffordString("I,I,I,I,I")
+
+        >>> s[1] = 'H'
+        >>> s
+        lestim.CliffordString("I,H,I,I,I")
+
+        >>> s[2:] = 'SQRT_X'
+        >>> s
+        lestim.CliffordString("I,H,SQRT_X,SQRT_X,SQRT_X")
+
+        >>> s[0] = lestim.gate_data('S_DAG').inverse
+        >>> s
+        lestim.CliffordString("S,H,SQRT_X,SQRT_X,SQRT_X")
+
+        >>> s[:] = 'I'
+        >>> s
+        lestim.CliffordString("I,I,I,I,I")
+
+        >>> s[::2] = lestim.CliffordString("X,Y,Z")
+        >>> s
+        lestim.CliffordString("X,I,Y,I,Z")
+
+        >>> s[0] = lestim.Tableau.from_named_gate("H")
+        >>> s
+        lestim.CliffordString("H,I,Y,I,Z")
+
+        >>> s[:] = lestim.Tableau.from_named_gate("S")
+        >>> s
+        lestim.CliffordString("S,S,S,S,S")
+
+        >>> s[:4] = lestim.PauliString("IXYZ")
+        >>> s
+        lestim.CliffordString("I,X,Y,Z,S")
+    """
+```
+
+<a name="lestim.CliffordString.__str__"></a>
+```python
+# lestim.CliffordString.__str__
+
+# (in class lestim.CliffordString)
+def __str__(
+    self,
+) -> str:
+    """Returns a string representation of the CliffordString's operations.
+    """
+```
+
+<a name="lestim.CliffordString.all_cliffords_string"></a>
+```python
+# lestim.CliffordString.all_cliffords_string
+
+# (in class lestim.CliffordString)
+@staticmethod
+def all_cliffords_string(
+) -> lestim.CliffordString:
+    """Returns a lestim.CliffordString containing each single qubit Clifford once.
+
+    Useful for things like testing that a method works on every single Clifford.
+
+    Examples:
+        >>> import lestim
+        >>> cliffords = lestim.CliffordString.all_cliffords_string()
+        >>> len(cliffords)
+        24
+
+        >>> print(cliffords[:8])
+        I,X,Y,Z,H_XY,S,S_DAG,H_NXY
+
+        >>> print(cliffords[8:16])
+        H,SQRT_Y_DAG,H_NXZ,SQRT_Y,H_YZ,H_NYZ,SQRT_X,SQRT_X_DAG
+
+        >>> print(cliffords[16:])
+        C_XYZ,C_XYNZ,C_NXYZ,C_XNYZ,C_ZYX,C_ZNYX,C_NZYX,C_ZYNX
+    """
+```
+
+<a name="lestim.CliffordString.copy"></a>
+```python
+# lestim.CliffordString.copy
+
+# (in class lestim.CliffordString)
+def copy(
+    self,
+) -> lestim.CliffordString:
+    """Returns a copy of the CliffordString.
+
+    Returns:
+        The copy.
+
+    Examples:
+        >>> import lestim
+        >>> c = lestim.CliffordString("H,X")
+        >>> alias = c
+        >>> copy = c.copy()
+        >>> c *= 5
+        >>> alias
+        lestim.CliffordString("H,X,H,X,H,X,H,X,H,X")
+        >>> copy
+        lestim.CliffordString("H,X")
+    """
+```
+
+<a name="lestim.CliffordString.random"></a>
+```python
+# lestim.CliffordString.random
+
+# (in class lestim.CliffordString)
+@staticmethod
+def random(
+    num_qubits: int,
+) -> lestim.CliffordString:
+    """Samples a uniformly random CliffordString.
+
+    Args:
+        num_qubits: The number of qubits the CliffordString should act upon.
+
+    Examples:
+        >>> import lestim
+        >>> p = lestim.CliffordString.random(5)
+        >>> len(p)
+        5
+
+    Returns:
+        The sampled Clifford string.
+    """
+```
+
+<a name="lestim.CliffordString.x_outputs"></a>
+```python
+# lestim.CliffordString.x_outputs
+
+# (in class lestim.CliffordString)
+def x_outputs(
+    self,
+    *,
+    bit_packed_signs: bool = False,
+) -> Tuple[lestim.PauliString, np.ndarray]:
+    """Returns what each Clifford in the CliffordString conjugates an X input into.
+
+    For example, H conjugates X into +Z and S_DAG conjugates X into -Y.
+
+    Combined with `z_outputs`, the results of this method completely specify
+    the single qubit Clifford applied to each qubit.
+
+    Args:
+        bit_packed_signs: Defaults to False. When False, the sign data is returned
+            in a numpy array with dtype `np.bool_`. When True, the dtype is instead
+            `np.uint8` and 8 bits are packed into each byte (in little endian
+            order).
+
+    Returns:
+        A (paulis, signs) tuple.
+
+        `paulis` has type lestim.PauliString. Its sign is always positive.
+
+        `signs` has type np.ndarray and an argument-dependent shape:
+            bit_packed_signs=False:
+                dtype=np.bool_
+                shape=(num_qubits,)
+            bit_packed_signs=True:
+                dtype=np.uint8
+                shape=(math.ceil(num_qubits / 8),)
+
+    Examples:
+        >>> import lestim
+        >>> x_paulis, x_signs = lestim.CliffordString("I,Y,H,S").x_outputs()
+        >>> x_paulis
+        lestim.PauliString("+XXZY")
+        >>> x_signs
+        array([False,  True, False, False])
+
+        >>> lestim.CliffordString("I,Y,H,S").x_outputs(bit_packed_signs=True)[1]
+        array([2], dtype=uint8)
+    """
+```
+
+<a name="lestim.CliffordString.y_outputs"></a>
+```python
+# lestim.CliffordString.y_outputs
+
+# (in class lestim.CliffordString)
+def y_outputs(
+    self,
+    *,
+    bit_packed_signs: bool = False,
+) -> Tuple[lestim.PauliString, np.ndarray]:
+    """Returns what each Clifford in the CliffordString conjugates a Y input into.
+
+    For example, H conjugates Y into -Y and S_DAG conjugates Y into +X.
+
+    Args:
+        bit_packed_signs: Defaults to False. When False, the sign data is returned
+            in a numpy array with dtype `np.bool_`. When True, the dtype is instead
+            `np.uint8` and 8 bits are packed into each byte (in little endian
+            order).
+
+    Returns:
+        A (paulis, signs) tuple.
+
+        `paulis` has type lestim.PauliString. Its sign is always positive.
+
+        `signs` has type np.ndarray and an argument-dependent shape:
+            bit_packed_signs=False:
+                dtype=np.bool_
+                shape=(num_qubits,)
+            bit_packed_signs=True:
+                dtype=np.uint8
+                shape=(math.ceil(num_qubits / 8),)
+
+    Examples:
+        >>> import lestim
+        >>> y_paulis, y_signs = lestim.CliffordString("I,X,H,S").y_outputs()
+        >>> y_paulis
+        lestim.PauliString("+YYYX")
+        >>> y_signs
+        array([False,  True,  True,  True])
+
+        >>> lestim.CliffordString("I,X,H,S").y_outputs(bit_packed_signs=True)[1]
+        array([14], dtype=uint8)
+    """
+```
+
+<a name="lestim.CliffordString.z_outputs"></a>
+```python
+# lestim.CliffordString.z_outputs
+
+# (in class lestim.CliffordString)
+def z_outputs(
+    self,
+    *,
+    bit_packed_signs: bool = False,
+) -> Tuple[lestim.PauliString, np.ndarray]:
+    """Returns what each Clifford in the CliffordString conjugates a Z input into.
+
+    For example, H conjugates Z into +X and SQRT_X conjugates Z into -Y.
+
+    Combined with `x_outputs`, the results of this method completely specify
+    the single qubit Clifford applied to each qubit.
+
+    Args:
+        bit_packed_signs: Defaults to False. When False, the sign data is returned
+            in a numpy array with dtype `np.bool_`. When True, the dtype is instead
+            `np.uint8` and 8 bits are packed into each byte (in little endian
+            order).
+
+    Returns:
+        A (paulis, signs) tuple.
+
+        `paulis` has type lestim.PauliString. Its sign is always positive.
+
+        `signs` has type np.ndarray and an argument-dependent shape:
+            bit_packed_signs=False:
+                dtype=np.bool_
+                shape=(num_qubits,)
+            bit_packed_signs=True:
+                dtype=np.uint8
+                shape=(math.ceil(num_qubits / 8),)
+
+    Examples:
+        >>> import lestim
+        >>> z_paulis, z_signs = lestim.CliffordString("I,Y,H,S").z_outputs()
+        >>> z_paulis
+        lestim.PauliString("+ZZXZ")
+        >>> z_signs
+        array([False,  True, False, False])
+
+        >>> lestim.CliffordString("I,Y,H,S").z_outputs(bit_packed_signs=True)[1]
+        array([2], dtype=uint8)
     """
 ```
 
@@ -4153,13 +5969,13 @@ def sample_write(
     shots: int,
     *,
     det_out_file: Union[None, str, pathlib.Path],
-    det_out_format: str = "01",
+    det_out_format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"] = '01',
     obs_out_file: Union[None, str, pathlib.Path],
-    obs_out_format: str = "01",
+    obs_out_format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"] = '01',
     err_out_file: Union[None, str, pathlib.Path] = None,
-    err_out_format: str = "01",
+    err_out_format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"] = '01',
     replay_err_in_file: Union[None, str, pathlib.Path] = None,
-    replay_err_in_format: str = "01",
+    replay_err_in_format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"] = '01',
 ) -> None:
     """Samples the detector error model and writes the results to disk.
 
@@ -4245,7 +6061,7 @@ class CompiledDetectorSampler:
 # (in class lestim.CompiledDetectorSampler)
 def __init__(
     self,
-    circuit: lestim._stim_polyfill.Circuit,
+    circuit: lestim.Circuit,
     *,
     seed: object = None,
 ) -> None:
@@ -4313,25 +6129,6 @@ def __repr__(
 # lestim.CompiledDetectorSampler.sample
 
 # (in class lestim.CompiledDetectorSampler)
-@overload
-def sample(
-    self,
-    shots: int,
-    *,
-    prepend_observables: bool = False,
-    append_observables: bool = False,
-    bit_packed: bool = False,
-) -> np.ndarray:
-    pass
-@overload
-def sample(
-    self,
-    shots: int,
-    *,
-    separate_observables: Literal[True],
-    bit_packed: bool = False,
-) -> Tuple[np.ndarray, np.ndarray]:
-    pass
 def sample(
     self,
     shots: int,
@@ -4340,6 +6137,8 @@ def sample(
     append_observables: bool = False,
     separate_observables: bool = False,
     bit_packed: bool = False,
+    dets_out: Optional[np.ndarray] = None,
+    obs_out: Optional[np.ndarray] = None,
 ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
     """Returns a numpy array containing a batch of detector samples from the circuit.
 
@@ -4358,6 +6157,12 @@ def sample(
             with the detectors and are placed at the end of the results.
         bit_packed: Returns a uint8 numpy array with 8 bits per byte, instead of
             a bool_ numpy array with 1 bit per byte. Uses little endian packing.
+        dets_out: Defaults to None. Specifies a pre-allocated numpy array to write
+            the detection event data into. This array must have the correct shape
+            and dtype.
+        obs_out: Defaults to None. Specifies a pre-allocated numpy array to write
+            the observable flip data into. This array must have the correct shape
+            and dtype.
 
     Returns:
         A numpy array or tuple of numpy arrays containing the samples.
@@ -4405,6 +6210,19 @@ def sample(
                 (dets[s, m // 8] >> (m % 8)) & 1
             The bit for observable `m` in shot `s` is at
                 (obs[s, m // 8] >> (m % 8)) & 1
+
+    Examples:
+        >>> import lestim
+        >>> c = lestim.Circuit('''
+        ...    H 0
+        ...    CNOT 0 1
+        ...    X_ERROR(1.0) 0
+        ...    M 0 1
+        ...    DETECTOR rec[-1] rec[-2]
+        ... ''')
+        >>> s = c.compile_detector_sampler()
+        >>> s.sample(shots=1)
+        array([[ True]])
     """
 ```
 
@@ -4418,9 +6236,9 @@ def sample_write(
     shots: int,
     *,
     filepath: Union[str, pathlib.Path],
-    format: 'Literal["01", "b8", "r8", "ptb64", "hits", "dets"]' = '01',
+    format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"] = '01',
     obs_out_filepath: Optional[Union[str, pathlib.Path]] = None,
-    obs_out_format: 'Literal["01", "b8", "r8", "ptb64", "hits", "dets"]' = '01',
+    obs_out_format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"] = '01',
     prepend_observables: bool = False,
     append_observables: bool = False,
 ) -> None:
@@ -4488,7 +6306,7 @@ class CompiledMeasurementSampler:
 # (in class lestim.CompiledMeasurementSampler)
 def __init__(
     self,
-    circuit: lestim._stim_polyfill.Circuit,
+    circuit: lestim.Circuit,
     *,
     skip_reference_sample: bool = False,
     seed: object = None,
@@ -4631,8 +6449,8 @@ def sample_write(
     self,
     shots: int,
     *,
-    filepath: str,
-    format: str = '01',
+    filepath: Union[str, pathlib.Path],
+    format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"] = '01',
 ) -> None:
     """Samples measurements from the circuit and writes them to a file.
 
@@ -4683,7 +6501,7 @@ class CompiledMeasurementsToDetectionEventsConverter:
 # (in class lestim.CompiledMeasurementsToDetectionEventsConverter)
 def __init__(
     self,
-    circuit: lestim._stim_polyfill.Circuit,
+    circuit: lestim.Circuit,
     *,
     skip_reference_sample: bool = False,
 ) -> None:
@@ -4759,7 +6577,7 @@ def convert(
     *,
     measurements: np.ndarray,
     sweep_bits: Optional[np.ndarray] = None,
-    separate_observables: 'Literal[True]',
+    separate_observables: Literal[True],
     append_observables: bool = False,
     bit_packed: bool = False,
 ) -> Tuple[np.ndarray, np.ndarray]:
@@ -4858,15 +6676,15 @@ def convert(
 def convert_file(
     self,
     *,
-    measurements_filepath: str,
-    measurements_format: str = '01',
-    sweep_bits_filepath: str = None,
-    sweep_bits_format: str = '01',
-    detection_events_filepath: str,
-    detection_events_format: str = '01',
+    measurements_filepath: Union[str, pathlib.Path],
+    measurements_format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"] = '01',
+    sweep_bits_filepath: Optional[Union[str, pathlib.Path]] = None,
+    sweep_bits_format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"] = '01',
+    detection_events_filepath: Union[str, pathlib.Path],
+    detection_events_format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"] = '01',
     append_observables: bool = False,
-    obs_out_filepath: str = None,
-    obs_out_format: str = '01',
+    obs_out_filepath: Optional[Union[str, pathlib.Path]] = None,
+    obs_out_format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"] = '01',
 ) -> None:
     """Reads measurement data from a file and writes detection events to another file.
 
@@ -4953,7 +6771,7 @@ class DemInstruction:
 # (in class lestim.DemInstruction)
 def __eq__(
     self,
-    arg0: lestim._stim_polyfill.DemInstruction,
+    arg0: lestim.DemInstruction,
 ) -> bool:
     """Determines if two instructions have identical contents.
     """
@@ -4967,26 +6785,36 @@ def __eq__(
 def __init__(
     self,
     type: str,
-    args: List[float],
-    targets: List[object],
+    args: Optional[Iterable[float]] = None,
+    targets: Optional[Iterable[lestim.DemTarget]] = None,
+    *,
+    tag: str = "",
 ) -> None:
-    """Creates a lestim.DemInstruction.
+    """Creates or parses a lestim.DemInstruction.
 
     Args:
         type: The name of the instruction type (e.g. "error" or "shift_detectors").
+            If `args` and `targets` aren't specified, this can also be set to a
+            full line of text from a dem file, like "error(0.25) D0".
         args: Numeric values parameterizing the instruction (e.g. the 0.1 in
             "error(0.1)").
         targets: The objects the instruction involves (e.g. the "D0" and "L1" in
             "error(0.1) D0 L1").
+        tag: An arbitrary piece of text attached to the instruction.
 
     Examples:
         >>> import lestim
         >>> instruction = lestim.DemInstruction(
         ...     'error',
         ...     [0.125],
-        ...     [lestim.target_relative_detector_id(5)])
+        ...     [lestim.target_relative_detector_id(5)],
+        ...     tag='test-tag',
+        ... )
         >>> print(instruction)
-        error(0.125) D5
+        error[test-tag](0.125) D5
+
+        >>> print(lestim.DemInstruction('error(0.125) D5 L6 ^ D4  # comment'))
+        error(0.125) D5 L6 ^ D4
     """
 ```
 
@@ -4997,7 +6825,7 @@ def __init__(
 # (in class lestim.DemInstruction)
 def __ne__(
     self,
-    arg0: lestim._stim_polyfill.DemInstruction,
+    arg0: lestim.DemInstruction,
 ) -> bool:
     """Determines if two instructions have non-identical contents.
     """
@@ -5035,7 +6863,84 @@ def __str__(
 def args_copy(
     self,
 ) -> List[float]:
-    """Returns a copy of the list of numbers parameterizing the instruction (e.g. the probability of an error).
+    """Returns a copy of the list of numbers parameterizing the instruction.
+
+    For example, this would be coordinates of a detector instruction or the
+    probability of an error instruction. The result is a copy, meaning that
+    editing it won't change the instruction's targets or future copies.
+
+    Examples:
+        >>> import lestim
+        >>> instruction = lestim.DetectorErrorModel('''
+        ...     error(0.125) D0
+        ... ''')[0]
+        >>> instruction.args_copy()
+        [0.125]
+
+        >>> instruction.args_copy() == instruction.args_copy()
+        True
+        >>> instruction.args_copy() is instruction.args_copy()
+        False
+    """
+```
+
+<a name="lestim.DemInstruction.tag"></a>
+```python
+# lestim.DemInstruction.tag
+
+# (in class lestim.DemInstruction)
+@property
+def tag(
+    self,
+) -> str:
+    """Returns the arbitrary text tag attached to the instruction.
+
+    Examples:
+        >>> import lestim
+        >>> dem = lestim.DetectorErrorModel('''
+        ...     error[test-tag](0.125) D0
+        ...     error(0.125) D0
+        ... ''')
+        >>> dem[0].tag
+        'test-tag'
+        >>> dem[1].tag
+        ''
+    """
+```
+
+<a name="lestim.DemInstruction.target_groups"></a>
+```python
+# lestim.DemInstruction.target_groups
+
+# (in class lestim.DemInstruction)
+def target_groups(
+    self,
+) -> List[List[lestim.DemTarget]]:
+    """Returns a copy of the instruction's targets, split by target separators.
+
+    When a detector error model instruction contains a suggested decomposition,
+    its targets contain separators (`lestim.DemTarget("^")`). This method splits the
+    targets into groups based the separators, similar to how `str.split` works.
+
+    Returns:
+        A list of groups of targets.
+
+    Examples:
+        >>> import lestim
+        >>> dem = lestim.DetectorErrorModel('''
+        ...     error(0.01) D0 D1 ^ D2
+        ...     error(0.01) D0 L0
+        ...     error(0.01)
+        ... ''')
+
+        >>> dem[0].target_groups()
+        [[lestim.DemTarget('D0'), lestim.DemTarget('D1')], [lestim.DemTarget('D2')]]
+
+        >>> dem[1].target_groups()
+        [[lestim.DemTarget('D0'), lestim.DemTarget('L0')]]
+
+        >>> dem[2].target_groups()
+        [[]]
     """
 ```
 
@@ -5046,11 +6951,24 @@ def args_copy(
 # (in class lestim.DemInstruction)
 def targets_copy(
     self,
-) -> List[Union[int, stim.DemTarget]]:
+) -> List[Union[int, lestim.DemTarget]]:
     """Returns a copy of the instruction's targets.
 
-    (Making a copy is enforced to make it clear that editing the result won't change
-    the instruction's targets.)
+    The result is a copy, meaning that editing it won't change the instruction's
+    targets or future copies.
+
+    Examples:
+        >>> import lestim
+        >>> instruction = lestim.DetectorErrorModel('''
+        ...     error(0.125) D0 L2
+        ... ''')[0]
+        >>> instruction.targets_copy()
+        [lestim.DemTarget('D0'), lestim.DemTarget('L2')]
+
+        >>> instruction.targets_copy() == instruction.targets_copy()
+        True
+        >>> instruction.targets_copy() is instruction.targets_copy()
+        False
     """
 ```
 
@@ -5098,7 +7016,7 @@ class DemRepeatBlock:
 # (in class lestim.DemRepeatBlock)
 def __eq__(
     self,
-    arg0: lestim._stim_polyfill.DemRepeatBlock,
+    arg0: lestim.DemRepeatBlock,
 ) -> bool:
     """Determines if two repeat blocks are identical.
     """
@@ -5112,7 +7030,7 @@ def __eq__(
 def __init__(
     self,
     repeat_count: int,
-    block: lestim._stim_polyfill.DetectorErrorModel,
+    block: lestim.DetectorErrorModel,
 ) -> None:
     """Creates a lestim.DemRepeatBlock.
 
@@ -5138,7 +7056,7 @@ def __init__(
 # (in class lestim.DemRepeatBlock)
 def __ne__(
     self,
-    arg0: lestim._stim_polyfill.DemRepeatBlock,
+    arg0: lestim.DemRepeatBlock,
 ) -> bool:
     """Determines if two repeat blocks are different.
     """
@@ -5163,8 +7081,20 @@ def __repr__(
 # (in class lestim.DemRepeatBlock)
 def body_copy(
     self,
-) -> lestim._stim_polyfill.DetectorErrorModel:
+) -> lestim.DetectorErrorModel:
     """Returns a copy of the block's body, as a lestim.DetectorErrorModel.
+
+    Examples:
+        >>> import lestim
+        >>> body = lestim.DetectorErrorModel('''
+        ...     error(0.125) D0 D1
+        ...     shift_detectors 1
+        ... ''')
+        >>> repeat_block = lestim.DemRepeatBlock(100, body)
+        >>> repeat_block.body_copy() == body
+        True
+        >>> repeat_block.body_copy() is repeat_block.body_copy()
+        False
     """
 ```
 
@@ -5228,9 +7158,36 @@ class DemTarget:
 # (in class lestim.DemTarget)
 def __eq__(
     self,
-    arg0: lestim._stim_polyfill.DemTarget,
+    arg0: lestim.DemTarget,
 ) -> bool:
     """Determines if two `lestim.DemTarget`s are identical.
+    """
+```
+
+<a name="lestim.DemTarget.__init__"></a>
+```python
+# lestim.DemTarget.__init__
+
+# (in class lestim.DemTarget)
+def __init__(
+    self,
+    arg: object,
+    /,
+) -> None:
+    """Creates a lestim.DemTarget from the given object.
+
+    Args:
+        arg: A string to parse as a lestim.DemTarget, or some other object to
+            convert into a lestim.DemTarget.
+
+    Examples:
+        >>> import lestim
+        >>> lestim.DemTarget("D5") == lestim.target_relative_detector_id(5)
+        True
+        >>> lestim.DemTarget("L2") == lestim.target_logical_observable_id(2)
+        True
+        >>> lestim.DemTarget("^") == lestim.target_separator()
+        True
     """
 ```
 
@@ -5241,7 +7198,7 @@ def __eq__(
 # (in class lestim.DemTarget)
 def __ne__(
     self,
-    arg0: lestim._stim_polyfill.DemTarget,
+    arg0: lestim.DemTarget,
 ) -> bool:
     """Determines if two `lestim.DemTarget`s are different.
     """
@@ -5283,6 +7240,15 @@ def is_logical_observable_id(
 
     In a detector error model file, observable targets are prefixed by `L`. For
     example, in `error(0.25) D0 L1` the `L1` is an observable target.
+
+    Examples:
+        >>> import lestim
+        >>> lestim.DemTarget("L2").is_logical_observable_id()
+        True
+        >>> lestim.DemTarget("D3").is_logical_observable_id()
+        False
+        >>> lestim.DemTarget("^").is_logical_observable_id()
+        False
     """
 ```
 
@@ -5298,6 +7264,15 @@ def is_relative_detector_id(
 
     In a detector error model file, detectors are prefixed by `D`. For
     example, in `error(0.25) D0 L1` the `D0` is a relative detector target.
+
+    Examples:
+        >>> import lestim
+        >>> lestim.DemTarget("L2").is_relative_detector_id()
+        False
+        >>> lestim.DemTarget("D3").is_relative_detector_id()
+        True
+        >>> lestim.DemTarget("^").is_relative_detector_id()
+        False
     """
 ```
 
@@ -5313,6 +7288,15 @@ def is_separator(
 
     Separates separate the components of a suggested decompositions within an error.
     For example, the `^` in `error(0.25) D1 D2 ^ D3 D4` is the separator.
+
+    Examples:
+        >>> import lestim
+        >>> lestim.DemTarget("L2").is_separator()
+        False
+        >>> lestim.DemTarget("D3").is_separator()
+        False
+        >>> lestim.DemTarget("^").is_separator()
+        True
     """
 ```
 
@@ -5324,7 +7308,7 @@ def is_separator(
 @staticmethod
 def logical_observable_id(
     index: int,
-) -> lestim._stim_polyfill.DemTarget:
+) -> lestim.DemTarget:
     """Returns a logical observable id identifying a frame change.
 
     Args:
@@ -5354,7 +7338,7 @@ def logical_observable_id(
 @staticmethod
 def relative_detector_id(
     index: int,
-) -> lestim._stim_polyfill.DemTarget:
+) -> lestim.DemTarget:
     """Returns a relative detector id (e.g. "D5" in a .dem file).
 
     Args:
@@ -5383,7 +7367,7 @@ def relative_detector_id(
 # (in class lestim.DemTarget)
 @staticmethod
 def separator(
-) -> lestim._stim_polyfill.DemTarget:
+) -> lestim.DemTarget:
     """Returns a target separator (e.g. "^" in a .dem file).
 
     Examples:
@@ -5413,11 +7397,10 @@ def val(
     """Returns the target's integer value.
 
     Example:
-
         >>> import lestim
-        >>> lestim.target_relative_detector_id(5).val
+        >>> lestim.DemTarget("D5").val
         5
-        >>> lestim.target_logical_observable_id(6).val
+        >>> lestim.DemTarget("L6").val
         6
     """
 ```
@@ -5442,6 +7425,14 @@ class DemTargetWithCoords:
     problem in a circuit, instead of having to constantly manually
     look up the coordinates of a detector index in order to understand
     what is happening.
+
+    Examples:
+        >>> import lestim
+        >>> t = lestim.DemTargetWithCoords(lestim.DemTarget("D1"), [1.5, 2.0])
+        >>> t.dem_target
+        lestim.DemTarget('D1')
+        >>> t.coords
+        [1.5, 2.0]
     """
 ```
 
@@ -5452,11 +7443,22 @@ class DemTargetWithCoords:
 # (in class lestim.DemTargetWithCoords)
 def __init__(
     self,
-    *,
-    dem_target: lestim._stim_polyfill.DemTarget,
+    dem_target: lestim.DemTarget,
     coords: List[float],
 ) -> None:
     """Creates a lestim.DemTargetWithCoords.
+
+    Examples:
+        >>> import lestim
+        >>> err = lestim.Circuit('''
+        ...     R 0 1
+        ...     X_ERROR(0.25) 0 1
+        ...     M 0 1
+        ...     DETECTOR(2, 3) rec[-1] rec[-2]
+        ...     OBSERVABLE_INCLUDE(0) rec[-1]
+        ... ''').shortest_graphlike_error()
+        >>> err[0].dem_error_terms[0]
+        lestim.DemTargetWithCoords(dem_target=lestim.DemTarget('D0'), coords=[2, 3])
     """
 ```
 
@@ -5472,6 +7474,18 @@ def coords(
     """Returns the associated coordinate information as a list of floats.
 
     If there is no coordinate information, returns an empty list.
+
+    Examples:
+        >>> import lestim
+        >>> err = lestim.Circuit('''
+        ...     R 0 1
+        ...     X_ERROR(0.25) 0 1
+        ...     M 0 1
+        ...     DETECTOR(2, 3) rec[-1] rec[-2]
+        ...     OBSERVABLE_INCLUDE(0) rec[-1]
+        ... ''').shortest_graphlike_error()
+        >>> err[0].dem_error_terms[0].coords
+        [2.0, 3.0]
     """
 ```
 
@@ -5483,8 +7497,20 @@ def coords(
 @property
 def dem_target(
     self,
-) -> lestim._stim_polyfill.DemTarget:
+) -> lestim.DemTarget:
     """Returns the actual DEM target as a `lestim.DemTarget`.
+
+    Examples:
+        >>> import lestim
+        >>> err = lestim.Circuit('''
+        ...     R 0 1
+        ...     X_ERROR(0.25) 0 1
+        ...     M 0 1
+        ...     DETECTOR(2, 3) rec[-1] rec[-2]
+        ...     OBSERVABLE_INCLUDE(0) rec[-1]
+        ... ''').shortest_graphlike_error()
+        >>> err[0].dem_error_terms[0].dem_target
+        lestim.DemTarget('D0')
     """
 ```
 
@@ -5563,8 +7589,8 @@ class DetectorErrorModel:
 # (in class lestim.DetectorErrorModel)
 def __add__(
     self,
-    second: lestim._stim_polyfill.DetectorErrorModel,
-) -> lestim._stim_polyfill.DetectorErrorModel:
+    second: lestim.DetectorErrorModel,
+) -> lestim.DetectorErrorModel:
     """Creates a detector error model by appending two models.
 
     Examples:
@@ -5590,7 +7616,7 @@ def __add__(
 # (in class lestim.DetectorErrorModel)
 def __eq__(
     self,
-    arg0: lestim._stim_polyfill.DetectorErrorModel,
+    arg0: lestim.DetectorErrorModel,
 ) -> bool:
     """Determines if two detector error models have identical contents.
     """
@@ -5605,13 +7631,13 @@ def __eq__(
 def __getitem__(
     self,
     index_or_slice: int,
-) -> Union[stim.DemInstruction, stim.DemRepeatBlock]:
+) -> Union[lestim.DemInstruction, lestim.DemRepeatBlock]:
     pass
 @overload
 def __getitem__(
     self,
     index_or_slice: slice,
-) -> stim.DetectorErrorModel:
+) -> lestim.DetectorErrorModel:
     pass
 def __getitem__(
     self,
@@ -5660,8 +7686,8 @@ def __getitem__(
 # (in class lestim.DetectorErrorModel)
 def __iadd__(
     self,
-    second: lestim._stim_polyfill.DetectorErrorModel,
-) -> lestim._stim_polyfill.DetectorErrorModel:
+    second: lestim.DetectorErrorModel,
+) -> lestim.DetectorErrorModel:
     """Appends a detector error model into the receiving model (mutating it).
 
     Examples:
@@ -5689,7 +7715,7 @@ def __iadd__(
 def __imul__(
     self,
     repetitions: int,
-) -> lestim._stim_polyfill.DetectorErrorModel:
+) -> lestim.DetectorErrorModel:
     """Mutates the detector error model by putting its contents into a repeat block.
 
     Special case: if the repetition count is 0, the model is cleared.
@@ -5777,7 +7803,7 @@ def __len__(
 def __mul__(
     self,
     repetitions: int,
-) -> lestim._stim_polyfill.DetectorErrorModel:
+) -> lestim.DetectorErrorModel:
     """Repeats the detector error model using a repeat block.
 
     Has special cases for 0 repetitions and 1 repetitions.
@@ -5814,7 +7840,7 @@ def __mul__(
 # (in class lestim.DetectorErrorModel)
 def __ne__(
     self,
-    arg0: lestim._stim_polyfill.DetectorErrorModel,
+    arg0: lestim.DetectorErrorModel,
 ) -> bool:
     """Determines if two detector error models have non-identical contents.
     """
@@ -5840,7 +7866,7 @@ def __repr__(
 def __rmul__(
     self,
     repetitions: int,
-) -> lestim._stim_polyfill.DetectorErrorModel:
+) -> lestim.DetectorErrorModel:
     """Repeats the detector error model using a repeat block.
 
     Has special cases for 0 repetitions and 1 repetitions.
@@ -5892,18 +7918,22 @@ def append(
     instruction: object,
     parens_arguments: object = None,
     targets: List[object] = (),
+    *,
+    tag: str = '',
 ) -> None:
     """Appends an instruction to the detector error model.
 
     Args:
-        instruction: Either the name of an instruction, a lestim.DemInstruction, or a
-            lestim.DemRepeatBlock. The `parens_arguments` and `targets` arguments are
-            given if and only if the instruction is a name.
+        instruction: Either the name of an instruction, a lestim.DemInstruction, a
+            lestim.DemRepeatBlock. or a lestim.DetectorErrorModel. The
+            `parens_arguments`, `targets`, and 'tag' arguments should be given iff
+            the instruction is a name.
         parens_arguments: Numeric values parameterizing the instruction. The numbers
             inside parentheses in a detector error model file (eg. the `0.25` in
             `error(0.25) D0`). This argument can be given either a list of doubles,
             or a single double (which will be implicitly wrapped into a list).
         targets: The instruction targets, such as the `D0` in `error(0.25) D0`.
+        tag: An arbitrary piece of text attached to the repeat instruction.
 
     Examples:
         >>> import lestim
@@ -5916,18 +7946,18 @@ def append(
         ...     lestim.DemTarget.separator(),
         ...     lestim.DemTarget.relative_detector_id(2),
         ...     lestim.DemTarget.logical_observable_id(3),
-        ... ])
+        ... ], tag='test-tag')
         >>> print(repr(m))
         lestim.DetectorErrorModel('''
             error(0.125) D1
-            error(0.25) D1 ^ D2 L3
+            error[test-tag](0.25) D1 ^ D2 L3
         ''')
 
         >>> m.append("shift_detectors", (1, 2, 3), [5])
         >>> print(repr(m))
         lestim.DetectorErrorModel('''
             error(0.125) D1
-            error(0.25) D1 ^ D2 L3
+            error[test-tag](0.25) D1 ^ D2 L3
             shift_detectors(1, 2, 3) 5
         ''')
 
@@ -5937,17 +7967,17 @@ def append(
         >>> print(repr(m))
         lestim.DetectorErrorModel('''
             error(0.125) D1
-            error(0.25) D1 ^ D2 L3
+            error[test-tag](0.25) D1 ^ D2 L3
             shift_detectors(1, 2, 3) 5
             repeat 3 {
                 error(0.125) D1
-                error(0.25) D1 ^ D2 L3
+                error[test-tag](0.25) D1 ^ D2 L3
                 shift_detectors(1, 2, 3) 5
             }
             error(0.125) D1
             repeat 3 {
                 error(0.125) D1
-                error(0.25) D1 ^ D2 L3
+                error[test-tag](0.25) D1 ^ D2 L3
                 shift_detectors(1, 2, 3) 5
             }
         ''')
@@ -6043,7 +8073,7 @@ def compile_sampler(
     self,
     *,
     seed: object = None,
-) -> lestim._stim_polyfill.CompiledDemSampler:
+) -> lestim.CompiledDemSampler:
     """Returns a CompiledDemSampler that can batch sample from detector error models.
 
     Args:
@@ -6110,7 +8140,7 @@ def compile_sampler(
 # (in class lestim.DetectorErrorModel)
 def copy(
     self,
-) -> lestim._stim_polyfill.DetectorErrorModel:
+) -> lestim.DetectorErrorModel:
     """Returns a copy of the detector error model.
 
     The copy is an independent detector error model with the same contents.
@@ -6134,7 +8164,7 @@ def copy(
 # (in class lestim.DetectorErrorModel)
 def diagram(
     self,
-    type: str,
+    type: Literal["matchgraph-svg", "matchgraph-svg-html", "matchgraph-3d", "matchgraph-3d-html"] = 'matchgraph-svg',
 ) -> Any:
     """Returns a diagram of the circuit, from a variety of options.
 
@@ -6195,7 +8225,7 @@ def diagram(
 # (in class lestim.DetectorErrorModel)
 def flattened(
     self,
-) -> lestim._stim_polyfill.DetectorErrorModel:
+) -> lestim.DetectorErrorModel:
     """Returns the detector error model without repeat or detector_shift instructions.
 
     Returns:
@@ -6233,7 +8263,7 @@ def flattened(
 @staticmethod
 def from_file(
     file: Union[io.TextIOBase, str, pathlib.Path],
-) -> stim.DetectorErrorModel:
+) -> lestim.DetectorErrorModel:
     """Reads a detector error model from a file.
 
     The file format is defined at
@@ -6264,7 +8294,7 @@ def from_file(
         ...     with open(path, 'w') as f:
         ...         print('error(0.25) D2 D3', file=f)
         ...     with open(path) as f:
-        ...         circuit = lestim.DetectorErrorModel.from_file(path)
+        ...         circuit = lestim.DetectorErrorModel.from_file(f)
         >>> circuit
         lestim.DetectorErrorModel('''
             error(0.25) D2 D3
@@ -6418,7 +8448,7 @@ def num_observables(
 def rounded(
     self,
     arg0: int,
-) -> lestim._stim_polyfill.DetectorErrorModel:
+) -> lestim.DetectorErrorModel:
     """Creates an equivalent detector error model but with rounded error probabilities.
 
     Args:
@@ -6461,7 +8491,7 @@ def rounded(
 def shortest_graphlike_error(
     self,
     ignore_ungraphlike_errors: bool = True,
-) -> lestim._stim_polyfill.DetectorErrorModel:
+) -> lestim.DetectorErrorModel:
     """Finds a minimum set of graphlike errors to produce an undetected logical error.
 
     Note that this method does not pay attention to error probabilities (other than
@@ -6484,7 +8514,7 @@ def shortest_graphlike_error(
     the race to find a solution.
 
     Args:
-        ignore_ungraphlike_errors: Defaults to False. When False, an exception is
+        ignore_ungraphlike_errors: Defaults to True. When False, an exception is
             raised if there are any errors in the model that are not graphlike. When
             True, those errors are skipped as if they weren't present.
 
@@ -6590,6 +8620,31 @@ def to_file(
     """
 ```
 
+<a name="lestim.DetectorErrorModel.without_tags"></a>
+```python
+# lestim.DetectorErrorModel.without_tags
+
+# (in class lestim.DetectorErrorModel)
+def without_tags(
+    self,
+) -> lestim.DetectorErrorModel:
+    """Returns a copy of the detector error model with all tags removed.
+
+    Returns:
+        A `lestim.DetectorErrorModel` with the same instructions except all tags have
+        been removed.
+
+    Examples:
+        >>> import lestim
+        >>> lestim.DetectorErrorModel('''
+        ...     error[test-tag](0.25) D0
+        ... ''').without_tags()
+        lestim.DetectorErrorModel('''
+            error(0.25) D0
+        ''')
+    """
+```
+
 <a name="lestim.ExplainedError"></a>
 ```python
 # lestim.ExplainedError
@@ -6597,6 +8652,28 @@ def to_file(
 # (at top-level in the lestim module)
 class ExplainedError:
     """Describes the location of an error mechanism from a lestim circuit.
+
+    Examples:
+        >>> import lestim
+        >>> err = lestim.Circuit('''
+        ...     R 0
+        ...     TICK
+        ...     Y_ERROR(0.125) 0
+        ...     M 0
+        ...     OBSERVABLE_INCLUDE(0) rec[-1]
+        ... ''').shortest_graphlike_error()
+        >>> print(err[0])
+        ExplainedError {
+            dem_error_terms: L0
+            CircuitErrorLocation {
+                flipped_pauli_product: Y0
+                Circuit location stack trace:
+                    (after 1 TICKs)
+                    at instruction #3 (Y_ERROR) in the circuit
+                    at target #1 of the instruction
+                    resolving to Y_ERROR(0.125) 0
+            }
+        }
     """
 ```
 
@@ -6608,10 +8685,32 @@ class ExplainedError:
 def __init__(
     self,
     *,
-    dem_error_terms: List[lestim._stim_polyfill.DemTargetWithCoords],
-    circuit_error_locations: List[lestim._stim_polyfill.CircuitErrorLocation],
+    dem_error_terms: List[lestim.DemTargetWithCoords],
+    circuit_error_locations: List[lestim.CircuitErrorLocation],
 ) -> None:
     """Creates a lestim.ExplainedError.
+
+    Examples:
+        >>> import lestim
+        >>> err = lestim.Circuit('''
+        ...     R 0
+        ...     TICK
+        ...     Y_ERROR(0.125) 0
+        ...     M 0
+        ...     OBSERVABLE_INCLUDE(0) rec[-1]
+        ... ''').shortest_graphlike_error()
+        >>> print(err[0])
+        ExplainedError {
+            dem_error_terms: L0
+            CircuitErrorLocation {
+                flipped_pauli_product: Y0
+                Circuit location stack trace:
+                    (after 1 TICKs)
+                    at instruction #3 (Y_ERROR) in the circuit
+                    at target #1 of the instruction
+                    resolving to Y_ERROR(0.125) 0
+            }
+        }
     """
 ```
 
@@ -6623,7 +8722,7 @@ def __init__(
 @property
 def circuit_error_locations(
     self,
-) -> List[lestim._stim_polyfill.CircuitErrorLocation]:
+) -> List[lestim.CircuitErrorLocation]:
     """The locations of circuit errors that produce the symptoms in dem_error_terms.
 
     Note: if this list contains a single entry, it may be because a result
@@ -6633,6 +8732,25 @@ def circuit_error_locations(
     Note: if this list is empty, it may be because there was a DEM error decomposed
     into parts where one of the parts is impossible to make on its own from a single
     circuit error.
+
+    Examples:
+        >>> import lestim
+        >>> err = lestim.Circuit('''
+        ...     R 0
+        ...     TICK
+        ...     Y_ERROR(0.125) 0
+        ...     M 0
+        ...     OBSERVABLE_INCLUDE(0) rec[-1]
+        ... ''').shortest_graphlike_error()
+        >>> print(err[0].circuit_error_locations[0])
+        CircuitErrorLocation {
+            flipped_pauli_product: Y0
+            Circuit location stack trace:
+                (after 1 TICKs)
+                at instruction #3 (Y_ERROR) in the circuit
+                at target #1 of the instruction
+                resolving to Y_ERROR(0.125) 0
+        }
     """
 ```
 
@@ -6644,7 +8762,7 @@ def circuit_error_locations(
 @property
 def dem_error_terms(
     self,
-) -> List[lestim._stim_polyfill.DemTargetWithCoords]:
+) -> List[lestim.DemTargetWithCoords]:
     """The detectors and observables flipped by this error mechanism.
     """
 ```
@@ -6766,6 +8884,86 @@ def __init__(
     """
 ```
 
+<a name="lestim.FlipSimulator.append_measurement_flips"></a>
+```python
+# lestim.FlipSimulator.append_measurement_flips
+
+# (in class lestim.FlipSimulator)
+def append_measurement_flips(
+    self,
+    measurement_flip_data: np.ndarray,
+) -> None:
+    """Appends measurement flip data to the simulator's measurement record.
+
+    Args:
+        measurement_flip_data: The flip data to append. The following shape/dtype
+            combinations are supported.
+
+            Single measurement without bit packing:
+                shape=(self.batch_size,)
+                dtype=np.bool_
+
+            Single measurement with bit packing:
+                shape=(math.ceil(self.batch_size / 8),)
+                dtype=np.uint8
+
+            Multiple measurements without bit packing:
+                shape=(num_measurements, self.batch_size)
+                dtype=np.bool_
+
+            Multiple measurements with bit packing:
+                shape=(num_measurements, math.ceil(self.batch_size / 8))
+                dtype=np.uint8
+
+    Examples:
+        >>> import lestim
+        >>> import numpy as np
+        >>> sim = lestim.FlipSimulator(batch_size=9)
+        >>> sim.append_measurement_flips(np.array(
+        ...     [0, 1, 0, 0, 1, 0, 0, 1, 1],
+        ...     dtype=np.bool_,
+        ... ))
+
+        >>> sim.get_measurement_flips()
+        array([[False,  True, False, False,  True, False, False,  True,  True]])
+
+        >>> sim.append_measurement_flips(np.array(
+        ...     [0b11001001, 0],
+        ...     dtype=np.uint8,
+        ... ))
+
+        >>> sim.get_measurement_flips()
+        array([[False,  True, False, False,  True, False, False,  True,  True],
+               [ True, False, False,  True, False, False,  True,  True, False]])
+
+        >>> sim.append_measurement_flips(np.array(
+        ...     [[0b11111111, 0b1], [0b00000000, 0b0], [0b11111111, 0b1]],
+        ...     dtype=np.uint8,
+        ... ))
+
+        >>> sim.get_measurement_flips()
+        array([[False,  True, False, False,  True, False, False,  True,  True],
+               [ True, False, False,  True, False, False,  True,  True, False],
+               [ True,  True,  True,  True,  True,  True,  True,  True,  True],
+               [False, False, False, False, False, False, False, False, False],
+               [ True,  True,  True,  True,  True,  True,  True,  True,  True]])
+
+        >>> sim.append_measurement_flips(np.array(
+        ...     [[1, 0, 1, 0, 1, 0, 1, 0, 1], [0, 1, 0, 1, 0, 1, 0, 1, 0]],
+        ...     dtype=np.bool_,
+        ... ))
+
+        >>> sim.get_measurement_flips()
+        array([[False,  True, False, False,  True, False, False,  True,  True],
+               [ True, False, False,  True, False, False,  True,  True, False],
+               [ True,  True,  True,  True,  True,  True,  True,  True,  True],
+               [False, False, False, False, False, False, False, False, False],
+               [ True,  True,  True,  True,  True,  True,  True,  True,  True],
+               [ True, False,  True, False,  True, False,  True, False,  True],
+               [False,  True, False,  True, False,  True, False,  True, False]])
+    """
+```
+
 <a name="lestim.FlipSimulator.batch_size"></a>
 ```python
 # lestim.FlipSimulator.batch_size
@@ -6798,6 +8996,7 @@ def broadcast_pauli_errors(
     *,
     pauli: Union[str, int],
     mask: np.ndarray,
+    p: float = 1,
 ) -> None:
     """Applies a pauli error to all qubits in all instances, filtered by a mask.
 
@@ -6818,6 +9017,9 @@ def broadcast_pauli_errors(
             The error is only applied to qubit q in instance k when
 
                 mask[q, k] == True.
+        p: Defaults to 1 (no effect). When specified, the error is applied
+            probabilistically instead of deterministically to each (instance, qubit)
+            pair matching the mask. This argument specifies the probability.
 
     Examples:
         >>> import lestim
@@ -6843,6 +9045,119 @@ def broadcast_pauli_errors(
     """
 ```
 
+<a name="lestim.FlipSimulator.clear"></a>
+```python
+# lestim.FlipSimulator.clear
+
+# (in class lestim.FlipSimulator)
+def clear(
+    self,
+) -> None:
+    """Clears the simulator's state, so it can be reused for another simulation.
+
+    This clears the measurement flip history, clears the detector flip history,
+    and zeroes the observable flip state. It also resets all qubits to |0>. If
+    stabilizer randomization is disabled, this zeros all pauli flip data. Otherwise
+    it randomizes all pauli flips to be I or Z with equal probability.
+
+    Behind the scenes, this doesn't free memory or resize the simulator. So,
+    repeating the same simulation with calls to `clear` in between will be faster
+    than allocating a new simulator each time (by avoiding re-allocations).
+
+    Examples:
+        >>> import lestim
+        >>> sim = lestim.FlipSimulator(batch_size=256)
+        >>> sim.do(lestim.Circuit("M(0.1) 9"))
+        >>> sim.num_qubits
+        10
+        >>> sim.get_measurement_flips().shape
+        (1, 256)
+
+        >>> sim.clear()
+        >>> sim.num_qubits
+        10
+        >>> sim.get_measurement_flips().shape
+        (0, 256)
+    """
+```
+
+<a name="lestim.FlipSimulator.copy"></a>
+```python
+# lestim.FlipSimulator.copy
+
+# (in class lestim.FlipSimulator)
+def copy(
+    self,
+    *,
+    copy_rng: bool = False,
+    seed: Optional[int] = None,
+) -> lestim.FlipSimulator:
+    """Returns a simulator with the same internal state, except perhaps its prng.
+
+    Args:
+        copy_rng: Defaults to False. When False, the copy's pseudo random number
+            generator is reinitialized with a random seed instead of being a copy
+            of the original simulator's pseudo random number generator. This
+            causes the copy and the original to sample independent randomness,
+            instead of identical randomness, for future random operations. When set
+            to true, the copy will have the exact same pseudo random number
+            generator state as the original, and so will produce identical results
+            if told to do the same noisy operations. This argument is incompatible
+            with the `seed` argument.
+
+        seed: PARTIALLY determines simulation results by deterministically seeding
+            the random number generator.
+
+            Must be None or an integer in range(2**64).
+
+            Defaults to None. When None, the prng state is either copied from the
+            original simulator or reseeded from system entropy, depending on the
+            copy_rng argument.
+
+            When set to an integer, making the exact same series calls on the exact
+            same machine with the exact same version of Stim will produce the exact
+            same simulation results.
+
+            CAUTION: simulation results *WILL NOT* be consistent between versions of
+            Stim. This restriction is present to make it possible to have future
+            optimizations to the random sampling, and is enforced by introducing
+            intentional differences in the seeding strategy from version to version.
+
+            CAUTION: simulation results *MAY NOT* be consistent across machines that
+            differ in the width of supported SIMD instructions. For example, using
+            the same seed on a machine that supports AVX instructions and one that
+            only supports SSE instructions may produce different simulation results.
+
+            CAUTION: simulation results *MAY NOT* be consistent if you vary how the
+            circuit is executed. For example, reordering whether a reset on one
+            qubit happens before or after a reset on another qubit can result in
+            different measurement results being observed starting from the same
+            seed.
+
+    Returns:
+        The copy of the simulator.
+
+    Examples:
+        >>> import lestim
+        >>> import numpy as np
+
+        >>> s1 = lestim.FlipSimulator(batch_size=256)
+        >>> s1.set_pauli_flip('X', qubit_index=2, instance_index=3)
+        >>> s2 = s1.copy()
+        >>> s2 is s1
+        False
+        >>> s2.peek_pauli_flips() == s1.peek_pauli_flips()
+        True
+
+        >>> s1 = lestim.FlipSimulator(batch_size=256)
+        >>> s2 = s1.copy(copy_rng=True)
+        >>> s1.do(lestim.Circuit("X_ERROR(0.25) 0 \n M 0"))
+        >>> s2.do(lestim.Circuit("X_ERROR(0.25) 0 \n M 0"))
+        >>> np.array_equal(s1.get_measurement_flips(), s2.get_measurement_flips())
+        True
+    """
+```
+
 <a name="lestim.FlipSimulator.do"></a>
 ```python
 # lestim.FlipSimulator.do
@@ -6850,7 +9165,7 @@ def broadcast_pauli_errors(
 # (in class lestim.FlipSimulator)
 def do(
     self,
-    obj: Union[stim.Circuit, stim.CircuitInstruction, stim.CircuitRepeatBlock],
+    obj: Union[lestim.Circuit, lestim.CircuitInstruction, lestim.CircuitRepeatBlock],
 ) -> None:
     """Applies a circuit or circuit instruction to the simulator's state.
 
@@ -6884,6 +9199,76 @@ def do(
         >>> sim.do(circuit[1])
         >>> sim.peek_pauli_flips()
         [lestim.PauliString("+YX__")]
+    """
+```
+
+<a name="lestim.FlipSimulator.generate_bernoulli_samples"></a>
+```python
+# lestim.FlipSimulator.generate_bernoulli_samples
+
+# (in class lestim.FlipSimulator)
+def generate_bernoulli_samples(
+    self,
+    num_samples: int,
+    *,
+    p: float,
+    bit_packed: bool = False,
+    out: Optional[np.ndarray] = None,
+) -> np.ndarray:
+    """Uses the simulator's random number generator to produce biased coin flips.
+
+    This method has best performance when specifying `bit_packed=True` and
+    when specifying an `out=` parameter pointing to a numpy array that has
+    contiguous data aligned to a 64 bit boundary. (If `out` isn't specified,
+    the returned numpy array will have this property.)
+
+    Args:
+        num_samples: The number of samples to produce.
+        p: The probability of each sample being True instead of False.
+        bit_packed: Defaults to False (no bit packing). When True, the result
+            has type np.uint8 instead of np.bool_ and 8 samples are packed into
+            each byte as if by np.packbits(bitorder='little'). (The bit order
+            is relevant when producing a number of samples that isn't a multiple
+            of 8.)
+        out: Defaults to None (allocate new). A numpy array to write the samples
+            into. Must have the correct size and dtype.
+
+    Returns:
+        A numpy array containing the samples. The shape and dtype depends on
+        the bit_packed argument:
+
+            if not bit_packed:
+                shape = (num_samples,)
+                dtype = np.bool_
+            elif not transpose and bit_packed:
+                shape = (math.ceil(num_samples / 8),)
+                dtype = np.uint8
+
+    Raises:
+        ValueError:
+            The given `out` argument had a shape or dtype inconsistent with the
+            requested data.
+
+    Examples:
+        >>> import lestim
+        >>> sim = lestim.FlipSimulator(batch_size=256)
+        >>> r = sim.generate_bernoulli_samples(1001, p=0.25)
+        >>> r.dtype
+        dtype('bool')
+        >>> r.shape
+        (1001,)
+
+        >>> r = sim.generate_bernoulli_samples(53, p=0.1, bit_packed=True)
+        >>> r.dtype
+        dtype('uint8')
+        >>> r.shape
+        (7,)
+        >>> r[6] & 0b1110_0000  # zero'd padding bits
+        np.uint8(0)
+
+        >>> r2 = sim.generate_bernoulli_samples(53, p=0.2, bit_packed=True, out=r)
+        >>> r is r2  # Check request to reuse r worked.
+        True
     """
 ```
 
@@ -7218,20 +9603,20 @@ def num_qubits(
 @overload
 def peek_pauli_flips(
     self,
-) -> List[stim.PauliString]:
+) -> List[lestim.PauliString]:
     pass
 @overload
 def peek_pauli_flips(
     self,
     *,
     instance_index: int,
-) -> stim.PauliString:
+) -> lestim.PauliString:
     pass
 def peek_pauli_flips(
     self,
     *,
     instance_index: Optional[int] = None,
-) -> Union[stim.PauliString, List[stim.PauliString]]:
+) -> Union[lestim.PauliString, List[lestim.PauliString]]:
     """Returns the current pauli errors packed into lestim.PauliString instances.
 
     Args:
@@ -7315,6 +9700,165 @@ def set_pauli_flip(
     """
 ```
 
+<a name="lestim.FlipSimulator.to_numpy"></a>
+```python
+# lestim.FlipSimulator.to_numpy
+
+# (in class lestim.FlipSimulator)
+def to_numpy(
+    self,
+    *,
+    bit_packed: bool = False,
+    transpose: bool = False,
+    output_xs: Union[bool, np.ndarray] = False,
+    output_zs: Union[bool, np.ndarray] = False,
+    output_measure_flips: Union[bool, np.ndarray] = False,
+    output_detector_flips: Union[bool, np.ndarray] = False,
+    output_observable_flips: Union[bool, np.ndarray] = False,
+) -> Optional[Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]]:
+    """Writes the simulator state into numpy arrays.
+
+    Args:
+        bit_packed: Whether or not the result is bit packed, storing 8 bits per
+            byte instead of 1 bit per byte. Bit packing always applies to
+            the second index of the result. Bits are packed in little endian
+            order (as if by `np.packbits(X, axis=1, order='little')`).
+        transpose: Defaults to False. When set to False, the second index of the
+            returned array (the index affected by bit packing) is the shot index
+            (meaning the first index is the qubit index or measurement index or
+            etc). When set to True, results are transposed so that the first
+            index is the shot index.
+        output_xs: Defaults to False. When set to False, the X flip data is not
+            generated and the corresponding array in the result tuple is set to
+            None. When set to True, a new array is allocated to hold the X flip
+            data and this array is returned via the result tuple. When set to
+            a numpy array, the results are written into that array (the shape and
+            dtype of the array must be exactly correct).
+        output_zs: Defaults to False. When set to False, the Z flip data is not
+            generated and the corresponding array in the result tuple is set to
+            None. When set to True, a new array is allocated to hold the Z flip
+            data and this array is returned via the result tuple. When set to
+            a numpy array, the results are written into that array (the shape and
+            dtype of the array must be exactly correct).
+        output_measure_flips: Defaults to False. When set to False, the measure
+            flip data is not generated and the corresponding array in the result
+            tuple is set to None. When set to True, a new array is allocated to
+            hold the measure flip data and this array is returned via the result
+            tuple. When set to a numpy array, the results are written into that
+            array (the shape and dtype of the array must be exactly correct).
+        output_detector_flips: Defaults to False. When set to False, the detector
+            flip data is not generated and the corresponding array in the result
+            tuple is set to None. When set to True, a new array is allocated to
+            hold the detector flip data and this array is returned via the result
+            tuple. When set to a numpy array, the results are written into that
+            array (the shape and dtype of the array must be exactly correct).
+        output_observable_flips: Defaults to False. When set to False, the obs
+            flip data is not generated and the corresponding array in the result
+            tuple is set to None. When set to True, a new array is allocated to
+            hold the obs flip data and this array is returned via the result
+            tuple. When set to a numpy array, the results are written into that
+            array (the shape and dtype of the array must be exactly correct).
+
+    Returns:
+        A tuple (xs, zs, ms, ds, os) of numpy arrays. The xs and zs arrays are
+        the pauli flip data specified using XZ encoding (00=I, 10=X, 11=Y, 01=Z).
+        The ms array is the measure flip data, the ds array is the detector flip
+        data, and the os array is the obs flip data. The arrays default to
+        `None` when the corresponding `output_*` argument was left False.
+
+        The shape and dtype of the data depends on arguments given to the function.
+        The following specifies each array's shape and dtype for each case:
+
+            if not transpose and not bit_packed:
+                xs.shape = (sim.batch_size, sim.num_qubits)
+                zs.shape = (sim.batch_size, sim.num_qubits)
+                ms.shape = (sim.batch_size, sim.num_measurements)
+                ds.shape = (sim.batch_size, sim.num_detectors)
+                os.shape = (sim.batch_size, sim.num_observables)
+                xs.dtype = np.bool_
+                zs.dtype = np.bool_
+                ms.dtype = np.bool_
+                ds.dtype = np.bool_
+                os.dtype = np.bool_
+            elif not transpose and bit_packed:
+                xs.shape = (sim.batch_size, math.ceil(sim.num_qubits / 8))
+                zs.shape = (sim.batch_size, math.ceil(sim.num_qubits / 8))
+                ms.shape = (sim.batch_size, math.ceil(sim.num_measurements / 8))
+                ds.shape = (sim.batch_size, math.ceil(sim.num_detectors / 8))
+                os.shape = (sim.batch_size, math.ceil(sim.num_observables / 8))
+                xs.dtype = np.uint8
+                zs.dtype = np.uint8
+                ms.dtype = np.uint8
+                ds.dtype = np.uint8
+                os.dtype = np.uint8
+            elif transpose and not bit_packed:
+                xs.shape = (sim.num_qubits, sim.batch_size)
+                zs.shape = (sim.num_qubits, sim.batch_size)
+                ms.shape = (sim.num_measurements, sim.batch_size)
+                ds.shape = (sim.num_detectors, sim.batch_size)
+                os.shape = (sim.num_observables, sim.batch_size)
+                xs.dtype = np.bool_
+                zs.dtype = np.bool_
+                ms.dtype = np.bool_
+                ds.dtype = np.bool_
+                os.dtype = np.bool_
+            elif transpose and bit_packed:
+                xs.shape = (sim.num_qubits, math.ceil(sim.batch_size / 8))
+                zs.shape = (sim.num_qubits, math.ceil(sim.batch_size / 8))
+                ms.shape = (sim.num_measurements, math.ceil(sim.batch_size / 8))
+                ds.shape = (sim.num_detectors, math.ceil(sim.batch_size / 8))
+                os.shape = (sim.num_observables, math.ceil(sim.batch_size / 8))
+                xs.dtype = np.uint8
+                zs.dtype = np.uint8
+                ms.dtype = np.uint8
+                ds.dtype = np.uint8
+                os.dtype = np.uint8
+
+    Raises:
+        ValueError:
+            All the `output_*` arguments were False, or an `output_*` argument
+            had a shape or dtype inconsistent with the requested data.
+
+    Examples:
+        >>> import lestim
+        >>> import numpy as np
+        >>> sim = lestim.FlipSimulator(batch_size=9)
+        >>> sim.do(lestim.Circuit('M(1) 0 1 2'))
+
+        >>> ms_buf = np.empty(shape=(9, 1), dtype=np.uint8)
+        >>> xs, zs, ms, ds, os = sim.to_numpy(
+        ...     transpose=True,
+        ...     bit_packed=True,
+        ...     output_xs=True,
+        ...     output_measure_flips=ms_buf,
+        ... )
+        >>> assert ms is ms_buf
+        >>> xs
+        array([[0],
+               [0],
+               [0],
+               [0],
+               [0],
+               [0],
+               [0],
+               [0],
+               [0]], dtype=uint8)
+        >>> zs
+        >>> ms
+        array([[7],
+               [7],
+               [7],
+               [7],
+               [7],
+               [7],
+               [7],
+               [7],
+               [7]], dtype=uint8)
+        >>> ds
+        >>> os
+    """
+```
+
 <a name="lestim.FlippedMeasurement"></a>
 ```python
 # lestim.FlippedMeasurement
@@ -7325,6 +9869,18 @@ class FlippedMeasurement:
 
     Gives the measurement's index in the measurement record, and also
     the observable of the measurement.
+
+    Examples:
+        >>> import lestim
+        >>> err = lestim.Circuit('''
+        ...     M(0.25) 1 10
+        ...     OBSERVABLE_INCLUDE(0) rec[-1]
+        ... ''').shortest_graphlike_error()
+        >>> err[0].circuit_error_locations[0].flipped_measurement
+        lestim.FlippedMeasurement(
+            record_index=1,
+            observable=(lestim.GateTargetWithCoords(lestim.target_z(10), []),),
+        )
     """
 ```
 
@@ -7335,11 +9891,21 @@ class FlippedMeasurement:
 # (in class lestim.FlippedMeasurement)
 def __init__(
     self,
-    *,
-    record_index: int,
-    observable: object,
-) -> None:
+    measurement_record_index: Optional[int],
+    measured_observable: Iterable[lestim.GateTargetWithCoords],
+):
     """Creates a lestim.FlippedMeasurement.
+
+    Examples:
+        >>> import lestim
+        >>> print(lestim.FlippedMeasurement(
+        ...     record_index=5,
+        ...     observable=[],
+        ... ))
+        lestim.FlippedMeasurement(
+            record_index=5,
+            observable=(),
+        )
     """
 ```
 
@@ -7351,10 +9917,19 @@ def __init__(
 @property
 def observable(
     self,
-) -> List[lestim._stim_polyfill.GateTargetWithCoords]:
+) -> List[lestim.GateTargetWithCoords]:
     """Returns the observable of the flipped measurement.
 
     For example, an `MX 5` measurement will have the observable X5.
+
+    Examples:
+        >>> import lestim
+        >>> err = lestim.Circuit('''
+        ...     M(0.25) 1 10
+        ...     OBSERVABLE_INCLUDE(0) rec[-1]
+        ... ''').shortest_graphlike_error()
+        >>> err[0].circuit_error_locations[0].flipped_measurement.observable
+        [lestim.GateTargetWithCoords(lestim.target_z(10), [])]
     """
 ```
 
@@ -7370,6 +9945,15 @@ def record_index(
     """The measurement record index of the flipped measurement.
     For example, the fifth measurement in a circuit has a measurement
     record index of 4.
+
+    Examples:
+        >>> import lestim
+        >>> err = lestim.Circuit('''
+        ...     M(0.25) 1 10
+        ...     OBSERVABLE_INCLUDE(0) rec[-1]
+        ... ''').shortest_graphlike_error()
+        >>> err[0].circuit_error_locations[0].flipped_measurement.record_index
+        1
     """
 ```
 
@@ -7427,7 +10011,7 @@ class Flow:
 # (in class lestim.Flow)
 def __eq__(
     self,
-    arg0: lestim._stim_polyfill.Flow,
+    arg0: lestim.Flow,
 ) -> bool:
     """Determines if two flows have identical contents.
     """
@@ -7440,12 +10024,13 @@ def __eq__(
 # (in class lestim.Flow)
 def __init__(
     self,
-    arg: Union[None, str, stim.Flow] = None,
+    arg: Union[None, str, lestim.Flow] = None,
     /,
     *,
-    input: Optional[stim.PauliString] = None,
-    output: Optional[stim.PauliString] = None,
+    input: Optional[lestim.PauliString] = None,
+    output: Optional[lestim.PauliString] = None,
     measurements: Optional[Iterable[Union[int, GateTarget]]] = None,
+    included_observables: Optional[Iterable[int]] = None,
 ) -> None:
     """Initializes a lestim.Flow.
 
@@ -7453,7 +10038,7 @@ def __init__(
     the string "X_ -> ZZ xor rec[-1]" will result in a flow with input pauli string
     "X_", output pauli string "ZZ", and measurement indices [-1].
 
-    Arguments:
+    Args:
         arg [position-only]: Defaults to None. Must be specified by itself if used.
             str: Initializes a flow by parsing the given shorthand text.
             lestim.Flow: Initializes a copy of the given flow.
@@ -7462,11 +10047,18 @@ def __init__(
             specify the flow's input stabilizer.
         output: Defaults to None. Can be set to a lestim.PauliString to directly
             specify the flow's output stabilizer.
-        measurements: Can be set to a list of integers or gate targets like
-            `lestim.target_rec(-1)`, to specify the measurements that mediate the
-            flow. Negative and positive measurement indices are allowed. Indexes
-            follow the python convention where -1 is the last measurement in a
-            circuit and 0 is the first measurement in a circuit.
+        measurements: Defaults to None. Can be set to a list of integers or gate
+            targets like `lestim.target_rec(-1)`, to specify the measurements that
+            mediate the flow. Negative and positive measurement indices are allowed.
+            Indexes follow the python convention where -1 is the last measurement in
+            a circuit and 0 is the first measurement in a circuit.
+        included_observables: Defaults to None. `OBSERVABLE_INCLUDE` instructions
+            that target an observable index from this list will be implicitly
+            included in the flow. This allows flows to refer to observables. For
+            example, the flow "X5 -> obs[3]" says "At the start of the circuit,
+            observable 3 should be an X term on qubit 5. By the end of the circuit
+            it will be measured. The `OBSERVABLE_INCLUDE(3)` instructions in the
+            circuit should explain how this happened.".
 
     Examples:
         >>> import lestim
@@ -7483,6 +10075,47 @@ def __init__(
         ...     measurements=[],
         ... )
         lestim.Flow("XX -> _X")
+
+        >>> # Identical terms cancel.
+        >>> lestim.Flow("X2 -> Y2*Y2 xor rec[-2] xor rec[-2]")
+        lestim.Flow("__X -> ___")
+
+        >>> lestim.Flow("X -> Y xor obs[3] xor obs[3] xor obs[3]")
+        lestim.Flow("X -> Y xor obs[3]")
+    """
+```
+
+<a name="lestim.Flow.__mul__"></a>
+```python
+# lestim.Flow.__mul__
+
+# (in class lestim.Flow)
+def __mul__(
+    self,
+    rhs: lestim.Flow,
+) -> lestim.Flow:
+    """Computes the product of two flows.
+
+    Args:
+        rhs: The right hand side of the multiplication.
+
+    Returns:
+        The product of the two flows.
+
+    Raises:
+        ValueError: The inputs anti-commute (their product would be anti-Hermitian).
+            For example, 1 -> X times 1 -> Y fails because it would give 1 -> iZ.
+
+    Examples:
+        >>> import lestim
+        >>> lestim.Flow("X -> X") * lestim.Flow("Z -> Z")
+        lestim.Flow("Y -> Y")
+
+        >>> lestim.Flow("1 -> XX") * lestim.Flow("1 -> ZZ")
+        lestim.Flow("1 -> -YY")
+
+        >>> lestim.Flow("X -> rec[-1]") * lestim.Flow("X -> rec[-2]")
+        lestim.Flow("_ -> rec[-2] xor rec[-1]")
     """
 ```
 
@@ -7493,7 +10126,7 @@ def __init__(
 # (in class lestim.Flow)
 def __ne__(
     self,
-    arg0: lestim._stim_polyfill.Flow,
+    arg0: lestim.Flow,
 ) -> bool:
     """Determines if two flows have non-identical contents.
     """
@@ -7523,6 +10156,37 @@ def __str__(
     """
 ```
 
+<a name="lestim.Flow.included_observables_copy"></a>
+```python
+# lestim.Flow.included_observables_copy
+
+# (in class lestim.Flow)
+def included_observables_copy(
+    self,
+) -> List[int]:
+    """Returns a copy of the flow's included observable indices.
+
+    When an observable is included in a flow, the flow implicitly includes all
+    measurements and pauli terms from `OBSERVABLE_INCLUDE` instructions targeting
+    that observable index.
+
+    Examples:
+        >>> import lestim
+        >>> f = lestim.Flow(included_observables=[3, 2])
+        >>> f.included_observables_copy()
+        [2, 3]
+
+        >>> f.included_observables_copy() is f.included_observables_copy()
+        False
+
+        >>> f = lestim.Flow("X2 -> obs[3]")
+        >>> f.included_observables_copy()
+        [3]
+        >>> lestim.Circuit("OBSERVABLE_INCLUDE(3) X2").has_flow(f)
+        True
+    """
+```
+
 <a name="lestim.Flow.input_copy"></a>
 ```python
 # lestim.Flow.input_copy
@@ -7530,7 +10194,7 @@ def __str__(
 # (in class lestim.Flow)
 def input_copy(
     self,
-) -> lestim._stim_polyfill.PauliString:
+) -> lestim.PauliString:
     """Returns a copy of the flow's input stabilizer.
 
     Examples:
@@ -7572,7 +10236,7 @@ def measurements_copy(
 # (in class lestim.Flow)
 def output_copy(
     self,
-) -> lestim._stim_polyfill.PauliString:
+) -> lestim.PauliString:
     """Returns a copy of the flow's output stabilizer.
 
     Examples:
@@ -7619,7 +10283,7 @@ class GateData:
 # (in class lestim.GateData)
 def __eq__(
     self,
-    arg0: lestim._stim_polyfill.GateData,
+    arg0: lestim.GateData,
 ) -> bool:
     """Determines if two GateData instances are identical.
     """
@@ -7650,7 +10314,7 @@ def __init__(
 # (in class lestim.GateData)
 def __ne__(
     self,
-    arg0: lestim._stim_polyfill.GateData,
+    arg0: lestim.GateData,
 ) -> bool:
     """Determines if two GateData instances are not identical.
     """
@@ -7711,7 +10375,7 @@ def aliases(
 @property
 def flows(
     self,
-) -> Optional[List[stim.Flow]]:
+) -> Optional[List[lestim.Flow]]:
     """Returns stabilizer flow generators for the gate, or else None.
 
     A stabilizer flow describes an input-output relationship that the gate
@@ -7755,7 +10419,7 @@ def flows(
 @property
 def generalized_inverse(
     self,
-) -> lestim._stim_polyfill.GateData:
+) -> lestim.GateData:
     """The closest-thing-to-an-inverse for the gate, if forced to pick something.
 
     The generalized inverse of a unitary gate U is its actual inverse U^-1.
@@ -7799,6 +10463,67 @@ def generalized_inverse(
     """
 ```
 
+<a name="lestim.GateData.hadamard_conjugated"></a>
+```python
+# lestim.GateData.hadamard_conjugated
+
+# (in class lestim.GateData)
+def hadamard_conjugated(
+    self,
+    *,
+    unsigned: bool = False,
+) -> Optional[lestim.GateData]:
+    """Returns a lestim gate equivalent to this gate conjugated by Hadamard gates.
+
+    The Hadamard conjugate can be thought of as the XZ dual of the gate; the gate
+    you get by exchanging the X and Z bases. For example, a SQRT_X will become a
+    SQRT_Z and a CX gate will switch directions into an XCZ.
+
+    If lestim doesn't define a gate equivalent to conjugating this gate by Hadamards,
+    the value `None` is returned.
+
+    Args:
+        unsigned: Defaults to False. When False, the returned gate must be *exactly*
+            the Hadamard conjugation of this gate. When True, the returned gate must
+            have the same flows but the sign of the flows can be different (i.e.
+            the returned gate must be the Hadamard conjugate up to Pauli gate
+            differences).
+
+    Returns:
+        A lestim.GateData instance of the Hadamard conjugate, if it exists in lestim.
+
+        None, if lestim doesn't define a gate equal to the Hadamard conjugate.
+
+    Examples:
+        >>> import lestim
+
+        >>> lestim.gate_data('X').hadamard_conjugated()
+        lestim.gate_data('Z')
+        >>> lestim.gate_data('CX').hadamard_conjugated()
+        lestim.gate_data('XCZ')
+        >>> lestim.gate_data('RY').hadamard_conjugated() is None
+        True
+        >>> lestim.gate_data('RY').hadamard_conjugated(unsigned=True)
+        lestim.gate_data('RY')
+        >>> lestim.gate_data('ISWAP').hadamard_conjugated(unsigned=True) is None
+        True
+        >>> lestim.gate_data('SWAP').hadamard_conjugated()
+        lestim.gate_data('SWAP')
+        >>> lestim.gate_data('CXSWAP').hadamard_conjugated()
+        lestim.gate_data('SWAPCX')
+        >>> lestim.gate_data('MXX').hadamard_conjugated()
+        lestim.gate_data('MZZ')
+        >>> lestim.gate_data('DEPOLARIZE1').hadamard_conjugated()
+        lestim.gate_data('DEPOLARIZE1')
+        >>> lestim.gate_data('X_ERROR').hadamard_conjugated()
+        lestim.gate_data('Z_ERROR')
+        >>> lestim.gate_data('H_XY').hadamard_conjugated()
+        lestim.gate_data('H_NYZ')
+        >>> lestim.gate_data('DETECTOR').hadamard_conjugated(unsigned=True)
+        lestim.gate_data('DETECTOR')
+    """
+```
+
 <a name="lestim.GateData.inverse"></a>
 ```python
 # lestim.GateData.inverse
@@ -7807,7 +10532,7 @@ def generalized_inverse(
 @property
 def inverse(
     self,
-) -> Optional[stim.GateData]:
+) -> Optional[lestim.GateData]:
     """The inverse of the gate, or None if it has no inverse.
 
     The inverse V of a gate U must have the property that V undoes the effects of U
@@ -7975,6 +10700,62 @@ def is_single_qubit_gate(
     """
 ```
 
+<a name="lestim.GateData.is_symmetric_gate"></a>
+```python
+# lestim.GateData.is_symmetric_gate
+
+# (in class lestim.GateData)
+@property
+def is_symmetric_gate(
+    self,
+) -> bool:
+    """Returns whether or not the gate is the same when its targets are swapped.
+
+    A two qubit gate is symmetric if it doesn't matter if you swap its targets. It
+    is unaffected when conjugated by the SWAP gate.
+
+    Single qubit gates are vacuously symmetric. A multi-qubit gate is symmetric if
+    swapping any two of its targets has no effect.
+
+    Note that this method is for symmetry *without broadcasting*. For example, SWAP
+    is symmetric even though SWAP 1 2 3 4 isn't equal to SWAP 1 3 2 4.
+
+    Returns:
+        True if the gate is symmetric.
+        False if the gate isn't symmetric.
+
+    Examples:
+        >>> import lestim
+
+        >>> lestim.gate_data('CX').is_symmetric_gate
+        False
+        >>> lestim.gate_data('CZ').is_symmetric_gate
+        True
+        >>> lestim.gate_data('ISWAP').is_symmetric_gate
+        True
+        >>> lestim.gate_data('CXSWAP').is_symmetric_gate
+        False
+        >>> lestim.gate_data('MXX').is_symmetric_gate
+        True
+        >>> lestim.gate_data('DEPOLARIZE2').is_symmetric_gate
+        True
+        >>> lestim.gate_data('PAULI_CHANNEL_2').is_symmetric_gate
+        False
+        >>> lestim.gate_data('H').is_symmetric_gate
+        True
+        >>> lestim.gate_data('R').is_symmetric_gate
+        True
+        >>> lestim.gate_data('X_ERROR').is_symmetric_gate
+        True
+        >>> lestim.gate_data('CORRELATED_ERROR').is_symmetric_gate
+        False
+        >>> lestim.gate_data('MPP').is_symmetric_gate
+        False
+        >>> lestim.gate_data('DETECTOR').is_symmetric_gate
+        False
+    """
+```
+
 <a name="lestim.GateData.is_two_qubit_gate"></a>
 ```python
 # lestim.GateData.is_two_qubit_gate
@@ -7990,6 +10771,10 @@ def is_two_qubit_gate(
 
     Variable-qubit gates like CORRELATED_ERROR and MPP are not
     considered two qubit gates.
+
+    Returns:
+        True if the gate is a two qubit gate.
+        False if the gate isn't a two qubit gate.
 
     Examples:
         >>> import lestim
@@ -8155,7 +10940,7 @@ def produces_measurements(
 @property
 def tableau(
     self,
-) -> Optional[stim.Tableau]:
+) -> Optional[lestim.Tableau]:
     """Returns the gate's tableau, or None if the gate has no tableau.
 
     Examples:
@@ -8314,7 +11099,7 @@ class GateTarget:
         >>> circuit[0].targets_copy()[0]
         lestim.GateTarget(0)
         >>> circuit[0].targets_copy()[1]
-        lestim.GateTarget(lestim.target_inv(1))
+        lestim.target_inv(1)
     """
 ```
 
@@ -8325,7 +11110,7 @@ class GateTarget:
 # (in class lestim.GateTarget)
 def __eq__(
     self,
-    arg0: lestim._stim_polyfill.GateTarget,
+    arg0: lestim.GateTarget,
 ) -> bool:
     """Determines if two `lestim.GateTarget`s are identical.
     """
@@ -8343,7 +11128,21 @@ def __init__(
     """Initializes a `lestim.GateTarget`.
 
     Args:
-        value: A target like `5` or `lestim.target_rec(-1)`.
+        value: A value to convert into a gate target, like an integer
+            to interpret as a qubit target or a string to parse.
+
+    Examples:
+        >>> import lestim
+        >>> lestim.GateTarget(lestim.GateTarget(5))
+        lestim.GateTarget(5)
+        >>> lestim.GateTarget("X7")
+        lestim.target_x(7)
+        >>> lestim.GateTarget("rec[-3]")
+        lestim.target_rec(-3)
+        >>> lestim.GateTarget("!Z7")
+        lestim.target_z(7, invert=True)
+        >>> lestim.GateTarget("*")
+        lestim.GateTarget.combiner()
     """
 ```
 
@@ -8354,7 +11153,7 @@ def __init__(
 # (in class lestim.GateTarget)
 def __ne__(
     self,
-    arg0: lestim._stim_polyfill.GateTarget,
+    arg0: lestim.GateTarget,
 ) -> bool:
     """Determines if two `lestim.GateTarget`s are different.
     """
@@ -8506,7 +11305,6 @@ def is_sweep_bit_target(
     self,
 ) -> bool:
     """Returns whether or not this is a sweep bit target like `sweep[4]`.
-
 
     Examples:
         >>> import lestim
@@ -8728,6 +11526,14 @@ class GateTargetWithCoords:
     problem in a circuit, instead of having to constantly manually
     look up the coordinates of a qubit index in order to understand
     what is happening.
+
+    Examples:
+        >>> import lestim
+        >>> t = lestim.GateTargetWithCoords(0, [1.5, 2.0])
+        >>> t.gate_target
+        lestim.GateTarget(0)
+        >>> t.coords
+        [1.5, 2.0]
     """
 ```
 
@@ -8738,11 +11544,18 @@ class GateTargetWithCoords:
 # (in class lestim.GateTargetWithCoords)
 def __init__(
     self,
-    *,
     gate_target: object,
     coords: List[float],
 ) -> None:
     """Creates a lestim.GateTargetWithCoords.
+
+    Examples:
+        >>> import lestim
+        >>> t = lestim.GateTargetWithCoords(0, [1.5, 2.0])
+        >>> t.gate_target
+        lestim.GateTarget(0)
+        >>> t.coords
+        [1.5, 2.0]
     """
 ```
 
@@ -8758,6 +11571,12 @@ def coords(
     """Returns the associated coordinate information as a list of floats.
 
     If there is no coordinate information, returns an empty list.
+
+    Examples:
+        >>> import lestim
+        >>> t = lestim.GateTargetWithCoords(0, [1.5, 2.0])
+        >>> t.coords
+        [1.5, 2.0]
     """
 ```
 
@@ -8769,8 +11588,14 @@ def coords(
 @property
 def gate_target(
     self,
-) -> lestim._stim_polyfill.GateTarget:
+) -> lestim.GateTarget:
     """Returns the actual gate target as a `lestim.GateTarget`.
+
+    Examples:
+        >>> import lestim
+        >>> t = lestim.GateTargetWithCoords(0, [1.5, 2.0])
+        >>> t.gate_target
+        lestim.GateTarget(0)
     """
 ```
 
@@ -8801,8 +11626,8 @@ class PauliString:
 # (in class lestim.PauliString)
 def __add__(
     self,
-    rhs: lestim._stim_polyfill.PauliString,
-) -> lestim._stim_polyfill.PauliString:
+    rhs: lestim.PauliString,
+) -> lestim.PauliString:
     """Returns the tensor product of two Pauli strings.
 
     Concatenates the Pauli strings and multiplies their signs.
@@ -8831,7 +11656,7 @@ def __add__(
 # (in class lestim.PauliString)
 def __eq__(
     self,
-    arg0: lestim._stim_polyfill.PauliString,
+    arg0: lestim.PauliString,
 ) -> bool:
     """Determines if two Pauli strings have identical contents.
     """
@@ -8852,7 +11677,7 @@ def __getitem__(
 def __getitem__(
     self,
     index_or_slice: slice,
-) -> stim.PauliString:
+) -> lestim.PauliString:
     pass
 def __getitem__(
     self,
@@ -8894,8 +11719,8 @@ def __getitem__(
 # (in class lestim.PauliString)
 def __iadd__(
     self,
-    rhs: lestim._stim_polyfill.PauliString,
-) -> lestim._stim_polyfill.PauliString:
+    rhs: lestim.PauliString,
+) -> lestim.PauliString:
     """Performs an inplace tensor product.
 
     Concatenates the given Pauli string onto the receiving string and multiplies
@@ -8928,7 +11753,7 @@ def __iadd__(
 def __imul__(
     self,
     rhs: object,
-) -> lestim._stim_polyfill.PauliString:
+) -> lestim.PauliString:
     """Inplace right-multiplies the Pauli string.
 
     Can multiply by another Pauli string, a complex unit, or a tensor power.
@@ -8978,7 +11803,7 @@ def __imul__(
 # (in class lestim.PauliString)
 def __init__(
     self,
-    arg: Union[None, int, str, stim.PauliString, Iterable[Union[int, 'Literal["_", "I", "X", "Y", "Z"]']]] = None,
+    arg: Union[None, int, str, lestim.PauliString, Iterable[Union[int, Literal["_", "I", "X", "Y", "Z"]]]] = None,
     /,
 ) -> None:
     """Initializes a lestim.PauliString from the given argument.
@@ -8991,7 +11816,7 @@ def __init__(
     pauli string is a series of integers seperated by '*' and prefixed by 'I', 'X',
     'Y', or 'Z'.
 
-    Arguments:
+    Args:
         arg [position-only]: This can be a variety of types, including:
             None (default): initializes an empty Pauli string.
             int: initializes an identity Pauli string of the given length.
@@ -8999,6 +11824,14 @@ def __init__(
             lestim.PauliString: initializes a copy of the given Pauli string.
             Iterable: initializes by interpreting each item as a Pauli.
                 Each item can be a single-qubit Pauli string (like "X"),
+                or an integer. Integers use the convention 0=I, 1=X, 2=Y, 3=Z.
+            Dict[int, Union[int, str]]: initializes by interpreting keys as
+                the qubit index and values as the Pauli for that index.
+                Each value can be a single-qubit Pauli string (like "X"),
+                or an integer. Integers use the convention 0=I, 1=X, 2=Y, 3=Z.
+            Dict[Union[int, str], Iterable[int]]: initializes by interpreting keys
+                as Pauli operators and values as the qubit indices for that Pauli.
+                Each key can be a single-qubit Pauli string (like "X"),
                 or an integer. Integers use the convention 0=I, 1=X, 2=Y, 3=Z.
 
     Examples:
@@ -9027,6 +11860,15 @@ def __init__(
 
         >>> lestim.PauliString("X6*Y6")
         lestim.PauliString("+i______Z")
+
+        >>> lestim.PauliString({0: "X", 2: "Y", 3: "X"})
+        lestim.PauliString("+X_YX")
+
+        >>> lestim.PauliString({0: "X", 2: 2, 3: 1})
+        lestim.PauliString("+X_YX")
+
+        >>> lestim.PauliString({"X": [1], 2: [4], "Z": [0, 3]})
+        lestim.PauliString("+ZX_ZY")
     """
 ```
 
@@ -9038,7 +11880,7 @@ def __init__(
 def __itruediv__(
     self,
     rhs: complex,
-) -> lestim._stim_polyfill.PauliString:
+) -> lestim.PauliString:
     """Inplace divides the Pauli string by a complex unit.
 
     Args:
@@ -9069,6 +11911,13 @@ def __len__(
     self,
 ) -> int:
     """Returns the length the pauli string; the number of qubits it operates on.
+
+    Examples:
+        >>> import lestim
+        >>> len(lestim.PauliString("XY_ZZ"))
+        5
+        >>> len(lestim.PauliString("X0*Z99"))
+        100
     """
 ```
 
@@ -9080,7 +11929,7 @@ def __len__(
 def __mul__(
     self,
     rhs: object,
-) -> lestim._stim_polyfill.PauliString:
+) -> lestim.PauliString:
     """Right-multiplies the Pauli string.
 
     Can multiply by another Pauli string, a complex unit, or a tensor power.
@@ -9138,7 +11987,7 @@ def __mul__(
 # (in class lestim.PauliString)
 def __ne__(
     self,
-    arg0: lestim._stim_polyfill.PauliString,
+    arg0: lestim.PauliString,
 ) -> bool:
     """Determines if two Pauli strings have non-identical contents.
     """
@@ -9151,7 +12000,7 @@ def __ne__(
 # (in class lestim.PauliString)
 def __neg__(
     self,
-) -> lestim._stim_polyfill.PauliString:
+) -> lestim.PauliString:
     """Returns the negation of the pauli string.
 
     Examples:
@@ -9172,7 +12021,7 @@ def __neg__(
 # (in class lestim.PauliString)
 def __pos__(
     self,
-) -> lestim._stim_polyfill.PauliString:
+) -> lestim.PauliString:
     """Returns a pauli string with the same contents.
 
     Examples:
@@ -9206,7 +12055,7 @@ def __repr__(
 def __rmul__(
     self,
     lhs: object,
-) -> lestim._stim_polyfill.PauliString:
+) -> lestim.PauliString:
     """Left-multiplies the Pauli string.
 
     Can multiply by another Pauli string, a complex unit, or a tensor power.
@@ -9315,7 +12164,7 @@ def __str__(
 def __truediv__(
     self,
     rhs: complex,
-) -> lestim._stim_polyfill.PauliString:
+) -> lestim.PauliString:
     """Divides the Pauli string by a complex unit.
 
     Args:
@@ -9343,21 +12192,21 @@ def __truediv__(
 @overload
 def after(
     self,
-    operation: Union[stim.Circuit, stim.CircuitInstruction],
-) -> stim.PauliString:
+    operation: Union[lestim.Circuit, lestim.CircuitInstruction],
+) -> lestim.PauliString:
     pass
 @overload
 def after(
     self,
-    operation: stim.Tableau,
+    operation: lestim.Tableau,
     targets: Iterable[int],
-) -> stim.PauliString:
+) -> lestim.PauliString:
     pass
 def after(
     self,
-    operation: Union[stim.Circuit, stim.Tableau, stim.CircuitInstruction],
+    operation: Union[lestim.Circuit, lestim.Tableau, lestim.CircuitInstruction],
     targets: Optional[Iterable[int]] = None,
-) -> stim.PauliString:
+) -> lestim.PauliString:
     """Returns the result of conjugating the Pauli string by an operation.
 
     Args:
@@ -9398,21 +12247,21 @@ def after(
 @overload
 def before(
     self,
-    operation: Union[stim.Circuit, stim.CircuitInstruction],
-) -> stim.PauliString:
+    operation: Union[lestim.Circuit, lestim.CircuitInstruction],
+) -> lestim.PauliString:
     pass
 @overload
 def before(
     self,
-    operation: stim.Tableau,
+    operation: lestim.Tableau,
     targets: Iterable[int],
-) -> stim.PauliString:
+) -> lestim.PauliString:
     pass
 def before(
     self,
-    operation: Union[stim.Circuit, stim.Tableau, stim.CircuitInstruction],
+    operation: Union[lestim.Circuit, lestim.Tableau, lestim.CircuitInstruction],
     targets: Optional[Iterable[int]] = None,
-) -> stim.PauliString:
+) -> lestim.PauliString:
     """Returns the result of conjugating the Pauli string by an operation.
 
     Args:
@@ -9452,7 +12301,7 @@ def before(
 # (in class lestim.PauliString)
 def commutes(
     self,
-    other: lestim._stim_polyfill.PauliString,
+    other: lestim.PauliString,
 ) -> bool:
     """Determines if two Pauli strings commute or not.
 
@@ -9492,7 +12341,7 @@ def commutes(
 # (in class lestim.PauliString)
 def copy(
     self,
-) -> lestim._stim_polyfill.PauliString:
+) -> lestim.PauliString:
     """Returns a copy of the pauli string.
 
     The copy is an independent pauli string with the same contents.
@@ -9520,7 +12369,7 @@ def from_numpy(
     zs: np.ndarray,
     sign: Union[int, float, complex] = +1,
     num_qubits: Optional[int] = None,
-) -> stim.PauliString:
+) -> lestim.PauliString:
     """Creates a pauli string from X bit and Z bit numpy arrays, using the encoding:
 
         x=0 and z=0 -> P=I
@@ -9574,9 +12423,9 @@ def from_numpy(
 def from_unitary_matrix(
     matrix: Iterable[Iterable[Union[int, float, complex]]],
     *,
-    endian: str = 'little',
+    endian: Literal["little", "big"] = 'little',
     unsigned: bool = False,
-) -> stim.PauliString:
+) -> lestim.PauliString:
     """Creates a lestim.PauliString from the unitary matrix of a Pauli group member.
 
     Args:
@@ -9637,7 +12486,7 @@ def iter_all(
     min_weight: int = 0,
     max_weight: object = None,
     allowed_paulis: str = 'XYZ',
-) -> lestim._stim_polyfill.PauliStringIterator:
+) -> lestim.PauliStringIterator:
     """Returns an iterator that iterates over all matching pauli strings.
 
     Args:
@@ -9741,7 +12590,7 @@ def random(
     num_qubits: int,
     *,
     allow_imaginary: bool = False,
-) -> lestim._stim_polyfill.PauliString:
+) -> lestim.PauliString:
     """Samples a uniformly random Hermitian Pauli string.
 
     Args:
@@ -9862,7 +12711,7 @@ def to_numpy(
 # (in class lestim.PauliString)
 def to_tableau(
     self,
-) -> lestim._stim_polyfill.Tableau:
+) -> lestim.Tableau:
     """Creates a Tableau equivalent to this Pauli string.
 
     The tableau represents a Clifford operation that multiplies qubits
@@ -9913,7 +12762,7 @@ def to_tableau(
 def to_unitary_matrix(
     self,
     *,
-    endian: str,
+    endian: Literal["little", "big"],
 ) -> np.ndarray[np.complex64]:
     """Converts the pauli string into a unitary matrix.
 
@@ -9994,7 +12843,7 @@ class PauliStringIterator:
 # (in class lestim.PauliStringIterator)
 def __iter__(
     self,
-) -> lestim._stim_polyfill.PauliStringIterator:
+) -> lestim.PauliStringIterator:
     """Returns an independent copy of the pauli string iterator.
 
     Since for-loops and loop-comprehensions call `iter` on things they
@@ -10010,7 +12859,7 @@ def __iter__(
 # (in class lestim.PauliStringIterator)
 def __next__(
     self,
-) -> lestim._stim_polyfill.PauliString:
+) -> lestim.PauliString:
     """Returns the next iterated pauli string.
     """
 ```
@@ -10062,8 +12911,8 @@ class Tableau:
 # (in class lestim.Tableau)
 def __add__(
     self,
-    rhs: lestim._stim_polyfill.Tableau,
-) -> lestim._stim_polyfill.Tableau:
+    rhs: lestim.Tableau,
+) -> lestim.Tableau:
     """Returns the direct sum (diagonal concatenation) of two Tableaus.
 
     Args:
@@ -10093,12 +12942,21 @@ def __add__(
 # (in class lestim.Tableau)
 def __call__(
     self,
-    pauli_string: lestim._stim_polyfill.PauliString,
-) -> lestim._stim_polyfill.PauliString:
-    """Returns the conjugation of a PauliString by the Tableau's Clifford operation.
+    pauli_string: lestim.PauliString,
+) -> lestim.PauliString:
+    """Returns the equivalent PauliString after the Tableau's Clifford operation.
 
-    The conjugation of P by C is equal to C**-1 * P * C. If P is a Pauli product
-    before C, then P2 = C**-1 * P * C is an equivalent Pauli product after C.
+    If P is a Pauli product before a Clifford operation C, then this method returns
+    Q = C * P * C**-1 (the conjugation of P by C). Q is the equivalent Pauli product
+    after C. This works because:
+
+        C*P
+        = C*P * I
+        = C*P * (C**-1 * C)
+        = (C*P*C**-1) * C
+        = Q*C
+
+    (Keep in mind that A*B means first B is applied, then A is applied.)
 
     Args:
         pauli_string: The pauli string to conjugate.
@@ -10123,7 +12981,7 @@ def __call__(
 # (in class lestim.Tableau)
 def __eq__(
     self,
-    arg0: lestim._stim_polyfill.Tableau,
+    arg0: lestim.Tableau,
 ) -> bool:
     """Determines if two tableaus have identical contents.
     """
@@ -10136,8 +12994,8 @@ def __eq__(
 # (in class lestim.Tableau)
 def __iadd__(
     self,
-    rhs: lestim._stim_polyfill.Tableau,
-) -> lestim._stim_polyfill.Tableau:
+    rhs: lestim.Tableau,
+) -> lestim.Tableau:
     """Performs an inplace direct sum (diagonal concatenation).
 
     Args:
@@ -10199,6 +13057,12 @@ def __len__(
     self,
 ) -> int:
     """Returns the number of qubits operated on by the tableau.
+
+    Examples:
+        >>> import lestim
+        >>> t = lestim.Tableau.from_named_gate("CNOT")
+        >>> len(t)
+        2
     """
 ```
 
@@ -10209,8 +13073,8 @@ def __len__(
 # (in class lestim.Tableau)
 def __mul__(
     self,
-    rhs: lestim._stim_polyfill.Tableau,
-) -> lestim._stim_polyfill.Tableau:
+    rhs: lestim.Tableau,
+) -> lestim.Tableau:
     """Returns the product of two tableaus.
 
     If the tableau T1 represents the Clifford operation with unitary C1,
@@ -10238,7 +13102,7 @@ def __mul__(
 # (in class lestim.Tableau)
 def __ne__(
     self,
-    arg0: lestim._stim_polyfill.Tableau,
+    arg0: lestim.Tableau,
 ) -> bool:
     """Determines if two tableaus have non-identical contents.
     """
@@ -10252,7 +13116,7 @@ def __ne__(
 def __pow__(
     self,
     exponent: int,
-) -> lestim._stim_polyfill.Tableau:
+) -> lestim.Tableau:
     """Raises the tableau to an integer power.
 
     Large powers are reached efficiently using repeated squaring.
@@ -10312,7 +13176,7 @@ def __str__(
 # (in class lestim.Tableau)
 def append(
     self,
-    gate: stim.Tableau,
+    gate: lestim.Tableau,
     targets: Sequence[int],
 ) -> None:
     """Appends an operation's effect into this tableau, mutating this tableau.
@@ -10342,7 +13206,7 @@ def append(
 # (in class lestim.Tableau)
 def copy(
     self,
-) -> lestim._stim_polyfill.Tableau:
+) -> lestim.Tableau:
     """Returns a copy of the tableau. An independent tableau with the same contents.
 
     Examples:
@@ -10363,12 +13227,12 @@ def copy(
 # (in class lestim.Tableau)
 @staticmethod
 def from_circuit(
-    circuit: stim.Circuit,
+    circuit: lestim.Circuit,
     *,
     ignore_noise: bool = False,
     ignore_measurement: bool = False,
     ignore_reset: bool = False,
-) -> stim.Tableau:
+) -> lestim.Tableau:
     """Converts a circuit into an equivalent stabilizer tableau.
 
     Args:
@@ -10425,9 +13289,9 @@ def from_circuit(
 @staticmethod
 def from_conjugated_generators(
     *,
-    xs: List[lestim._stim_polyfill.PauliString],
-    zs: List[lestim._stim_polyfill.PauliString],
-) -> lestim._stim_polyfill.Tableau:
+    xs: List[lestim.PauliString],
+    zs: List[lestim.PauliString],
+) -> lestim.Tableau:
     """Creates a tableau from the given outputs for each generator.
 
     Verifies that the tableau is well formed.
@@ -10470,7 +13334,7 @@ def from_conjugated_generators(
 @staticmethod
 def from_named_gate(
     name: str,
-) -> lestim._stim_polyfill.Tableau:
+) -> lestim.Tableau:
     """Returns the tableau of a named Clifford gate.
 
     Args:
@@ -10511,7 +13375,7 @@ def from_numpy(
     z2z: np.ndarray,
     x_signs: Optional[np.ndarray] = None,
     z_signs: Optional[np.ndarray] = None,
-) -> stim.Tableau:
+) -> lestim.Tableau:
     """Creates a tableau from numpy arrays x2x, x2z, z2x, z2z, x_signs, and z_signs.
 
     The x2x, x2z, z2x, z2z arrays are the four quadrants of the table defined in
@@ -10609,11 +13473,11 @@ def from_numpy(
 # (in class lestim.Tableau)
 @staticmethod
 def from_stabilizers(
-    stabilizers: Iterable[stim.PauliString],
+    stabilizers: Iterable[lestim.PauliString],
     *,
     allow_redundant: bool = False,
     allow_underconstrained: bool = False,
-) -> stim.Tableau:
+) -> lestim.Tableau:
     """Creates a tableau representing a state with the given stabilizers.
 
     Args:
@@ -10701,14 +13565,14 @@ def from_stabilizers(
 def from_state_vector(
     state_vector: Iterable[float],
     *,
-    endian: str,
-) -> stim.Tableau:
+    endian: Literal["little", "big"],
+) -> lestim.Tableau:
     """Creates a tableau representing the stabilizer state of the given state vector.
 
     Args:
         state_vector: A list of complex amplitudes specifying a superposition. The
             vector must correspond to a state that is reachable using Clifford
-            operations, and must be normalized (i.e. it must be a unit vector).
+            operations, and can be unnormalized.
         endian:
             "little": state vector is in little endian order, where higher index
                 qubits correspond to larger changes in the state index.
@@ -10769,8 +13633,8 @@ def from_state_vector(
 def from_unitary_matrix(
     matrix: Iterable[Iterable[float]],
     *,
-    endian: str = 'little',
-) -> stim.Tableau:
+    endian: Literal["little", "big"] = 'little',
+) -> lestim.Tableau:
     """Creates a tableau from the unitary matrix of a Clifford operation.
 
     Args:
@@ -10832,7 +13696,7 @@ def inverse(
     self,
     *,
     unsigned: bool = False,
-) -> lestim._stim_polyfill.Tableau:
+) -> lestim.Tableau:
     """Computes the inverse of the tableau.
 
     The inverse T^-1 of a tableau T is the unique tableau with the property that
@@ -10906,7 +13770,7 @@ def inverse_x_output(
     input_index: int,
     *,
     unsigned: bool = False,
-) -> lestim._stim_polyfill.PauliString:
+) -> lestim.PauliString:
     """Conjugates a single-qubit X Pauli generator by the inverse of the tableau.
 
     A faster version of `tableau.inverse(unsigned).x_output(input_index)`.
@@ -10990,7 +13854,7 @@ def inverse_y_output(
     input_index: int,
     *,
     unsigned: bool = False,
-) -> lestim._stim_polyfill.PauliString:
+) -> lestim.PauliString:
     """Conjugates a single-qubit Y Pauli generator by the inverse of the tableau.
 
     A faster version of `tableau.inverse(unsigned).y_output(input_index)`.
@@ -11074,7 +13938,7 @@ def inverse_z_output(
     input_index: int,
     *,
     unsigned: bool = False,
-) -> lestim._stim_polyfill.PauliString:
+) -> lestim.PauliString:
     """Conjugates a single-qubit Z Pauli generator by the inverse of the tableau.
 
     A faster version of `tableau.inverse(unsigned).z_output(input_index)`.
@@ -11160,7 +14024,7 @@ def iter_all(
     num_qubits: int,
     *,
     unsigned: bool = False,
-) -> lestim._stim_polyfill.TableauIterator:
+) -> lestim.TableauIterator:
     """Returns an iterator that iterates over all Tableaus of a given size.
 
     Args:
@@ -11196,7 +14060,7 @@ def iter_all(
 # (in class lestim.Tableau)
 def prepend(
     self,
-    gate: stim.Tableau,
+    gate: lestim.Tableau,
     targets: Sequence[int],
 ) -> None:
     """Prepends an operation's effect into this tableau, mutating this tableau.
@@ -11224,7 +14088,7 @@ def prepend(
 @staticmethod
 def random(
     num_qubits: int,
-) -> lestim._stim_polyfill.Tableau:
+) -> lestim.Tableau:
     """Samples a uniformly random Clifford operation and returns its tableau.
 
     Args:
@@ -11251,8 +14115,8 @@ def random(
 # (in class lestim.Tableau)
 def then(
     self,
-    second: lestim._stim_polyfill.Tableau,
-) -> lestim._stim_polyfill.Tableau:
+    second: lestim.Tableau,
+) -> lestim.Tableau:
     """Returns the result of composing two tableaus.
 
     If the tableau T1 represents the Clifford operation with unitary C1,
@@ -11282,8 +14146,8 @@ def then(
 # (in class lestim.Tableau)
 def to_circuit(
     self,
-    method: 'Literal["elimination", "graph_state"]' = 'elimination',
-) -> stim.Circuit:
+    method: Literal["elimination", "graph_state"] = 'elimination',
+) -> lestim.Circuit:
     """Synthesizes a circuit that implements the tableau's Clifford operation.
 
     The circuits returned by this method are not guaranteed to be stable
@@ -11583,7 +14447,7 @@ def to_numpy(
 # (in class lestim.Tableau)
 def to_pauli_string(
     self,
-) -> lestim._stim_polyfill.PauliString:
+) -> lestim.PauliString:
     """Return a Pauli string equivalent to the tableau.
 
     If the tableau is equivalent to a pauli product, creates
@@ -11622,7 +14486,7 @@ def to_stabilizers(
     self,
     *,
     canonicalize: bool = False,
-) -> List[lestim._stim_polyfill.PauliString]:
+) -> List[lestim.PauliString]:
     """Returns the stabilizer generators of the tableau, optionally canonicalized.
 
     The stabilizer generators of the tableau are its Z outputs. Canonicalizing
@@ -11677,7 +14541,7 @@ def to_stabilizers(
 def to_state_vector(
     self,
     *,
-    endian: str = 'little',
+    endian: Literal["little", "big"] = 'little',
 ) -> np.ndarray[np.complex64]:
     """Returns the state vector produced by applying the tableau to the |0..0> state.
 
@@ -11736,7 +14600,7 @@ def to_state_vector(
 def to_unitary_matrix(
     self,
     *,
-    endian: str,
+    endian: Literal["little", "big"],
 ) -> np.ndarray[np.complex64]:
     """Converts the tableau into a unitary matrix.
 
@@ -11788,7 +14652,7 @@ def to_unitary_matrix(
 def x_output(
     self,
     target: int,
-) -> lestim._stim_polyfill.PauliString:
+) -> lestim.PauliString:
     """Returns the result of conjugating a Pauli X by the tableau's Clifford operation.
 
     Args:
@@ -11884,7 +14748,7 @@ def x_sign(
 def y_output(
     self,
     target: int,
-) -> lestim._stim_polyfill.PauliString:
+) -> lestim.PauliString:
     """Returns the result of conjugating a Pauli Y by the tableau's Clifford operation.
 
     Args:
@@ -11982,7 +14846,7 @@ def y_sign(
 def z_output(
     self,
     target: int,
-) -> lestim._stim_polyfill.PauliString:
+) -> lestim.PauliString:
     """Returns the result of conjugating a Pauli Z by the tableau's Clifford operation.
 
     Args:
@@ -12096,7 +14960,7 @@ class TableauIterator:
 # (in class lestim.TableauIterator)
 def __iter__(
     self,
-) -> lestim._stim_polyfill.TableauIterator:
+) -> lestim.TableauIterator:
     """Returns an independent copy of the tableau iterator.
 
     Since for-loops and loop-comprehensions call `iter` on things they
@@ -12112,7 +14976,7 @@ def __iter__(
 # (in class lestim.TableauIterator)
 def __next__(
     self,
-) -> lestim._stim_polyfill.Tableau:
+) -> lestim.Tableau:
     """Returns the next iterated tableau.
     """
 ```
@@ -12221,6 +15085,18 @@ def c_xyz(
 
     Args:
         *targets: The indices of the qubits to target with the gate.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
+        +X +Y +Z
+        >>> s.c_xyz(0, 1, 2)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
+        +Y +Z +X
     """
 ```
 
@@ -12237,6 +15113,18 @@ def c_zyx(
 
     Args:
         *targets: The indices of the qubits to target with the gate.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
+        +X +Y +Z
+        >>> s.c_zyx(0, 1, 2)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
+        +Z +X +Y
     """
 ```
 
@@ -12247,7 +15135,7 @@ def c_zyx(
 # (in class lestim.TableauSimulator)
 def canonical_stabilizers(
     self,
-) -> List[lestim._stim_polyfill.PauliString]:
+) -> List[lestim.PauliString]:
     """Returns a standardized list of the simulator's current stabilizer generators.
 
     Two simulators have the same canonical stabilizers if and only if their current
@@ -12311,6 +15199,18 @@ def cnot(
         *targets: The indices of the qubits to target with the gate.
             Applies the gate to the first two targets, then the next two targets,
             and so forth. There must be an even number of targets.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0, 3)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +X +Y +Z +X
+        >>> s.cnot(0, 1, 2, 3)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +_ +_ +Z +X
     """
 ```
 
@@ -12324,7 +15224,7 @@ def copy(
     *,
     copy_rng: bool = False,
     seed: Optional[int] = None,
-) -> stim.TableauSimulator:
+) -> lestim.TableauSimulator:
     """Returns a simulator with the same internal state, except perhaps its prng.
 
     Args:
@@ -12402,7 +15302,7 @@ def copy(
 # (in class lestim.TableauSimulator)
 def current_inverse_tableau(
     self,
-) -> lestim._stim_polyfill.Tableau:
+) -> lestim.Tableau:
     """Returns a copy of the internal state of the simulator as a lestim.Tableau.
 
     Returns:
@@ -12483,6 +15383,18 @@ def cx(
         *targets: The indices of the qubits to target with the gate.
             Applies the gate to the first two targets, then the next two targets,
             and so forth. There must be an even number of targets.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0, 3)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +X +Y +Z +X
+        >>> s.cx(0, 1, 2, 3)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +_ +_ +Z +X
     """
 ```
 
@@ -12501,6 +15413,18 @@ def cy(
         *targets: The indices of the qubits to target with the gate.
             Applies the gate to the first two targets, then the next two targets,
             and so forth. There must be an even number of targets.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0, 3)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +X +Y +Z +X
+        >>> s.cy(0, 1, 2, 3)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +X +Y +Z +X
     """
 ```
 
@@ -12519,6 +15443,18 @@ def cz(
         *targets: The indices of the qubits to target with the gate.
             Applies the gate to the first two targets, then the next two targets,
             and so forth. There must be an even number of targets.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0, 3)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +X +Y +Z +X
+        >>> s.cz(0, 1, 2, 3)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +_ +_ +Z +X
     """
 ```
 
@@ -12538,6 +15474,11 @@ def depolarize1(
         *targets: The indices of the qubits to target with the noise.
         p: The chance of the error being applied,
             independently, to each qubit.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.depolarize1(0, 1, 2, p=0.01)
     """
 ```
 
@@ -12559,6 +15500,11 @@ def depolarize2(
             zip(targets[::1], targets[1::2]).
         p: The chance of the error being applied,
             independently, to each qubit pair.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.depolarize1(0, 1, 4, 5, p=0.01)
     """
 ```
 
@@ -12569,7 +15515,7 @@ def depolarize2(
 # (in class lestim.TableauSimulator)
 def do(
     self,
-    circuit_or_pauli_string: Union[stim.Circuit, stim.PauliString, stim.CircuitInstruction, stim.CircuitRepeatBlock],
+    circuit_or_pauli_string: Union[lestim.Circuit, lestim.PauliString, lestim.CircuitInstruction, lestim.CircuitRepeatBlock],
 ) -> None:
     """Applies a circuit or pauli string to the simulator's state.
 
@@ -12602,7 +15548,7 @@ def do(
 # (in class lestim.TableauSimulator)
 def do_circuit(
     self,
-    circuit: lestim._stim_polyfill.Circuit,
+    circuit: lestim.Circuit,
 ) -> None:
     """Applies a circuit to the simulator's state.
 
@@ -12628,7 +15574,7 @@ def do_circuit(
 # (in class lestim.TableauSimulator)
 def do_pauli_string(
     self,
-    pauli_string: lestim._stim_polyfill.PauliString,
+    pauli_string: lestim.PauliString,
 ) -> None:
     """Applies the paulis from a pauli string to the simulator's state.
 
@@ -12651,7 +15597,7 @@ def do_pauli_string(
 # (in class lestim.TableauSimulator)
 def do_tableau(
     self,
-    tableau: lestim._stim_polyfill.Tableau,
+    tableau: lestim.Tableau,
     targets: List[int],
 ) -> None:
     """Applies a custom tableau operation to qubits in the simulator.
@@ -12706,6 +15652,18 @@ def h(
 
     Args:
         *targets: The indices of the qubits to target with the gate.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
+        +X +Y +Z
+        >>> s.h(0, 1, 2)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
+        +Z -Y +X
     """
 ```
 
@@ -12722,6 +15680,18 @@ def h_xy(
 
     Args:
         *targets: The indices of the qubits to target with the gate.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
+        +X +Y +Z
+        >>> s.h_xy(0, 1, 2)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
+        +Y +X -Z
     """
 ```
 
@@ -12738,6 +15708,18 @@ def h_xz(
 
     Args:
         *targets: The indices of the qubits to target with the gate.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
+        +X +Y +Z
+        >>> s.h_xz(0, 1, 2)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
+        +Z -Y +X
     """
 ```
 
@@ -12754,6 +15736,18 @@ def h_yz(
 
     Args:
         *targets: The indices of the qubits to target with the gate.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
+        +X +Y +Z
+        >>> s.h_yz(0, 1, 2)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
+        -X +Z +Y
     """
 ```
 
@@ -12772,6 +15766,18 @@ def iswap(
         *targets: The indices of the qubits to target with the gate.
             Applies the gate to the first two targets, then the next two targets,
             and so forth. There must be an even number of targets.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0, 3)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +X +Y +Z +X
+        >>> s.iswap(0, 1, 2, 3)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +_ +_ +Y +Z
     """
 ```
 
@@ -12790,6 +15796,18 @@ def iswap_dag(
         *targets: The indices of the qubits to target with the gate.
             Applies the gate to the first two targets, then the next two targets,
             and so forth. There must be an even number of targets.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0, 3)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +X +Y +Z +X
+        >>> s.iswap_dag(0, 1, 2, 3)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +_ +_ -Y +Z
     """
 ```
 
@@ -12815,6 +15833,15 @@ def measure(
 
     Returns:
         The measurement result as a bool.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.x(1)
+        >>> s.measure(0)
+        False
+        >>> s.measure(1)
+        True
     """
 ```
 
@@ -12896,6 +15923,13 @@ def measure_many(
 
     Returns:
         The measurement results as a list of bools.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.x(1)
+        >>> s.measure_many(0, 1)
+        [False, True]
     """
 ```
 
@@ -12906,7 +15940,7 @@ def measure_many(
 # (in class lestim.TableauSimulator)
 def measure_observable(
     self,
-    observable: lestim._stim_polyfill.PauliString,
+    observable: lestim.PauliString,
     *,
     flip_probability: float = 0.0,
 ) -> bool:
@@ -12977,7 +16011,7 @@ def num_qubits(
 def peek_bloch(
     self,
     target: int,
-) -> lestim._stim_polyfill.PauliString:
+) -> lestim.PauliString:
     """Returns the state of the qubit as a single-qubit lestim.PauliString stabilizer.
 
     This is a non-physical operation. It reports information about the qubit without
@@ -13029,7 +16063,7 @@ def peek_bloch(
 # (in class lestim.TableauSimulator)
 def peek_observable_expectation(
     self,
-    observable: lestim._stim_polyfill.PauliString,
+    observable: lestim.PauliString,
 ) -> int:
     """Determines the expected value of an observable.
 
@@ -13202,7 +16236,7 @@ def peek_z(
 # (in class lestim.TableauSimulator)
 def postselect_observable(
     self,
-    observable: lestim._stim_polyfill.PauliString,
+    observable: lestim.PauliString,
     *,
     desired_value: bool = False,
 ) -> None:
@@ -13481,6 +16515,18 @@ def s(
 
     Args:
         *targets: The indices of the qubits to target with the gate.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
+        +X +Y +Z
+        >>> s.s(0, 1, 2)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
+        +Y -X +Z
     """
 ```
 
@@ -13497,6 +16543,18 @@ def s_dag(
 
     Args:
         *targets: The indices of the qubits to target with the gate.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
+        +X +Y +Z
+        >>> s.s_dag(0, 1, 2)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
+        -Y +X +Z
     """
 ```
 
@@ -13507,7 +16565,7 @@ def s_dag(
 # (in class lestim.TableauSimulator)
 def set_inverse_tableau(
     self,
-    new_inverse_tableau: lestim._stim_polyfill.Tableau,
+    new_inverse_tableau: lestim.Tableau,
 ) -> None:
     """Overwrites the simulator's internal state with the given inverse tableau.
 
@@ -13585,7 +16643,7 @@ def set_num_qubits(
 # (in class lestim.TableauSimulator)
 def set_state_from_stabilizers(
     self,
-    stabilizers: Iterable[stim.PauliString],
+    stabilizers: Iterable[lestim.PauliString],
     *,
     allow_redundant: bool = False,
     allow_underconstrained: bool = False,
@@ -13684,7 +16742,7 @@ def set_state_from_state_vector(
     self,
     state_vector: Iterable[float],
     *,
-    endian: str,
+    endian: Literal["little", "big"],
 ) -> None:
     """Sets the simulator's state to a superposition specified by an amplitude vector.
 
@@ -13758,6 +16816,18 @@ def sqrt_x(
 
     Args:
         *targets: The indices of the qubits to target with the gate.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
+        +X +Y +Z
+        >>> s.sqrt_x(0, 1, 2)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
+        +X +Z -Y
     """
 ```
 
@@ -13774,6 +16844,18 @@ def sqrt_x_dag(
 
     Args:
         *targets: The indices of the qubits to target with the gate.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
+        +X +Y +Z
+        >>> s.sqrt_x_dag(0, 1, 2)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
+        +X -Z +Y
     """
 ```
 
@@ -13790,6 +16872,18 @@ def sqrt_y(
 
     Args:
         *targets: The indices of the qubits to target with the gate.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
+        +X +Y +Z
+        >>> s.sqrt_y(0, 1, 2)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
+        -Z +Y +X
     """
 ```
 
@@ -13806,6 +16900,18 @@ def sqrt_y_dag(
 
     Args:
         *targets: The indices of the qubits to target with the gate.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
+        +X +Y +Z
+        >>> s.sqrt_y_dag(0, 1, 2)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
+        +Z +Y -X
     """
 ```
 
@@ -13817,7 +16923,7 @@ def sqrt_y_dag(
 def state_vector(
     self,
     *,
-    endian: str = 'little',
+    endian: Literal["little", "big"] = 'little',
 ) -> np.ndarray[np.complex64]:
     """Returns a wavefunction for the simulator's current state.
 
@@ -13852,15 +16958,18 @@ def state_vector(
         >>> import numpy as np
         >>> s = lestim.TableauSimulator()
         >>> s.x(2)
-        >>> list(s.state_vector(endian='little'))
-        [0j, 0j, 0j, 0j, (1+0j), 0j, 0j, 0j]
+        >>> s.state_vector(endian='little')
+        array([0.+0.j, 0.+0.j, 0.+0.j, 0.+0.j, 1.+0.j, 0.+0.j, 0.+0.j, 0.+0.j],
+              dtype=complex64)
 
-        >>> list(s.state_vector(endian='big'))
-        [0j, (1+0j), 0j, 0j, 0j, 0j, 0j, 0j]
+        >>> s.state_vector(endian='big')
+        array([0.+0.j, 1.+0.j, 0.+0.j, 0.+0.j, 0.+0.j, 0.+0.j, 0.+0.j, 0.+0.j],
+              dtype=complex64)
 
         >>> s.sqrt_x(1, 2)
-        >>> list(s.state_vector())
-        [(0.5+0j), 0j, -0.5j, 0j, 0.5j, 0j, (0.5+0j), 0j]
+        >>> s.state_vector()
+        array([0.5+0.j , 0. +0.j , 0. -0.5j, 0. +0.j , 0. +0.5j, 0. +0.j ,
+               0.5+0.j , 0. +0.j ], dtype=complex64)
     """
 ```
 
@@ -13879,6 +16988,18 @@ def swap(
         *targets: The indices of the qubits to target with the gate.
             Applies the gate to the first two targets, then the next two targets,
             and so forth. There must be an even number of targets.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0, 3)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +X +Y +Z +X
+        >>> s.swap(0, 1, 2, 3)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +Y +X +X +Z
     """
 ```
 
@@ -13895,6 +17016,18 @@ def x(
 
     Args:
         *targets: The indices of the qubits to target with the gate.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
+        +X +Y +Z
+        >>> s.x(0, 1, 2)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
+        +X -Y -Z
     """
 ```
 
@@ -13914,6 +17047,11 @@ def x_error(
         *targets: The indices of the qubits to target with the noise.
         p: The chance of the X error being applied,
             independently, to each qubit.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.x_error(0, 1, 2, p=0.01)
     """
 ```
 
@@ -13932,6 +17070,18 @@ def xcx(
         *targets: The indices of the qubits to target with the gate.
             Applies the gate to the first two targets, then the next two targets,
             and so forth. There must be an even number of targets.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0, 3)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +X +Y +Z +X
+        >>> s.xcx(0, 1, 2, 3)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +X +Y +Z +X
     """
 ```
 
@@ -13950,6 +17100,18 @@ def xcy(
         *targets: The indices of the qubits to target with the gate.
             Applies the gate to the first two targets, then the next two targets,
             and so forth. There must be an even number of targets.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0, 3)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +X +Y +Z +X
+        >>> s.xcy(0, 1, 2, 3)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +X +Y +_ +_
     """
 ```
 
@@ -13968,6 +17130,18 @@ def xcz(
         *targets: The indices of the qubits to target with the gate.
             Applies the gate to the first two targets, then the next two targets,
             and so forth. There must be an even number of targets.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0, 3)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +X +Y +Z +X
+        >>> s.xcz(0, 1, 2, 3)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +X +Y +_ +_
     """
 ```
 
@@ -13984,6 +17158,18 @@ def y(
 
     Args:
         *targets: The indices of the qubits to target with the gate.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
+        +X +Y +Z
+        >>> s.y(0, 1, 2)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
+        -X +Y -Z
     """
 ```
 
@@ -14003,6 +17189,11 @@ def y_error(
         *targets: The indices of the qubits to target with the noise.
         p: The chance of the Y error being applied,
             independently, to each qubit.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.y_error(0, 1, 2, p=0.01)
     """
 ```
 
@@ -14021,6 +17212,18 @@ def ycx(
         *targets: The indices of the qubits to target with the gate.
             Applies the gate to the first two targets, then the next two targets,
             and so forth. There must be an even number of targets.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0, 3)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +X +Y +Z +X
+        >>> s.ycx(0, 1, 2, 3)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +_ +_ +Z +X
     """
 ```
 
@@ -14039,6 +17242,18 @@ def ycy(
         *targets: The indices of the qubits to target with the gate.
             Applies the gate to the first two targets, then the next two targets,
             and so forth. There must be an even number of targets.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0, 3)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +X +Y +Z +X
+        >>> s.ycy(0, 1, 2, 3)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +X +Y +_ +_
     """
 ```
 
@@ -14057,6 +17272,18 @@ def ycz(
         *targets: The indices of the qubits to target with the gate.
             Applies the gate to the first two targets, then the next two targets,
             and so forth. There must be an even number of targets.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0, 3)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +X +Y +Z +X
+        >>> s.ycz(0, 1, 2, 3)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +_ +_ +_ +_
     """
 ```
 
@@ -14073,6 +17300,18 @@ def z(
 
     Args:
         *targets: The indices of the qubits to target with the gate.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
+        +X +Y +Z
+        >>> s.z(0, 1, 2)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(3)))
+        -X -Y +Z
     """
 ```
 
@@ -14081,7 +17320,7 @@ def z(
 # lestim.TableauSimulator.z_error
 
 # (in class lestim.TableauSimulator)
-def y_error(
+def z_error(
     self,
     *targets: int,
     p: float,
@@ -14092,6 +17331,11 @@ def y_error(
         *targets: The indices of the qubits to target with the noise.
         p: The chance of the Z error being applied,
             independently, to each qubit.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.z_error(0, 1, 2, p=0.01)
     """
 ```
 
@@ -14110,6 +17354,18 @@ def zcx(
         *targets: The indices of the qubits to target with the gate.
             Applies the gate to the first two targets, then the next two targets,
             and so forth. There must be an even number of targets.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0, 3)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +X +Y +Z +X
+        >>> s.zcx(0, 1, 2, 3)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +_ +_ +Z +X
     """
 ```
 
@@ -14128,6 +17384,18 @@ def zcy(
         *targets: The indices of the qubits to target with the gate.
             Applies the gate to the first two targets, then the next two targets,
             and so forth. There must be an even number of targets.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0, 3)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +X +Y +Z +X
+        >>> s.zcy(0, 1, 2, 3)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +X +Y +Z +X
     """
 ```
 
@@ -14146,6 +17414,18 @@ def zcz(
         *targets: The indices of the qubits to target with the gate.
             Applies the gate to the first two targets, then the next two targets,
             and so forth. There must be an even number of targets.
+
+    Examples:
+        >>> import lestim
+        >>> s = lestim.TableauSimulator()
+        >>> s.reset_x(0, 3)
+        >>> s.reset_y(1)
+
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +X +Y +Z +X
+        >>> s.zcz(0, 1, 2, 3)
+        >>> print(" ".join(str(s.peek_bloch(k)) for k in range(4)))
+        +_ +_ +Z +X
     """
 ```
 
@@ -14157,15 +17437,15 @@ def zcz(
 @overload
 def gate_data(
     name: str,
-) -> stim.GateData:
+) -> lestim.GateData:
     pass
 @overload
 def gate_data(
-) -> Dict[str, stim.GateData]:
+) -> Dict[str, lestim.GateData]:
     pass
 def gate_data(
     name: Optional[str] = None,
-) -> Union[str, Dict[str, stim.GateData]]:
+) -> Union[str, Dict[str, lestim.GateData]]:
     """Returns gate data for the given named gate, or all gates.
 
     Examples:
@@ -14271,7 +17551,7 @@ def main(
 def read_shot_data_file(
     *,
     path: Union[str, pathlib.Path],
-    format: Union[str, 'Literal["01", "b8", "r8", "ptb64", "hits", "dets"]'],
+    format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"],
     bit_packed: bool = False,
     num_measurements: int = 0,
     num_detectors: int = 0,
@@ -14282,18 +17562,18 @@ def read_shot_data_file(
 def read_shot_data_file(
     *,
     path: Union[str, pathlib.Path],
-    format: Union[str, 'Literal["01", "b8", "r8", "ptb64", "hits", "dets"]'],
+    format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"],
     bit_packed: bool = False,
     num_measurements: int = 0,
     num_detectors: int = 0,
     num_observables: int = 0,
-    separate_observables: 'Literal[True]',
+    separate_observables: Literal[True],
 ) -> Tuple[np.ndarray, np.ndarray]:
     pass
 def read_shot_data_file(
     *,
     path: Union[str, pathlib.Path],
-    format: Union[str, 'Literal["01", "b8", "r8", "ptb64", "hits", "dets"]'],
+    format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"],
     bit_packed: bool = False,
     num_measurements: int = 0,
     num_detectors: int = 0,
@@ -14378,9 +17658,9 @@ def read_shot_data_file(
 
 # (at top-level in the lestim module)
 def target_combined_paulis(
-    paulis: Union[stim.PauliString, List[stim.GateTarget]],
+    paulis: Union[lestim.PauliString, List[lestim.GateTarget]],
     invert: bool = False,
-) -> stim.GateTarget:
+) -> lestim.GateTarget:
     """Returns a list of targets encoding a pauli product for instructions like MPP.
 
     Args:
@@ -14412,7 +17692,7 @@ def target_combined_paulis(
 
 # (at top-level in the lestim module)
 def target_combiner(
-) -> lestim._stim_polyfill.GateTarget:
+) -> lestim.GateTarget:
     """Returns a target combiner that can be used to build Pauli products.
 
     Examples:
@@ -14438,8 +17718,8 @@ def target_combiner(
 
 # (at top-level in the lestim module)
 def target_inv(
-    qubit_index: Union[int, stim.GateTarget],
-) -> stim.GateTarget:
+    qubit_index: Union[int, lestim.GateTarget],
+) -> lestim.GateTarget:
     """Returns a target flagged as inverted.
 
     Inverted targets are used to indicate measurement results should be flipped.
@@ -14468,7 +17748,7 @@ def target_inv(
 # (at top-level in the lestim module)
 def target_logical_observable_id(
     index: int,
-) -> lestim._stim_polyfill.DemTarget:
+) -> lestim.DemTarget:
     """Returns a logical observable id identifying a frame change.
 
     Args:
@@ -14499,7 +17779,7 @@ def target_pauli(
     qubit_index: int,
     pauli: Union[str, int],
     invert: bool = False,
-) -> stim.GateTarget:
+) -> lestim.GateTarget:
     """Returns a pauli target that can be passed into `lestim.Circuit.append`.
 
     Args:
@@ -14543,7 +17823,7 @@ def target_pauli(
 # (at top-level in the lestim module)
 def target_rec(
     lookback_index: int,
-) -> lestim._stim_polyfill.GateTarget:
+) -> lestim.GateTarget:
     """Returns a measurement record target with the given lookback.
 
     Measurement record targets are used to refer back to the measurement record;
@@ -14577,7 +17857,7 @@ def target_rec(
 # (at top-level in the lestim module)
 def target_relative_detector_id(
     index: int,
-) -> lestim._stim_polyfill.DemTarget:
+) -> lestim.DemTarget:
     """Returns a relative detector id (e.g. "D5" in a .dem file).
 
     Args:
@@ -14605,7 +17885,7 @@ def target_relative_detector_id(
 
 # (at top-level in the lestim module)
 def target_separator(
-) -> lestim._stim_polyfill.DemTarget:
+) -> lestim.DemTarget:
     """Returns a target separator (e.g. "^" in a .dem file).
 
     Examples:
@@ -14630,7 +17910,7 @@ def target_separator(
 # (at top-level in the lestim module)
 def target_sweep_bit(
     sweep_bit_index: int,
-) -> lestim._stim_polyfill.GateTarget:
+) -> lestim.GateTarget:
     """Returns a sweep bit target that can be passed into `lestim.Circuit.append`.
 
     Args:
@@ -14653,9 +17933,9 @@ def target_sweep_bit(
 
 # (at top-level in the lestim module)
 def target_x(
-    qubit_index: Union[int, stim.GateTarget],
+    qubit_index: Union[int, lestim.GateTarget],
     invert: bool = False,
-) -> stim.GateTarget:
+) -> lestim.GateTarget:
     """Returns a Pauli X target that can be passed into `lestim.Circuit.append`.
 
     Args:
@@ -14686,9 +17966,9 @@ def target_x(
 
 # (at top-level in the lestim module)
 def target_y(
-    qubit_index: Union[int, stim.GateTarget],
+    qubit_index: Union[int, lestim.GateTarget],
     invert: bool = False,
-) -> stim.GateTarget:
+) -> lestim.GateTarget:
     """Returns a Pauli Y target that can be passed into `lestim.Circuit.append`.
 
     Args:
@@ -14719,9 +17999,9 @@ def target_y(
 
 # (at top-level in the lestim module)
 def target_z(
-    qubit_index: Union[int, stim.GateTarget],
+    qubit_index: Union[int, lestim.GateTarget],
     invert: bool = False,
-) -> stim.GateTarget:
+) -> lestim.GateTarget:
     """Returns a Pauli Z target that can be passed into `lestim.Circuit.append`.
 
     Args:
@@ -14755,7 +18035,7 @@ def write_shot_data_file(
     *,
     data: np.ndarray,
     path: Union[str, pathlib.Path],
-    format: str,
+    format: Literal["01", "b8", "r8", "ptb64", "hits", "dets"],
     num_measurements: int = 0,
     num_detectors: int = 0,
     num_observables: int = 0,
