@@ -67,10 +67,10 @@ For any reference to Stim, please consider using the citation:
 }
 ```
 
-## Build Wheels for Internal PyPI Release
+## Build Wheels for PyPI Publishing
 
 * Branch out of default branch for your release branch with name `release/v*.*.*`.
-* Bump version in `setup.py` and `pyproject.toml`.
-* Make a pull request with `leakage_simulator` as the target branch.
-* Upon merge, create a release on the [GitHub web app](https://github.com/riverlane/le-stim/releases).
-* When the release is created, source and wheel distributions will be built and published on [Riverlane's internal PyPI index](https://riv-pypi.azurewebsites.net/home/)
+* Bump version in `pyproject.toml`.
+* Make a pull request with `main` as the target branch.
+* Upon merge, create a release on the [GitHub web app](https://github.com/Deltakit/deltakit-stim/releases).
+* When the release is created, source and wheel distributions will be built and published on [PyPI](https://pypi.org/project/deltakit-stim/)
