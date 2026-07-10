@@ -2,9 +2,8 @@ name: Publish Deltakit-Stim
 
 name: Build and publish wheels
 on:
-  push:
-    tags:
-      - 'v*'
+  release:
+    types: [published]
   workflow_dispatch:
 
 concurrency:
