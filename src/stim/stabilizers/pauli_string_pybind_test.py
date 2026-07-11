@@ -892,7 +892,7 @@ def test_backwards_compatibility_init():
     # These keywords have been removed from the documentation and the .pyi, but
     # their functionality needs to be maintained for backwards compatibility.
     # noinspection PyArgumentList
-        assert stim.PauliString("_XYZ").pauli_indices("k")
+    assert deltakit_stim.PauliString("_XYZ").pauli_indices("k")
     assert deltakit_stim.PauliString(num_qubits=5) == deltakit_stim.PauliString("+_____")
     # noinspection PyArgumentList
     assert deltakit_stim.PauliString(pauli_indices=[1, 2, 3]) == deltakit_stim.PauliString("+XYZ")

@@ -1327,16 +1327,16 @@ class Circuit:
             A list of flow generators for the circuit.
 
         Examples:
-            >>> import lestim
+            >>> import deltakit_stim
 
-            >>> lestim.Circuit("H 0").flow_generators()
-            [lestim.Flow("X -> Z"), lestim.Flow("Z -> X")]
+            >>> deltakit_stim.Circuit("H 0").flow_generators()
+            [deltakit_stim.Flow("X -> Z"), deltakit_stim.Flow("Z -> X")]
 
-            >>> lestim.Circuit("M 0").flow_generators()
-            [lestim.Flow("1 -> Z xor rec[0]"), lestim.Flow("Z -> rec[0]")]
+            >>> deltakit_stim.Circuit("M 0").flow_generators()
+            [deltakit_stim.Flow("1 -> Z xor rec[0]"), deltakit_stim.Flow("Z -> rec[0]")]
 
-            >>> lestim.Circuit("RX 0").flow_generators()
-            [lestim.Flow("1 -> X")]
+            >>> deltakit_stim.Circuit("RX 0").flow_generators()
+            [deltakit_stim.Flow("1 -> X")]
 
             >>> for flow in deltakit_stim.Circuit("MXX 0 1").flow_generators():
             ...     print(flow)
@@ -1765,11 +1765,6 @@ class Circuit:
                 Instructions before the index are not shifted. Instructions that
                 were at or after the index are shifted forwards as needed.
             operation: The object to insert. This can be a single
-                lestim.CircuitInstruction or an entire lestim.Circuit.
-
-        Examples:
-            >>> import lestim
-            >>> c = lestim.Circuit('''
                 deltakit_stim.CircuitInstruction or an entire deltakit_stim.Circuit.
 
         Examples:
@@ -1962,7 +1957,7 @@ class Circuit:
             get a circuit with no missing detectors.
 
         Examples:
-            >>> import stim
+            >>> import deltakit_stim
 
             >>> deltakit_stim.Circuit('''
             ...     R 0
@@ -2150,7 +2145,7 @@ class Circuit:
             ...     Y 3
             ... ''')
             >>> c.pop()
-            stim.CircuitInstruction('Y', [stim.GateTarget(3)], [])
+            deltakit_stim.CircuitInstruction('Y', [deltakit_stim.GateTarget(3)], [])
             >>> c.pop(1)
             deltakit_stim.CircuitInstruction('S', [deltakit_stim.GateTarget(1)], [])
             >>> c
@@ -2167,7 +2162,7 @@ class Circuit:
         """Determines noiseless parities of the measurement sets of detectors/observables.
 
         BEWARE: the returned values are NOT the "expected value of the
-        detector/observable". Lestim consistently defines the value of a
+        detector/observable". Deltakit-Stim consistently defines the value of a
         detector/observable as whether or not it flipped, so the expected value of a
         detector/observable is vacuously always 0 (not flipped). This method instead
         returns the "sign"; the expected parity of the measurement set declared by the
@@ -4755,11 +4750,11 @@ class CompiledDetectorSampler:
                 Defaults to None. When None, the prng is seeded from system entropy.
 
                 When set to an integer, making the exact same series calls on the exact
-                same machine with the exact same version of Lestim will produce the exact
+                same machine with the exact same version of Stim will produce the exact
                 same simulation results.
 
                 CAUTION: simulation results *WILL NOT* be consistent between versions of
-                Lestim. This restriction is present to make it possible to have future
+                Deltakit-Stim. This restriction is present to make it possible to have future
                 optimizations to the random sampling, and is enforced by introducing
                 intentional differences in the seeding strategy from version to version.
 
@@ -5946,7 +5941,7 @@ class DemTargetWithCoords:
 class DetectorErrorModel:
     """An error model built out of independent error mechanics.
 
-    This class is one of the most important classes in Lestim, because it is the
+    This class is one of the most important classes in Deltakit-Stim, because it is the
     mechanism used to explain circuits to decoders. A typical workflow would
     look something like:
 
@@ -7438,11 +7433,11 @@ class FlipSimulator:
                 copy_rng argument.
 
                 When set to an integer, making the exact same series calls on the exact
-                same machine with the exact same version of Lestim will produce the exact
+                same machine with the exact same version of Stim will produce the exact
                 same simulation results.
 
                 CAUTION: simulation results *WILL NOT* be consistent between versions of
-                Lestim. This restriction is present to make it possible to have future
+                Deltakit-Stim. This restriction is present to make it possible to have future
                 optimizations to the random sampling, and is enforced by introducing
                 intentional differences in the seeding strategy from version to version.
 
@@ -12580,11 +12575,11 @@ class TableauSimulator:
                 Defaults to None. When None, the prng is seeded from system entropy.
 
                 When set to an integer, making the exact same series calls on the exact
-                same machine with the exact same version of Lestim will produce the exact
+                same machine with the exact same version of Stim will produce the exact
                 same simulation results.
 
                 CAUTION: simulation results *WILL NOT* be consistent between versions of
-                Lestim. This restriction is present to make it possible to have future
+                Deltakit-Stim. This restriction is present to make it possible to have future
                 optimizations to the random sampling, and is enforced by introducing
                 intentional differences in the seeding strategy from version to version.
 

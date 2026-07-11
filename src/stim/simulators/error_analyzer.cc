@@ -350,11 +350,8 @@ void ErrorAnalyzer::undo_TWO_QUBIT_GATE_LEAKAGE_ERROR(const CircuitInstruction &
         return;
     }
 
-<<<<<<< HEAD
     LeakageErrorModelCode model = inst.args.size() >= 5 ? static_cast<LeakageErrorModelCode>(inst.args[4]) : LeakageErrorModelCode::DEPOLARIZING_LEAKAGE;
 
-=======
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
     for (size_t k = inst.targets.size() - 2; k + 2 != 0; k -= 2) {
         auto c = inst.targets[k];
         auto t = inst.targets[k + 1];
@@ -465,16 +462,14 @@ void ErrorAnalyzer::undo_TWO_QUBIT_GATE_LEAKAGE_ERROR(const CircuitInstruction &
                             inst.tag,
                             true);
                     }
-<<<<<<< HEAD
-=======
                     const uint32_t depol_candidate = tar == cd ? td : cd;
                     add_error_combinations<3>(
                         {0, 0, 0, 0, 0, pL, pL, pL},
                         {tracker.xs[depol_candidate].range(), tracker.zs[depol_candidate].range(), l_her_bits.range()},
                         false,
                         inst.tag,
-			true);
->>>>>>> 1a67d3a9 (feat: Sync with Stim (#32))
+			                  true);
+
                 }
             }
         }
