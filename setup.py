@@ -23,7 +23,9 @@ else:
     import tomli as tomllib
 
 with open("pyproject.toml", "rb") as f:
-    __version__ = tomllib.load(f)["project"]["version"]
+    pyproject = tomllib.load(f)
+    __version__ = pyproject["project"]["version"]
+    python_version = pyproject["project"]["requires-python"]
 
 ALL_SOURCE_FILES = glob.glob("src/**/*.cc", recursive=True)
 MUX_SOURCE_FILES = glob.glob("src/**/march.pybind.cc", recursive=True)
@@ -136,7 +138,7 @@ else:
 
 setup(
     ext_modules=ext_modules,
-    python_requires='>=3.10,<3.14',
+    python_requires=python_version,
     packages=['deltakit_stim'],
     package_dir={'deltakit_stim': 'glue/python/src/deltakit_stim'},
     package_data={'': [*HEADER_FILES, 'glue/python/src/deltakit_stim/__init__.pyi', 'glue/python/README.md', 'pyproject.toml']},
