@@ -13,10 +13,14 @@ _tmp = _tmp._UNSTABLE_detect_march()
 # if _tmp == 'avx2':
 #     from deltakit_stim._stim_avx2 import *
 #     from deltakit_stim._stim_avx2 import _UNSTABLE_raw_format_data, __version__
-if _tmp == 'avx2' or _tmp == 'sse2':
-    from deltakit_stim._stim_sse2 import *
-    from deltakit_stim._stim_sse2 import _UNSTABLE_raw_format_data, __version__
-else:
+try:
+    if _tmp == 'avx2' or _tmp == 'sse2':
+        from deltakit_stim._stim_sse2 import *
+        from deltakit_stim._stim_sse2 import _UNSTABLE_raw_format_data, __version__
+    else:
+        from deltakit_stim._stim_polyfill import *
+        from deltakit_stim._stim_polyfill import _UNSTABLE_raw_format_data, __version__
+except (ImportError, ModuleNotFoundError):
     from deltakit_stim._stim_polyfill import *
     from deltakit_stim._stim_polyfill import _UNSTABLE_raw_format_data, __version__
 del _tmp
