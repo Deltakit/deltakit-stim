@@ -2288,7 +2288,7 @@ void stim_pybind::pybind_tableau_simulator_methods(
 
     c.def(
         "measure_kickback",
-        [](TableauSimulator<MAX_BITWORD_WIDTH> &self, uint32_t target) {
+        [](TableauSimulator<MAX_BITWORD_WIDTH> &self, uint32_t target) -> pybind11::tuple {
             self.ensure_large_enough_for_qubits(target + 1);
             auto result = self.measure_kickback_z({target});
             if (result.second.num_qubits == 0) {
