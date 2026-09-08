@@ -216,6 +216,9 @@ PATH="/usr/local/opt/llvm@16/bin:$PATH" \
 CPPFLAGS="-I/opt/homebrew/opt/llvm@16/include"
 """
 
+[tool.cibuildwheel.windows]
+archs = "AMD64"
+
 [tool.setuptools]
 include-package-data = true
 
