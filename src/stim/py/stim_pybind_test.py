@@ -305,10 +305,17 @@ def test_target_combined_paulis():
 
 def test_deltakit_stim_stim_compatibility():
     """Show that deltakit-stim can be imported after stim without their python bindings conflicting"""
-    code = "import stim, deltakit_stim"
-    subprocess.run(
+    code = """
+import stim, deltakit_stim
+
+c = deltakit_stim.Circuit()
+for inst in c: print(inst)
+"""
+    result = subprocess.run(
         [sys.executable, "-c", code],
         capture_output=True,
         text=True,
         check=True,
     )
+
+    assert result.returncode == 0
