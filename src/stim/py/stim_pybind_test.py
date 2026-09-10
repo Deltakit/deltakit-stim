@@ -341,4 +341,4 @@ for f in stim.Circuit({circuit!r}).flow_generators():
         check=True,
     )
 
-    assert result.stdout == "1 -> -rec[0]\\n1 -> -Z\\n"
+    assert result.stdout == "1 -> -rec[0]\n1 -> -Z\n"
