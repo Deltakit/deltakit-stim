@@ -326,11 +326,12 @@ def test_deltakit_stim_symbols_compatibility() -> None:
     Show that deltakit can be imported before stim without symbol linking conflicting.
     As an example, test on the flow outputs for a trivial circuit
     """
+    circuit = "R 0\nX 0\nM 0"
     code = """
 import deltakit.explorer.codes  # comment this line out and the output is correct
 import stim
 
-for f in stim.Circuit("R 0\nX 0\nM 0").flow_generators():
+for f in stim.Circuit({circuit!r}).flow_generators():
     print(f)
 """
     result = subprocess.run(
