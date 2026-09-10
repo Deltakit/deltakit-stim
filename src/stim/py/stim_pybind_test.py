@@ -327,7 +327,7 @@ def test_deltakit_stim_symbols_compatibility() -> None:
     As an example, test on the flow outputs for a trivial circuit
     """
     circuit = "R 0\nX 0\nM 0"
-    code = """
+    code = f"""
 import deltakit.explorer.codes  # comment this line out and the output is correct
 import stim
 
