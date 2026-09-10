@@ -99,6 +99,8 @@ stim_polyfill = Extension(
         *common_compile_args,
         *arch_basic,
         '-DSTIM_PYBIND11_MODULE_NAME=_stim_polyfill',
+        "-fvisibility=hidden",
+        "-fvisibility-inlines-hidden",
     ],
 )
 ext_modules.append(stim_polyfill)
