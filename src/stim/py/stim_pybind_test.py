@@ -303,7 +303,7 @@ def test_target_combined_paulis():
         deltakit_stim.target_combined_paulis(deltakit_stim.PauliString("iX"))
 
 
-def test_deltakit_stim_stim_compatibility():
+def test_deltakit_stim_stim_import_compatibility() -> None:
     """Show that deltakit-stim can be imported after stim without their python bindings conflicting"""
     code = """
 import stim, deltakit_stim
@@ -319,3 +319,26 @@ for inst in c: print(inst)
     )
 
     assert result.returncode == 0
+
+
+def test_deltakit_stim_symbols_compatibility() -> None:
+    """
+    Show that deltakit can be imported before stim without symbol linking conflicting.
+    As an example, test on the flow outputs for a trivial circuit
+    """
+    circuit = "R 0\nX 0\nM 0"
+    code = f"""
+import deltakit.explorer.codes  # comment this line out and the output is correct
+import stim
+
+for f in stim.Circuit({circuit!r}).flow_generators():
+    print(f)
+"""
+    result = subprocess.run(
+        [sys.executable, "-c", code],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+
+    assert result.stdout == "1 -> -rec[0]\n1 -> -Z\n"
