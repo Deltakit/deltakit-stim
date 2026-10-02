@@ -1,12 +1,12 @@
 # Deltakit-Stim
 
-Deltakit-Stim is a [Stim](https://github.com/quantumlib/Stim) fork that adds support for non-computational leakage errors and an adaptive detector error model (DEM). It consists of a set of instructions to handle single qubit leakage within Stim's API definition. Specifically:
+Deltakit-Stim is a [Stim](https://github.com/quantumlib/Stim) fork that adds support for non-computational leakage errors and an adaptive detector error model (DEM). It consists of a set of instructions to handle single-qubit leakage within Stim's API definition. Specifically:
 
 - A leakage reset `RL` as a new `GateType`. It returns the indexed qubits in the sealed state, that is the encoded quantum state.
 - A leakage channel `LEAKAGE` as a new `GateType`. It creates a noisy channel for leakage. 
 - A heralded leakage event `HERALD_LEAKAGE_EVENT` as a new `GateType`. It records the noise event in the measurement record.
 
-The adaptive DEM is an extension to current Stim's DEM datastructure to hold metadata associated with non-computational errors (leakage, erasure, atom loss) to be further interpreted by the decoder. It provides additional edge updates to the decoding graph from heralded leakage events which can be pre-processed by the decoder to improve the qubit footprint.
+The adaptive DEM is an extension of Stim's current DEM data structure to hold metadata associated with non-computational errors (leakage, erasure, atom loss) to be further interpreted by the decoder. It provides additional edge updates to the decoding graph from heralded leakage events which can be pre-processed by the decoder to improve the qubit footprint.
 
 
 ## Installation as a Python dependency
@@ -46,7 +46,7 @@ provided a C++ compiler is installed on the system.
 
 ## How Deltakit-Stim works
 
-To get started with deltakit-stim, an example demonstrating how deltakit-stim handles leakage will be introduced. Qubits are designed to operate in two computational states: |0⟩ and |1⟩. However, qubits can sometimes "leak" into higher energy states (|2⟩, |3⟩, etc.) that are outside the computational sub-space. Leakage is a significant source of error as leaked qubits can spread errors to other qubits through multi-qubit gates.
+To get started with deltakit-stim, an example demonstrating how deltakit-stim handles leakage will be introduced. Qubits are designed to operate in two computational states: |0⟩ and |1⟩. However, qubits can sometimes "leak" into higher energy states (|2⟩, |3⟩, etc.) that are outside the computational subspace. Leakage is a significant source of error as leaked qubits can spread errors to other qubits through multi-qubit gates.
 
 **How Deltakit-Stim models leakage differently:**
 
